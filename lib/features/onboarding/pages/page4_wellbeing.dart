@@ -38,23 +38,20 @@ class Page4Wellbeing extends StatelessWidget {
               icon: Icons.bolt_outlined,
               title: 'Energy Metering',
               subtitle: 'Visual gauge of your engagement',
-            ),
+            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 600.ms).slideX(begin: 0.12),
             const SizedBox(height: 10),
             const WellbeingCard(
               icon: Icons.palette_outlined,
               title: 'Dopamine Detox',
               subtitle: 'Grayscale mode to reset your mind',
-            ),
+            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 780.ms).slideX(begin: 0.12),
             const SizedBox(height: 10),
             const WellbeingCard(
               icon: Icons.school_outlined,
               title: 'Study Sessions',
               subtitle: 'Earn XP for focused deep work',
-            ),
-          ]
-              .animate(target: isActive ? 1 : 0, interval: 180.ms, delay: 600.ms)
-              .fadeIn()
-              .slideX(begin: 0.12),
+            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 960.ms).slideX(begin: 0.12),
+          ],
         ),
         const Spacer(),
         Text(

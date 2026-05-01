@@ -3,13 +3,13 @@ import 'package:go_router/go_router.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../core/theme/oasis_colors.dart';
 import '../../../core/theme/oasis_text_styles.dart';
-import '../widgets/oasis_background.dart';
+import 'widgets/oasis_background.dart';
 import 'pages/page1_welcome.dart';
 import 'pages/page2_slow_social.dart';
 import 'pages/page3_canvas.dart';
 import 'pages/page4_wellbeing.dart';
 import 'pages/page5_cta.dart';
-import '../presentation/screens/onboarding_screen.dart';
+import '../auth/presentation/screens/onboarding_screen.dart';
 
 class OnboardingShell extends StatefulWidget {
   const OnboardingShell({super.key});

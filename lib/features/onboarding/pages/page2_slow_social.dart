@@ -48,13 +48,19 @@ class Page2SlowSocial extends StatelessWidget {
             runSpacing: 8,
             alignment: WrapAlignment.center,
             children: [
-              const FeaturePill(label: '🕰 Time Capsules'),
-              const FeaturePill(label: '🔒 Locked Content'),
-              const FeaturePill(label: '✨ Unlock Dates'),
-            ]
-                .animate(target: isActive ? 1 : 0, interval: 120.ms, delay: 900.ms)
-                .fadeIn()
-                .slideY(begin: 0.1),
+              const FeaturePill(label: '🕰 Time Capsules')
+                  .animate(target: isActive ? 1 : 0)
+                  .fadeIn(delay: 900.ms)
+                  .slideY(begin: 0.1),
+              const FeaturePill(label: '🔒 Locked Content')
+                  .animate(target: isActive ? 1 : 0)
+                  .fadeIn(delay: 1020.ms)
+                  .slideY(begin: 0.1),
+              const FeaturePill(label: '✨ Unlock Dates')
+                  .animate(target: isActive ? 1 : 0)
+                  .fadeIn(delay: 1140.ms)
+                  .slideY(begin: 0.1),
+            ],
           ),
         ],
       ),
