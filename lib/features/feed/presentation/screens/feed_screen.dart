@@ -45,7 +45,6 @@ class _FeedScreenState extends State<FeedScreen>
   Timer? _wellbeingTimer;
   bool _showWellbeingNudge = false;
   bool _showRipplesOverlay = false;
-  bool _showDeepBreath = true; // Show on first load
 
   // Desktop Comment Pane State
   String? _selectedPostId;
@@ -484,122 +483,8 @@ class _FeedScreenState extends State<FeedScreen>
             ),
           const LockoutOverlay(pageName: 'Feed'),
           if (_showWellbeingNudge) _buildWellbeingNudge(),
-          if (_showDeepBreath) _buildDeepBreath(),
         ],
       ),
-      ),
-    );
-  }
-
-  Widget _buildDeepBreath() {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-        child: Container(
-          color: OasisColors.deep.withValues(alpha: 0.9),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                motion.Animate(
-                  onPlay: (controller) => controller.repeat(reverse: true),
-                  effects: [
-                    motion.ScaleEffect(
-                      begin: const Offset(1.0, 1.0),
-                      end: const Offset(1.2, 1.2),
-                      duration: const Duration(seconds: 4),
-                      curve: Curves.easeInOut,
-                    ),
-                    motion.FadeEffect(
-                      begin: 0.4,
-                      end: 0.8,
-                      duration: const Duration(seconds: 4),
-                    ),
-                  ],
-                  child: Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: OasisColors.glow.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: OasisColors.glow.withValues(alpha: 0.2),
-                          blurRadius: 40,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 64),
-                motion.Animate(
-                  effects: const [
-                    motion.FadeEffect(
-                      delay: Duration(milliseconds: 500),
-                      duration: Duration(seconds: 2),
-                    ),
-                  ],
-                  child: Text(
-                    'Take a deep breath',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontFamily: 'Cormorant Garamond',
-                      fontStyle: FontStyle.italic,
-                      color: OasisColors.sand,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                motion.Animate(
-                  effects: const [
-                    motion.FadeEffect(
-                      delay: Duration(seconds: 2),
-                      duration: Duration(seconds: 1),
-                    ),
-                  ],
-                  child: Text(
-                    'Enter Oasis with intention.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: OasisColors.mist,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 64),
-                motion.Animate(
-                  effects: const [
-                    motion.FadeEffect(
-                      delay: Duration(seconds: 3),
-                      duration: Duration(seconds: 1),
-                    ),
-                  ],
-                  child: TextButton(
-                    onPressed: () => setState(() => _showDeepBreath = false),
-                    style: TextButton.styleFrom(
-                      foregroundColor: OasisColors.glow,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
-                        vertical: 16,
-                      ),
-                    ),
-                    child: const Text(
-                      'I AM PRESENT',
-                      style: TextStyle(
-                        letterSpacing: 2,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }

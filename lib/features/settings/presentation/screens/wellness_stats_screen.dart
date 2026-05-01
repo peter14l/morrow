@@ -72,7 +72,7 @@ class WellnessStatsScreen extends StatelessWidget {
               ),
               children: [
                 // XP Summary Card
-                _buildXPCard(theme, isOwnProfile ? xp : displayXp),
+                _buildXPCard(theme, isOwnProfile ? wellness.totalXp : displayXp),
                 const SizedBox(height: 24),
 
                 // Focus Session Stats

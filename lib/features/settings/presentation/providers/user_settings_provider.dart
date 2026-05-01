@@ -20,7 +20,6 @@ class UserSettingsProvider with ChangeNotifier {
   bool get dataSaver => _settings.dataSaver;
   double get fontSizeFactor => _settings.fontSizeFactor;
   bool get highContrast => _settings.highContrast;
-  bool get meshEnabled => _settings.meshEnabled;
   int get dailyLimitMinutes => _settings.dailyLimitMinutes;
   bool get windDownEnabled => _settings.windDownEnabled;
   bool get micaEnabled => _settings.micaEnabled;
@@ -90,10 +89,6 @@ class UserSettingsProvider with ChangeNotifier {
 
   Future<void> setWindDownEnabled(bool value) async {
     await _updateAndSave(_settings.copyWith(windDownEnabled: value));
-  }
-
-  Future<void> setMeshEnabled(bool value) async {
-    await _updateAndSave(_settings.copyWith(meshEnabled: value));
   }
 
   Future<void> setDataSaver(bool value) async {

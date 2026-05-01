@@ -30,6 +30,10 @@ abstract class AppUser with _$AppUser {
 
   factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
 
+  int get safeFollowersCount => followersCount < 0 ? 0 : followersCount;
+  int get safeFollowingCount => followingCount < 0 ? 0 : followingCount;
+  int get safePostsCount => postsCount < 0 ? 0 : postsCount;
+
   String get displayNameOrUsername => displayName ?? username;
 
   static const empty = AppUser(id: '', username: '', email: '');

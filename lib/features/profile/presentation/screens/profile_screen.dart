@@ -459,7 +459,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   _buildFluentStatItem('${profile.postsCount}', 'posts'),
                   const SizedBox(width: 32),
                   _buildFluentStatItem(
-                    '${profile.followersCount}',
+                    '${profile.safeFollowersCount}',
                     'followers',
                     onTap: () => context.push('/profile/${profile.id}/followers'),
                   ),
@@ -643,7 +643,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
           const SizedBox(height: 16),
-          WellnessBadge(xp: profile.xp),
+          WellnessBadge(xp: profile.safeXp),
           const SizedBox(height: 16),
           Text(
             'Level ${profile.level}',
@@ -986,7 +986,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           children: [
             _buildDesktopStatItem('${profile.postsCount}', 'posts'),
             _buildDesktopStatItem(
-              '${profile.followersCount}',
+              '${profile.safeFollowersCount}',
               'followers',
               onTap: () => context.push('/profile/${profile.id}/followers'),
             ),
@@ -1013,7 +1013,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
         const SizedBox(height: 16),
-        WellnessBadge(xp: profile.xp),
+        WellnessBadge(xp: profile.safeXp),
       ],
     );
   }
@@ -1430,7 +1430,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     ),
                   ),
                   const SizedBox(height: 8),
-                  WellnessBadge(xp: profile.xp),
+                  WellnessBadge(xp: profile.safeXp),
                 ],
               ),
             ),
@@ -1490,7 +1490,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             onTap: () => context.push('/profile/${profile.id}/followers'),
             child: _buildStatItem(
               'Followers',
-              '${profile.followersCount}',
+              '${profile.safeFollowersCount}',
               theme,
             ),
           ),

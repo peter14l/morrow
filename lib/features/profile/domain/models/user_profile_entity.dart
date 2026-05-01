@@ -27,6 +27,11 @@ class UserProfileEntity {
   final DateTime createdAt;
 
   String get displayName => (fullName != null && fullName!.isNotEmpty) ? fullName! : username;
+  
+  int get safeFollowersCount => followersCount < 0 ? 0 : followersCount;
+  int get safeFollowingCount => followingCount < 0 ? 0 : followingCount;
+  int get safePostsCount => postsCount < 0 ? 0 : postsCount;
+  int get safeXp => xp < 0 ? 0 : xp;
 
   const UserProfileEntity({
     required this.id,

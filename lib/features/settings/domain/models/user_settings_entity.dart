@@ -5,7 +5,6 @@ class UserSettingsEntity extends Equatable {
   final bool dataSaver;
   final double fontSizeFactor;
   final bool highContrast;
-  final bool meshEnabled;
   final int dailyLimitMinutes;
   final bool windDownEnabled;
   final bool micaEnabled;
@@ -17,7 +16,6 @@ class UserSettingsEntity extends Equatable {
     this.dataSaver = false,
     this.fontSizeFactor = 1.0,
     this.highContrast = false,
-    this.meshEnabled = false,
     this.dailyLimitMinutes = 0,
     this.windDownEnabled = false,
     this.micaEnabled = false,
@@ -30,7 +28,6 @@ class UserSettingsEntity extends Equatable {
     bool? dataSaver,
     double? fontSizeFactor,
     bool? highContrast,
-    bool? meshEnabled,
     int? dailyLimitMinutes,
     bool? windDownEnabled,
     bool? micaEnabled,
@@ -42,7 +39,6 @@ class UserSettingsEntity extends Equatable {
       dataSaver: dataSaver ?? this.dataSaver,
       fontSizeFactor: fontSizeFactor ?? this.fontSizeFactor,
       highContrast: highContrast ?? this.highContrast,
-      meshEnabled: meshEnabled ?? this.meshEnabled,
       dailyLimitMinutes: dailyLimitMinutes ?? this.dailyLimitMinutes,
       windDownEnabled: windDownEnabled ?? this.windDownEnabled,
       micaEnabled: micaEnabled ?? this.micaEnabled,
@@ -57,7 +53,6 @@ class UserSettingsEntity extends Equatable {
     dataSaver,
     fontSizeFactor,
     highContrast,
-    meshEnabled,
     dailyLimitMinutes,
     windDownEnabled,
     micaEnabled,

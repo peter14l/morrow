@@ -820,30 +820,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       _buildSettingsTile(
         context,
-        icon: material.Icons.auto_awesome_motion_outlined,
-        title: 'Mesh Background',
-        subtitle: 'Dynamic living background.',
-        iconColor: material.Colors.indigo,
-        trailing: useFluent
-          ? fluent.ToggleSwitch(
-              checked: userSettingsProvider.meshEnabled,
-              onChanged: (v) {
-                if (v && themeProvider.isM3EEnabled) themeProvider.setM3EEnabled(false);
-                userSettingsProvider.setMeshEnabled(v);
-              },
-            )
-          : material.Switch(
-              value: userSettingsProvider.meshEnabled,
-              onChanged: (v) {
-                if (v && themeProvider.isM3EEnabled) {
-                  themeProvider.setM3EEnabled(false);
-                }
-                userSettingsProvider.setMeshEnabled(v);
-              },
-            ),
-      ),
-      _buildSettingsTile(
-        context,
         icon: material.Icons.rocket_launch_outlined,
         title: 'M3 Expressive',
         subtitle: 'Vibrant & high-contrast design.',
@@ -852,16 +828,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? fluent.ToggleSwitch(
               checked: themeProvider.isM3EEnabled,
               onChanged: (v) {
-                if (v && userSettingsProvider.meshEnabled) userSettingsProvider.setMeshEnabled(false);
                 themeProvider.setM3EEnabled(v);
               },
             )
           : material.Switch(
               value: themeProvider.isM3EEnabled,
               onChanged: (v) {
-                if (v && userSettingsProvider.meshEnabled) {
-                  userSettingsProvider.setMeshEnabled(false);
-                }
                 themeProvider.setM3EEnabled(v);
               },
             ),

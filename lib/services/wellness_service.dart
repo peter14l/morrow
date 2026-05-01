@@ -91,6 +91,8 @@ class WellnessService extends ChangeNotifier {
   int _dailyGoalMinutes = 60;
   List<WellnessAchievement> _achievements = [];
 
+  int _totalXp = 0;
+
   WellnessService(this._prefs) {
     _loadSettings();
     _startWindDownMonitor();
@@ -137,6 +139,7 @@ class WellnessService extends ChangeNotifier {
   void _loadSettings() {
     _zenModeEnabled = _prefs.getBool(_zenModeKey) ?? false;
     _allowCallsDuringZen = _prefs.getBool(_allowCallsDuringZenKey) ?? true;
+    _totalXp = _prefs.getInt('total_xp') ?? 0;
 
     final scheduleJson = _prefs.getString(_zenModeScheduleKey);
     if (scheduleJson != null) {
@@ -188,6 +191,7 @@ class WellnessService extends ChangeNotifier {
   double get windDownDimLevel => _windDownDimLevel;
   int get dailyGoalMinutes => _dailyGoalMinutes;
   List<WellnessAchievement> get achievements => _achievements;
+  int get totalXp => _totalXp;
 
   // Zen Mode methods
   Future<void> setZenModeEnabled(bool enabled) async {
@@ -265,7 +269,11 @@ class WellnessService extends ChangeNotifier {
         'user_id': user.id,
         'xp_amount': amount,
       });
-      debugPrint('XP Updated: $amount');
+      debugPrint('XP Updated via RPC: $amount');
+      
+      _totalXp = (_totalXp + amount) < 0 ? 0 : (_totalXp + amount);
+      await _prefs.setInt('total_xp', _totalXp);
+      notifyListeners();
     } catch (e) {
       debugPrint('Error updating XP: $e');
     }
