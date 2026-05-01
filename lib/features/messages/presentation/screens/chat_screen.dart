@@ -1048,8 +1048,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       isDesktop: isDesktop,
                       isDetailsOpen: widget.isDetailsOpen,
                       onDetailsToggle: _openChatDetails,
-                      // onCallPressed: () => _initiateCall(CallType.voice),
-                      // onVideoCallPressed: () => _initiateCall(CallType.video),
+                      onCallPressed: () => _initiateCall(CallType.voice),
+                      onVideoCallPressed: () => _initiateCall(CallType.video),
                       backgroundUrl: state.backgroundUrl,
                     ),
 
