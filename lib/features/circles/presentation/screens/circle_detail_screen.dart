@@ -8,6 +8,7 @@ import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
 import 'package:oasis/features/feed/presentation/screens/comments_screen.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
+import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/feed/presentation/screens/create_post_screen.dart';
 
 class CircleDetailScreen extends StatefulWidget {
@@ -197,11 +198,23 @@ class _FeedTab extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (context) => CommentsScreen(post: post),
+                    builder: (context) => CommentsScreen(postId: post.id),
                   );
                 },
                 onShare: () {
-                  ShareToDMModal.show(context, post: post);
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ShareToDirectMessageModal(
+                      title: 'Share Post',
+                      content: post.content,
+                      messageType: MessageType.postShare,
+                      postId: post.id,
+                      mediaUrl: post.mediaUrls.isNotEmpty ? post.mediaUrls.first : null,
+                      shareData: post.toJson(),
+                    ),
+                  );
                 },
                 onDelete: () {
                    // Implement delete if needed

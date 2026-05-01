@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
-import 'package:oasis/features/profile/domain/models/profile_models.dart';
+import 'package:oasis/features/profile/domain/models/user_profile_entity.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class CreateCircleScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
   final _nameController = TextEditingController();
   String _selectedEmoji = '🌊';
   bool _isLoading = false;
-  final List<ProfileEntity> _selectedMembers = [];
+  final List<UserProfileEntity> _selectedMembers = [];
 
   static const _emojis = [
     '🌊', '🔥', '⚡', '🌿', '🎯', '💫', '🦋', '✨', 
@@ -78,7 +78,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
     }
   }
 
-  void _toggleMember(ProfileEntity profile) {
+  void _toggleMember(UserProfileEntity profile) {
     setState(() {
       if (_selectedMembers.any((m) => m.id == profile.id)) {
         _selectedMembers.removeWhere((m) => m.id == profile.id);

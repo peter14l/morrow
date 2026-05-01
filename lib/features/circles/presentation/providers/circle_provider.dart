@@ -104,6 +104,30 @@ class CircleProvider with ChangeNotifier {
     }
   }
 
+  Future<void> addCommitment({
+    required String createdBy,
+    required String title,
+    String? description,
+    DateTime? dueDate,
+  }) async {
+    if (_state.activeCircle == null) return;
+    
+    try {
+      final commitment = await _repository.createCommitment(
+        circleId: _state.activeCircle!.id,
+        createdBy: createdBy,
+        title: title,
+        description: description,
+        dueDate: dueDate,
+      );
+      // You might want to update local state here if you have a list of commitments
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[CircleProvider] addCommitment error: $e');
+      rethrow;
+    }
+  }
+
   Future<void> loadCircles(String userId, {bool forceRefresh = false}) async {
     if (_state.circles.isNotEmpty && !forceRefresh) return;
 

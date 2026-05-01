@@ -16,6 +16,32 @@ class PostService {
   final NotificationService _notificationService = NotificationService();
   final S3StorageService _s3StorageService = S3StorageService();
 
+  /// Upload a single media file and return its public URL
+  Future<String> uploadPostMedia(String userId, File file) async {
+    try {
+      final fileExt = file.path.split('.').last;
+      final fileName = '${_uuid.v4()}.$fileExt';
+      final path = '$userId/$fileName';
+      
+      final mimeType = fileExt.toLowerCase() == 'mp4' || fileExt.toLowerCase() == 'mov' 
+          ? 'video/$fileExt' 
+          : 'image/$fileExt';
+
+      await _supabase.storage.from(SupabaseConfig.postImagesBucket).upload(
+        path,
+        file,
+        fileOptions: FileOptions(contentType: mimeType),
+      );
+
+      return _supabase.storage
+          .from(SupabaseConfig.postImagesBucket)
+          .getPublicUrl(path);
+    } catch (e) {
+      debugPrint('Error uploading media to Supabase: $e');
+      throw Exception('Failed to upload media');
+    }
+  }
+
   /// Create a new post
   Future<Post> createPost({
     required String userId,
