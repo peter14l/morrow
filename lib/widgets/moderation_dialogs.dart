@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/auth_service.dart';
+import 'package:oasis/services/moderation_service.dart';
 import 'package:oasis/models/moderation.dart';
 import 'package:oasis/themes/app_colors.dart';
 import 'package:oasis/widgets/custom_snackbar.dart';
