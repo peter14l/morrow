@@ -1,17 +1,25 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function AuthSuccessPage() {
+  useEffect(() => {
+    // Attempt to automatically open the app on mobile devices
+    const timer = setTimeout(() => {
+      window.location.href = "oasis://";
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <main className="min-h-screen bg-oasis-deep flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-oasis-glow/5 rounded-full blur-[120px]" />
-      
-      <motion.div 
+
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
@@ -26,7 +34,7 @@ export default function AuthSuccessPage() {
         <h1 className="font-cormorant text-4xl italic text-oasis-sand mb-4 leading-tight">
           Verification Successful
         </h1>
-        
+
         <p className="font-geist text-oasis-mist mb-10 leading-relaxed text-lg">
           Your email has been verified. You're now ready to join the Oasis community.
         </p>
@@ -35,16 +43,23 @@ export default function AuthSuccessPage() {
           <div className="p-4 bg-oasis-moss/40 border border-oasis-sage/20 rounded-2xl">
             <p className="font-space-mono text-xs uppercase tracking-widest text-oasis-glow mb-2">Next Step</p>
             <p className="font-geist text-sm text-oasis-mist">
-              Open the Oasis app on your device and sign in with your credentials.
+              Return to the Oasis app on your device and sign in.
             </p>
           </div>
 
-          <Link 
-            href="/"
+          <a
+            href="oasis://"
             className="flex items-center justify-center gap-2 w-full py-4 bg-oasis-glow text-oasis-deep rounded-full font-space-mono font-bold hover:shadow-[0_0_30px_rgba(127,255,212,0.4)] transition-all"
           >
-            Go to Home
+            Open App to Sign In
             <ArrowRight size={18} />
+          </a>
+
+          <Link
+            href="/"
+            className="flex items-center justify-center gap-2 w-full py-3 border border-oasis-glow/30 text-oasis-mist rounded-full font-space-mono text-sm hover:bg-oasis-glow/5 transition-all mt-4"
+          >
+            Go to Website
           </Link>
         </div>
       </motion.div>

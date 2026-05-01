@@ -10,6 +10,7 @@ import 'package:oasis/services/post_service.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
+import 'package:oasis/core/config/app_config.dart';
 import 'package:share_plus/share_plus.dart';
 
 class PostDetailsScreen extends StatefulWidget {
