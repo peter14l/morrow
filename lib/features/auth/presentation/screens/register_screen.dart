@@ -127,7 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Registration successful! Please sign in.'),
+              content: Text('Registration successful! Check your email for verification, and also check your spam folder.'),
             ),
           );
           context.go('/login');
