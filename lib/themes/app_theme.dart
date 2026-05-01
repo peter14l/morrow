@@ -213,13 +213,14 @@ class AppTheme {
         textTheme: textTheme,
         scaffoldBackgroundColor: scaffoldBackground,
         snackBarTheme: SnackBarThemeData(
-          backgroundColor: isDark ? OasisColors.moss : _m3eLightSurfaceContainerHighest,
+          backgroundColor: colorScheme.surfaceContainerHighest,
           contentTextStyle: _getTextStyle(
             fontFamily: defaultBodyFont,
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: isDark ? OasisColors.white : _m3eLightOnSurface,
+            color: colorScheme.onSurfaceVariant,
           ),
+          actionTextColor: colorScheme.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -515,6 +516,18 @@ class AppTheme {
             color: color,
           );
         }),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: colorScheme.surfaceContainerHighest,
+        contentTextStyle: _getTextStyle(
+          fontFamily: defaultBodyFont,
+          fontSize: 14,
+          fontWeight: FontWeight.w500,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        actionTextColor: colorScheme.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       extensions: [isDark ? AppThemeExtension.dark : AppThemeExtension.light],
     );

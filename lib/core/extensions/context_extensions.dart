@@ -47,10 +47,14 @@ extension ContextX on BuildContext {
     Duration duration = const Duration(seconds: 3),
     SnackBarAction? action,
     Color? backgroundColor,
+    Color? textColor,
   }) {
     ScaffoldMessenger.of(this).showSnackBar(
       SnackBar(
-        content: Text(message),
+        content: Text(
+          message,
+          style: textColor != null ? TextStyle(color: textColor) : null,
+        ),
         duration: duration,
         action: action,
         backgroundColor: backgroundColor,
@@ -60,12 +64,22 @@ extension ContextX on BuildContext {
 
   /// Show an error SnackBar.
   void showErrorSnackBar(String message) {
-    showSnackBar(message, backgroundColor: colorScheme.error);
+    showSnackBar(
+      message,
+      backgroundColor: colorScheme.errorContainer,
+      textColor: colorScheme.onErrorContainer,
+    );
   }
 
   /// Show a success SnackBar.
   void showSuccessSnackBar(String message) {
-    showSnackBar(message, backgroundColor: Colors.green);
+    // Using tertiary for success in M3 Expressive context if available,
+    // otherwise a custom success color from theme extensions or default green.
+    showSnackBar(
+      message,
+      backgroundColor: colorScheme.tertiaryContainer,
+      textColor: colorScheme.onTertiaryContainer,
+    );
   }
 
   /// Show a modal bottom sheet.
