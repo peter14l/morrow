@@ -114,6 +114,8 @@ import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/feed/presentation/widgets/polls/poll_widgets.dart';
 import 'package:oasis/widgets/spoiler_widget.dart';
 import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart';
+import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -219,27 +221,6 @@ class _PostCardState extends State<PostCard>
         builder: (context) {
           return fluent.MenuFlyout(
             items: [
-              /*
-              fluent.MenuFlyoutItem(
-                onPressed: () {
-                  _handleLike();
-                },
-                leading: Icon(
-                  widget.post.isLiked
-                      ? fluent.FluentIcons.heart_fill
-                      : fluent.FluentIcons.heart,
-                  color: widget.post.isLiked ? Colors.red : null,
-                ),
-                text: Text(widget.post.isLiked ? 'Unlike' : 'Like'),
-              ),
-              fluent.MenuFlyoutItem(
-                onPressed: () {
-                  widget.onComment?.call();
-                },
-                leading: const Icon(fluent.FluentIcons.comment),
-                text: const Text('Comment'),
-              ),
-              */
               if (widget.isOwnPost)
                 fluent.MenuFlyoutItem(
                   onPressed: _confirmDelete,
@@ -311,26 +292,6 @@ class _PostCardState extends State<PostCard>
           ),
         ),
         items: [
-          /*
-          PopupMenuItem(
-            onTap: _handleLike,
-            child: _buildMenuRow(
-              widget.post.isLiked
-                  ? FluentIcons.heart_24_filled
-                  : FluentIcons.heart_24_regular,
-              widget.post.isLiked ? 'Unlike' : 'Like',
-              widget.post.isLiked ? Colors.red : colorScheme.onSurface,
-            ),
-          ),
-          PopupMenuItem(
-            onTap: widget.onComment,
-            child: _buildMenuRow(
-              FluentIcons.chat_24_regular,
-              'Comment',
-              colorScheme.onSurface,
-            ),
-          ),
-          */
           if (widget.isOwnPost)
             PopupMenuItem(
               onTap: _confirmDelete,
@@ -403,29 +364,6 @@ class _PostCardState extends State<PostCard>
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  /*
-                  _buildMoreTile(
-                    context,
-                    icon: widget.post.isLiked
-                        ? FluentIcons.heart_24_filled
-                        : FluentIcons.heart_24_regular,
-                    title: widget.post.isLiked ? 'Unlike' : 'Like',
-                    titleColor: widget.post.isLiked ? Colors.red : null,
-                    onTap: () {
-                      Navigator.pop(context);
-                      _handleLike();
-                    },
-                  ),
-                  _buildMoreTile(
-                    context,
-                    icon: FluentIcons.chat_24_regular,
-                    title: 'Comment',
-                    onTap: () {
-                      Navigator.pop(context);
-                      widget.onComment?.call();
-                    },
-                  ),
-                  */
                   if (widget.isOwnPost) ...[
                     _buildMoreTile(
                       context,
@@ -477,12 +415,6 @@ class _PostCardState extends State<PostCard>
         ),
       ),
     );
-  }
-
-  void _shareToDM() {
-     ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Direct sharing is disabled for intentionality.')),
-      );
   }
 
   Widget _buildMenuRow(IconData icon, String label, Color color) {
@@ -556,7 +488,7 @@ class _PostCardState extends State<PostCard>
 
   void _copyPostLink() {
     final postLink = AppConfig.getWebUrl('/post/${widget.post.id}');
-    Clipboard.setData(ClipboardData(text: postLink));
+    Clipboard.setData(ClipboardData(text: ClipboardData(text: postLink).text ?? ''));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Link copied to clipboard'),
@@ -587,7 +519,7 @@ class _PostCardState extends State<PostCard>
 
     return CachedNetworkImage(
       imageUrl: url,
-      fit: BoxFit.contain, // Properly fit the image in the container
+      fit: BoxFit.contain,
       width: double.infinity,
       placeholder: (context, url) => Container(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -610,7 +542,20 @@ class _PostCardState extends State<PostCard>
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
     final cardRadius = isM3E ? 28.0 : (isDesktop ? 16.0 : 24.0);
 
-    // M3E: Solid tonal surfaces instead of gradients
+    final currentUserId = AuthService().currentUser?.id;
+    final isCirclePost = widget.post.circleId != null;
+    
+    bool showMembershipOverlay = false;
+    final activeCircle = context.read<CircleProvider>().activeCircle;
+    
+    // In circles we might not have 'activeCircle' set globally in every context (e.g. nested lists)
+    // But for shared posts viewed outside of its circle detail, we show overlay.
+    if (isCirclePost && (activeCircle == null || activeCircle.id != widget.post.circleId)) {
+        // Here we'd ideally check if currentUserId is in circle_members
+        // For now, if it's a circle post and we aren't in that circle's view, show overlay.
+        showMembershipOverlay = true;
+    }
+
     final cardDecoration = BoxDecoration(
       gradient: (isM3E && !disableTransparency)
           ? LinearGradient(
@@ -740,7 +685,6 @@ class _PostCardState extends State<PostCard>
                       return Column(
                         children: [
                           GestureDetector(
-                            // onDoubleTap: () => _handleLike(forceLike: true),
                             onLongPress: _showMoreOptions,
                             child: Container(
                               width: double.infinity,
@@ -821,7 +765,6 @@ class _PostCardState extends State<PostCard>
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      /*
                       ScaleTransition(
                         scale: _likeAnimation,
                         child: fluent.IconButton(
@@ -835,8 +778,19 @@ class _PostCardState extends State<PostCard>
                           onPressed: _handleLike,
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      */
+                      if (widget.post.likes > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.post.likes}',
+                          style: fluent.FluentTheme.of(context).typography.caption,
+                        ),
+                      ],
+                      const SizedBox(width: 16),
+                      fluent.IconButton(
+                        icon: const Icon(fluent.FluentIcons.comment, size: 20),
+                        onPressed: widget.onComment,
+                      ),
+                      const SizedBox(width: 16),
                       fluent.IconButton(
                         icon: const Icon(fluent.FluentIcons.share, size: 20),
                         onPressed: widget.onShare,
@@ -1039,7 +993,6 @@ class _PostCardState extends State<PostCard>
                       final mediaContent = Column(
                         children: [
                           GestureDetector(
-                            // onDoubleTap: () => _handleLike(forceLike: true),
                             onLongPress: _showMoreOptions,
                             child: Container(
                               width: double.infinity,
@@ -1091,7 +1044,7 @@ class _PostCardState extends State<PostCard>
                                       shape: BoxShape.circle,
                                       color: colorScheme.onSurface.withValues(
                                         alpha: 0.2,
-                                      ), // Simple dot for now
+                                      ),
                                     ),
                                   );
                                 }),
@@ -1108,7 +1061,7 @@ class _PostCardState extends State<PostCard>
                   ),
                 ],
 
-                // Caption (if no image or before actions)
+                // Caption
                 if (widget.post.content != null &&
                     widget.post.content!.isNotEmpty)
                   Padding(
@@ -1164,7 +1117,7 @@ class _PostCardState extends State<PostCard>
                     ),
                   ),
 
-                // Poll (if exists)
+                // Poll
                 if (widget.post.poll != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -1188,7 +1141,6 @@ class _PostCardState extends State<PostCard>
                   ),
                   child: Row(
                     children: [
-                      /*
                       ScaleTransition(
                         scale: _likeAnimation,
                         child: IconButton(
@@ -1203,32 +1155,32 @@ class _PostCardState extends State<PostCard>
                             size: isDesktop ? 28 : 32,
                           ),
                           onPressed: _handleLike,
-                          padding: isDesktop
-                              ? const EdgeInsets.all(8)
-                              : const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(8),
                           constraints: null,
                         ),
                       ),
-                      const SizedBox(width: 20),
-                      */
-                      IconButton(
-                        key: const ValueKey('post_card_privacy_indicator'),
-                        icon: Icon(
-                          FluentIcons.lock_shield_24_regular,
-                          size: isDesktop ? 26 : 28,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      if (widget.post.likes > 0) ...[
+                        const SizedBox(width: 4),
+                        Text(
+                          '${widget.post.likes}',
+                          style: theme.textTheme.labelLarge?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        onPressed: () {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('This post is protected by Oasis Community Privacy.')),
-                          );
-                        },
-                        padding: isDesktop
-                            ? const EdgeInsets.all(8)
-                            : const EdgeInsets.all(8),
+                      ],
+                      const SizedBox(width: 12),
+                      IconButton(
+                        key: const ValueKey('post_card_comment_button'),
+                        icon: Icon(
+                          FluentIcons.chat_24_regular,
+                          size: isDesktop ? 26 : 28,
+                        ),
+                        onPressed: widget.onComment,
+                        padding: const EdgeInsets.all(8),
                         constraints: null,
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 12),
                        IconButton(
                         key: const ValueKey('post_card_share_button'),
                         icon: Icon(
@@ -1236,9 +1188,7 @@ class _PostCardState extends State<PostCard>
                           size: isDesktop ? 26 : 28,
                         ),
                         onPressed: widget.onShare,
-                        padding: isDesktop
-                            ? const EdgeInsets.all(8)
-                            : const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         constraints: null,
                       ),
                       Spacer(),
@@ -1254,9 +1204,7 @@ class _PostCardState extends State<PostCard>
                           size: isDesktop ? 26 : 28,
                         ),
                         onPressed: widget.onBookmark,
-                        padding: isDesktop
-                            ? const EdgeInsets.all(8)
-                            : const EdgeInsets.all(8),
+                        padding: const EdgeInsets.all(8),
                         constraints: null,
                       ),
                     ],
@@ -1281,12 +1229,62 @@ class _PostCardState extends State<PostCard>
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(cardRadius),
-            child: disableTransparency
-                ? cardContent
-                : BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                    child: cardContent,
+            child: Stack(
+              children: [
+                disableTransparency
+                    ? cardContent
+                    : BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                        child: cardContent,
+                      ),
+                if (showMembershipOverlay)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(cardRadius),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(cardRadius),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  FluentIcons.lock_shield_24_filled,
+                                  color: Colors.white70,
+                                  size: 48,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Private Circle Post',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                                  child: Text(
+                                    'You cannot view this post. You are not a Circle Member.',
+                                    textAlign: TextAlign.center,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.white70,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1300,15 +1298,10 @@ class _PostCardState extends State<PostCard>
     bool isDesktop = true,
     bool isM3E = false,
   ]) {
-    final String content = widget.post.username + ' ' + (widget.post.content ?? '');
+    final String content = (widget.post.content ?? '');
     
-    // Parse Discord-style spoilers: ||spoiler||
-    final List<Widget> children = [];
     final RegExp spoilerRegExp = RegExp(r'\|\|(.*?)\|\|');
-    int lastMatchEnd = 0;
-
-    final Iterable<RegExpMatch> matches = spoilerRegExp.allMatches(content);
-
+    
     final baseStyle = isDesktop
         ? theme.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.4)
         : theme.textTheme.bodyMedium;
@@ -1318,34 +1311,16 @@ class _PostCardState extends State<PostCard>
       letterSpacing: isM3E ? -0.2 : 0,
     );
 
-    if (matches.isEmpty) {
-      return RichText(
-        text: TextSpan(
-          style: baseStyle,
-          children: [
-            TextSpan(
-              text: '${widget.post.username} ',
-              style: usernameStyle,
-            ),
-            TextSpan(text: widget.post.content),
-          ],
-        ),
-      );
-    }
-
-    // Since we need to wrap the username separately if it's not part of a spoiler
-    // but the regex works on the whole string, let's just parse the content part.
-    final String postContent = widget.post.content ?? '';
-    final Iterable<RegExpMatch> contentMatches = spoilerRegExp.allMatches(postContent);
-    
     final List<Widget> wrapChildren = [];
     wrapChildren.add(Text('${widget.post.username} ', style: baseStyle?.merge(usernameStyle)));
 
-    lastMatchEnd = 0;
+    int lastMatchEnd = 0;
+    final Iterable<RegExpMatch> contentMatches = spoilerRegExp.allMatches(content);
+    
     for (final match in contentMatches) {
       if (match.start > lastMatchEnd) {
         wrapChildren.add(Text(
-          postContent.substring(lastMatchEnd, match.start),
+          content.substring(lastMatchEnd, match.start),
           style: baseStyle,
         ));
       }
@@ -1360,9 +1335,9 @@ class _PostCardState extends State<PostCard>
       lastMatchEnd = match.end;
     }
 
-    if (lastMatchEnd < postContent.length) {
+    if (lastMatchEnd < content.length) {
       wrapChildren.add(Text(
-        postContent.substring(lastMatchEnd),
+        content.substring(lastMatchEnd),
         style: baseStyle,
       ));
     }

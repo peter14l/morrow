@@ -1,4 +1,5 @@
 import 'package:oasis/features/circles/domain/models/circles_models.dart';
+import 'package:oasis/features/feed/domain/models/post.dart';
 
 abstract class CircleRepository {
   Future<List<CircleEntity>> getCircles(String userId);
@@ -21,6 +22,21 @@ abstract class CircleRepository {
   Future<List<CommitmentEntity>> getCommitments({
     required String circleId,
     DateTime? date,
+  });
+
+  Future<List<Post>> getCircleFeed({
+    required String circleId,
+    required String userId,
+    int limit = 20,
+    int offset = 0,
+  });
+
+  Future<Post> createCirclePost({
+    required String circleId,
+    required String userId,
+    String? content,
+    List<String> mediaUrls = const [],
+    List<String> mediaTypes = const [],
   });
 
   Future<CommitmentEntity> createCommitment({

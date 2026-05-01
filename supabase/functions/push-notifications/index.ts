@@ -9,9 +9,33 @@ const firebaseServiceAccount = JSON.parse(Deno.env.get("FIREBASE_SERVICE_ACCOUNT
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 serve(async (req) => {
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
+
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+
   try {
+    // 0. AUTHENTICATION: Verify the caller
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) throw new Error('No authorization header')
+    
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      throw new Error('Unauthorized')
+    }
+
     const payload = await req.json();
     const { record } = payload; // This is the new notification record
+
+    // Verify that the actor_id in the notification matches the authenticated user
+    // This prevents users from sending notifications on behalf of others.
+    if (record.actor_id !== user.id) {
+      throw new Error('Forbidden: Actor ID mismatch')
+    }
 
     // 1. SAFETY CHECK: Ensure not blocked or muted (Backup for DB trigger)
     // A. Check if recipient blocked actor

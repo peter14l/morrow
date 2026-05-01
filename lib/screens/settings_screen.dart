@@ -1062,7 +1062,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context,
         icon: material.Icons.info_outline,
         title: 'About Oasis',
-        subtitle: 'Version 1.0.0+1',
+        subtitle: 'Version 1.1.1',
         iconColor: material.Colors.grey,
         onTap: () => context.push('/settings/about'),
       ),

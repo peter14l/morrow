@@ -21,6 +21,7 @@ abstract class Post with _$Post {
     @Default(false) @JsonKey(name: 'is_spoiler') bool isSpoiler,
     @JsonKey(name: 'community_id') String? communityId,
     @JsonKey(name: 'community_name') String? communityName,
+    @JsonKey(name: 'circle_id') String? circleId,
     required DateTime timestamp,
     @Default(0) int likes,
     @Default(0) int comments,

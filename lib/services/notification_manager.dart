@@ -494,11 +494,10 @@ class NotificationManager {
       final client = Supabase.instance.client;
       final senderId = client.auth.currentUser?.id;
 
-      if (conversationId != null && senderId != null) {
+      if (conversationId != null) {
         // Use RPC directly to avoid service dependency issues in background isolate
         await client.rpc('send_message_v3', params: {
           'p_conversation_id': conversationId,
-          'p_sender_id': senderId,
           'p_content': content,
           'p_message_type': 'text',
         });

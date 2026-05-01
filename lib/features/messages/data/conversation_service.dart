@@ -31,7 +31,6 @@ class ConversationService {
     try {
       final List<dynamic> response = await _supabase.rpc(
         'get_user_conversations_v2',
-        params: {'p_user_id': userId},
       );
 
       if (response.isEmpty) return [];

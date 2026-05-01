@@ -52,6 +52,40 @@ class CircleRepositoryImpl implements CircleRepository {
   }
 
   @override
+  Future<List<Post>> getCircleFeed({
+    required String circleId,
+    required String userId,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    final rawPosts = await _remoteDatasource.getCircleFeed(
+      circleId: circleId,
+      userId: userId,
+      limit: limit,
+      offset: offset,
+    );
+    return rawPosts.map((json) => Post.fromJson(json)).toList();
+  }
+
+  @override
+  Future<Post> createCirclePost({
+    required String circleId,
+    required String userId,
+    String? content,
+    List<String> mediaUrls = const [],
+    List<String> mediaTypes = const [],
+  }) async {
+    final postMap = await _remoteDatasource.createCirclePost(
+      circleId: circleId,
+      userId: userId,
+      content: content,
+      mediaUrls: mediaUrls,
+      mediaTypes: mediaTypes,
+    );
+    return Post.fromJson(postMap);
+  }
+
+  @override
   Future<List<CommitmentEntity>> getCommitments({
     required String circleId,
     DateTime? date,

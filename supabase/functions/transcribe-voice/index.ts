@@ -10,6 +10,25 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
+    // 0. AUTHENTICATION: Verify the caller
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) throw new Error('No authorization header')
+    
+    const token = authHeader.replace('Bearer ', '')
+    
+    // Create a regular client first to verify the user
+    const supabaseUserClient = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    )
+    
+    const { data: { user }, error: authError } = await supabaseUserClient.auth.getUser()
+    
+    if (authError || !user) {
+      throw new Error('Unauthorized')
+    }
+
     const { message_id, audio_url } = await req.json()
     const openAIKey = Deno.env.get('OPENAI_API_KEY')
 

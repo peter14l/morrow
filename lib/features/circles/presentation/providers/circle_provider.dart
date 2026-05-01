@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:oasis/features/circles/domain/models/circles_models.dart';
 import 'package:oasis/features/circles/domain/repositories/circle_repository.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_state.dart';
+import 'package:oasis/features/feed/domain/models/post.dart';
 
 export 'package:oasis/features/circles/presentation/providers/circle_state.dart';
 
@@ -14,14 +15,94 @@ class CircleProvider with ChangeNotifier {
 
   List<CircleEntity> get circles => _state.circles;
   CircleEntity? get activeCircle => _state.activeCircle;
-  List<CommitmentEntity> get todaysCommitments => _state.todaysCommitments;
+  List<Post> get circleFeed => _state.circleFeed;
   bool get isLoading => _state.isLoading;
+  bool get isLoadingFeed => _state.isLoadingFeed;
+  bool get hasMoreFeed => _state.hasMoreFeed;
   String? get error => _state.error;
-
-  StreamSubscription<List<CommitmentEntity>>? _realtimeSubscription;
 
   CircleProvider({required CircleRepository repository})
     : _repository = repository;
+
+  Future<void> loadCircleFeed(String circleId, String userId, {bool refresh = false}) async {
+    if (_state.isLoadingFeed) return;
+    
+    final offset = refresh ? 0 : _state.circleFeed.length;
+    _state = _state.copyWith(isLoadingFeed: true);
+    if (refresh) notifyListeners();
+
+    try {
+      final posts = await _repository.getCircleFeed(
+        circleId: circleId,
+        userId: userId,
+        limit: 20,
+        offset: offset,
+      );
+
+      final newList = refresh ? posts : [..._state.circleFeed, ...posts];
+      _state = _state.copyWith(
+        circleFeed: newList,
+        hasMoreFeed: posts.length == 20,
+      );
+    } catch (e) {
+      debugPrint('[CircleProvider] loadCircleFeed error: $e');
+    } finally {
+      _state = _state.copyWith(isLoadingFeed: false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> createCirclePost({
+    required String circleId,
+    required String userId,
+    String? content,
+    List<String> mediaUrls = const [],
+    List<String> mediaTypes = const [],
+  }) async {
+    try {
+      final post = await _repository.createCirclePost(
+        circleId: circleId,
+        userId: userId,
+        content: content,
+        mediaUrls: mediaUrls,
+        mediaTypes: mediaTypes,
+      );
+      
+      _state = _state.copyWith(
+        circleFeed: [post, ..._state.circleFeed],
+      );
+      notifyListeners();
+    } catch (e) {
+      debugPrint('[CircleProvider] createCirclePost error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> toggleLike(String postId, String userId) async {
+    final index = _state.circleFeed.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final post = _state.circleFeed[index];
+    final isLiked = post.isLiked;
+    final newLikes = isLiked ? post.likes - 1 : post.likes + 1;
+    
+    final updatedPost = post.copyWith(
+      isLiked: !isLiked,
+      likes: newLikes < 0 ? 0 : newLikes,
+    );
+
+    final newList = List<Post>.from(_state.circleFeed);
+    newList[index] = updatedPost;
+    _state = _state.copyWith(circleFeed: newList);
+    notifyListeners();
+
+    try {
+       // Since liking is global, we might need a post repository or similar.
+       // However, for now we've updated the UI state.
+    } catch (e) {
+      debugPrint('[CircleProvider] toggleLike error: $e');
+    }
+  }
 
   Future<void> loadCircles(String userId, {bool forceRefresh = false}) async {
     if (_state.circles.isNotEmpty && !forceRefresh) return;
@@ -72,7 +153,7 @@ class CircleProvider with ChangeNotifier {
     await _repository.joinCircle(circleId, userId);
   }
 
-  Future<void> openCircle(String circleId) async {
+  Future<void> setActiveCircle(String circleId, String userId) async {
     _state = _state.copyWith(isLoading: true);
     notifyListeners();
 
@@ -83,25 +164,10 @@ class CircleProvider with ChangeNotifier {
       } catch (_) {
         circle = await _repository.getCircle(circleId);
       }
-
       _state = _state.copyWith(activeCircle: circle);
-
-      final commitments = await _repository.getCommitments(
-        circleId: circleId,
-        date: DateTime.now(),
-      );
-      _state = _state.copyWith(todaysCommitments: commitments);
-
-      _realtimeSubscription?.cancel();
-      _realtimeSubscription = _repository
-          .subscribeToCommitments(circleId: circleId)
-          .listen((commitments) {
-            _state = _state.copyWith(todaysCommitments: commitments);
-            notifyListeners();
-          }, onError: (e) => debugPrint('[CircleProvider] Stream error: $e'));
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
-      debugPrint('[CircleProvider] Error opening circle: $e');
+      debugPrint('[CircleProvider] Error setting active circle: $e');
     } finally {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();
@@ -109,8 +175,7 @@ class CircleProvider with ChangeNotifier {
   }
 
   void closeCircle() {
-    _realtimeSubscription?.cancel();
-    _state = _state.copyWith(activeCircle: null, todaysCommitments: []);
+    _state = _state.copyWith(activeCircle: null);
     notifyListeners();
   }
 
@@ -121,110 +186,12 @@ class CircleProvider with ChangeNotifier {
         circles: _state.circles.where((c) => c.id != circleId).toList(),
       );
       if (_state.activeCircle?.id == circleId) {
-        _state = _state.copyWith(activeCircle: null, todaysCommitments: []);
+        _state = _state.copyWith(activeCircle: null);
       }
       notifyListeners();
     } catch (e) {
       debugPrint('[CircleProvider] Error deleting circle: $e');
       rethrow;
-    }
-  }
-
-  Future<void> addCommitment({
-    required String createdBy,
-    required String title,
-    String? description,
-    DateTime? dueDate,
-  }) async {
-    if (_state.activeCircle == null) return;
-    try {
-      final commitment = await _repository.createCommitment(
-        circleId: _state.activeCircle!.id,
-        createdBy: createdBy,
-        title: title,
-        description: description,
-        dueDate: dueDate,
-      );
-      _state = _state.copyWith(
-        todaysCommitments: [..._state.todaysCommitments, commitment],
-      );
-      notifyListeners();
-    } catch (e) {
-      _state = _state.copyWith(error: e.toString());
-      notifyListeners();
-    }
-  }
-
-  Future<void> setIntent({
-    required String commitmentId,
-    required String userId,
-    required MemberIntent intent,
-  }) async {
-    _state = _state.copyWith(
-      todaysCommitments:
-          _state.todaysCommitments.map((c) {
-            if (c.id == commitmentId) {
-              final updated = Map<String, CommitmentResponseEntity>.from(
-                c.responses,
-              );
-              updated[userId] = CommitmentResponseEntity(
-                userId: userId,
-                intent: intent,
-              );
-              return c.copyWith(responses: updated);
-            }
-            return c;
-          }).toList(),
-    );
-    notifyListeners();
-
-    try {
-      await _repository.setIntent(
-        commitmentId: commitmentId,
-        userId: userId,
-        intent: intent,
-      );
-    } catch (e) {
-      _state = _state.copyWith(error: e.toString());
-      notifyListeners();
-    }
-  }
-
-  Future<void> markComplete({
-    required String commitmentId,
-    required String userId,
-    String? note,
-  }) async {
-    _state = _state.copyWith(
-      todaysCommitments:
-          _state.todaysCommitments.map((c) {
-            if (c.id == commitmentId) {
-              final updated = Map<String, CommitmentResponseEntity>.from(
-                c.responses,
-              );
-              updated[userId] = CommitmentResponseEntity(
-                userId: userId,
-                intent: MemberIntent.inTrying,
-                completed: true,
-                completedAt: DateTime.now(),
-                note: note,
-              );
-              return c.copyWith(responses: updated);
-            }
-            return c;
-          }).toList(),
-    );
-    notifyListeners();
-
-    try {
-      await _repository.markComplete(
-        commitmentId: commitmentId,
-        userId: userId,
-        note: note,
-      );
-    } catch (e) {
-      _state = _state.copyWith(error: e.toString());
-      notifyListeners();
     }
   }
 
@@ -234,14 +201,7 @@ class CircleProvider with ChangeNotifier {
   }
 
   void clear() {
-    _realtimeSubscription?.cancel();
     _state = const CircleState();
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _realtimeSubscription?.cancel();
-    super.dispose();
   }
 }

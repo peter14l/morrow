@@ -266,7 +266,6 @@ class WellnessService extends ChangeNotifier {
 
     try {
       await SupabaseService().client.rpc('increment_xp', params: {
-        'user_id': user.id,
         'xp_amount': amount,
       });
       debugPrint('XP Updated via RPC: $amount');

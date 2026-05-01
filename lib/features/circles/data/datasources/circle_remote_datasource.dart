@@ -161,6 +161,65 @@ class CircleRemoteDatasource {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getCircleFeed({
+    required String circleId,
+    required String userId,
+    int limit = 20,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _supabase.rpc('get_circle_feed', params: {
+        'p_user_id': userId,
+        'p_circle_id': circleId,
+        'p_limit': limit,
+        'p_offset': offset,
+      });
+
+      return (response as List).cast<Map<String, dynamic>>();
+    } catch (e) {
+      debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e');
+      return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> createCirclePost({
+    required String circleId,
+    required String userId,
+    String? content,
+    List<String> mediaUrls = const [],
+    List<String> mediaTypes = const [],
+  }) async {
+    try {
+      final id = _uuid.v4();
+      final now = DateTime.now().toIso8601String();
+
+      final data = {
+        'id': id,
+        'user_id': userId,
+        'circle_id': circleId,
+        'content': content,
+        'media_urls': mediaUrls,
+        'media_types': mediaTypes,
+        'created_at': now,
+        'updated_at': now,
+      };
+
+      await _supabase.from('posts').insert(data);
+
+      // Fetch the created post with joined profile info
+      final response = await _supabase
+          .from('posts')
+          .select('*, profiles(*)')
+          .eq('id', id)
+          .single();
+
+      return response;
+    } catch (e) {
+      debugPrint('[CircleRemoteDatasource] createCirclePost error: $e');
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getCommitments({
     required String circleId,
     DateTime? date,

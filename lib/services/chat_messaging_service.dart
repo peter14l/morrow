@@ -187,7 +187,6 @@ class ChatMessagingService {
     try {
       final response = await _supabase.rpc('send_message_v3', params: {
         'p_conversation_id': conversationId,
-        'p_sender_id': senderId,
         'p_content': content,
         'p_message_type': messageType.name,
         'p_media_url': mediaUrl,

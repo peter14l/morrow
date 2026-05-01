@@ -96,39 +96,6 @@ class CircleListCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                // Streak badge
-                if (circle.streakCount > 0)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(isM3E ? 8 : 12),
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFFFF6B35).withValues(alpha: 0.8),
-                          const Color(0xFFFF9F1C).withValues(alpha: 0.8),
-                        ],
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text('🔥', style: TextStyle(fontSize: 12)),
-                        const SizedBox(width: 3),
-                        Text(
-                          '${circle.streakCount}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
               ],
             ),
           ),
@@ -210,41 +177,6 @@ class CircleListCard extends StatelessWidget {
                   ],
                 ),
               ),
-
-              // ── Streak badge ────────────────────────────────────────
-              if (circle.streakCount > 0) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 5,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(isM3E ? 8 : 12),
-                    gradient: LinearGradient(
-                      colors: [
-                        const Color(0xFFFF6B35).withValues(alpha: 0.8),
-                        const Color(0xFFFF9F1C).withValues(alpha: 0.8),
-                      ],
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('🔥', style: TextStyle(fontSize: 12)),
-                      const SizedBox(width: 3),
-                      Text(
-                        '${circle.streakCount}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
 
               Icon(
                 FluentIcons.chevron_right_24_regular,

@@ -14,13 +14,23 @@ function getDeviceArchitecture(): "arm64-v8a" | "armeabi-v7a" {
   if (typeof navigator === 'undefined') return "arm64-v8a";
 
   const userAgent = navigator.userAgent.toLowerCase();
+  const platform = (navigator as any).platform?.toLowerCase() || "";
 
-  // Check for 64-bit ARM (most modern Android devices)
-  if (userAgent.includes("arm64") || userAgent.includes("aarch64") || userAgent.includes("x86_64")) {
+  // Keywords indicating 64-bit ARM
+  const is64bit = 
+    userAgent.includes("arm64") || 
+    userAgent.includes("aarch64") || 
+    userAgent.includes("x86_64") ||
+    userAgent.includes("armv8") ||
+    platform.includes("arm64") ||
+    platform.includes("aarch64") ||
+    platform.includes("armv8");
+
+  if (is64bit) {
     return "arm64-v8a";
   }
 
-  // Default to 32-bit ARM
+  // Default to 32-bit ARM (backward compatible)
   return "armeabi-v7a";
 }
 

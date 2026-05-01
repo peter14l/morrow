@@ -1,13 +1,12 @@
 import 'package:universal_io/io.dart';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/post_service.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
+import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:oasis/features/feed/domain/models/post_mood.dart';
 import 'package:oasis/features/feed/domain/models/enhanced_poll.dart';
@@ -18,12 +17,13 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
-import 'package:uuid/uuid.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String? communityId;
+  final String? circleId;
 
-  const CreatePostScreen({super.key, this.communityId});
+  const CreatePostScreen({super.key, this.communityId, this.circleId});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -45,23 +45,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   EnhancedPoll? _attachedPoll;
   bool _showPollCreator = false;
 
-  // Missing variables
-  final List<String> _detectedLabels =
-      []; // Mock or populated from image analysis
   final TextEditingController _locationController = TextEditingController();
 
   @override
   void dispose() {
+    _captionController.dispose();
+    _hashtagController.dispose();
     _locationController.dispose();
     super.dispose();
-  }
-
-  String _getTimeOfDay() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Morning';
-    if (hour < 17) return 'Afternoon';
-    if (hour < 21) return 'Evening';
-    return 'Night';
   }
 
   Future<void> _pickImages() async {
@@ -103,36 +94,61 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     });
 
     try {
-      // Parse hashtags
-      final hashtags = _hashtagController.text
-          .split(RegExp(r'[,\s]+'))
-          .where((tag) => tag.isNotEmpty)
-          .map((tag) => tag.replaceAll('#', '').toLowerCase())
-          .toList();
+      if (widget.circleId != null) {
+        // Upload images first if any (simplified: CircleProvider.createCirclePost should handle this if possible)
+        // But for consistency with main feed, let's use the service or update provider.
+        // Actually, let's keep it simple and just use CircleProvider's method.
+        // We'd need to upload media first to get URLs.
+        
+        final List<String> mediaUrls = [];
+        if (_selectedImages.isNotEmpty) {
+           for (var file in _selectedImages) {
+              final url = await _postService.uploadPostMedia(userId, File(file.path));
+              mediaUrls.add(url);
+           }
+        }
 
-      // Create post
-      final post = await _postService.createPost(
-        userId: userId,
-        communityId: widget.communityId,
-        content:
-            _captionController.text.trim().isEmpty
-                ? null
-                : _captionController.text.trim(),
-        mediaFiles: _selectedImages.map((file) => File(file.path)).toList(),
-        mediaTypes: List.filled(_selectedImages.length, 'image'),
-        mood: _selectedMood?.name,
-        hashtags: hashtags,
-        isSpoiler: _isSpoiler,
-        poll: _attachedPoll,
-      );
+        await context.read<CircleProvider>().createCirclePost(
+          circleId: widget.circleId!,
+          userId: userId,
+          content: _captionController.text.trim(),
+          mediaUrls: mediaUrls,
+          mediaTypes: List.filled(mediaUrls.length, 'image'),
+        );
+      } else {
+        // Parse hashtags
+        final hashtags = _hashtagController.text
+            .split(RegExp(r'[,\s]+'))
+            .where((tag) => tag.isNotEmpty)
+            .map((tag) => tag.replaceAll('#', '').toLowerCase())
+            .toList();
+
+        // Create post
+        final post = await _postService.createPost(
+          userId: userId,
+          communityId: widget.communityId,
+          content:
+              _captionController.text.trim().isEmpty
+                  ? null
+                  : _captionController.text.trim(),
+          mediaFiles: _selectedImages.map((file) => File(file.path)).toList(),
+          mediaTypes: List.filled(_selectedImages.length, 'image'),
+          mood: _selectedMood?.name,
+          hashtags: hashtags,
+          isSpoiler: _isSpoiler,
+          poll: _attachedPoll,
+        );
+
+        if (!mounted) return;
+
+        // Add post to feed provider with local paths for immediate preview
+        final localPost = post.copyWith(
+          mediaUrls: _selectedImages.map((e) => e.path).toList(),
+        );
+        context.read<FeedProvider>().addPost(localPost);
+      }
 
       if (!mounted) return;
-
-      // Add post to feed provider with local paths for immediate preview
-      final localPost = post.copyWith(
-        mediaUrls: _selectedImages.map((e) => e.path).toList(),
-      );
-      context.read<FeedProvider>().addPost(localPost);
 
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -142,9 +158,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
       );
 
-      // Navigate back to feed
+      // Navigate back
       if (context.canPop()) {
-        context.pop();
+        context.pop(true);
       } else {
         context.go('/feed');
       }
@@ -240,6 +256,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       mood: _selectedMood?.name,
       poll: _attachedPoll,
       isSpoiler: _isSpoiler,
+      circleId: widget.circleId,
     );
   }
 
@@ -296,10 +313,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
-            tooltip: 'Back to Feed',
+            tooltip: 'Back',
           ),
           const SizedBox(width: 8),
-          const Text('Create New Post'),
+          Text(widget.circleId != null ? 'Create Circle Post' : 'Create New Post'),
         ],
       ),
       actions: [
@@ -329,7 +346,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Re-use existing form content but adapted for desktop row
                   _buildDesktopEditorForm(),
                 ],
               ),
@@ -383,7 +399,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
           ),
           const SizedBox(width: 8),
-          const Text('Create New Post'),
+          Text(widget.circleId != null ? 'Create Circle Post' : 'Create New Post'),
         ],
       ),
       actions: [
@@ -507,15 +523,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: 16),
-        fluent.TextBox(
-          controller: _hashtagController,
-          placeholder: 'Add hashtags (e.g. #nature, #travel)',
-          prefix: const Padding(
-            padding: EdgeInsets.only(left: 12),
-            child: Icon(fluent.FluentIcons.tag, size: 16),
+        if (widget.circleId == null)
+          fluent.TextBox(
+            controller: _hashtagController,
+            placeholder: 'Add hashtags (e.g. #nature, #travel)',
+            prefix: const Padding(
+              padding: EdgeInsets.only(left: 12),
+              child: Icon(fluent.FluentIcons.tag, size: 16),
+            ),
+            onChanged: (_) => setState(() {}),
           ),
-          onChanged: (_) => setState(() {}),
-        ),
       ],
     );
   }
@@ -536,47 +553,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ],
           ),
         ),
-        fluent.ToggleButton(
-          checked: _isSpoiler,
-          onChanged: (v) => setState(() => _isSpoiler = v),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(fluent.FluentIcons.hide, size: 16),
-              SizedBox(width: 8),
-              Text('Spoiler'),
-            ],
+        if (widget.circleId == null) ...[
+          fluent.ToggleButton(
+            checked: _isSpoiler,
+            onChanged: (v) => setState(() => _isSpoiler = v),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(fluent.FluentIcons.hide, size: 16),
+                SizedBox(width: 8),
+                Text('Spoiler'),
+              ],
+            ),
           ),
-        ),
-        fluent.Button(
-          onPressed: _togglePollCreator,
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(fluent.FluentIcons.poll_results, size: 16),
-              SizedBox(width: 8),
-              Text('Poll'),
-            ],
+          fluent.Button(
+            onPressed: _togglePollCreator,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(fluent.FluentIcons.poll_results, size: 16),
+                SizedBox(width: 8),
+                Text('Poll'),
+              ],
+            ),
           ),
-        ),
-        fluent.Button(
-          onPressed: _pickLocation,
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(fluent.FluentIcons.location, size: 16),
-              SizedBox(width: 8),
-              Text('Location'),
-            ],
+          fluent.Button(
+            onPressed: _pickLocation,
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(fluent.FluentIcons.location, size: 16),
+                SizedBox(width: 8),
+                Text('Location'),
+              ],
+            ),
           ),
-        ),
-        MoodSelector(
-          selectedMood: _selectedMood,
-          showLabel: false,
-          onMoodSelected: (mood) {
-            setState(() => _selectedMood = mood);
-          },
-        ),
+          MoodSelector(
+            selectedMood: _selectedMood,
+            showLabel: false,
+            onMoodSelected: (mood) {
+              setState(() => _selectedMood = mood);
+            },
+          ),
+        ],
       ],
     );
   }
@@ -662,14 +681,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Widget _buildDesktopEditorForm() {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // User info
         Consumer<AuthService>(
           builder: (context, authService, child) {
             final user = authService.currentUser;
@@ -699,27 +716,30 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
           onChanged: (_) => setState(() {}),
         ),
-        TextField(
-          controller: _hashtagController,
-          decoration: const InputDecoration(
-            hintText: 'Add hashtags...',
-            prefixIcon: Icon(Icons.tag),
+        if (widget.circleId == null)
+          TextField(
+            controller: _hashtagController,
+            decoration: const InputDecoration(
+              hintText: 'Add hashtags...',
+              prefixIcon: Icon(Icons.tag),
+            ),
+            onChanged: (_) => setState(() {}),
           ),
-          onChanged: (_) => setState(() {}),
-        ),
         const SizedBox(height: 24),
         Wrap(
           spacing: 12,
           runSpacing: 12,
           children: [
             _buildActionButton(icon: Icons.photo_library, label: 'Photo', onPressed: _pickImages, isM3E: isM3E),
-            _buildActionButton(icon: Icons.poll, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
-            _buildActionButton(icon: Icons.location_on, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
-            MoodSelector(
-              selectedMood: _selectedMood,
-              showLabel: false,
-              onMoodSelected: (mood) => setState(() => _selectedMood = mood),
-            ),
+            if (widget.circleId == null) ...[
+              _buildActionButton(icon: Icons.poll, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
+              _buildActionButton(icon: Icons.location_on, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
+              MoodSelector(
+                selectedMood: _selectedMood,
+                showLabel: false,
+                onMoodSelected: (mood) => setState(() => _selectedMood = mood),
+              ),
+            ],
           ],
         ),
         if (_selectedImages.isNotEmpty) ...[
@@ -767,7 +787,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User info
           Consumer<AuthService>(
             builder: (context, authService, child) {
               final user = authService.currentUser;
@@ -853,24 +872,25 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _hashtagController,
-            decoration: InputDecoration(
-              hintText: 'Add hashtags (e.g. #nature, #travel)',
-              prefixIcon: Icon(Icons.tag, color: colorScheme.primary, size: 20),
-              hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          if (widget.circleId == null)
+            TextField(
+              controller: _hashtagController,
+              decoration: InputDecoration(
+                hintText: 'Add hashtags (e.g. #nature, #travel)',
+                prefixIcon: Icon(Icons.tag, color: colorScheme.primary, size: 20),
+                hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
+                  borderSide: BorderSide.none,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              filled: true,
-              fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
-                borderSide: BorderSide.none,
-              ),
+              style: theme.textTheme.bodyMedium,
             ),
-            style: theme.textTheme.bodyMedium,
-          ),
           if (_selectedImages.isNotEmpty) ...[
             const SizedBox(height: 16),
             SizedBox(
@@ -911,35 +931,38 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           ],
           const SizedBox(height: 24),
-          MoodSelector(
-            selectedMood: _selectedMood,
-            onMoodSelected: (mood) {
-              HapticUtils.selectionClick();
-              setState(() => _selectedMood = mood);
-            },
-          ),
+          if (widget.circleId == null)
+            MoodSelector(
+              selectedMood: _selectedMood,
+              onMoodSelected: (mood) {
+                HapticUtils.selectionClick();
+                setState(() => _selectedMood = mood);
+              },
+            ),
           const SizedBox(height: 24),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
                 _buildActionButton(icon: Icons.photo_library_outlined, label: 'Photo', onPressed: _pickImages, isM3E: isM3E),
-                const SizedBox(width: 8),
-                _buildActionButton(
-                  icon: _isSpoiler ? Icons.visibility_off : Icons.visibility_off_outlined,
-                  label: 'Spoiler',
-                  onPressed: () => setState(() => _isSpoiler = !_isSpoiler),
-                  isM3E: isM3E,
-                  isActive: _isSpoiler,
-                ),
-                const SizedBox(width: 8),
-                _buildActionButton(icon: Icons.poll_outlined, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
-                const SizedBox(width: 8),
-                _buildActionButton(icon: Icons.location_on_outlined, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
+                if (widget.circleId == null) ...[
+                  const SizedBox(width: 8),
+                  _buildActionButton(
+                    icon: _isSpoiler ? Icons.visibility_off : Icons.visibility_off_outlined,
+                    label: 'Spoiler',
+                    onPressed: () => setState(() => _isSpoiler = !_isSpoiler),
+                    isM3E: isM3E,
+                    isActive: _isSpoiler,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildActionButton(icon: Icons.poll_outlined, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
+                  const SizedBox(width: 8),
+                  _buildActionButton(icon: Icons.location_on_outlined, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
+                ],
               ],
             ),
           ),
-          if (_locationController.text.isNotEmpty) ...[
+          if (_locationController.text.isNotEmpty && widget.circleId == null) ...[
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -959,8 +982,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
           ],
-          if (_showPollCreator) PollCreator(onPollCreated: _onPollCreated, onCancel: () => setState(() => _showPollCreator = false)),
-          if (_attachedPoll != null) ...[
+          if (_showPollCreator && widget.circleId == null) PollCreator(onPollCreated: _onPollCreated, onCancel: () => setState(() => _showPollCreator = false)),
+          if (_attachedPoll != null && widget.circleId == null) ...[
             const SizedBox(height: 16),
             ListTile(
               tileColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -974,39 +997,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       ),
     );
 
-    if (useFluent && isDesktop) {
-      return AdaptiveScaffold(
-        title: const Text('Create New Post'),
-        actions: [
-          fluent.Button(
-            onPressed: _isLoading ? null : _createPost,
-            child: _isLoading ? const SizedBox(width: 16, height: 16, child: fluent.ProgressRing(strokeWidth: 2)) : const Text('Post'),
-          ),
-        ],
-        body: formContent,
-      );
-    }
-
-    if (isDesktop) {
-      return AdaptiveScaffold(
-        title: const Text('Create New Post'),
-        actions: [
-          FilledButton(
-            onPressed: _isLoading ? null : _createPost,
-            child: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Post'),
-          ),
-        ],
-        body: Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 700),
-            child: formContent,
-          ),
-        ),
-      );
-    }
-
     return AdaptiveScaffold(
-      title: const Text('Create Post'),
+      title: Text(widget.circleId != null ? 'Circle Post' : 'Create Post'),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 12),
@@ -1018,7 +1010,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
         ),
       ],
-      body: formContent,
+      body: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: isDesktop ? 700 : double.infinity),
+          child: formContent,
+        ),
+      ),
     );
   }
 }

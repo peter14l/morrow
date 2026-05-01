@@ -71,7 +71,6 @@ class StudySessionService extends ChangeNotifier {
 
     // Award XP to profile
     await _supabase.rpc('increment_xp', params: {
-      'user_id': user.id,
       'xp_amount': xpEarned,
     });
   }

@@ -41,6 +41,25 @@ class ChangelogScreen extends StatelessWidget {
                   children: [
                     _buildVersionCard(
                       context,
+                      version: '1.1.1',
+                      date: 'May 1, 2026',
+                      features: [
+                        'Major Overhaul of Circles - Transitioned to a restricted, feed-centric group conversation system.',
+                        'Private Circle Feeds - Only circle members can view and interact with circle posts.',
+                        'Dedicated Post FAB - Create posts directly within your specific circles.',
+                        'Member-Only Security - Shared circle posts are now protected by a privacy overlay for non-members.',
+                        'Curated Circles - Authors can now explicitly select members from their following list when creating a circle.',
+                        'Real-time Interactions - Like and comment buttons are now always visible for circle posts with instant updates.',
+                      ],
+                      fixes: [
+                        'Removed legacy Group Task and Commitment logic for a cleaner, conversation-focused experience.',
+                        'Improved Row Level Security (RLS) for circle-specific content.',
+                        'Separated circle content from the main application feed.',
+                      ],
+                    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                    const SizedBox(height: 24),
+                    _buildVersionCard(
+                      context,
                       version: '1.0.0+1',
                       date: 'April 30, 2026',
                       features: [
