@@ -28,8 +28,7 @@ class AppConfig {
     const fromEnv = String.fromEnvironment('WEB_BASE_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
 
-    if (kDebugMode) return 'http://localhost:3000';
-    return ''; // Should be injected via --dart-define in production
+    return 'https://oasis-web-red.vercel.app';
   }
 
   /// URL to check for app updates

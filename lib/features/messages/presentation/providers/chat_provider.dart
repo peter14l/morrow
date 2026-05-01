@@ -1216,9 +1216,6 @@ class ChatProvider with ChangeNotifier {
     // Track time spent in chat for curation
     _trackChatTimeSpent();
 
-    scrollController?.dispose();
-    encryptionProvider.dispose();
-    settingsProvider.dispose();
     super.dispose();
   }
 

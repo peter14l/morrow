@@ -257,10 +257,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _messageController.dispose();
-    _textNotifier.dispose();
-    _scrollController.dispose();
-    _focusNode.dispose();
+    
+    _typingDebounceTimer?.cancel();
+    _typingThrottleTimer?.cancel();
 
     // Capture IDs before state is gone
     final otherId = widget.otherUserId ?? _chatProvider.state.otherUserId;
@@ -278,6 +277,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _encryptionProvider.dispose();
     _settingsProvider.dispose();
     _recordingProvider.dispose();
+
+    _messageController.dispose();
+    _textNotifier.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 

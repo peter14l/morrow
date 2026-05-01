@@ -129,13 +129,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     try {
       await _postService.deletePost(_post!.id, userId);
       if (mounted) {
-        // Show success notification BEFORE popping or on the parent screen
-        final rootContext = context;
-        Navigator.pop(rootContext);
-        
-        material.ScaffoldMessenger.of(rootContext).showSnackBar(
+        material.ScaffoldMessenger.of(context).showSnackBar(
           const material.SnackBar(content: Text('Post deleted successfully')),
         );
+        Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
@@ -250,7 +247,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             onComment: () {
               context.push('/post/${_post!.id}/comments');
             },
-            onShare: () => Share.share('Check out this post on Oasis!'),
+            onShare: () {
+              final deepLink = AppConfig.getWebUrl('/post/${_post!.id}');
+              Share.share('Check out this post on Oasis! $deepLink');
+            },
             onDelete: _handleDelete,
           ),
         ],
