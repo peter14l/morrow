@@ -87,6 +87,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final FocusNode _focusNode = FocusNode();
   final ChatMediaPicker _mediaPicker = ChatMediaPicker();
 
+  Timer? _typingDebounceTimer;
+  Timer? _typingThrottleTimer;
+  bool _isTypingThrottled = false;
+
   bool _isSpoiler = false;
   late VaultService _vaultService;
   late PresenceProvider _presenceProvider;
@@ -157,13 +161,31 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (!mounted) return;
       _textNotifier.value = _messageController.text;
       final userId = AuthService().currentUser?.id;
-      if (userId != null && _messageController.text.isNotEmpty) {
+      if (userId != null) {
+        final text = _messageController.text;
+        final isTyping = text.isNotEmpty;
         final typingProvider = context.read<TypingIndicatorProvider>();
-        typingProvider.setTyping(
-          widget.conversationId,
-          userId,
-          true,
-        );
+
+        if (isTyping) {
+          // Throttle: Send true immediately if not throttled
+          if (!_isTypingThrottled) {
+            typingProvider.setTyping(widget.conversationId, userId, true);
+            _isTypingThrottled = true;
+            _typingThrottleTimer = Timer(const Duration(seconds: 2), () {
+              _isTypingThrottled = false;
+            });
+          }
+          
+          // Debounce: Reset to false after 2 seconds of no typing
+          _typingDebounceTimer?.cancel();
+          _typingDebounceTimer = Timer(const Duration(seconds: 2), () {
+            typingProvider.setTyping(widget.conversationId, userId, false);
+          });
+        } else {
+          // If text is empty, send false immediately and cancel timers
+          _typingDebounceTimer?.cancel();
+          typingProvider.setTyping(widget.conversationId, userId, false);
+        }
       }
     });
 
@@ -1022,8 +1044,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       isDesktop: isDesktop,
                       isDetailsOpen: widget.isDetailsOpen,
                       onDetailsToggle: _openChatDetails,
-                      onCallPressed: () => _initiateCall(CallType.voice),
-                      onVideoCallPressed: () => _initiateCall(CallType.video),
+                      // onCallPressed: () => _initiateCall(CallType.voice),
+                      // onVideoCallPressed: () => _initiateCall(CallType.video),
                       backgroundUrl: state.backgroundUrl,
                     ),
 

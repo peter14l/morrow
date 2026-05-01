@@ -31,7 +31,9 @@ class _SearchScreenState extends State<SearchScreen>
   final SearchService _searchService = SearchService();
   final TextEditingController _searchController = TextEditingController();
   late material.TabController _tabController;
-  Timer? _debounce;
+  Timer? _debounceTimer;
+  Timer? _throttleTimer;
+  bool _isThrottled = false;
 
   List<Map<String, dynamic>> _userResults = [];
   List<Post> _postResults = [];
@@ -83,14 +85,22 @@ class _SearchScreenState extends State<SearchScreen>
   void _onSearchChanged(String value) {
     setState(() => _query = value);
 
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 500), () {
+    if (!_isThrottled) {
+      _performSearch();
+      _isThrottled = true;
+      _throttleTimer = Timer(const Duration(seconds: 2), () {
+        _isThrottled = false;
+      });
+    }
+
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
       _performSearch();
     });
   }
 
   void _onSearchSubmitted(String value) {
-    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    if (_debounceTimer?.isActive ?? false) _debounceTimer?.cancel();
     _performSearch();
   }
 
@@ -98,7 +108,8 @@ class _SearchScreenState extends State<SearchScreen>
   void dispose() {
     _searchController.dispose();
     _tabController.dispose();
-    _debounce?.cancel();
+    _debounceTimer?.cancel();
+    _throttleTimer?.cancel();
     super.dispose();
   }
 
