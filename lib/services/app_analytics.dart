@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
@@ -7,11 +8,18 @@ class AppAnalytics {
   static final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   static final FirebaseAnalyticsObserver observer = FirebaseAnalyticsObserver(analytics: _analytics);
 
+  static bool get _isSupported {
+    if (kIsWeb) return true;
+    // Firebase Analytics officially supports Web, Android, iOS, and macOS.
+    return Platform.isAndroid || Platform.isIOS || Platform.isMacOS;
+  }
+
   /// Logs a custom event.
   Future<void> logEvent({
     required String name,
     Map<String, Object>? parameters,
   }) async {
+    if (!_isSupported) return;
     try {
       await _analytics.logEvent(name: name, parameters: parameters);
       if (kDebugMode) {
@@ -24,6 +32,7 @@ class AppAnalytics {
 
   /// Logs an app open event.
   Future<void> logAppOpen() async {
+    if (!_isSupported) return;
     try {
       await _analytics.logAppOpen();
     } catch (e) {
@@ -33,6 +42,7 @@ class AppAnalytics {
 
   /// Sets the user ID for analytics.
   Future<void> setUserId(String? userId) async {
+    if (!_isSupported) return;
     try {
       await _analytics.setUserId(id: userId);
     } catch (e) {
@@ -45,6 +55,7 @@ class AppAnalytics {
     required String name,
     required String? value,
   }) async {
+    if (!_isSupported) return;
     try {
       await _analytics.setUserProperty(name: name, value: value);
     } catch (e) {
@@ -57,6 +68,7 @@ class AppAnalytics {
     required String screenName,
     String? screenClass,
   }) async {
+    if (!_isSupported) return;
     try {
       await _analytics.logScreenView(
         screenName: screenName,

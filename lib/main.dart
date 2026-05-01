@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
@@ -697,26 +698,23 @@ class CallNavigator extends StatelessWidget {
       childWidget = Container(color: material.Colors.transparent, child: childWidget);
     }
 
-    if (userSettings.meshEnabled) {
-      // RepaintBoundary isolates the expensive mesh gradient from the rest of the UI
-      return material.RepaintBoundary(
-        child: MeshGradientBackground(child: childWidget),
-      );
-    } else {
-      final isDark = material.Theme.of(context).brightness == material.Brightness.dark;
-      
-      return Container(
-        color: useTransparency 
-            ? material.Colors.transparent 
-            : (isDark ? const material.Color(0xFF080A0E) : const material.Color(0xFFF8F9FA)),
-        child: childWidget,
-      );
-    }
+    final isDark = material.Theme.of(context).brightness == material.Brightness.dark;
+    
+    return Container(
+      color: useTransparency 
+          ? material.Colors.transparent 
+          : (isDark ? const material.Color(0xFF080A0E) : const material.Color(0xFFF8F9FA)),
+      child: childWidget,
+    );
   }
 }
 
 void main() async {
-  // 1. Silence Flutter framework errors that are harmless but messy
+  // 1. Initialize Flutter bindings in the Root Zone.
+  // This prevents "Zone mismatch" errors if async operations drop the zone.
+  material.WidgetsFlutterBinding.ensureInitialized();
+
+  // 2. Silence Flutter framework errors that are harmless but messy
   material.FlutterError.onError = (material.FlutterErrorDetails details) {
     final exception = details.exception;
     if (exception is AssertionError) {
@@ -729,6 +727,27 @@ void main() async {
     // Forward everything else to Sentry and default handler
     Sentry.captureException(details.exception, stackTrace: details.stack);
     material.FlutterError.presentError(details);
+  };
+
+  // 3. Catch all uncaught asynchronous errors (replaces runZonedGuarded)
+  ui.PlatformDispatcher.instance.onError = (error, stack) {
+    material.debugPrint('--- UNCAUGHT ERROR ---');
+    material.debugPrint('Error: $error');
+    
+    // If it is a FormatException during startup, it is likely disk corruption
+    if (error is FormatException) {
+       _showErrorScreen(
+         'Data Corruption Detected\\n\\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
+         stack,
+         isCorruption: true,
+       );
+    } else {
+      _showErrorScreen(error, stack);
+    }
+    
+    // Also log to Sentry
+    Sentry.captureException(error, stackTrace: stack);
+    return true; // Return true to indicate the error was handled
   };
 
   // Capture log messages to debug throttled issues
@@ -749,68 +768,42 @@ void main() async {
     }
   };
 
-  // 2. Initialize Sentry first as the outer wrapper.
-  // We use Sentry's appRunner to create a stable Zone for the entire app life.
+  // 4. Initialize Sentry and run the app
   await AppInitializer.runWithSentry(() async {
-    // 3. Everything else happens inside a runZonedGuarded for custom error handling
-    // (like disk corruption detection) and ensuring same Zone as runApp.
-    runZonedGuarded(() async {
-      // 4. Initialize Flutter bindings inside the zone where runApp is called.
-      // This is the CRITICAL fix for "Zone mismatch".
-      material.WidgetsFlutterBinding.ensureInitialized();
+    try {
+      await AppInitializer.loadEnv();
+      await AppInitializer.initFirebase();
 
-      try {
-        await AppInitializer.loadEnv();
-        await AppInitializer.initFirebase();
+      runApp(
+        material.MaterialApp(
+          debugShowCheckedModeBanner: false,
+          home: SplashScreen(
+            onInitComplete: () async {
+              try {
+                final packageInfo = await PackageInfo.fromPlatform();
+                AppConfig.appVersion = packageInfo.version;
 
-        runApp(
-          material.MaterialApp(
-            debugShowCheckedModeBanner: false,
-            home: SplashScreen(
-              onInitComplete: () async {
-                try {
-                  final packageInfo = await PackageInfo.fromPlatform();
-                  AppConfig.appVersion = packageInfo.version;
+                final services = await AppInitializer.initCore();
 
-                  final services = await AppInitializer.initCore();
-
-                  runApp(
-                    SentryWidget(
-                      child: AppInitializer.buildProviderTree(
-                        services: services,
-                        child: const LifecycleManager(child: MyApp()),
-                      ),
+                runApp(
+                  SentryWidget(
+                    child: AppInitializer.buildProviderTree(
+                      services: services,
+                      child: const LifecycleManager(child: MyApp()),
                     ),
-                  );
-                } catch (e, stackTrace) {
-                  _showErrorScreen(e, stackTrace);
-                }
-              },
-            ),
+                  ),
+                );
+              } catch (e, stackTrace) {
+                _showErrorScreen(e, stackTrace);
+              }
+            },
           ),
-        );
-      } catch (e, st) {
-        material.debugPrint('Root initialization failed: $e');
-        _showErrorScreen(e, st);
-      }
-    }, (error, stack) {
-      material.debugPrint('--- UNCAUGHT ERROR ---');
-      material.debugPrint('Error: $error');
-      
-      // If it is a FormatException during startup, it is likely disk corruption
-      if (error is FormatException) {
-         _showErrorScreen(
-           'Data Corruption Detected\\n\\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
-           stack,
-           isCorruption: true,
-         );
-      } else {
-        _showErrorScreen(error, stack);
-      }
-      
-      // Also log to Sentry
-      Sentry.captureException(error, stackTrace: stack);
-    });
+        ),
+      );
+    } catch (e, st) {
+      material.debugPrint('Root initialization failed: $e');
+      _showErrorScreen(e, st);
+    }
   });
 }
 

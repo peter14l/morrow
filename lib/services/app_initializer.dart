@@ -431,18 +431,16 @@ class AppInitializer {
             'Sentry options configured',
           );
         },
-        appRunner: () async {
-          debugPrint('Sentry appRunner triggered');
-          await appRunner();
-        },
       );
       debugPrint('SentryFlutter.init call completed');
     } catch (e, st) {
       debugPrint('Sentry initialization exception: $e');
       debugPrint('Stack trace: $st');
-      // If Sentry fails, we still want to run the app
-      await appRunner();
     }
+    
+    // Run the app in the current zone
+    debugPrint('Sentry appRunner triggered (in root zone)');
+    await appRunner();
   }
 
   /// Step 3 — Initialize Firebase (best-effort).

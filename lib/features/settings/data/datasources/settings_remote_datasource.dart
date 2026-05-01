@@ -19,7 +19,6 @@ class SettingsRemoteDatasource {
         'data_saver': settings.dataSaver,
         'font_size_factor': settings.fontSizeFactor,
         'high_contrast': settings.highContrast,
-        'mesh_enabled': settings.meshEnabled,
         'daily_limit_minutes': settings.dailyLimitMinutes,
         'wind_down_enabled': settings.windDownEnabled,
         'mica_enabled': settings.micaEnabled,
@@ -42,7 +41,7 @@ class SettingsRemoteDatasource {
     try {
       final data = await _client
           .from('profiles')
-          .select('data_saver, font_size_factor, high_contrast, mesh_enabled, daily_limit_minutes, wind_down_enabled, mica_enabled, window_effect, font_family, feed_layout')
+          .select('data_saver, font_size_factor, high_contrast, daily_limit_minutes, wind_down_enabled, mica_enabled, window_effect, font_family, feed_layout')
           .eq('id', user.id)
           .single();
       
@@ -50,7 +49,6 @@ class SettingsRemoteDatasource {
         dataSaver: data['data_saver'] ?? false,
         fontSizeFactor: (data['font_size_factor'] as num?)?.toDouble() ?? 1.0,
         highContrast: data['high_contrast'] ?? false,
-        meshEnabled: data['mesh_enabled'] ?? false,
         dailyLimitMinutes: data['daily_limit_minutes'] ?? 0,
         windDownEnabled: data['wind_down_enabled'] ?? false,
         micaEnabled: data['mica_enabled'] ?? false,
