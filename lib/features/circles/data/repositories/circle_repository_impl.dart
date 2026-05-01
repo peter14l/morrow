@@ -75,6 +75,10 @@ class CircleRepositoryImpl implements CircleRepository {
     String? content,
     List<String> mediaUrls = const [],
     List<String> mediaTypes = const [],
+    String? mood,
+    List<String> hashtags = const [],
+    bool isSpoiler = false,
+    Map<String, dynamic>? poll,
   }) async {
     final postMap = await _remoteDatasource.createCirclePost(
       circleId: circleId,
@@ -82,6 +86,10 @@ class CircleRepositoryImpl implements CircleRepository {
       content: content,
       mediaUrls: mediaUrls,
       mediaTypes: mediaTypes,
+      mood: mood,
+      hashtags: hashtags,
+      isSpoiler: isSpoiler,
+      poll: poll,
     );
     return Post.fromJson(postMap);
   }

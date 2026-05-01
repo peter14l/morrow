@@ -37,6 +37,10 @@ abstract class CircleRepository {
     String? content,
     List<String> mediaUrls = const [],
     List<String> mediaTypes = const [],
+    String? mood,
+    List<String> hashtags = const [],
+    bool isSpoiler = false,
+    Map<String, dynamic>? poll,
   });
 
   Future<CommitmentEntity> createCommitment({

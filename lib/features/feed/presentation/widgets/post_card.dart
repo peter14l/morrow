@@ -546,14 +546,34 @@ class _PostCardState extends State<PostCard>
     final isCirclePost = widget.post.circleId != null;
     
     bool showMembershipOverlay = false;
-    final activeCircle = context.read<CircleProvider>().activeCircle;
+    final circleProvider = context.read<CircleProvider>();
+    final activeCircle = circleProvider.activeCircle;
     
-    // In circles we might not have 'activeCircle' set globally in every context (e.g. nested lists)
-    // But for shared posts viewed outside of its circle detail, we show overlay.
-    if (isCirclePost && (activeCircle == null || activeCircle.id != widget.post.circleId)) {
-        // Here we'd ideally check if currentUserId is in circle_members
-        // For now, if it's a circle post and we aren't in that circle's view, show overlay.
-        showMembershipOverlay = true;
+    // Check if we should show the membership overlay
+    if (isCirclePost) {
+      final isOwnPost = currentUserId != null && currentUserId == widget.post.userId;
+      final isInActiveCircle = activeCircle != null && activeCircle.id == widget.post.circleId;
+      
+      // If it's not our own post and we aren't in the active circle context, 
+      // we check if we are a member of the post's circle.
+      if (!isOwnPost && !isInActiveCircle) {
+        final circle = circleProvider.circles.firstWhere(
+          (c) => c.id == widget.post.circleId,
+          orElse: () => CircleEntity(
+            id: '',
+            name: '',
+            emoji: '',
+            createdBy: '',
+            createdAt: DateTime.now(),
+            memberIds: [],
+          ),
+        );
+        
+        final isMember = currentUserId != null && circle.memberIds.contains(currentUserId);
+        if (!isMember) {
+           showMembershipOverlay = true;
+        }
+      }
     }
 
     final cardDecoration = BoxDecoration(

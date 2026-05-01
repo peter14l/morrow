@@ -188,6 +188,10 @@ class CircleRemoteDatasource {
     String? content,
     List<String> mediaUrls = const [],
     List<String> mediaTypes = const [],
+    String? mood,
+    List<String> hashtags = const [],
+    bool isSpoiler = false,
+    Map<String, dynamic>? poll,
   }) async {
     try {
       final id = _uuid.v4();
@@ -200,20 +204,65 @@ class CircleRemoteDatasource {
         'content': content,
         'media_urls': mediaUrls,
         'media_types': mediaTypes,
+        'mood': mood,
+        'hashtags': hashtags,
+        'is_spoiler': isSpoiler,
         'created_at': now,
         'updated_at': now,
       };
 
       await _supabase.from('posts').insert(data);
 
+      // Handle Poll if any
+      if (poll != null) {
+        final pollId = _uuid.v4();
+        await _supabase.from('polls').insert({
+          'id': pollId,
+          'post_id': id,
+          'question': poll['question'],
+          'poll_type': poll['poll_type'],
+          'is_anonymous': poll['is_anonymous'] ?? false,
+          'ends_at': poll['ends_at'],
+        });
+
+        if (poll['options'] != null) {
+          final options = (poll['options'] as List).map((opt) => {
+            'poll_id': pollId,
+            'option_text': opt['text'],
+            'option_order': opt['order'],
+          }).toList();
+          await _supabase.from('poll_options').insert(options);
+        }
+      }
+
       // Fetch the created post with joined profile info
       final response = await _supabase
           .from('posts')
-          .select('*, profiles(*)')
+          .select('''
+            *,
+            profiles:user_id (
+              username,
+              full_name,
+              avatar_url,
+              is_verified
+            ),
+            polls:polls (
+              *,
+              options:poll_options (*)
+            )
+          ''')
           .eq('id', id)
           .single();
 
-      return response;
+      final postMap = Map<String, dynamic>.from(response);
+      final profile = postMap['profiles'];
+      if (profile != null) {
+        postMap['username'] = profile['username'] ?? profile['full_name'] ?? 'User';
+        postMap['user_avatar'] = profile['avatar_url'] ?? '';
+        postMap['is_verified'] = profile['is_verified'] ?? false;
+      }
+
+      return postMap;
     } catch (e) {
       debugPrint('[CircleRemoteDatasource] createCirclePost error: $e');
       rethrow;

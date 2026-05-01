@@ -58,6 +58,10 @@ class CircleProvider with ChangeNotifier {
     String? content,
     List<String> mediaUrls = const [],
     List<String> mediaTypes = const [],
+    String? mood,
+    List<String> hashtags = const [],
+    bool isSpoiler = false,
+    Map<String, dynamic>? poll,
   }) async {
     try {
       final post = await _repository.createCirclePost(
@@ -66,6 +70,10 @@ class CircleProvider with ChangeNotifier {
         content: content,
         mediaUrls: mediaUrls,
         mediaTypes: mediaTypes,
+        mood: mood,
+        hashtags: hashtags,
+        isSpoiler: isSpoiler,
+        poll: poll,
       );
       
       _state = _state.copyWith(

@@ -42,10 +42,19 @@ abstract class Post with _$Post {
 
   static Map<String, dynamic> _normalizePostJson(Map<String, dynamic> json) {
     final Map<String, dynamic> normalized = Map.from(json);
+    
+    // Handle nested profile data if present (e.g. from joined selects)
+    final profile = json['profiles'] ?? json['user'];
+    if (profile != null && profile is Map<String, dynamic>) {
+      normalized['username'] = profile['username'] ?? profile['full_name'] ?? normalized['username'];
+      normalized['userAvatar'] = profile['avatar_url'] ?? profile['user_avatar'] ?? normalized['user_avatar'] ?? normalized['userAvatar'];
+      normalized['isVerified'] = profile['is_verified'] ?? normalized['is_verified'] ?? normalized['isVerified'];
+    }
+
     normalized['userId'] = json['user_id'] ?? json['userId'];
-    normalized['username'] = json['username'] ?? json['full_name'] ?? '';
+    normalized['username'] = normalized['username'] ?? json['username'] ?? json['full_name'] ?? '';
     normalized['userAvatar'] =
-        json['user_avatar'] ?? json['avatar_url'] ?? json['userAvatar'] ?? '';
+        normalized['userAvatar'] ?? json['user_avatar'] ?? json['avatar_url'] ?? json['userAvatar'] ?? '';
     normalized['imageUrl'] = json['image_url'] ?? json['imageUrl'];
     normalized['likes'] = json['likes_count'] ?? json['likes'] ?? 0;
     normalized['comments'] = json['comments_count'] ?? json['comments'] ?? 0;
@@ -60,7 +69,14 @@ abstract class Post with _$Post {
         json['is_bookmarked'] ?? json['isBookmarked'] ?? false;
     normalized['isAd'] = json['is_ad'] ?? json['isAd'] ?? false;
     normalized['isVerified'] =
-        json['is_verified'] ?? json['isVerified'] ?? false;
+        normalized['isVerified'] ?? json['is_verified'] ?? json['isVerified'] ?? false;
+    normalized['circleId'] = json['circle_id'] ?? json['circleId'];
+
+    // Handle nested community data
+    final community = json['communities'];
+    if (community != null && community is Map<String, dynamic>) {
+      normalized['community_name'] = community['name'] ?? normalized['community_name'];
+    }
 
     // Handle nested poll data from Supabase
     if (json['polls'] != null) {
