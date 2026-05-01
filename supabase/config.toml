@@ -223,7 +223,7 @@ host = "smtp.sendgrid.net"
 port = 587
 user = "apikey"
 pass = "env(SENDGRID_API_KEY)"
-admin_email = "noreply@oasis.app"
+admin_email = "oasis.officialsupport@gmail.com"
 sender_name = "Oasis"
 
 # Uncomment to customize email template

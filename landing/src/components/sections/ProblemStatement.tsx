@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 const stats = [
   "2.5 hrs/day avg screen time",
   "Your data. Their profit.",
-  "Infinite scroll by design.",
 ];
 
 export default function ProblemStatement() {

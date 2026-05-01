@@ -1395,6 +1395,20 @@ class AppRouter {
           },
         ),
 
+        // Auth Callback Route (Handled by Supabase SDK, but needs a route in GoRouter)
+        GoRoute(
+          path: '/auth/callback',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+        ),
+        GoRoute(
+          path: '/auth/apple/callback',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+        ),
+
         // Integrated Call Screen
         GoRoute(
           path: '/call/:callId',

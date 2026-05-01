@@ -52,7 +52,7 @@ serve(async (req) => {
     // IMPORTANT: Use the Supabase auth callback URL, not the app URL directly
     // The auth callback will validate the token and redirect to the app
     const siteUrl = Deno.env.get("SITE_URL") || "https://oasis-web-red.vercel.app"
-    const fromEmail = Deno.env.get("SENDGRID_FROM_EMAIL") || "noreply@oasis.app"
+    const fromEmail = Deno.env.get("SENDGRID_FROM_EMAIL") || "oasis.officialsupport@gmail.com"
     const fromName = Deno.env.get("SENDGRID_FROM_NAME") || "Oasis"
     
     const callbackUrl = `${supabaseUrl}/auth/v1/callback?redirect_to=${siteUrl}/reset-password`

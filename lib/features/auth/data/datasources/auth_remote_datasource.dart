@@ -92,6 +92,7 @@ class AuthRemoteDatasource {
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: AppConfig.getWebUrl('/auth/callback'),
         data: {
           if (username != null) 'username': username,
           if (fullName != null) 'full_name': fullName,

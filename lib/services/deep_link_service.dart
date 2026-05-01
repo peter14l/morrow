@@ -52,6 +52,12 @@ class DeepLinkService {
       
       // Ensure we don't navigate if the path is empty or just /
       if (path.isEmpty || path == '/') return;
+      
+      // Ignore auth callbacks as they are handled by the Supabase SDK internally
+      if (path.startsWith('/auth/callback') || path.startsWith('/auth/apple/callback')) {
+        debugPrint('DeepLinkService: Ignoring auth callback path, letting Supabase handle it.');
+        return;
+      }
 
       // Use GoRouter to navigate
       AppRouter.router.go(path);

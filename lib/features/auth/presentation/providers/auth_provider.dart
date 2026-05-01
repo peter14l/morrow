@@ -106,6 +106,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
       debugPrint('[AuthProvider] Sign up error: $e');
+      rethrow;
     } finally {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();

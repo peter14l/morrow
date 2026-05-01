@@ -212,6 +212,17 @@ class AppTheme {
         colorScheme: colorScheme,
         textTheme: textTheme,
         scaffoldBackgroundColor: scaffoldBackground,
+        snackBarTheme: SnackBarThemeData(
+          backgroundColor: isDark ? OasisColors.moss : _m3eLightSurfaceContainerHighest,
+          contentTextStyle: _getTextStyle(
+            fontFamily: defaultBodyFont,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: isDark ? OasisColors.white : _m3eLightOnSurface,
+          ),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.primary,

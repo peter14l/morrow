@@ -4,20 +4,21 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i5;
-import 'dart:ui' as _i11;
+import 'dart:io' as _i8;
+import 'dart:ui' as _i12;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i12;
+import 'package:mockito/src/dummies.dart' as _i13;
 import 'package:oasis/features/feed/domain/models/comment.dart' as _i3;
 import 'package:oasis/features/feed/domain/models/post.dart' as _i2;
 import 'package:oasis/features/feed/domain/repositories/comment_repository.dart'
-    as _i8;
+    as _i9;
 import 'package:oasis/features/feed/domain/repositories/feed_repository.dart'
     as _i6;
 import 'package:oasis/features/feed/domain/repositories/post_repository.dart'
     as _i7;
-import 'package:oasis/services/ad_service.dart' as _i9;
-import 'package:oasis/services/subscription_service.dart' as _i10;
+import 'package:oasis/services/ad_service.dart' as _i10;
+import 'package:oasis/services/subscription_service.dart' as _i11;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i4;
 
 // ignore_for_file: type=lint
@@ -274,7 +275,7 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
   _i5.Future<_i2.Post> createPost({
     required String? userId,
     required String? content,
-    List<String>? mediaFiles,
+    List<_i8.File>? mediaFiles,
     List<String>? mediaTypes,
     String? communityId,
     String? mood,
@@ -501,7 +502,7 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
 /// A class which mocks [CommentRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockCommentRepository extends _i1.Mock implements _i8.CommentRepository {
+class MockCommentRepository extends _i1.Mock implements _i9.CommentRepository {
   @override
   _i5.Future<List<_i3.Comment>> getPostComments({
     required String? postId,
@@ -707,7 +708,7 @@ class MockCommentRepository extends _i1.Mock implements _i8.CommentRepository {
 /// A class which mocks [AdService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAdService extends _i1.Mock implements _i9.AdService {
+class MockAdService extends _i1.Mock implements _i10.AdService {
   @override
   _i5.Future<List<_i2.Post>> getHouseAds() =>
       (super.noSuchMethod(
@@ -724,7 +725,7 @@ class MockAdService extends _i1.Mock implements _i9.AdService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSubscriptionService extends _i1.Mock
-    implements _i10.SubscriptionService {
+    implements _i11.SubscriptionService {
   @override
   bool get isPro =>
       (super.noSuchMethod(
@@ -786,13 +787,13 @@ class MockSubscriptionService extends _i1.Mock
           as _i5.Future<void>);
 
   @override
-  void addListener(_i11.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i11.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i12.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
@@ -1003,13 +1004,13 @@ class MockSupabaseClient extends _i1.Mock implements _i4.SupabaseClient {
       (super.noSuchMethod(
             Invocation.method(#removeChannel, [channel]),
             returnValue: _i5.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#removeChannel, [channel]),
               ),
             ),
             returnValueForMissingStub: _i5.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#removeChannel, [channel]),
               ),
@@ -1424,7 +1425,7 @@ class MockGoTrueClient extends _i1.Mock implements _i4.GoTrueClient {
               #captchaToken: captchaToken,
             }),
             returnValue: _i5.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#getSSOSignInUrl, [], {
                   #providerId: providerId,
@@ -1435,7 +1436,7 @@ class MockGoTrueClient extends _i1.Mock implements _i4.GoTrueClient {
               ),
             ),
             returnValueForMissingStub: _i5.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i13.dummyValue<String>(
                 this,
                 Invocation.method(#getSSOSignInUrl, [], {
                   #providerId: providerId,
@@ -1867,8 +1868,8 @@ class MockUser extends _i1.Mock implements _i4.User {
   String get id =>
       (super.noSuchMethod(
             Invocation.getter(#id),
-            returnValue: _i12.dummyValue<String>(this, Invocation.getter(#id)),
-            returnValueForMissingStub: _i12.dummyValue<String>(
+            returnValue: _i13.dummyValue<String>(this, Invocation.getter(#id)),
+            returnValueForMissingStub: _i13.dummyValue<String>(
               this,
               Invocation.getter(#id),
             ),
@@ -1888,8 +1889,8 @@ class MockUser extends _i1.Mock implements _i4.User {
   String get aud =>
       (super.noSuchMethod(
             Invocation.getter(#aud),
-            returnValue: _i12.dummyValue<String>(this, Invocation.getter(#aud)),
-            returnValueForMissingStub: _i12.dummyValue<String>(
+            returnValue: _i13.dummyValue<String>(this, Invocation.getter(#aud)),
+            returnValueForMissingStub: _i13.dummyValue<String>(
               this,
               Invocation.getter(#aud),
             ),
@@ -1900,11 +1901,11 @@ class MockUser extends _i1.Mock implements _i4.User {
   String get createdAt =>
       (super.noSuchMethod(
             Invocation.getter(#createdAt),
-            returnValue: _i12.dummyValue<String>(
+            returnValue: _i13.dummyValue<String>(
               this,
               Invocation.getter(#createdAt),
             ),
-            returnValueForMissingStub: _i12.dummyValue<String>(
+            returnValueForMissingStub: _i13.dummyValue<String>(
               this,
               Invocation.getter(#createdAt),
             ),
@@ -2181,8 +2182,8 @@ class MockSupabaseQueryBuilder extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#then, [onValue], {#onError: onError}),
             returnValue:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),
@@ -2193,8 +2194,8 @@ class MockSupabaseQueryBuilder extends _i1.Mock
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
             returnValueForMissingStub:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),
@@ -3287,8 +3288,8 @@ class MockPostgrestFilterBuilder extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#then, [onValue], {#onError: onError}),
             returnValue:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),
@@ -3299,8 +3300,8 @@ class MockPostgrestFilterBuilder extends _i1.Mock
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
             returnValueForMissingStub:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),
@@ -3786,8 +3787,8 @@ class MockPostgrestTransformBuilder extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#then, [onValue], {#onError: onError}),
             returnValue:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),
@@ -3798,8 +3799,8 @@ class MockPostgrestTransformBuilder extends _i1.Mock
                   Invocation.method(#then, [onValue], {#onError: onError}),
                 ),
             returnValueForMissingStub:
-                _i12.ifNotNull(
-                  _i12.dummyValueOrNull<U>(
+                _i13.ifNotNull(
+                  _i13.dummyValueOrNull<U>(
                     this,
                     Invocation.method(#then, [onValue], {#onError: onError}),
                   ),

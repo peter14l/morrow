@@ -12,14 +12,14 @@ const DOWNLOADS_LAUNCH_DATE = new Date("2026-04-30T11:11:00+05:30").getTime();
 // Detect device architecture for APK download
 function getDeviceArchitecture(): "arm64-v8a" | "armeabi-v7a" {
   if (typeof navigator === 'undefined') return "arm64-v8a";
-  
+
   const userAgent = navigator.userAgent.toLowerCase();
-  
+
   // Check for 64-bit ARM (most modern Android devices)
   if (userAgent.includes("arm64") || userAgent.includes("aarch64") || userAgent.includes("x86_64")) {
     return "arm64-v8a";
   }
-  
+
   // Default to 32-bit ARM
   return "armeabi-v7a";
 }
@@ -27,7 +27,7 @@ function getDeviceArchitecture(): "arm64-v8a" | "armeabi-v7a" {
 function handleDownloadAPK() {
   const arch = getDeviceArchitecture();
   const downloadPath = `/downloads/${arch}/oasis-${arch}.apk`;
-  
+
   // Create a temporary link and trigger download
   const link = document.createElement('a');
   link.href = downloadPath;
@@ -39,7 +39,7 @@ function handleDownloadAPK() {
 
 function handleDownloadMSIX() {
   const downloadPath = `/downloads/windows/oasis-windows.msix`;
-  
+
   // Create a temporary link and trigger download
   const link = document.createElement('a');
   link.href = downloadPath;
@@ -94,18 +94,18 @@ export default function FinalCTA() {
     setMessage(null);
 
     const result = await joinBetaTester(userEmail);
-    
+
     setMessage({
       type: result.success ? "success" : "error",
       text: result.message
     });
-    
+
     if (result.success) {
       setIsSignedIn(true);
       const count = await getBetaTesterCount();
       setBetaCount(count);
     }
-    
+
     setIsLoading(false);
   };
 
@@ -115,12 +115,12 @@ export default function FinalCTA() {
 
     setIsLoading(true);
     const result = await joinWaitlist(email);
-    
+
     setMessage({
       type: result.success ? "success" : "error",
       text: result.message
     });
-    
+
     setIsLoading(false);
   };
 
@@ -129,10 +129,10 @@ export default function FinalCTA() {
   };
 
   return (
-    <section className="py-48 px-6 bg-oasis-deep relative overflow-hidden flex flex-col items-center justify-center text-center">
+    <section id="download" className="py-48 px-6 bg-oasis-deep relative overflow-hidden flex flex-col items-center justify-center text-center">
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-oasis-glow/[0.05] blur-[160px] rounded-full -z-10" />
-      
+
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -142,7 +142,7 @@ export default function FinalCTA() {
         <h2 className="font-cormorant text-7xl md:text-[120px] lg:text-[160px] italic text-oasis-sand leading-none">
           Step into the Oasis.
         </h2>
-        
+
         <p className="font-dm-serif text-xl md:text-3xl text-oasis-mist max-w-2xl mx-auto">
           A social network that respects you.
         </p>
@@ -174,7 +174,7 @@ export default function FinalCTA() {
             </div>
           </motion.div>
         )}
-        
+
         {/* Messages */}
         {message && (
           <motion.div
@@ -250,11 +250,11 @@ export default function FinalCTA() {
               Beta is full! Join the waitlist to be notified when we expand.
             </p>
             <form onSubmit={handleWaitlistSubmit} className="flex flex-col sm:flex-row gap-4 items-center justify-center max-w-md mx-auto">
-              <input 
-                type="email" 
+              <input
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email" 
+                placeholder="Enter your email"
                 required
                 className="w-full px-6 py-4 bg-oasis-moss/40 border border-oasis-sage/30 rounded-full font-geist text-oasis-white focus:outline-none focus:border-oasis-glow/50 transition-colors"
               />

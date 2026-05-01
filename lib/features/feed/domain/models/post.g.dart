@@ -39,6 +39,7 @@ _Post _$PostFromJson(Map<String, dynamic> json) => _Post(
   isBookmarked: json['isBookmarked'] as bool? ?? false,
   isAd: json['isAd'] as bool? ?? false,
   isVerified: json['isVerified'] as bool? ?? false,
+  storageProvider: json['storage_provider'] as String?,
   mood: json['mood'] as String?,
   poll: json['poll'] == null
       ? null
@@ -68,6 +69,7 @@ Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
   'isBookmarked': instance.isBookmarked,
   'isAd': instance.isAd,
   'isVerified': instance.isVerified,
+  'storage_provider': instance.storageProvider,
   'mood': instance.mood,
   'poll': instance.poll,
 };

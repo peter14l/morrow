@@ -20,6 +20,12 @@ class AuthProvidersDelegate {
     return '';
   }
 
+  static String get _googleWebClientSecret {
+    const fromEnv = String.fromEnvironment('GOOGLE_WEB_CLIENT_SECRET');
+    if (fromEnv.isNotEmpty) return fromEnv;
+    return '';
+  }
+
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: kIsWeb ? _googleWebClientId : null,
     serverClientId: kIsWeb ? null : _googleWebClientId,
@@ -60,6 +66,7 @@ class AuthProvidersDelegate {
       final googleSignInDesktop = all_platforms.GoogleSignIn(
         params: all_platforms.GoogleSignInParams(
           clientId: _googleWebClientId,
+          clientSecret: _googleWebClientSecret,
           redirectPort: 3000,
           scopes: ['email', 'profile', 'openid'],
         ),
@@ -153,6 +160,7 @@ class AuthProvidersDelegate {
           final googleSignInDesktop = all_platforms.GoogleSignIn(
             params: all_platforms.GoogleSignInParams(
               clientId: _googleWebClientId,
+              clientSecret: _googleWebClientSecret,
               redirectPort: 3000,
               scopes: ['email', 'profile', 'openid'],
             ),

@@ -550,23 +550,25 @@ class _MyAppState extends State<MyApp> {
                         : fluent.ThemeMode.light,
                 routerConfig: router,
                 builder: (context, child) {
-                  return material.Stack(
-                    children: [
-                      material.Column(
-                        children: [
-                          if (Platform.isWindows) const WindowsTitleBar(height: 48),
-                          material.Expanded(
-                            child: material.MediaQuery(
-                              data: material.MediaQuery.of(context).copyWith(
-                                textScaler: material.TextScaler.linear(userSettings.fontSizeFactor),
+                  return material.ScaffoldMessenger(
+                    child: material.Stack(
+                      children: [
+                        material.Column(
+                          children: [
+                            if (Platform.isWindows) const WindowsTitleBar(height: 48),
+                            material.Expanded(
+                              child: material.MediaQuery(
+                                data: material.MediaQuery.of(context).copyWith(
+                                  textScaler: material.TextScaler.linear(userSettings.fontSizeFactor),
+                                ),
+                                child: GlobalWellnessWrapper(child: CallNavigator(child: child!)),
                               ),
-                              child: GlobalWellnessWrapper(child: CallNavigator(child: child!)),
                             ),
-                          ),
-                        ],
-                      ),
-                      FloatingCallOverlay(),
-                    ],
+                          ],
+                        ),
+                        FloatingCallOverlay(),
+                      ],
+                    ),
                   );
                 },
               );
@@ -729,32 +731,15 @@ void main() async {
     material.FlutterError.presentError(details);
   };
 
-  // 2. Silence debug logs for pitch presentation
+  // Capture log messages to debug throttled issues
+  const int wrapWidth = 100;
   material.debugPrint = (String? message, {int? wrapWidth}) {
     if (message == null) return;
     
-    // Ignore harmless but messy Flutter/Windows/Sentry/Signal logs
-    if (message.contains('Attempted to send a key down event') ||
-        message.contains('keysPressed') ||
-        message.contains('[sentry]') ||
-        message.contains('[Signal]') ||
-        message.contains('Unable to parse JSON message') ||
-        message.contains('The document is empty')) {
-      return;
-    }
-
-    // Always allow everything else in debug mode
-    if (kDebugMode) {
-      debugPrintThrottled(message, wrapWidth: wrapWidth);
-      return;
-    }
-
-    // In Pitch Mode, suppress all but critical errors
-    if (AppConfig.isPitchMode) {
-      if (!message.contains('ERROR') && 
-          !message.contains('failed') && 
-          !message.contains('EXCEPTION') && 
-          !message.contains('UNCAUGHT')) {
+    // Ignore frequent layout/render noise in debug console
+    if (message.contains('Sentry') || message.contains('Firebase') || message.contains('Supabase')) {
+      if (kDebugMode) {
+        debugPrintThrottled(message, wrapWidth: wrapWidth);
         return;
       }
     }
@@ -764,14 +749,20 @@ void main() async {
     }
   };
 
-  runZonedGuarded(() async {
-    material.WidgetsFlutterBinding.ensureInitialized();
-    
-    try {
-      await AppInitializer.loadEnv();
-      await AppInitializer.initFirebase();
+  // 2. Initialize Sentry first as the outer wrapper.
+  // We use Sentry's appRunner to create a stable Zone for the entire app life.
+  await AppInitializer.runWithSentry(() async {
+    // 3. Everything else happens inside a runZonedGuarded for custom error handling
+    // (like disk corruption detection) and ensuring same Zone as runApp.
+    runZonedGuarded(() async {
+      // 4. Initialize Flutter bindings inside the zone where runApp is called.
+      // This is the CRITICAL fix for "Zone mismatch".
+      material.WidgetsFlutterBinding.ensureInitialized();
 
-      await AppInitializer.runWithSentry(() async {
+      try {
+        await AppInitializer.loadEnv();
+        await AppInitializer.initFirebase();
+
         runApp(
           material.MaterialApp(
             debugShowCheckedModeBanner: false,
@@ -798,25 +789,28 @@ void main() async {
             ),
           ),
         );
-      });
-    } catch (e, st) {
-      material.debugPrint('Root initialization failed: $e');
-      _showErrorScreen(e, st);
-    }
-  }, (error, stack) {
-    material.debugPrint('--- UNCAUGHT ERROR ---');
-    material.debugPrint('Error: $error');
-    
-    // If it is a FormatException during startup, it is likely disk corruption
-    if (error is FormatException) {
-       _showErrorScreen(
-         'Data Corruption Detected\n\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
-         stack,
-         isCorruption: true,
-       );
-    } else {
-      _showErrorScreen(error, stack);
-    }
+      } catch (e, st) {
+        material.debugPrint('Root initialization failed: $e');
+        _showErrorScreen(e, st);
+      }
+    }, (error, stack) {
+      material.debugPrint('--- UNCAUGHT ERROR ---');
+      material.debugPrint('Error: $error');
+      
+      // If it is a FormatException during startup, it is likely disk corruption
+      if (error is FormatException) {
+         _showErrorScreen(
+           'Data Corruption Detected\\n\\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
+           stack,
+           isCorruption: true,
+         );
+      } else {
+        _showErrorScreen(error, stack);
+      }
+      
+      // Also log to Sentry
+      Sentry.captureException(error, stackTrace: stack);
+    });
   });
 }
 
@@ -867,4 +861,3 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
     ),
   );
 }
-

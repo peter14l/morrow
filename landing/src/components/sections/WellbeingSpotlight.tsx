@@ -7,7 +7,7 @@ import { Lock, Timer, Mail } from "lucide-react";
 const spotlightBlocks = [
   {
     title: "Your time is yours.",
-    description: "Explain Ripples session limits and usage tracking. Oasis helps you stay intentional with every swipe, providing gentle nudges when you've reached your chosen balance.",
+    description: "Take control of your focus with customizable study sessions. Set your duration from 15 to 60 minutes and activate 'Lock-in Mode' for deep focus—straying from Oasis during a session will result in XP penalties, keeping you accountable.",
     icon: Timer,
     color: "var(--oasis-glow)",
     graphic: (
@@ -42,7 +42,7 @@ const spotlightBlocks = [
   },
   {
     title: "Privacy isn't a setting. It's the foundation.",
-    description: "Explain RLS, Privacy Sync Toggle. Your data never leaves your device unless you want it to. We use row-level security and local-first encryption to keep your digital life yours.",
+    description: "Your digital life belongs to you. We use Row-Level Security (RLS) to ensure only you can access your profile and content, while End-to-End Encryption (E2EE) protects your journals and capsules. With the Privacy Sync Toggle, you decide exactly when your data touches the cloud.",
     icon: Lock,
     color: "#7FB3FF",
     graphic: (

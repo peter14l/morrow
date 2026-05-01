@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -13,7 +14,6 @@ const NavLinks = [
   { name: "Features", href: "#features" },
   { name: "Wellbeing", href: "#wellbeing" },
   { name: "Pricing", href: "#pricing" },
-  { name: "Community", href: "#community" },
 ];
 
 export default function Navbar() {
@@ -42,13 +42,14 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="relative w-8 h-8">
-            <svg viewBox="0 0 100 100" className="w-full h-full text-oasis-glow animate-pulse">
-              <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="2" />
-              <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
-              <circle cx="50" cy="50" r="5" fill="currentColor" />
-            </svg>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 overflow-hidden rounded-xl border border-oasis-sage/20 group-hover:border-oasis-glow/30 transition-all">
+            <Image 
+              src="/app_icon.png" 
+              alt="Oasis Logo" 
+              fill 
+              className="object-cover group-hover:scale-110 transition-transform duration-500"
+            />
           </div>
           <span className="font-cormorant text-2xl italic text-oasis-sand group-hover:text-oasis-glow transition-colors">
             Oasis

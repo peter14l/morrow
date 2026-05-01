@@ -101,15 +101,21 @@ export default function Pricing() {
         </div>
 
         {/* Info about pricing */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          className="font-space-mono text-sm text-oasis-mist/50 mt-8"
+          className="mt-16 p-8 rounded-2xl bg-oasis-glow/5 border border-oasis-glow/20 text-center relative overflow-hidden group"
         >
-          INFO: Pricing and subscriptions will be introduced in the app soon.
-        </motion.p>
+          <div className="absolute inset-0 bg-oasis-glow/5 blur-3xl group-hover:bg-oasis-glow/10 transition-colors -z-10" />
+          <p className="font-space-mono text-lg md:text-xl text-oasis-glow font-bold tracking-tight">
+            Pricing and subscriptions will be introduced in the app soon.
+          </p>
+          <p className="font-geist text-sm text-oasis-mist/60 mt-2">
+            Early adopters will receive exclusive benefits and legacy status.
+          </p>
+        </motion.div>
       </div>
       
       {/* Background radial glow */}

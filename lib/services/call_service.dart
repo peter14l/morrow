@@ -306,11 +306,14 @@ class CallService extends ChangeNotifier {
 
   Future<void> _sendSignaling(String recipientId, Map<String, dynamic> data) async {
     if (_currentCallId == null || _signalingChannel == null) return;
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+
     try {
       await _signalingChannel!.sendBroadcastMessage(
         event: 'signaling',
         payload: {
-          'sender_id': _supabase.auth.currentUser!.id,
+          'sender_id': user.id,
           'recipient_id': recipientId,
           ...data,
         },
@@ -368,7 +371,10 @@ class CallService extends ChangeNotifier {
   }
 
   void _subscribeToCall(String callId) {
-    final userId = _supabase.auth.currentUser!.id;
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+    final userId = user.id;
+
     _callSubscription?.cancel();
     _callSubscription = _supabase
         .from('calls')
@@ -403,7 +409,10 @@ class CallService extends ChangeNotifier {
   }
 
   void _subscribeToSignaling(String callId) {
-    final userId = _supabase.auth.currentUser!.id;
+    final user = _supabase.auth.currentUser;
+    if (user == null) return;
+    final userId = user.id;
+
     _signalingChannel = _supabase.channel('call_$callId');
     _signalingChannel!.onBroadcast(event: 'signaling', callback: (payload) {
       final senderId = payload['sender_id'];
@@ -464,9 +473,11 @@ class CallService extends ChangeNotifier {
             }
           }
           _isScreenSharing = true;
-          final userId = _supabase.auth.currentUser!.id;
-          for (var remoteId in _peerConnections.keys) {
-            await _sendSignaling(remoteId, {'type': 'screen_share_state', 'userId': userId, 'isSharing': true});
+          final user = _supabase.auth.currentUser;
+          if (user != null) {
+            for (var remoteId in _peerConnections.keys) {
+              await _sendSignaling(remoteId, {'type': 'screen_share_state', 'userId': user.id, 'isSharing': true});
+            }
           }
           screenTrack.onEnded = () { if (_isScreenSharing) toggleScreenShare(); };
         }
@@ -560,7 +571,9 @@ class CallService extends ChangeNotifier {
     
     _localStream?.getTracks().forEach((track) => track.stop());
     _localStream = null;
-    _localRenderer.srcObject = null;
+    if (_localRendererInitialized) {
+      _localRenderer.srcObject = null;
+    }
     for (var pc in _peerConnections.values) pc.close();
     _peerConnections.clear();
     for (var stream in _remoteStreams.values) stream.getTracks().forEach((track) => track.stop());
@@ -577,7 +590,13 @@ class CallService extends ChangeNotifier {
   }
 
   void startIncomingCallListener() {
-    final userId = _supabase.auth.currentUser!.id;
+    final user = _supabase.auth.currentUser;
+    if (user == null) {
+      debugPrint('[CallService] Cannot start incoming call listener: No user logged in');
+      return;
+    }
+    
+    final userId = user.id;
     _incomingCallSubscription?.cancel();
     _incomingCallSubscription = _supabase.from('calls').stream(primaryKey: ['id']).eq('receiver_id', userId).listen((data) {
       if (data.isNotEmpty) {

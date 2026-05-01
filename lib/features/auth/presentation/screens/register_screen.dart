@@ -10,6 +10,7 @@ import 'package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dar
 
 import 'package:oasis/widgets/security_pin_sheet.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
+import 'package:oasis/core/config/app_config.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -80,10 +81,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
 
         try {
-          await Supabase.instance.client.auth.resend(
-            type: OtpType.signup,
-            email: user.email,
-          );
+          // Note: signUp already sends the confirmation email if enabled in Supabase.
+          // Explicit resend here is only needed if the user requests it later,
+          // but doing it immediately after signUp can cause rate limit errors.
 
           if (mounted) {
             await showDialog(
@@ -133,14 +133,41 @@ class _RegisterScreenState extends State<RegisterScreen> {
           context.go('/login');
         }
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('Registration error: $e');
+      debugPrint('Registration stack trace: $stackTrace');
       if (mounted) {
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+
+        // Log specific error for debugging
+        debugPrint('[RegisterScreen] Detailed error message: $errorMessage');
+        
+        // Handle specific SMTP failure from Supabase
+        if (errorMessage.contains('Error sending confirmation email')) {
+          errorMessage = 'The app failed to send a verification email. Please check the email address or try again later.';
+          
+          // Provide additional help in a dialog if it's a known configuration issue
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Email Error'),
+              content: const Text(
+                'We encountered an issue sending your confirmation email. This is usually due to a configuration problem with the email service.\n\n'
+                'Please contact support or try a different email address.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          );
+        }
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              'Registration failed: ${e.toString().replaceAll('Exception: ', '')}',
-            ),
+            content: Text('Registration failed: $errorMessage'),
             duration: const Duration(seconds: 4),
           ),
         );

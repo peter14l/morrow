@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
@@ -102,6 +103,19 @@ class CallProvider extends ChangeNotifier {
 
   CallProvider(this._callService) {
     _callService.addListener(_onCallServiceUpdate);
+    
+    // Listen to auth state changes to automatically start/stop listener
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      if (data.session != null) {
+        // User logged in or session restored
+        if (_isInitialized) {
+          _startListenerWithRetry();
+        }
+      } else {
+        // User logged out
+        _callService.endCall();
+      }
+    });
   }
 
   void _onCallServiceUpdate() {

@@ -6,6 +6,7 @@ import Hero from "@/components/sections/Hero";
 import ProblemStatement from "@/components/sections/ProblemStatement";
 import FeaturesGrid from "@/components/sections/FeaturesGrid";
 import WellbeingSpotlight from "@/components/sections/WellbeingSpotlight";
+import FoundersNote from "@/components/sections/FoundersNote";
 // import ScreenshotMarquee from "@/components/sections/ScreenshotMarquee";
 import Pricing from "@/components/sections/Pricing";
 import SocialProof from "@/components/sections/SocialProof";
@@ -26,6 +27,7 @@ export default function Home() {
         <ProblemStatement />
         <FeaturesGrid />
         <WellbeingSpotlight />
+        <FoundersNote />
         {/* <ScreenshotMarquee /> */}
         <Pricing />
         <SocialProof />

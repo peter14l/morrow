@@ -12,10 +12,9 @@ export default function Footer() {
 
         {/* Links */}
         <div className="flex flex-wrap justify-center gap-8 font-geist text-sm text-oasis-mist/60">
-          <Link href="#" className="hover:text-oasis-glow transition-colors">Privacy Policy</Link>
-          <Link href="#" className="hover:text-oasis-glow transition-colors">Terms of Service</Link>
-          <Link href="#" className="hover:text-oasis-glow transition-colors">Community Guidelines</Link>
-          <Link href="#" className="hover:text-oasis-glow transition-colors">Support</Link>
+          <Link href="/privacy" className="hover:text-oasis-glow transition-colors">Privacy Policy</Link>
+          <Link href="/terms" className="hover:text-oasis-glow transition-colors">Terms of Service</Link>
+          <a href="mailto:oasis.officialsupport@gmail.com" className="hover:text-oasis-glow transition-colors">Support</a>
         </div>
 
         {/* Copyright */}
