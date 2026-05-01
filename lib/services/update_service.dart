@@ -134,7 +134,7 @@ class UpdateService extends ChangeNotifier {
     const fromEnv = String.fromEnvironment('UPDATE_CHECK_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
     // Default to the new public R2 bucket URL for versions.json
-    return 'https://pub-eb8774786d7e48b8982367d35368a478.r2.dev/versions.json';
+    return 'https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/versions.json';
   }
 
   /// Check if update checking is enabled
