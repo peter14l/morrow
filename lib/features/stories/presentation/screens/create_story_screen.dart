@@ -14,7 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/services/app_initializer.dart';
-import 'package:oasis/services/stories_service.dart';
+import 'package:oasis/themes/theme_provider.dart';
+import 'package:oasis/services/auth_service.dart';
 import 'package:camera/camera.dart';
 
 import 'package:oasis/widgets/stories/music_picker_sheet.dart';

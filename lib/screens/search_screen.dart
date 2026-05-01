@@ -16,6 +16,7 @@ import 'package:oasis/widgets/wellbeing/lockout_overlay.dart';
 import 'package:oasis/widgets/custom_snackbar.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:provider/provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 
 class SearchScreen extends StatefulWidget {

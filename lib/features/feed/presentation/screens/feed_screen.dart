@@ -22,6 +22,7 @@ import 'package:oasis/features/settings/presentation/providers/user_settings_pro
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/themes/app_colors.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/features/feed/presentation/widgets/layouts/classic_feed_layout.dart';

@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart'; // For ThemeProvider
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/core/config/app_config.dart';

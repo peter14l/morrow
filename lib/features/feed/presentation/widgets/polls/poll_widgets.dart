@@ -72,6 +72,7 @@ import 'package:oasis/features/feed/domain/models/enhanced_poll.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 /// Widget for creating enhanced polls
 class PollCreator extends StatefulWidget {

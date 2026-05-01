@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 
 // Predefined color palette options

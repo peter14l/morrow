@@ -3,6 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:universal_io/io.dart';
 

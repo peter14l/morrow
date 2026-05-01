@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';

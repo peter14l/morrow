@@ -6,6 +6,7 @@ import 'package:oasis/features/stories/presentation/providers/stories_provider.d
 import 'package:oasis/features/stories/presentation/widgets/story_viewers_sheet.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart';

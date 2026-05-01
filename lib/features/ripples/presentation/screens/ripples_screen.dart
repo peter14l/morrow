@@ -12,6 +12,7 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart'; // For ThemeProvider
 import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/services/auth_service.dart';

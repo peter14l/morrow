@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/settings/presentation/screens/vault_settings_screen.dart';

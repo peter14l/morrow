@@ -23,6 +23,7 @@ import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/widgets/desktop_header.dart';
 import 'package:oasis/widgets/custom_text_field.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 
 import 'package:oasis/services/auth_service.dart';

@@ -13,6 +13,7 @@ import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/screens/shared_content_screen.dart';

@@ -32,6 +32,7 @@ import 'package:oasis/features/messages/presentation/screens/chat_screen.dart';
 import 'package:oasis/features/messages/presentation/screens/new_message_screen.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/widgets/security_upgrade_banner.dart';
 import 'package:oasis/widgets/security_pin_sheet.dart';

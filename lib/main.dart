@@ -35,6 +35,7 @@ import 'package:oasis/features/calling/presentation/providers/call_provider.dart
 import 'package:oasis/features/calling/presentation/widgets/floating_call_overlay.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/themes/app_theme.dart';
 import 'package:oasis/themes/fluent_theme.dart';
 import 'package:oasis/widgets/windows_title_bar.dart';

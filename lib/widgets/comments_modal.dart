@@ -92,6 +92,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:oasis/widgets/moderation_dialogs.dart';
