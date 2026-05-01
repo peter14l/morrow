@@ -8,15 +8,17 @@ class EncryptionProvisioner {
   Future<void> provisionEncryptionKeys() async {
     try {
       final encryptionService = EncryptionService();
+      // Reset the service state first to ensure we check the new user's keys
+      encryptionService.reset();
+      
       final status = await encryptionService.init();
-      if (kDebugMode) {}
+      debugPrint('[EncryptionProvisioner] Initialized status for current user: $status');
 
-      if (status == EncryptionStatus.needsSetup) {
-        if (kDebugMode) {}
-        await encryptionService.setupEncryption();
-      }
+      // We DO NOT call setupEncryption() here anymore.
+      // Automatic v1 setup is disabled to ensure users are prompted for a PIN (v2)
+      // during their first chat session.
     } catch (e) {
-      if (kDebugMode) {}
+      debugPrint('[EncryptionProvisioner] Error: $e');
     }
   }
 }

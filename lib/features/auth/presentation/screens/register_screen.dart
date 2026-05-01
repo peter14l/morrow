@@ -179,41 +179,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  Future<void> _registerWithPasskey() async {
-    if (_nameController.text.trim().isEmpty ||
-        _usernameController.text.trim().isEmpty ||
-        _emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter your name, username and email first'),
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isLoading = true);
-    try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      await authProvider.registerWithPasskey(
-        email: _emailController.text.trim(),
-        username: _usernameController.text.trim().toLowerCase(),
-        fullName: _nameController.text.trim(),
-      );
-      
-      if (mounted && authProvider.isAuthenticated) {
-        context.go('/feed');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Passkey registration failed: $e')),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -390,31 +355,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 text: 'Sign up with Password',
                 onPressed: (_isLoading || !_hasAcceptedTerms) ? null : _register,
                 isLoading: _isLoading,
-              ),
-              
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('OR', style: TextStyle(color: theme.dividerColor, fontSize: 12)),
-                  ),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 16),
-              
-              OutlinedButton.icon(
-                onPressed: (_isLoading || !_hasAcceptedTerms) ? null : _registerWithPasskey,
-                icon: const Icon(Icons.fingerprint),
-                label: const Text('Sign up with Passkey'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: (_isLoading || !_hasAcceptedTerms) ? theme.disabledColor : theme.primaryColor),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                  foregroundColor: (_isLoading || !_hasAcceptedTerms) ? theme.disabledColor : theme.primaryColor,
-                ),
               ),
 
               const SizedBox(height: 16.0),

@@ -16,16 +16,6 @@ abstract class AuthRepository {
 
   Future<void> signInWithApple();
 
-  Future<AuthResponse> signInWithPasskey(String email);
-
-  Future<AuthResponse> registerWithPasskey({
-    required String email,
-    required String username,
-    required String fullName,
-  });
-
-  Future<void> addPasskeyToCurrentUser();
-
   Future<void> signOut();
 
   Future<RegisteredAccount?> restoreSession();

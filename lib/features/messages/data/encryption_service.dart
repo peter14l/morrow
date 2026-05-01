@@ -811,7 +811,18 @@ class EncryptionService {
         key: KeyManagementService.publicKeyKey(userId),
       );
     }
+    reset();
+  }
+
+  /// Resets the in-memory state of the encryption service.
+  /// Mandatory when switching accounts.
+  void reset() {
     _isInitialized = false;
+    _isInitializing = false;
+    _lastStatus = null;
+    _cachedPrimaryKey = null;
+    _cachedAllKeys = null;
+    debugPrint('[EncryptionService] State reset.');
   }
 }
 

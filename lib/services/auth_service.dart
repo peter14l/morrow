@@ -88,6 +88,10 @@ class AuthService with ChangeNotifier {
       _isSwitchingAccount = true;
       _resetAllProviders(context);
       
+      // CRITICAL: Reset encryption services before switching session
+      EncryptionService().reset();
+      await SignalService().clearData();
+      
       // Use recoverSession which is more robust for switching via refresh token
       await _supabase.auth.setSession(refreshToken);
       
@@ -188,6 +192,17 @@ class AuthService with ChangeNotifier {
 
       if (usernameCheck != null) {
         throw const AuthException('Username is already taken');
+      }
+
+      // CRITICAL FIX: If we are already logged in (adding an account),
+      // we MUST sign out locally before signing up a new user.
+      // Otherwise, Supabase might use the current session's context 
+      // for the verification email or user metadata.
+      if (_supabase.auth.currentSession != null) {
+        debugPrint('[AuthService] Existing session found during signup. Signing out locally first.');
+        // We use a local signout to clear the client state without invalidating the 
+        // session on the server for other potential devices/sessions.
+        await _supabase.auth.signOut(scope: SignOutScope.local);
       }
 
       final response = await _providersDelegate.signUp(
@@ -320,13 +335,34 @@ class AuthService with ChangeNotifier {
   }
 
   // Sign out
-  Future<void> signOut() async {
+  Future<void> signOut({BuildContext? context}) async {
     try {
+      final currentUserId = _supabase.auth.currentUser?.id;
+      
+      // If we have a context and other accounts, switch instead of full signout
+      if (context != null && currentUserId != null) {
+        final otherAccounts = registeredAccounts.where((a) => a.userId != currentUserId).toList();
+        if (otherAccounts.isNotEmpty) {
+          debugPrint('[AuthService] Signing out current account and switching to ${otherAccounts.first.username}');
+          // Remove current account from registry first
+          await _accountRegistry.removeAccount(currentUserId);
+          // Then switch to the next available account
+          await switchAccount(context, otherAccounts.first.userId);
+          return;
+        }
+      }
+
+      // Fallback: Full sign out
+      debugPrint('[AuthService] Performing full sign out');
+      if (currentUserId != null) {
+        await _accountRegistry.removeAccount(currentUserId);
+      }
       await _providersDelegate.signOut();
       await EncryptionService().clearKeys();
       await SignalService().clearData();
       notifyListeners();
     } catch (e) {
+      debugPrint('[AuthService] ERROR during signOut: $e');
       throw AuthException('Failed to sign out: ${e.toString()}');
     }
   }

@@ -23,11 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoggingIn = false;
   bool _isResettingPassword = false;
   bool _showPasswordField = false;
-  bool _hasPasskeyForEmail = false;
-  bool _usePasskeyLogin = false; // Default to passkey if available
   bool _emailSubmitted = false;
-  // final pk.PasskeyAuthenticator _passkeyAuthenticator = pk.PasskeyAuthenticator();
-
 
   @override
   void dispose() {
@@ -76,105 +72,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onEmailSubmitted() async {
     if (_identifierController.text.trim().isEmpty) return;
     
-    setState(() => _isLoggingIn = true);
-    
-    try {
-      // We try to initiate passkey sign in to see if one exists
-      // If it fails with 'no credentials', we show password field
-      // Note: This is a bit of a 'probe' - in production you might use a dedicated RPC or Edge Function if available
-      await context.read<AuthProvider>().signInWithPasskey(
-        email: _identifierController.text.trim(),
-      );
-      
-      // If it succeeds, navigation happens in the provider or we handle it here
-      if (mounted && context.read<AuthProvider>().isAuthenticated) {
-        context.go('/feed');
-      }
-    } on AuthException catch (e) {
-      if (e.message.contains('No passkeys found')) {
-        setState(() {
-          _hasPasskeyForEmail = false;
-          _showPasswordField = true;
-          _emailSubmitted = true;
-        });
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.message)),
-          );
-        }
-      }
-    } catch (e) {
-      // Fallback to password field on any error during passkey probe
-      setState(() {
-        _showPasswordField = true;
-        _emailSubmitted = true;
-      });
-    } finally {
-      if (mounted) setState(() => _isLoggingIn = false);
-    }
-  }
-
-  Future<void> _loginWithPasskey() async {
-    setState(() => _isLoggingIn = true);
-    try {
-      await context.read<AuthProvider>().signInWithPasskey(
-        email: _identifierController.text.trim(),
-      );
-      if (mounted && context.read<AuthProvider>().isAuthenticated) {
-        context.go('/feed');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _isLoggingIn = false);
-    }
-  }
-
-  Future<void> _promptPasskeyCreation() async {
-    final bool? result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Enable Passkey?'),
-        content: const Text(
-          'Would you like to create a passkey for faster and more secure logins next time? You can use your fingerprint, face, or screen lock.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Later'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Create Passkey'),
-          ),
-        ],
-      ),
-    );
-
-    if (result == true && mounted) {
-      try {
-        await context.read<AuthProvider>().addPasskeyToCurrentUser();
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Passkey created successfully!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to create passkey: $e')),
-          );
-        }
-      }
-    }
+    setState(() {
+      _showPasswordField = true;
+      _emailSubmitted = true;
+    });
   }
 
   Future<void> _loginWithEmailAndPassword() async {
@@ -189,11 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
         debugPrint('[LoginScreen] Sign in completed');
         
         if (mounted) {
-          // After successful password login, prompt for passkey creation
-          await _promptPasskeyCreation();
-          if (mounted) {
-            context.go('/feed');
-          }
+          context.go('/feed');
         }
       } catch (e) {
         debugPrint('[LoginScreen] Sign in failed: $e');
@@ -415,7 +312,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       setState(() {
                         _emailSubmitted = false;
                         _showPasswordField = false;
-                        _hasPasskeyForEmail = false;
                       });
                     },
                   ) : null,
@@ -434,7 +330,7 @@ class _LoginScreenState extends State<LoginScreen> {
               
               const SizedBox(height: 16.0),
               
-              // Animated logic for Password or Passkey options
+              // Animated logic for Password options
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: !_emailSubmitted 
@@ -448,90 +344,49 @@ class _LoginScreenState extends State<LoginScreen> {
                       key: const ValueKey('auth_options_column'),
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (_hasPasskeyForEmail) ...[
-                          // Passkey vs Password Dropdown logic
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(color: theme.dividerColor),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: ExpansionTile(
-                              title: Row(
-                                children: [
-                                  Icon(Icons.fingerprint, color: theme.primaryColor),
-                                  const SizedBox(width: 12),
-                                  const Text('Use Your Passkey'),
-                                ],
-                              ),
-                              initiallyExpanded: true,
-                              children: [
-                                ListTile(
-                                  leading: const Icon(Icons.lock_outline),
-                                  title: const Text('Use Your Password'),
-                                  onTap: () {
-                                    setState(() {
-                                      _usePasskeyLogin = false;
-                                      _showPasswordField = true;
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: const InputDecoration(
+                            labelText: 'Password',
+                            prefixIcon: Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(height: 16),
-                          if (!_showPasswordField)
-                            AppButton.primary(
-                              text: 'Sign In with Passkey',
-                              isLoading: _isLoggingIn,
-                              onPressed: _loginWithPasskey,
-                            ),
-                        ],
-                        
-                        if (_showPasswordField) ...[
-                          TextFormField(
-                            controller: _passwordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_outline),
-                              border: OutlineInputBorder(),
-                            ),
-                            obscureText: true,
-                            textInputAction: TextInputAction.done,
-                            onFieldSubmitted: (_) => _loginWithEmailAndPassword(),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
-                              }
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
-                              return null;
-                            },
+                          obscureText: true,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _loginWithEmailAndPassword(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed:
+                                (_isLoggingIn || _isResettingPassword)
+                                    ? null
+                                    : _resetPassword,
+                            child:
+                                _isResettingPassword
+                                    ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    )
+                                    : const Text('Forgot Password?'),
                           ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed:
-                                  (_isLoggingIn || _isResettingPassword)
-                                      ? null
-                                      : _resetPassword,
-                              child:
-                                  _isResettingPassword
-                                      ? const SizedBox(
-                                        width: 16,
-                                        height: 16,
-                                        child: CircularProgressIndicator(strokeWidth: 2),
-                                      )
-                                      : const Text('Forgot Password?'),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          AppButton.primary(
-                            text: 'Sign In',
-                            isLoading: _isLoggingIn,
-                            onPressed: _loginWithEmailAndPassword,
-                          ),
-                        ],
+                        ),
+                        const SizedBox(height: 16),
+                        AppButton.primary(
+                          text: 'Sign In',
+                          isLoading: _isLoggingIn,
+                          onPressed: _loginWithEmailAndPassword,
+                        ),
                       ],
                     ),
               ),

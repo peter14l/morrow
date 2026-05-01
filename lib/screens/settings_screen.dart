@@ -1150,9 +1150,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (confirmed == true && mounted) {
       final authService = Provider.of<AuthService>(context, listen: false);
       _clearProviders(context);
-      await authService.signOut();
+      await authService.signOut(context: context);
       if (mounted) {
-        context.go('/login');
+        if (authService.currentUser == null) {
+          context.go('/login');
+        }
       }
     }
   }

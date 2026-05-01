@@ -169,6 +169,7 @@ class ChatProvider with ChangeNotifier {
     }
 
     final status = await _encryptionService.init();
+    debugPrint('[ChatProvider] Encryption status: $status');
 
     if (status == EncryptionStatus.ready) {
       setState((s) => s.copyWith(encryptionReady: true));
@@ -179,9 +180,9 @@ class ChatProvider with ChangeNotifier {
       await loadMessages(silent: true);
       onEncryptionNeeded?.call(status);
     } else {
-      // Encryption needs setup — still load messages so unencrypted ones show
-      // and encrypted ones render as 🔒 locked icons
-      await loadMessages(silent: false);
+      // Encryption needs setup or restore — do NOT load messages yet
+      // to ensure security and force the user to enter their PIN first.
+      setState((s) => s.copyWith(encryptionReady: false, isLoading: false));
       onEncryptionNeeded?.call(status);
     }
   }
