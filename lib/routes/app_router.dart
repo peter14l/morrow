@@ -72,6 +72,7 @@ import '../features/profile/presentation/screens/followers_screen.dart';
 import '../screens/legal/privacy_policy_screen.dart';
 import '../screens/legal/terms_of_service_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
+import '../features/onboarding/onboarding_shell.dart';
 import '../features/capsules/presentation/screens/create_capsule_screen.dart';
 import '../features/capsules/presentation/screens/capsule_view_screen.dart';
 import '../features/circles/presentation/screens/circle_join_screen.dart';
@@ -1782,7 +1783,7 @@ class AppRouter {
           pageBuilder:
               (context, state) => MaterialPage(
                 key: state.pageKey,
-                child: const OnboardingScreen(),
+                child: const OnboardingShell(),
               ),
         ),
       ],
