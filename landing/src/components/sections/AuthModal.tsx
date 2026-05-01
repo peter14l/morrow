@@ -37,8 +37,8 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
         });
 
         if (error) throw error;
-        setSuccess("Check your email for the confirmation link!");
-        // Don't call onSuccess here - user needs to confirm email first
+        setSuccess("Account created successfully! You can now sign in.");
+        setMode("signin");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,

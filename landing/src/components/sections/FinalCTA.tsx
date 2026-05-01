@@ -232,7 +232,7 @@ export default function FinalCTA() {
               You're In!
             </h3>
             <p className="font-geist text-oasis-mist">
-              Welcome to the beta. Check your email (and spam folder) for next steps.
+              Welcome to the beta. We're excited to have you!
             </p>
           </motion.div>
         )}

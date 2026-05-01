@@ -67,7 +67,8 @@ export async function joinBetaTester(userEmail: string): Promise<BetaSignupResul
         
         return { 
           success: true, 
-          message: 'You\'re in! Welcome to the beta. Check your email!', 
+          message: 'You\'re in! Welcome to the beta.',
+ 
           isBetaFull: false 
         };
       }
@@ -96,7 +97,8 @@ export async function joinBetaTester(userEmail: string): Promise<BetaSignupResul
     revalidatePath('/');
     return { 
       success: true, 
-      message: 'You\'re in! Welcome to the beta. Check your email!', 
+      message: 'You\'re in! Welcome to the beta.',
+ 
       isBetaFull: false 
     };
 
@@ -148,7 +150,8 @@ export async function joinWaitlist(userEmail: string): Promise<BetaSignupResult>
 
     return { 
       success: true, 
-      message: 'You\'ve been added to the waitlist! Check your email (and spam).', 
+      message: 'You\'ve been added to the waitlist! We\'ll notify you when we expand.',
+ 
       isBetaFull: true 
     };
 
