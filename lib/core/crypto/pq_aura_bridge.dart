@@ -129,16 +129,26 @@ final class FfiInitialMessage extends Struct {
 }
 
 final class RatchetState extends Struct {
-  // Opaque state - will be managed by Rust
+  @Uint8()
+  external int dummy; // Dart FFI doesn't allow empty structs
 }
 
 final class FfiMessage extends Struct {
   external Pointer<Uint8> header;
   @IntPtr()
-  external int headerLen;
-  external Pointer<Uint8> payload;
+  external int header_len;
+  external Pointer<Uint8> ratchet_message_payload;
   @IntPtr()
-  external int payloadLen;
+  external int ratchet_message_payload_len;
+}
+
+final class FfiKeyPair extends Struct {
+  external Pointer<Uint8> public_key;
+  @IntPtr()
+  external int public_key_len;
+  external Pointer<Uint8> secret_key;
+  @IntPtr()
+  external int secret_key_len;
 }
 
 /// PQ-Aura FFI Bridge
@@ -265,17 +275,15 @@ class PQAuraBridge {
     final result = _pqaGenerateKeypair();
     if (result == nullptr) return null;
 
-    final kp = result.ref;
-    final publicKey = kp.publicKey.asTypedList(kp.publicKeyLen).toList();
-    final secretKey = kp.secretKey.asTypedList(kp.secretKeyLen).toList();
-
-    // Don't free the keypair yet - we need to return the data first
-    // The caller is responsible for managing the raw key bytes
+    // result is Pointer<Pointer<FfiKeyPair>>
+    final kp = result.value; 
+    final publicKey = kp.ref.public_key.asTypedList(kp.ref.public_key_len).toList();
+    final secretKey = kp.ref.secret_key.asTypedList(kp.ref.secret_key_len).toList();
 
     return PQAuraKeyPair(
       publicKey: publicKey,
       secretKey: secretKey,
-      nativePtr: result,
+      nativePtr: kp,
     );
   }
 
@@ -294,10 +302,10 @@ class PQAuraBridge {
     if (result == nullptr) return null;
 
     final bundle = result.ref;
-    final identityPkBytes = bundle.identityPk.asTypedList(bundle.identityPkLen).toList();
-    final signedPreKey = bundle.signedPreKey.asTypedList(bundle.signedPreKeyLen).toList();
-    final oneTimePreKey = bundle.hasOneTime
-        ? bundle.oneTimePreKey.asTypedList(bundle.oneTimePreKeyLen).toList()
+    final identityPkBytes = bundle.identity_pk.asTypedList(bundle.identity_pk_len).toList();
+    final signedPreKey = bundle.signed_pre_key.asTypedList(bundle.signed_pre_key_len).toList();
+    final oneTimePreKey = bundle.has_one_time
+        ? bundle.one_time_pre_key.asTypedList(bundle.one_time_pre_key_len).toList()
         : null;
 
     return PQAuraPreKeyBundle(
@@ -336,16 +344,16 @@ class PQAuraBridge {
     if (result == nullptr) return null;
 
     final msg = result.ref;
-    final statePtr = msg.statePtr;
-    final aliceIdentityPk = msg.aliceIdentityPk.asTypedList(msg.aliceIdentityPkLen).toList();
-    final ephemeralPk = msg.ephemeralPk.asTypedList(msg.ephemeralPkLen).toList();
-    final kemIdentity = msg.kemCiphertextIdentity.asTypedList(msg.kemCiphertextIdentityLen).toList();
-    final kemSigned = msg.kemCiphertextSigned.asTypedList(msg.kemCiphertextSignedLen).toList();
-    final kemOneTime = msg.hasOneTime
-        ? msg.kemCiphertextOneTime.asTypedList(msg.kemCiphertextOneTimeLen).toList()
+    final statePtr = msg.state_ptr;
+    final aliceIdentityPk = msg.alice_identity_pk.asTypedList(msg.alice_identity_pk_len).toList();
+    final ephemeralPk = msg.ephemeral_pk.asTypedList(msg.ephemeral_pk_len).toList();
+    final kemIdentity = msg.kem_ciphertext_identity.asTypedList(msg.kem_ciphertext_identity_len).toList();
+    final kemSigned = msg.kem_ciphertext_signed.asTypedList(msg.kem_ciphertext_signed_len).toList();
+    final kemOneTime = msg.has_one_time
+        ? msg.kem_ciphertext_one_time.asTypedList(msg.kem_ciphertext_one_time_len).toList()
         : null;
-    final ratchetHeader = msg.ratchetMessageHeader.asTypedList(msg.ratchetMessageHeaderLen).toList();
-    final ratchetPayload = msg.ratchetMessagePayload.asTypedList(msg.ratchetMessagePayloadLen).toList();
+    final ratchetHeader = msg.ratchet_message_header.asTypedList(msg.ratchet_message_header_len).toList();
+    final ratchetPayload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
 
     return PQAuraInitialMessage(
       statePtr: statePtr,
@@ -399,6 +407,7 @@ class PQAuraBridge {
     calloc.free(signedSkPtr);
     if (otSkPtr != null) calloc.free(otSkPtr);
 
+    if (result == nullptr) return null;
     return result;
   }
 
@@ -420,8 +429,8 @@ class PQAuraBridge {
     if (result == nullptr) return null;
 
     final msg = result.ref;
-    final header = msg.header.asTypedList(msg.headerLen).toList();
-    final payload = msg.payload.asTypedList(msg.payloadLen).toList();
+    final header = msg.header.asTypedList(msg.header_len).toList();
+    final payload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
 
     return PQAuraMessage(header: header, payload: payload, nativePtr: result);
   }
@@ -430,21 +439,21 @@ class PQAuraBridge {
   List<int>? decrypt(Pointer<RatchetState> state, List<int> header, List<int> payload, List<int> ad) {
     if (!_isLoaded) return null;
 
-    final headerPtr = calloc<Uint8>(header.length);
-    final payloadPtr = calloc<Uint8>(payload.length);
-    final adPtr = calloc<Uint8>(ad.length);
+    final headerPtr = _mallocBytes(header);
+    final payloadPtr = _mallocBytes(payload);
+    final adPtr = _mallocBytes(ad);
     final outLenPtr = calloc<IntPtr>();
 
-    for (var i = 0; i < header.length; i++) headerPtr[i] = header[i];
-    for (var i = 0; i < payload.length; i++) payloadPtr[i] = payload[i];
-    for (var i = 0; i < ad.length; i++) adPtr[i] = ad[i];
-
     final result = _pqaDecrypt(
-        state,
-        headerPtr, header.length,
-        payloadPtr, payload.length,
-        adPtr, ad.length,
-        outLenPtr);
+      state,
+      headerPtr,
+      header.length,
+      payloadPtr,
+      payload.length,
+      adPtr,
+      ad.length,
+      outLenPtr,
+    );
 
     calloc.free(headerPtr);
     calloc.free(payloadPtr);
@@ -455,9 +464,9 @@ class PQAuraBridge {
       return null;
     }
 
-    final plaintext = result.asTypedList(outLenPtr.ref).toList();
+    final plaintext = result.asTypedList(outLenPtr.value).toList();
+    _pqaFreeBuffer(result, outLenPtr.value);
     calloc.free(outLenPtr);
-    calloc.free(result);
 
     return plaintext;
   }

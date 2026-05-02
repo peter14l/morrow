@@ -158,7 +158,7 @@ class PQAuraService {
       }
 
       final statePtr = _bridge.deserializeState(serializedState.toList());
-      if (statePtr == nullptr) {
+      if (statePtr == null || statePtr == nullptr) {
         debugPrint('[PQAura] Failed to deserialize state');
         return false;
       }

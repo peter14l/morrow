@@ -104,7 +104,7 @@ class ChatEncryptionProvider with ChangeNotifier {
           decryptedMessage = decryptedMessage.copyWith(
             content: decrypted ?? '🔒 Message encrypted (PQ-Aura)',
           );
-        } else if (!isSender && _pqAuraReady) {
+        } else if (!isSender && _pqauraService.isReady) {
           // Message from other user - decrypt with PQ-Aura
           final headerBytes = base64Decode(message.pqAuraHeader!);
           final payloadBytes = base64Decode(message.pqAuraPayload!);

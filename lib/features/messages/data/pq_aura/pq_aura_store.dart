@@ -123,9 +123,11 @@ class PQAuraStore {
     bridge.freeBundle(bundle.nativePtr);
 
     return PQAuraPreKeyBundleData(
-      identityPk: bundle.identityPk,
-      signedPreKey: bundle.signedPreKey,
-      oneTimePreKey: bundle.oneTimePreKey,
+      identityPk: Uint8List.fromList(bundle.identityPk),
+      signedPreKey: Uint8List.fromList(bundle.signedPreKey),
+      oneTimePreKey: bundle.oneTimePreKey != null
+          ? Uint8List.fromList(bundle.oneTimePreKey!)
+          : null,
     );
   }
 

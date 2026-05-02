@@ -23,6 +23,7 @@ import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/providers/providers.dart';
+import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_app_bar.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_background.dart';
@@ -293,7 +294,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final success = await SecurityPinSheet.show(context, status);
     if (success == true) {
       // Encryption is now ready, reinitialize the provider
-      _chatProvider.setState((s) => s.copyWith(encryptionReady: true));
+      _chatProvider.setState((s) => (s as ChatState).copyWith(encryptionReady: true));
       await _chatProvider.loadMessages(silent: true);
     }
   }
