@@ -240,11 +240,13 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
   _i6.Future<Map<String, dynamic>> encryptMediaFile({
     required _i9.File? file,
     required List<String>? recipientPublicKeysPem,
+    String? recipientUserId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#encryptMediaFile, [], {
               #file: file,
               #recipientPublicKeysPem: recipientPublicKeysPem,
+              #recipientUserId: recipientUserId,
             }),
             returnValue: _i6.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
@@ -257,12 +259,14 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
     required _i8.Uint8List? encryptedBytes,
     required String? ivBase64,
     required Map<String, dynamic>? encryptedKeys,
+    String? senderId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#decryptMediaFile, [], {
               #encryptedBytes: encryptedBytes,
               #ivBase64: ivBase64,
               #encryptedKeys: encryptedKeys,
+              #senderId: senderId,
             }),
             returnValue: _i6.Future<_i8.Uint8List?>.value(),
           )
@@ -298,6 +302,12 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
+
+  @override
+  void reset() => super.noSuchMethod(
+    Invocation.method(#reset, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [SignalService].
@@ -522,9 +532,9 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as _i6.Future<_i5.AppUser>);
 
   @override
-  _i6.Future<void> signOut() =>
+  _i6.Future<void> signOut({_i15.BuildContext? context}) =>
       (super.noSuchMethod(
-            Invocation.method(#signOut, []),
+            Invocation.method(#signOut, [], {#context: context}),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )

@@ -13,6 +13,7 @@ class UserPresence {
 class PresenceProvider with ChangeNotifier {
   final PresenceService _presenceService = PresenceService();
   final Map<String, UserPresence> _userPresence = {};
+  bool _isDisposed = false;
 
   // Polling fallback for user presence (when realtime presence sync fails)
   Timer? _pollingTimer;
@@ -50,7 +51,7 @@ class PresenceProvider with ChangeNotifier {
           status: status,
           lastSeen: lastSeen,
         );
-        notifyListeners();
+        _safeNotifyListeners();
       },
     );
 
@@ -67,7 +68,7 @@ class PresenceProvider with ChangeNotifier {
     _presenceService.unsubscribeFromPresence(userId);
     _userPresence.remove(userId);
     _trackedUserIds.remove(userId);
-    notifyListeners();
+    _safeNotifyListeners();
 
     // Stop polling if no more users to track
     if (_trackedUserIds.isEmpty) {
@@ -78,8 +79,20 @@ class PresenceProvider with ChangeNotifier {
     }
   }
 
+  void _safeNotifyListeners() {
+    if (_isDisposed) return;
+    
+    // Defer notification to avoid "widget tree locked" errors if called during build/dispose
+    Future.microtask(() {
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    });
+  }
+
   @override
   void dispose() {
+    _isDisposed = true;
     _pollingTimer?.cancel();
     _pollingTimer = null;
     _heartbeatTimer?.cancel();
@@ -146,6 +159,6 @@ class PresenceProvider with ChangeNotifier {
         debugPrint('[PresenceProvider] Polling error for $userId: $e');
       }
     }
-    notifyListeners();
+    _safeNotifyListeners();
   }
 }

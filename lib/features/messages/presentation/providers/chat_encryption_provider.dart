@@ -149,13 +149,16 @@ class ChatEncryptionProvider with ChangeNotifier {
             content: decrypted ?? '🔒 Message encrypted',
           );
         } else if (!isSender) {
-          String decrypted = await SignalService().decryptMessage(
-            message.senderId,
-            message.content,
-            message.signalMessageType!,
-          );
+          String? decrypted;
+          if (message.signalMessageType != null) {
+            decrypted = await SignalService().decryptMessage(
+              message.senderId,
+              message.content,
+              message.signalMessageType!,
+            );
+          }
 
-          if ((decrypted.contains('🔒') ||
+          if ((decrypted == null || decrypted.contains('🔒') ||
                   decrypted.contains('Optimizing secure connection')) &&
               message.signalSenderContent != null &&
               message.encryptedKeys != null &&
@@ -167,7 +170,7 @@ class ChatEncryptionProvider with ChangeNotifier {
             );
             if (rsaDecrypted != null) decrypted = rsaDecrypted;
           }
-          decryptedMessage = decryptedMessage.copyWith(content: decrypted);
+          decryptedMessage = decryptedMessage.copyWith(content: decrypted ?? '🔒 Message encrypted');
         }
       } catch (e) {
         debugPrint('Decryption failed: $e');
@@ -192,7 +195,7 @@ class ChatEncryptionProvider with ChangeNotifier {
       final replyData = decryptedMessage.replyToData!;
       final replySenderId = replyData['sender_id'] as String?;
       final replyEncryptedKeys =
-          replyData['encrypted_keys'] as Map<String, dynamic>?;
+          replyData['encrypted_keys'] != null ? Map<String, dynamic>.from(replyData['encrypted_keys'] as Map) : null;
       final replyIv = replyData['iv'] as String?;
       final replySignalType = replyData['signal_message_type'] as int?;
       final replyContent = replyData['content'] as String?;
@@ -212,10 +215,10 @@ class ChatEncryptionProvider with ChangeNotifier {
                 replyIv != null) {
               decryptedReply = await _encryptionService.decryptMessage(
                 replySenderContent,
-                Map<String, String>.from(replyEncryptedKeys),
+                replyEncryptedKeys,
                 replyIv,
               );
-            } else if (!isSender) {
+            } else {
               decryptedReply = await SignalService().decryptMessage(
                 replySenderId,
                 replyContent,
@@ -228,7 +231,7 @@ class ChatEncryptionProvider with ChangeNotifier {
                   replyIv != null) {
                 decryptedReply = await _encryptionService.decryptMessage(
                   replySenderContent,
-                  Map<String, String>.from(replyEncryptedKeys),
+                  replyEncryptedKeys,
                   replyIv,
                 );
               }
@@ -236,7 +239,7 @@ class ChatEncryptionProvider with ChangeNotifier {
           } else if (replyEncryptedKeys != null && replyIv != null) {
             decryptedReply = await _encryptionService.decryptMessage(
               replyContent,
-              Map<String, String>.from(replyEncryptedKeys),
+              replyEncryptedKeys,
               replyIv,
             );
           }

@@ -57,6 +57,7 @@ class ChatProvider with ChangeNotifier {
 
   ChatState _state = const ChatState();
   ChatState get state => _state;
+  bool _isDisposed = false;
 
   // Services
   final AuthService _authService = AuthService();
@@ -108,10 +109,24 @@ class ChatProvider with ChangeNotifier {
            ChatSettingsProvider(conversationId: conversationId),
        _messagingService = messagingService;
 
-  /// Helper to update state immutably and notify listeners.
+  /// Helper to update state immutably and notify listeners safely.
   void setState(ChatState Function(ChatState state) update) {
+    if (_isDisposed) return;
     _state = update(_state);
-    notifyListeners();
+    _safeNotifyListeners();
+  }
+
+  void _safeNotifyListeners() {
+    if (_isDisposed) return;
+    
+    // Defer notification if the framework is currently building or locked
+    if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
+      Future.microtask(() {
+        if (!_isDisposed) notifyListeners();
+      });
+    } else {
+      notifyListeners();
+    }
   }
 
   // =========================================================================
@@ -468,6 +483,8 @@ class ChatProvider with ChangeNotifier {
       conversationId: conversationId,
       onUpdate: (messageId, userId, readAt) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (_isDisposed) return;
+          
           final index = state.messages.indexWhere((m) => m.id == messageId);
           if (index < 0) return;
 
@@ -512,6 +529,8 @@ class ChatProvider with ChangeNotifier {
       conversationId: conversationId,
       onUpdate: (messageId, reactions) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
+          if (_isDisposed) return;
+          
           final index = state.messages.indexWhere((m) => m.id == messageId);
           if (index < 0) return;
 
@@ -1230,6 +1249,7 @@ class ChatProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     // Stop polling fallback
     _pollingTimer?.cancel();
     _pollingTimer = null;

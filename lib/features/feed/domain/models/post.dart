@@ -55,7 +55,7 @@ abstract class Post with _$Post {
     normalized['username'] = normalized['username'] ?? json['username'] ?? json['full_name'] ?? '';
     normalized['userAvatar'] =
         normalized['userAvatar'] ?? json['user_avatar'] ?? json['avatar_url'] ?? json['userAvatar'] ?? '';
-    normalized['imageUrl'] = json['image_url'] ?? json['imageUrl'];
+    normalized['image_url'] = json['image_url'] ?? json['imageUrl'];
     normalized['likes'] = json['likes_count'] ?? json['likes'] ?? 0;
     normalized['comments'] = json['comments_count'] ?? json['comments'] ?? 0;
     normalized['shares'] = json['shares_count'] ?? json['shares'] ?? 0;
@@ -67,10 +67,10 @@ abstract class Post with _$Post {
     normalized['isLiked'] = json['is_liked'] ?? json['isLiked'] ?? false;
     normalized['isBookmarked'] =
         json['is_bookmarked'] ?? json['isBookmarked'] ?? false;
-    normalized['isAd'] = json['is_ad'] ?? json['isAd'] ?? false;
+    normalized['is_ad'] = json['is_ad'] ?? json['isAd'] ?? false;
     normalized['isVerified'] =
         normalized['isVerified'] ?? json['is_verified'] ?? json['isVerified'] ?? false;
-    normalized['circleId'] = json['circle_id'] ?? json['circleId'];
+    normalized['circle_id'] = json['circle_id'] ?? json['circleId'];
 
     // Handle nested community data
     final community = json['communities'];
