@@ -101,7 +101,7 @@ class PresenceService {
 
   // Update current user's presence
   Future<void> updateUserPresence(String userId, String status) async {
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final lastUpdate = _lastUpdateTime[userId];
     final lastStatus = _lastStatus[userId];
 
@@ -142,10 +142,12 @@ class PresenceService {
       }
     }
 
+    final timestamp = DateTime.now().toUtc().toIso8601String();
+
     try {
       await channel.track({
         'status': status,
-        'last_seen': DateTime.now().toIso8601String(),
+        'last_seen': timestamp,
       });
 
       // Also upsert to user_status table for polling fallback
@@ -153,7 +155,7 @@ class PresenceService {
         _supabase.from(SupabaseConfig.userStatusTable).upsert({
           'user_id': userId,
           'status': status,
-          'last_seen': DateTime.now().toIso8601String(),
+          'last_seen': timestamp,
         }).catchError((e) {
           debugPrint('PresenceService: Table upsert error - ${e.toString()}');
         }),
@@ -165,7 +167,7 @@ class PresenceService {
         await Future.delayed(const Duration(milliseconds: 100));
         await channel.track({
           'status': status,
-          'last_seen': DateTime.now().toIso8601String(),
+          'last_seen': timestamp,
         });
       } catch (e2) {
         debugPrint(
@@ -176,7 +178,7 @@ class PresenceService {
 
     // Only update last update time AFTER the async track completes
     // This ensures rapid state changes (background->foreground) are not rate-limited
-    _lastUpdateTime[userId] = DateTime.now();
+    _lastUpdateTime[userId] = DateTime.now().toUtc();
     _lastStatus[userId] = status;
   }
 

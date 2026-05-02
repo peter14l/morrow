@@ -202,7 +202,11 @@ class ChatAppBar extends StatelessWidget {
                                       const SizedBox(width: 6),
                                     ],
                                     Text(
-                                      isOnline ? 'Online' : 'Offline',
+                                      isOnline
+                                          ? 'Online'
+                                          : (presence?.lastSeen != null
+                                              ? 'Seen ${_formatSeenTime(presence!.lastSeen!)}'
+                                              : 'Offline'),
                                       style: theme.textTheme.bodySmall
                                           ?.copyWith(
                                             color: isOnline
@@ -382,11 +386,16 @@ class ChatAppBar extends StatelessWidget {
                             const SizedBox(width: 4),
                           ],
                           Text(
-                            isOnline ? 'Online' : 'Offline',
+                            isOnline
+                                ? 'Online'
+                                : (presence?.lastSeen != null
+                                    ? 'Seen ${_formatSeenTime(presence!.lastSeen!)}'
+                                    : 'Offline'),
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isOnline
                                   ? Colors.green.withValues(alpha: 0.8)
-                                  : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                                  : colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
                             ),
@@ -437,7 +446,7 @@ class ChatAppBar extends StatelessWidget {
   }
 
   String _formatSeenTime(DateTime time) {
-    final now = DateTime.now();
+    final now = DateTime.now().toUtc();
     final difference = now.difference(time);
     if (difference.inMinutes < 1) return 'just now';
     if (difference.inHours < 1) return '${difference.inMinutes}m ago';

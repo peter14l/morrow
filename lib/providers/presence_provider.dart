@@ -19,9 +19,12 @@ class PresenceProvider with ChangeNotifier {
   Timer? _pollingTimer;
   Timer? _heartbeatTimer;
   static const Duration _pollingInterval = Duration(seconds: 10);
-  static const Duration _heartbeatInterval = Duration(seconds: 30);
-  static const Duration _offlineThreshold = Duration(minutes: 1);
+  static const Duration _heartbeatInterval = Duration(seconds: 25);
+  static const Duration _offlineThreshold = Duration(seconds: 45);
   final Set<String> _trackedUserIds = {};
+
+  // Track when the last update was received via Realtime to avoid overwriting with stale polling data
+  final Map<String, DateTime> _lastRealtimeUpdate = {};
 
   UserPresence? getUserPresence(String userId) {
     final presence = _userPresence[userId];
@@ -29,7 +32,7 @@ class PresenceProvider with ChangeNotifier {
 
     // Client-side validation: if status is online but last_seen is too old, treat as offline
     if (presence.status == 'online' && presence.lastSeen != null) {
-      final now = DateTime.now();
+      final now = DateTime.now().toUtc();
       if (now.difference(presence.lastSeen!) > _offlineThreshold) {
         return UserPresence(status: 'offline', lastSeen: presence.lastSeen);
       }
@@ -38,7 +41,8 @@ class PresenceProvider with ChangeNotifier {
     return presence;
   }
 
-  bool isUserOnline(String userId) => getUserPresence(userId)?.status == 'online';
+  bool isUserOnline(String userId) =>
+      getUserPresence(userId)?.status == 'online';
 
   void subscribeToUserPresence(String userId) {
     // Track user ID for polling fallback
@@ -51,6 +55,7 @@ class PresenceProvider with ChangeNotifier {
           status: status,
           lastSeen: lastSeen,
         );
+        _lastRealtimeUpdate[userId] = DateTime.now().toUtc();
         _safeNotifyListeners();
       },
     );
@@ -68,6 +73,7 @@ class PresenceProvider with ChangeNotifier {
     _presenceService.unsubscribeFromPresence(userId);
     _userPresence.remove(userId);
     _trackedUserIds.remove(userId);
+    _lastRealtimeUpdate.remove(userId);
     _safeNotifyListeners();
 
     // Stop polling if no more users to track
@@ -81,7 +87,7 @@ class PresenceProvider with ChangeNotifier {
 
   void _safeNotifyListeners() {
     if (_isDisposed) return;
-    
+
     // Defer notification to avoid "widget tree locked" errors if called during build/dispose
     Future.microtask(() {
       if (!_isDisposed) {
@@ -135,7 +141,18 @@ class PresenceProvider with ChangeNotifier {
   /// Poll user presence directly from database.
   Future<void> _pollUserPresence() async {
     final userIds = _trackedUserIds.toList();
+    final now = DateTime.now().toUtc();
+
     for (final userId in userIds) {
+      if (_isDisposed) return;
+
+      // Skip polling if we got a fresh Realtime update in the last 10 seconds.
+      // This prevents stale database records from flickering the UI state.
+      final lastSync = _lastRealtimeUpdate[userId];
+      if (lastSync != null && now.difference(lastSync).inSeconds < 10) {
+        continue;
+      }
+
       try {
         final result = await _presenceService.getUserStatus(userId);
 
@@ -143,7 +160,7 @@ class PresenceProvider with ChangeNotifier {
           final status = result['status'] as String? ?? 'offline';
           final lastSeenStr = result['last_seen'] as String?;
           final lastSeen =
-              lastSeenStr != null ? DateTime.parse(lastSeenStr) : null;
+              lastSeenStr != null ? DateTime.parse(lastSeenStr).toUtc() : null;
 
           _userPresence[userId] = UserPresence(
             status: status,
