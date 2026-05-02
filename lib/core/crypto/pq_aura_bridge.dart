@@ -180,6 +180,7 @@ class PQAuraBridge {
 
     try {
       if (Platform.isAndroid) {
+        // Use DynamicLibrary.open for Android to load the .so file from jniLibs
         _lib = DynamicLibrary.open('libpq_aura.so');
       } else if (Platform.isIOS) {
         _lib = DynamicLibrary.process();
@@ -195,6 +196,7 @@ class PQAuraBridge {
       _isLoaded = true;
       return true;
     } catch (e) {
+      debugPrint('[PQAuraBridge] Error loading library: $e');
       return false;
     }
   }
