@@ -39,9 +39,10 @@ class PQAuraService {
 
     // Load the native library
     if (!_bridge.load()) {
-      debugPrint('[PQAura] FAILED: Native library could not be loaded');
+      debugPrint('[PQAura] CRITICAL FAILED: Native library could not be loaded. Handshakes will fail.');
       return false;
     }
+    debugPrint('[PQAura] Native library loaded successfully.');
 
     // Check if we have identity keys, if not generate them
     final hasKeys = await _store.hasIdentityKeys();

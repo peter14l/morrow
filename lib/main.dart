@@ -757,7 +757,7 @@ void main() async {
     if (message == null) return;
     
     // Ignore frequent layout/render noise in debug console
-    if (message.contains('Sentry') || message.contains('Firebase') || message.contains('Supabase')) {
+    if (message.contains('Sentry') || message.contains('Firebase') || message.contains('Supabase') || message.contains('[PQAura]') || message.contains('[Signal]')) {
       if (kDebugMode) {
         debugPrintThrottled(message, wrapWidth: wrapWidth);
         return;

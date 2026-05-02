@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 /// Centralized service for decrypting chat messages.
 /// 
@@ -37,30 +38,44 @@ class ChatDecryptionService {
     String? iv,
     int? signalMessageType,
     String? signalSenderContent,
+    String? pqAuraHeader,
+    String? pqAuraPayload,
   }) async {
     try {
       final isSender = senderId == currentUserId;
       String decryptedContent = content;
 
-      if (isSender &&
-          signalSenderContent != null &&
-          encryptedKeys != null &&
-          iv != null) {
-        // Decrypt sent message using our own RSA key (stored in msg_signal_sender_content)
-        final decrypted = await _encryptionService.decryptMessage(
-          signalSenderContent,
-          Map<String, String>.from(encryptedKeys),
-          iv,
+      // 1. Try PQ-Aura (Post-Quantum) first if metadata is present
+      if (pqAuraHeader != null && pqAuraPayload != null) {
+        final pqaService = PQAuraService.instance;
+        final pqaDecrypted = await pqaService.decryptMessage(
+          senderId,
+          base64Decode(pqAuraHeader),
+          base64Decode(pqAuraPayload),
         );
-        decryptedContent = decrypted ?? '🔒 Message encrypted';
-      } else if (!isSender && signalMessageType != null) {
-        // Decrypt received message using Signal protocol
+        if (pqaDecrypted != null) {
+          decryptedContent = pqaDecrypted;
+          // Handle Protocol Sync
+          if (decryptedContent == 'PROTOCOL_SYNC') {
+            return '🔒 Connection optimized';
+          }
+          return decryptedContent;
+        }
+      }
+
+      // 2. Try Signal (Classical E2EE)
+      if (!isSender && signalMessageType != null) {
         await _signalService.init();
         decryptedContent = await _signalService.decryptMessage(
           senderId,
           content,
           signalMessageType,
         );
+
+        // Handle Protocol Sync
+        if (decryptedContent == 'PROTOCOL_SYNC') {
+          return '🔒 Connection optimized';
+        }
 
         // Fallback to RSA if Signal decryption fails or is a placeholder
         if (decryptedContent.contains('🔒') &&
@@ -74,6 +89,17 @@ class ChatDecryptionService {
           );
           if (rsaDecrypted != null) decryptedContent = rsaDecrypted;
         }
+      } else if (isSender &&
+          signalSenderContent != null &&
+          encryptedKeys != null &&
+          iv != null) {
+        // Decrypt sent message using our own RSA key (dual-layer fallback)
+        final decrypted = await _encryptionService.decryptMessage(
+          signalSenderContent,
+          Map<String, String>.from(encryptedKeys),
+          iv,
+        );
+        decryptedContent = decrypted ?? '🔒 Message encrypted';
       } else if (encryptedKeys != null && iv != null) {
         // Legacy RSA-only encryption
         final decrypted = await _encryptionService.decryptMessage(

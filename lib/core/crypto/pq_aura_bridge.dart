@@ -8,8 +8,8 @@ import 'package:ffi/ffi.dart';
 /// FFI bindings to the PQ-Aura Rust library.
 /// Provides post-quantum resistant encryption using hybrid X25519 + ML-KEM-1024.
 
-typedef PqaGenerateKeypairNative = Pointer<Pointer<FfiKeyPair>> Function();
-typedef PqaGenerateKeypairDart = Pointer<Pointer<FfiKeyPair>> Function();
+typedef PqaGenerateKeypairNative = Pointer<FfiKeyPair> Function();
+typedef PqaGenerateKeypairDart = Pointer<FfiKeyPair> Function();
 
 typedef PqaFreeKeypairNative = Void Function(Pointer<FfiKeyPair>);
 typedef PqaFreeKeypairDart = void Function(Pointer<FfiKeyPair>);
@@ -186,30 +186,55 @@ class PQAuraBridge {
       } else if (Platform.isIOS) {
         _lib = DynamicLibrary.process();
       } else if (Platform.isWindows) {
-        debugPrint('[PQAuraBridge] Loading pq_aura.dll for Windows...');
-        try {
-          _lib = DynamicLibrary.open('pq_aura.dll');
-        } catch (_) {
-          // If not found in path, try common dev locations
-          final possiblePaths = [
-            'windows/libs/pq_aura.dll',
-            'PQ-DR/target/release/pq_aura.dll',
-            'PQ-DR/target/debug/pq_aura.dll',
-          ];
-          
-          bool loaded = false;
-          for (final path in possiblePaths) {
-            if (File(path).existsSync()) {
-              debugPrint('[PQAuraBridge] Found library at: $path');
+        debugPrint('[PQAuraBridge] Initializing Windows library search...');
+        final possiblePaths = [
+          'windows/libs/pq_aura.dll',
+          'pq_aura.dll',
+          'PQ-DR/target/release/pq_aura.dll',
+          'PQ-DR/target/debug/pq_aura.dll',
+        ];
+
+        bool loaded = false;
+        for (final path in possiblePaths) {
+          try {
+            if (path == 'pq_aura.dll' || File(path).existsSync()) {
+              debugPrint('[PQAuraBridge] Attempting to load: $path');
               _lib = DynamicLibrary.open(path);
               loaded = true;
+              debugPrint('[PQAuraBridge] SUCCESS: Loaded library from $path');
               break;
             }
+          } catch (e) {
+            debugPrint('[PQAuraBridge] Failed to load from $path: $e');
           }
-          if (!loaded) rethrow;
         }
+        if (!loaded) return false;
       } else if (Platform.isMacOS) {
-        _lib = DynamicLibrary.process();
+        debugPrint('[PQAuraBridge] Initializing macOS library search...');
+        final possiblePaths = [
+          'libpq_aura.dylib',
+          'macos/libs/libpq_aura.dylib',
+          'PQ-DR/target/release/libpq_aura.dylib',
+          'PQ-DR/target/debug/libpq_aura.dylib',
+          // Standard macOS app bundle structure
+          '../Frameworks/libpq_aura.dylib',
+        ];
+
+        bool loaded = false;
+        for (final path in possiblePaths) {
+          try {
+            if (path == 'libpq_aura.dylib' || File(path).existsSync()) {
+              debugPrint('[PQAuraBridge] Attempting to load: $path');
+              _lib = DynamicLibrary.open(path);
+              loaded = true;
+              debugPrint('[PQAuraBridge] SUCCESS: Loaded library from $path');
+              break;
+            }
+          } catch (e) {
+            debugPrint('[PQAuraBridge] Failed to load from $path: $e');
+          }
+        }
+        if (!loaded) return false;
       } else {
         debugPrint('[PQAuraBridge] Unsupported platform: ${Platform.operatingSystem}');
         return false;
@@ -302,10 +327,15 @@ class PQAuraBridge {
     final result = _pqaGenerateKeypair();
     if (result == nullptr) return null;
 
-    // result is Pointer<Pointer<FfiKeyPair>>
-    final kp = result.value; 
-    final publicKey = kp.ref.public_key.asTypedList(kp.ref.public_key_len).toList();
-    final secretKey = kp.ref.secret_key.asTypedList(kp.ref.secret_key_len).toList();
+    // result is Pointer<FfiKeyPair>
+    final kp = result; 
+    final pkLen = kp.ref.public_key_len;
+    final skLen = kp.ref.secret_key_len;
+    
+    debugPrint('[PQAuraBridge] Keypair generated. PK len: $pkLen, SK len: $skLen');
+    
+    final publicKey = kp.ref.public_key.asTypedList(pkLen).toList();
+    final secretKey = kp.ref.secret_key.asTypedList(skLen).toList();
 
     return PQAuraKeyPair(
       publicKey: publicKey,
@@ -531,10 +561,9 @@ class PQAuraBridge {
   }
 
   /// Free a keypair
-  void freeKeypair(Pointer<Pointer<FfiKeyPair>> kp) {
+  void freeKeypair(Pointer<FfiKeyPair> kp) {
     if (!_isLoaded || kp == nullptr) return;
-    _pqaFreeKeypair(kp.value);
-    calloc.free(kp);
+    _pqaFreeKeypair(kp);
   }
 
   /// Free a bundle
@@ -548,7 +577,7 @@ class PQAuraBridge {
 class PQAuraKeyPair {
   final List<int> publicKey;
   final List<int> secretKey;
-  final Pointer<Pointer<FfiKeyPair>> nativePtr;
+  final Pointer<FfiKeyPair> nativePtr;
 
   PQAuraKeyPair({
     required this.publicKey,

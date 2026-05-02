@@ -33,6 +33,7 @@ import 'package:oasis/services/desktop_call_notifier.dart';
 
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/services/screen_time_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:oasis/services/subscription_service.dart';
 import 'package:oasis/services/iap_service.dart';
@@ -454,6 +455,7 @@ class AppInitializer {
           vaultService.init(),
           EncryptionService().init(),
           SignalService().init(),
+          PQAuraService.instance.init(),
         ]).timeout(const Duration(seconds: 15));
         
         razorpayService.init();

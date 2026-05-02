@@ -105,6 +105,130 @@ jobs:
             build/app/outputs/flutter-apk/*-signed.apk
           retention-days: 7
 
+  build-ios:
+    name: Build iOS (IPA)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-apple-ios, x86_64-apple-ios"
+
+      - name: Build Rust Library (iOS)
+        run: |
+          cd PQ-DR
+          cargo build --target aarch64-apple-ios --release
+          cargo build --target x86_64-apple-ios --release
+          mkdir -p ../ios/libs
+          # Create a fat library (universal) for simulator + device
+          lipo -create \
+            target/aarch64-apple-ios/release/libpq_aura.a \
+            target/x86_64-apple-ios/release/libpq_aura.a \
+            -output ../ios/libs/libpq_aura.a
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+
+      - name: Build iOS
+        run: flutter build ios --release --no-codesign --dart-define-from-file=".env"
+
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: build/ios/iphoneos
+          retention-days: 7
+
+  build-macos:
+    name: Build macOS (App)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-apple-darwin, x86_64-apple-darwin"
+
+      - name: Build Rust Library (macOS)
+        run: |
+          cd PQ-DR
+          cargo build --target aarch64-apple-darwin --release
+          cargo build --target x86_64-apple-darwin --release
+          mkdir -p ../macos/libs
+          # Create a universal dylib for Apple Silicon + Intel
+          lipo -create \
+            target/aarch64-apple-darwin/release/libpq_aura.dylib \
+            target/x86_64-apple-darwin/release/libpq_aura.dylib \
+            -output ../macos/libs/libpq_aura.dylib
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+
+      - name: Build macOS
+        run: flutter build macos --release --dart-define-from-file=".env"
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: build/macos/Build/Products/Release
+          retention-days: 7
+
   build-windows:
     name: Build Windows MSIX
     runs-on: windows-latest

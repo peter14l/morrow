@@ -82,6 +82,8 @@ class ConversationService {
                 iv: lastMsgData['iv'],
                 signalMessageType: lastMsgData['signal_message_type'],
                 signalSenderContent: lastMsgData['signal_sender_content'],
+                pqAuraHeader: lastMsgData['pq_aura_header'],
+                pqAuraPayload: lastMsgData['pq_aura_payload'],
               );
 
           conversationMap['last_message'] = decryptedContent;
