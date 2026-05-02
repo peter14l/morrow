@@ -48,6 +48,12 @@ class PQAuraService {
     // Create pre-key bundle if not exists
     await _store.createPreKeyBundle();
 
+    // NEW: Upload bundle to server during init so other users can find us
+    final localKeys = await _store.getIdentityKeys();
+    if (localKeys != null) {
+      await _uploadBundleToServer(localKeys);
+    }
+
     _isInitialized = true;
     debugPrint('[PQAura] Initialization complete');
     return true;
