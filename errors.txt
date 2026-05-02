@@ -1,619 +1,232 @@
-lib/features/messages/presentation/providers/chat_provider.dart:48:9: Error: Type 'ChatEncryptionProvider' not found.
-  final ChatEncryptionProvider encryptionProvider;
-        ^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:49:9: Error: Type 'ChatSettingsProvider' not found.
-  final ChatSettingsProvider settingsProvider;
-        ^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:52:3: Error: Type 'ChatState' not found.
-  ChatState _state = const ChatState();
-  ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:58:9: Error: Type 'ChatMediaService' not found.
-  final ChatMediaService _chatMediaService = ChatMediaService();
-        ^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:59:9: Error: Type 'CurationTrackingService' not found.
-  final CurationTrackingService _curationTrackingService =
-        ^^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:53:3: Error: Type 'ChatState' not found.
-  ChatState get state => _state;
-  ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:96:5: Error: Type 'ChatEncryptionProvider' not found.
-    ChatEncryptionProvider? encryptionProvider,
-    ^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:97:5: Error: Type 'ChatSettingsProvider' not found.
-    ChatSettingsProvider? settingsProvider,
-    ^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:106:17: Error: Type 'ChatState' not found.
-  void setState(ChatState Function(ChatState state) update) {
-                ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:106:36: Error: Type 'ChatState' not found.
-  void setState(ChatState Function(ChatState state) update) {
-                                   ^^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:127:20: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          (s) => s.copyWith(
-                   ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:296:39: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      _chatProvider.setState((s) => s.copyWith(encryptionReady: true));
-                                      ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:316:53: Error: The getter 'selectedImages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'selectedImages'.
-            (s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]),
-                                                    ^^^^^^^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:316:22: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            (s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]),
-                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:322:74: Error: The getter 'selectedImages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'selectedImages'.
-          _chatProvider.setState((s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]));
-                                                                         ^^^^^^^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:322:43: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          _chatProvider.setState((s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]));
-                                          ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:339:22: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            (s) => s.copyWith(selectedVideo: File(result.files.single.path!)),
-                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:346:22: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            (s) => s.copyWith(selectedVideo: File(video.path)),
-                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:359:41: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        _chatProvider.setState((s) => s.copyWith(selectedFile: result));
-                                        ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:370:41: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        _chatProvider.setState((s) => s.copyWith(selectedAudio: result));
-                                        ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:552:37: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-    _chatProvider.setState((s) => s.copyWith(replyMessage: message));
-                                    ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:610:30: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                    (s) => s.copyWith(
-                             ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:745:44: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                  (s) => s.copyWith(replyMessage: null),
-                                           ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:764:70: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                      chatProvider.setState((s) => s.copyWith(selectedImages: newList));
-                                                                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:766:97: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                    onViewModeChanged: (mode) => chatProvider.setState((s) => s.copyWith(mediaViewMode: mode)),
-                                                                                          ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:777:44: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                  (s) => s.copyWith(selectedVideo: null),
-                                           ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:781:44: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                  (s) => s.copyWith(mediaViewMode: mode),
-                                           ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:788:44: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                  (s) => s.copyWith(selectedAudio: null),
-                                           ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:796:44: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                  (s) => s.copyWith(selectedFile: null),
-                                           ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:826:54: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                            (s) => s.copyWith(
-                                                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_screen.dart:889:52: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                          (s) => s.copyWith(
-                                                   ^^^^^^^^
-lib/features/messages/presentation/screens/chat_details_screen.dart:947:46: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                    (s) => s.copyWith(whisperMode: newMode),
-                                             ^^^^^^^^
-lib/features/messages/presentation/screens/chat_details_screen.dart:976:54: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                            (s) => s.copyWith(whisperMode: 1),
-                                                     ^^^^^^^^
-lib/features/messages/presentation/screens/chat_details_screen.dart:988:54: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                                            (s) => s.copyWith(whisperMode: 2),
-                                                     ^^^^^^^^
-lib/features/messages/data/pq_aura/pq_aura_service.dart:166:39: Error: A value of type 'Pointer<RatchetState>?' can't be assigned to a variable of type 'Pointer<RatchetState>'.
- - 'Pointer' is from 'dart:ffi'.
- - 'RatchetState' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
-      _activeSessions[remoteUserId] = statePtr;
-                                      ^
-lib/features/messages/presentation/providers/chat_provider.dart:48:9: Error: 'ChatEncryptionProvider' isn't a type.
-  final ChatEncryptionProvider encryptionProvider;
-        ^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:49:9: Error: 'ChatSettingsProvider' isn't a type.
-  final ChatSettingsProvider settingsProvider;
-        ^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:52:3: Error: 'ChatState' isn't a type.
-  ChatState _state = const ChatState();
-  ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:52:28: Error: Couldn't find constructor 'ChatState'.
-  ChatState _state = const ChatState();
-                           ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:58:9: Error: 'ChatMediaService' isn't a type.
-  final ChatMediaService _chatMediaService = ChatMediaService();
-        ^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:58:46: Error: Method not found: 'ChatMediaService'.
-  final ChatMediaService _chatMediaService = ChatMediaService();
-                                             ^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:59:9: Error: 'CurationTrackingService' isn't a type.
-  final CurationTrackingService _curationTrackingService =
-        ^^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:60:7: Error: Method not found: 'CurationTrackingService'.
-      CurationTrackingService();
-      ^^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:96:5: Error: 'ChatEncryptionProvider' isn't a type.
-    ChatEncryptionProvider? encryptionProvider,
-    ^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:97:5: Error: 'ChatSettingsProvider' isn't a type.
-    ChatSettingsProvider? settingsProvider,
-    ^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:99:51: Error: Method not found: 'ChatEncryptionProvider'.
-  }) : encryptionProvider = encryptionProvider ?? ChatEncryptionProvider(),
-                                                  ^^^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:102:12: Error: Method not found: 'ChatSettingsProvider'.
-           ChatSettingsProvider(conversationId: conversationId),
-           ^^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:106:17: Error: 'ChatState' isn't a type.
-  void setState(ChatState Function(ChatState state) update) {
-                ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:106:36: Error: 'ChatState' isn't a type.
-  void setState(ChatState Function(ChatState state) update) {
-                                   ^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:122:20: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          (s) => s.copyWith(
-                   ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:136:24: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-              (s) => s.copyWith(
-                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:151:27: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        setState((s) => s.copyWith(messages: cached));
-                          ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:196:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(encryptionReady: true));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:200:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(encryptionReady: true));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:206:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(encryptionReady: false, isLoading: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:293:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isLoading: true));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:321:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(messages: filtered, isLoading: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:334:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isLoading: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:385:39: Error: An expression whose value can be 'null' must be null-checked before it can be dereferenced.
-          updatedMessages = [...state.messages, decryptedMessage];
-                                      ^
-lib/features/messages/presentation/providers/chat_provider.dart:385:39: Error: Unexpected type 'invalid-type' of a spread.  Expected 'dynamic' or an Iterable.
-          updatedMessages = [...state.messages, decryptedMessage];
-                                      ^
-lib/features/messages/presentation/providers/chat_provider.dart:388:27: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        setState((s) => s.copyWith(messages: updatedMessages));
-                          ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:439:25: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            messages: s.messages.where((m) => m.id != messageId).toList(),
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:438:20: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          (s) => s.copyWith(
-                   ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:476:50: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-                  messages: List<Message>.from(s.messages)..removeAt(index),
-                                                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:475:26: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                (s) => s.copyWith(
-                         ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:484:31: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            setState((s) => s.copyWith(messages: updatedMessages));
-                              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:504:29: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          setState((s) => s.copyWith(messages: updatedMessages));
-                            ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:516:29: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          setState((s) => s.copyWith(backgroundUrl: backgroundUrl));
-                            ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:525:26: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-                (s) => s.copyWith(
-                         ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:535:24: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-              (s) => s.copyWith(
-                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:568:23: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-    setState((s) => s.copyWith(messages: updatedMessages));
-                      ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:726:7: Error: 'MediaUploadResult' isn't a type.
-      MediaUploadResult? uploadResult;
-      ^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:667:25: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-        messages: [...s.messages, optimisticMessage],
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:666:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:707:34: Error: Property 'content' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/core/crypto/pq_aura_bridge.dart:145:13: Error: 'FfiKeyPair' is already declared in this scope.
+final class FfiKeyPair extends Struct {
+            ^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:81:13: Context: Previous declaration of 'FfiKeyPair'.
+final class FfiKeyPair extends Struct {
+            ^^^^^^^^^^
+lib/features/messages/presentation/providers/chat_provider.dart:713:34: Error: Property 'content' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
         finalContent = encrypted.content;
                                  ^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:710:23: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:716:23: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
         if (encrypted.protocol == 'pq_aura') {
                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:711:36: Error: Property 'pqAuraHeader' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:717:36: Error: Property 'pqAuraHeader' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
           pqAuraHeader = encrypted.pqAuraHeader;
                                    ^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:712:37: Error: Property 'pqAuraPayload' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:718:37: Error: Property 'pqAuraPayload' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
           pqAuraPayload = encrypted.pqAuraPayload;
                                     ^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:713:30: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:719:30: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
         } else if (encrypted.protocol == 'signal') {
                              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:714:41: Error: Property 'signalMessageType' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:720:41: Error: Property 'signalMessageType' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
           signalMessageType = encrypted.signalMessageType;
                                         ^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:715:30: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:721:30: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
         } else if (encrypted.protocol == 'rsa') {
                              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:716:37: Error: Property 'encryptedKeys' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:722:37: Error: Property 'encryptedKeys' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
           encryptedKeys = encrypted.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
                                     ^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:717:26: Error: Property 'iv' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:723:26: Error: Property 'iv' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
           iv = encrypted.iv;
                          ^^
-lib/features/messages/presentation/providers/chat_provider.dart:776:21: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
+lib/features/messages/presentation/providers/chat_provider.dart:782:21: Error: Property 'protocol' cannot be accessed on 'EncryptedContent?' because it is potentially null.
  - 'EncryptedContent' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
 Try accessing using ?. instead.
       if (encrypted.protocol != 'rsa' && _encryptionService.isInitialized && content.isNotEmpty) {
                     ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:814:9: Error: No named parameter with the name 'pqAuraHeader'.
+lib/features/messages/presentation/providers/chat_provider.dart:820:9: Error: No named parameter with the name 'pqAuraHeader'.
         pqAuraHeader: pqAuraHeader,
         ^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:837:18: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            ...s.messages.where((m) => m.id != optimisticMessage.id && m.id != decrypted.id),
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:835:18: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        (s) => s.copyWith(
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:849:23: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-          messages: s.messages
-                      ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:848:18: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        (s) => s.copyWith(
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:866:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(messages: updatedMessages));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:875:21: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-        messages: s.messages.where((m) => m.id != message.id).toList(),
-                    ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:874:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:894:23: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-    setState((s) => s.copyWith(isSending: true, replyMessage: null));
-                      ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:918:9: Error: No named parameter with the name 'pqAuraHeader'.
+lib/features/messages/presentation/providers/chat_provider.dart:924:9: Error: No named parameter with the name 'pqAuraHeader'.
         pqAuraHeader: encrypted?.pqAuraHeader,
         ^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:925:40: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-                                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:925:15: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:931:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isSending: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:941:23: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-    setState((s) => s.copyWith(isSending: true, replyMessage: null));
-                      ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:965:9: Error: No named parameter with the name 'pqAuraHeader'.
+lib/features/messages/presentation/providers/chat_provider.dart:971:9: Error: No named parameter with the name 'pqAuraHeader'.
         pqAuraHeader: encrypted?.pqAuraHeader,
         ^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:972:40: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-                                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:972:15: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:978:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isSending: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:990:21: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-        messages: s.messages.map((m) {
-                    ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:989:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1011:18: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        (s) => s.copyWith(
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1032:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(smartReplies: [], showingSmartReplies: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1050:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(smartReplies: [], showingSmartReplies: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1059:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1112:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(highlightedMessageId: messageId));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1117:29: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          setState((s) => s.copyWith(highlightedMessageId: null));
-                            ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1194:16: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-          ...s.messages,
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1192:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1263:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(messages: newMsgs));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1269:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isSending: true, replyMessage: null));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1309:13: Error: The method 'LiveLocationTracker' isn't defined for the type 'ChatProvider'.
- - 'ChatProvider' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'LiveLocationTracker'.
-      await LiveLocationTracker().startSharing(sentMessage.id, duration);
-            ^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1314:40: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-                                       ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1314:15: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-            s.copyWith(messages: [...s.messages, decrypted], isSending: false),
-              ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1320:25: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      setState((s) => s.copyWith(isSending: false));
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1355:25: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-        messages: [...s.messages, optimisticMessage],
-                        ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1354:16: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-      (s) => s.copyWith(
-               ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1402:18: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-            ...s.messages.where((m) => m.id != optimisticMessage.id),
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1400:18: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        (s) => s.copyWith(
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1412:23: Error: The getter 'messages' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing getter, or defining a getter or field named 'messages'.
-          messages: s.messages.where((m) => m.id != optimisticMessage.id).toList(),
-                      ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1411:18: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-        (s) => s.copyWith(
-                 ^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1421:27: Error: The method 'LiveLocationTracker' isn't defined for the type 'ChatProvider'.
- - 'ChatProvider' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'LiveLocationTracker'.
-      final activeMsgId = LiveLocationTracker().activeMessageId;
-                          ^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1422:13: Error: The method 'LiveLocationTracker' isn't defined for the type 'ChatProvider'.
- - 'ChatProvider' is from 'package:***/features/messages/presentation/providers/chat_provider.dart' ('lib/features/messages/presentation/providers/chat_provider.dart').
-Try correcting the name to the name of an existing method, or defining a method named 'LiveLocationTracker'.
-      await LiveLocationTracker().stopSharing();
-            ^^^^^^^^^^^^^^^^^^^
-lib/features/messages/presentation/providers/chat_provider.dart:1438:29: Error: The method 'copyWith' isn't defined for the type 'Object?'.
- - 'Object' is from 'dart:core'.
-Try correcting the name to the name of an existing method, or defining a method named 'copyWith'.
-          setState((s) => s.copyWith(messages: newMsgs));
-                            ^^^^^^^^
-lib/features/messages/presentation/providers/chat_encryption_provider.dart:107:33: Error: The getter '_pqAuraReady' isn't defined for the type 'ChatEncryptionProvider'.
- - 'ChatEncryptionProvider' is from 'package:***/features/messages/presentation/providers/chat_encryption_provider.dart' ('lib/features/messages/presentation/providers/chat_encryption_provider.dart').
-Try correcting the name to the name of an existing getter, or defining a getter or field named '_pqAuraReady'.
-        } else if (!isSender && _pqAuraReady) {
-                                ^^^^^^^^^^^^
-lib/core/crypto/pq_aura_bridge.dart:268:23: Error: The getter 'ref' isn't defined for the type 'Pointer<Pointer<FfiKeyPair>>'.
+lib/core/crypto/pq_aura_bridge.dart:280:26: Error: The getter 'ref' isn't defined for the type 'Pointer<NativeType>'.
  - 'Pointer' is from 'dart:ffi'.
- - 'FfiKeyPair' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+ - 'NativeType' is from 'dart:ffi'.
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'ref'.
-    final kp = result.ref;
-                      ^^^
-lib/core/crypto/pq_aura_bridge.dart:458:52: Error: The getter 'ref' isn't defined for the type 'Pointer<IntPtr>'.
+    final publicKey = kp.ref.public_key.asTypedList(kp.ref.public_key_len).toList();
+                         ^^^
+lib/core/crypto/pq_aura_bridge.dart:280:56: Error: The getter 'ref' isn't defined for the type 'Pointer<NativeType>'.
  - 'Pointer' is from 'dart:ffi'.
- - 'IntPtr' is from 'dart:ffi'.
+ - 'NativeType' is from 'dart:ffi'.
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'ref'.
-    final plaintext = result.asTypedList(outLenPtr.ref).toList();
-                                                   ^^^
-lib/core/crypto/pq_aura_bridge.dart:517:24: Error: The getter 'ref' isn't defined for the type 'Pointer<Pointer<FfiKeyPair>>'.
+    final publicKey = kp.ref.public_key.asTypedList(kp.ref.public_key_len).toList();
+                                                       ^^^
+lib/core/crypto/pq_aura_bridge.dart:281:26: Error: The getter 'ref' isn't defined for the type 'Pointer<NativeType>'.
  - 'Pointer' is from 'dart:ffi'.
- - 'FfiKeyPair' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+ - 'NativeType' is from 'dart:ffi'.
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ref'.
+    final secretKey = kp.ref.secret_key.asTypedList(kp.ref.secret_key_len).toList();
+                         ^^^
+lib/core/crypto/pq_aura_bridge.dart:281:56: Error: The getter 'ref' isn't defined for the type 'Pointer<NativeType>'.
+ - 'Pointer' is from 'dart:ffi'.
+ - 'NativeType' is from 'dart:ffi'.
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ref'.
+    final secretKey = kp.ref.secret_key.asTypedList(kp.ref.secret_key_len).toList();
+                                                       ^^^
+lib/core/crypto/pq_aura_bridge.dart:286:18: Error: The argument type 'Pointer<NativeType>' can't be assigned to the parameter type 'Pointer<Pointer<invalid-type>>'.
+ - 'Pointer' is from 'dart:ffi'.
+ - 'NativeType' is from 'dart:ffi'.
+      nativePtr: kp,
+                 ^
+lib/core/crypto/pq_aura_bridge.dart:305:36: Error: The getter 'identity_pk' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'identity_pk'.
+    final identityPkBytes = bundle.identity_pk.asTypedList(bundle.identity_pk_len).toList();
+                                   ^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:305:67: Error: The getter 'identity_pk_len' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'identity_pk_len'.
+    final identityPkBytes = bundle.identity_pk.asTypedList(bundle.identity_pk_len).toList();
+                                                                  ^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:306:33: Error: The getter 'signed_pre_key' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'signed_pre_key'.
+    final signedPreKey = bundle.signed_pre_key.asTypedList(bundle.signed_pre_key_len).toList();
+                                ^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:306:67: Error: The getter 'signed_pre_key_len' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'signed_pre_key_len'.
+    final signedPreKey = bundle.signed_pre_key.asTypedList(bundle.signed_pre_key_len).toList();
+                                                                  ^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:307:34: Error: The getter 'has_one_time' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'has_one_time'.
+    final oneTimePreKey = bundle.has_one_time
+                                 ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:308:18: Error: The getter 'one_time_pre_key' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'one_time_pre_key'.
+        ? bundle.one_time_pre_key.asTypedList(bundle.one_time_pre_key_len).toList()
+                 ^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:308:54: Error: The getter 'one_time_pre_key_len' isn't defined for the type 'FfiPreKeyBundle'.
+ - 'FfiPreKeyBundle' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'one_time_pre_key_len'.
+        ? bundle.one_time_pre_key.asTypedList(bundle.one_time_pre_key_len).toList()
+                                                     ^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:347:26: Error: The getter 'state_ptr' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'state_ptr'.
+    final statePtr = msg.state_ptr;
+                         ^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:348:33: Error: The getter 'alice_identity_pk' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'alice_identity_pk'.
+    final aliceIdentityPk = msg.alice_identity_pk.asTypedList(msg.alice_identity_pk_len).toList();
+                                ^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:348:67: Error: The getter 'alice_identity_pk_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'alice_identity_pk_len'.
+    final aliceIdentityPk = msg.alice_identity_pk.asTypedList(msg.alice_identity_pk_len).toList();
+                                                                  ^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:349:29: Error: The getter 'ephemeral_pk' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ephemeral_pk'.
+    final ephemeralPk = msg.ephemeral_pk.asTypedList(msg.ephemeral_pk_len).toList();
+                            ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:349:58: Error: The getter 'ephemeral_pk_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ephemeral_pk_len'.
+    final ephemeralPk = msg.ephemeral_pk.asTypedList(msg.ephemeral_pk_len).toList();
+                                                         ^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:350:29: Error: The getter 'kem_ciphertext_identity' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_identity'.
+    final kemIdentity = msg.kem_ciphertext_identity.asTypedList(msg.kem_ciphertext_identity_len).toList();
+                            ^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:350:69: Error: The getter 'kem_ciphertext_identity_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_identity_len'.
+    final kemIdentity = msg.kem_ciphertext_identity.asTypedList(msg.kem_ciphertext_identity_len).toList();
+                                                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:351:27: Error: The getter 'kem_ciphertext_signed' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_signed'.
+    final kemSigned = msg.kem_ciphertext_signed.asTypedList(msg.kem_ciphertext_signed_len).toList();
+                          ^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:351:65: Error: The getter 'kem_ciphertext_signed_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_signed_len'.
+    final kemSigned = msg.kem_ciphertext_signed.asTypedList(msg.kem_ciphertext_signed_len).toList();
+                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:352:28: Error: The getter 'has_one_time' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'has_one_time'.
+    final kemOneTime = msg.has_one_time
+                           ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:353:15: Error: The getter 'kem_ciphertext_one_time' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_one_time'.
+        ? msg.kem_ciphertext_one_time.asTypedList(msg.kem_ciphertext_one_time_len).toList()
+              ^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:353:55: Error: The getter 'kem_ciphertext_one_time_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'kem_ciphertext_one_time_len'.
+        ? msg.kem_ciphertext_one_time.asTypedList(msg.kem_ciphertext_one_time_len).toList()
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:355:31: Error: The getter 'ratchet_message_header' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ratchet_message_header'.
+    final ratchetHeader = msg.ratchet_message_header.asTypedList(msg.ratchet_message_header_len).toList();
+                              ^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:355:70: Error: The getter 'ratchet_message_header_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ratchet_message_header_len'.
+    final ratchetHeader = msg.ratchet_message_header.asTypedList(msg.ratchet_message_header_len).toList();
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:356:32: Error: The getter 'ratchet_message_payload' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ratchet_message_payload'.
+    final ratchetPayload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
+                               ^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:356:72: Error: The getter 'ratchet_message_payload_len' isn't defined for the type 'FfiInitialMessage'.
+ - 'FfiInitialMessage' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing getter, or defining a getter or field named 'ratchet_message_payload_len'.
+    final ratchetPayload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
+                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:442:23: Error: The method '_mallocBytes' isn't defined for the type 'PQAuraBridge'.
+ - 'PQAuraBridge' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_mallocBytes'.
+    final headerPtr = _mallocBytes(header);
+                      ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:443:24: Error: The method '_mallocBytes' isn't defined for the type 'PQAuraBridge'.
+ - 'PQAuraBridge' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_mallocBytes'.
+    final payloadPtr = _mallocBytes(payload);
+                       ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:444:19: Error: The method '_mallocBytes' isn't defined for the type 'PQAuraBridge'.
+ - 'PQAuraBridge' is from 'package:***/core/crypto/pq_aura_bridge.dart' ('lib/core/crypto/pq_aura_bridge.dart').
+Try correcting the name to the name of an existing method, or defining a method named '_mallocBytes'.
+    final adPtr = _mallocBytes(ad);
+                  ^^^^^^^^^^^^
+lib/core/crypto/pq_aura_bridge.dart:526:24: Error: The getter 'ref' isn't defined for the type 'Pointer<Pointer<invalid-type>>'.
+ - 'Pointer' is from 'dart:ffi'.
 Try correcting the name to the name of an existing getter, or defining a getter or field named 'ref'.
     _pqaFreeKeypair(kp.ref);
                        ^^^
-lib/features/messages/data/pq_aura/pq_aura_store.dart:126:26: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
- - 'List' is from 'dart:core'.
- - 'Uint8List' is from 'dart:typed_data'.
-      identityPk: bundle.identityPk,
-                         ^
-lib/features/messages/data/pq_aura/pq_aura_store.dart:127:28: Error: The argument type 'List<int>' can't be assigned to the parameter type 'Uint8List'.
- - 'List' is from 'dart:core'.
- - 'Uint8List' is from 'dart:typed_data'.
-      signedPreKey: bundle.signedPreKey,
-                           ^
-lib/features/messages/data/pq_aura/pq_aura_store.dart:128:29: Error: The argument type 'List<int>?' can't be assigned to the parameter type 'Uint8List?'.
- - 'List' is from 'dart:core'.
- - 'Uint8List' is from 'dart:typed_data'.
-      oneTimePreKey: bundle.oneTimePreKey,
-                            ^
-lib/core/crypto/pq_aura_bridge.dart:131:13: Error: Struct 'RatchetState' is empty. Empty structs and unions are undefined behavior.
-final class RatchetState extends Struct {
-            ^
 Target kernel_snapshot_program failed: Exception
 FAILURE: Build failed with an exception.
 * What went wrong:
@@ -624,7 +237,7 @@ Execution failed for task ':app:compileFlutterBuildRelease'.
 > Run with --info or --debug option to get more log output.
 > Run with --scan to get full insights.
 > Get more help at https://help.gradle.org.
-BUILD FAILED in 1m 6s
-Running Gradle task 'assembleRelease'...                           66.8s
+BUILD FAILED in 1m 13s
+Running Gradle task 'assembleRelease'...                           74.2s
 Gradle task assembleRelease failed with exit code 1
 Error: Process completed with exit code 1.

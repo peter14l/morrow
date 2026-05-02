@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
@@ -78,54 +79,55 @@ typedef PqaFreeInitialMessageNative = Void Function(Pointer<FfiInitialMessage>);
 typedef PqaFreeInitialMessageDart = void Function(Pointer<FfiInitialMessage>);
 
 /// FFI Structures matching Rust FFI types
+
 final class FfiKeyPair extends Struct {
-  external Pointer<Uint8> publicKey;
+  external Pointer<Uint8> public_key;
   @IntPtr()
-  external int publicKeyLen;
-  external Pointer<Uint8> secretKey;
+  external int public_key_len;
+  external Pointer<Uint8> secret_key;
   @IntPtr()
-  external int secretKeyLen;
+  external int secret_key_len;
 }
 
 final class FfiPreKeyBundle extends Struct {
-  external Pointer<Uint8> identityPk;
+  external Pointer<Uint8> identity_pk;
   @IntPtr()
-  external int identityPkLen;
-  external Pointer<Uint8> signedPreKey;
+  external int identity_pk_len;
+  external Pointer<Uint8> signed_pre_key;
   @IntPtr()
-  external int signedPreKeyLen;
-  external Pointer<Uint8> oneTimePreKey;
+  external int signed_pre_key_len;
+  external Pointer<Uint8> one_time_pre_key;
   @IntPtr()
-  external int oneTimePreKeyLen;
+  external int one_time_pre_key_len;
   @Bool()
-  external bool hasOneTime;
+  external bool has_one_time;
 }
 
 final class FfiInitialMessage extends Struct {
-  external Pointer<RatchetState> statePtr;
-  external Pointer<Uint8> aliceIdentityPk;
+  external Pointer<RatchetState> state_ptr;
+  external Pointer<Uint8> alice_identity_pk;
   @IntPtr()
-  external int aliceIdentityPkLen;
-  external Pointer<Uint8> ephemeralPk;
+  external int alice_identity_pk_len;
+  external Pointer<Uint8> ephemeral_pk;
   @IntPtr()
-  external int ephemeralPkLen;
-  external Pointer<Uint8> kemCiphertextIdentity;
+  external int ephemeral_pk_len;
+  external Pointer<Uint8> kem_ciphertext_identity;
   @IntPtr()
-  external int kemCiphertextIdentityLen;
-  external Pointer<Uint8> kemCiphertextSigned;
+  external int kem_ciphertext_identity_len;
+  external Pointer<Uint8> kem_ciphertext_signed;
   @IntPtr()
-  external int kemCiphertextSignedLen;
-  external Pointer<Uint8> kemCiphertextOneTime;
+  external int kem_ciphertext_signed_len;
+  external Pointer<Uint8> kem_ciphertext_one_time;
   @IntPtr()
-  external int kemCiphertextOneTimeLen;
+  external int kem_ciphertext_one_time_len;
   @Bool()
-  external bool hasOneTime;
-  external Pointer<Uint8> ratchetMessageHeader;
+  external bool has_one_time;
+  external Pointer<Uint8> ratchet_message_header;
   @IntPtr()
-  external int ratchetMessageHeaderLen;
-  external Pointer<Uint8> ratchetMessagePayload;
+  external int ratchet_message_header_len;
+  external Pointer<Uint8> ratchet_message_payload;
   @IntPtr()
-  external int ratchetMessagePayloadLen;
+  external int ratchet_message_payload_len;
 }
 
 final class RatchetState extends Struct {
@@ -137,18 +139,9 @@ final class FfiMessage extends Struct {
   external Pointer<Uint8> header;
   @IntPtr()
   external int header_len;
-  external Pointer<Uint8> ratchet_message_payload;
+  external Pointer<Uint8> payload;
   @IntPtr()
-  external int ratchet_message_payload_len;
-}
-
-final class FfiKeyPair extends Struct {
-  external Pointer<Uint8> public_key;
-  @IntPtr()
-  external int public_key_len;
-  external Pointer<Uint8> secret_key;
-  @IntPtr()
-  external int secret_key_len;
+  external int payload_len;
 }
 
 /// PQ-Aura FFI Bridge
@@ -268,6 +261,13 @@ class PQAuraBridge {
         .asFunction();
   }
 
+  Pointer<Uint8> _mallocBytes(List<int> bytes) {
+    final ptr = calloc<Uint8>(bytes.length);
+    final list = ptr.asTypedList(bytes.length);
+    list.setAll(0, bytes);
+    return ptr;
+  }
+
   /// Generate a new hybrid keypair
   PQAuraKeyPair? generateKeypair() {
     if (!_isLoaded) return null;
@@ -283,7 +283,7 @@ class PQAuraBridge {
     return PQAuraKeyPair(
       publicKey: publicKey,
       secretKey: secretKey,
-      nativePtr: kp,
+      nativePtr: result,
     );
   }
 
@@ -291,11 +291,7 @@ class PQAuraBridge {
   PQAuraPreKeyBundle? createBundle(List<int> identityPk) {
     if (!_isLoaded) return null;
 
-    final pkPtr = calloc<Uint8>(identityPk.length);
-    for (var i = 0; i < identityPk.length; i++) {
-      pkPtr[i] = identityPk[i];
-    }
-
+    final pkPtr = _mallocBytes(identityPk);
     final result = _pqaCreateBundle(pkPtr, identityPk.length);
     calloc.free(pkPtr);
 
@@ -324,13 +320,9 @@ class PQAuraBridge {
   }) {
     if (!_isLoaded) return null;
 
-    final bundlePtr = calloc<Uint8>(remoteBundle.length);
-    final localPkPtr = calloc<Uint8>(localIdentityPk.length);
-    final localSkPtr = calloc<Uint8>(localIdentitySk.length);
-
-    for (var i = 0; i < remoteBundle.length; i++) bundlePtr[i] = remoteBundle[i];
-    for (var i = 0; i < localIdentityPk.length; i++) localPkPtr[i] = localIdentityPk[i];
-    for (var i = 0; i < localIdentitySk.length; i++) localSkPtr[i] = localIdentitySk[i];
+    final bundlePtr = _mallocBytes(remoteBundle);
+    final localPkPtr = _mallocBytes(localIdentityPk);
+    final localSkPtr = _mallocBytes(localIdentitySk);
 
     final result = _pqaInitAlice(
         bundlePtr, remoteBundle.length,
@@ -378,20 +370,14 @@ class PQAuraBridge {
   }) {
     if (!_isLoaded) return null;
 
-    final msgPtr = calloc<Uint8>(initialMessage.length);
-    final localPkPtr = calloc<Uint8>(localIdentityPk.length);
-    final localSkPtr = calloc<Uint8>(localIdentitySk.length);
-    final signedSkPtr = calloc<Uint8>(localSignedSk.length);
+    final msgPtr = _mallocBytes(initialMessage);
+    final localPkPtr = _mallocBytes(localIdentityPk);
+    final localSkPtr = _mallocBytes(localIdentitySk);
+    final signedSkPtr = _mallocBytes(localSignedSk);
     Pointer<Uint8>? otSkPtr;
     if (localOtSk != null) {
-      otSkPtr = calloc<Uint8>(localOtSk.length);
-      for (var i = 0; i < localOtSk.length; i++) otSkPtr![i] = localOtSk[i];
+      otSkPtr = _mallocBytes(localOtSk);
     }
-
-    for (var i = 0; i < initialMessage.length; i++) msgPtr[i] = initialMessage[i];
-    for (var i = 0; i < localIdentityPk.length; i++) localPkPtr[i] = localIdentityPk[i];
-    for (var i = 0; i < localIdentitySk.length; i++) localSkPtr[i] = localIdentitySk[i];
-    for (var i = 0; i < localSignedSk.length; i++) signedSkPtr[i] = localSignedSk[i];
 
     final result = _pqaInitBob(
         msgPtr, initialMessage.length,
@@ -415,11 +401,8 @@ class PQAuraBridge {
   PQAuraMessage? encrypt(Pointer<RatchetState> state, List<int> plaintext, List<int> ad) {
     if (!_isLoaded) return null;
 
-    final plaintextPtr = calloc<Uint8>(plaintext.length);
-    final adPtr = calloc<Uint8>(ad.length);
-
-    for (var i = 0; i < plaintext.length; i++) plaintextPtr[i] = plaintext[i];
-    for (var i = 0; i < ad.length; i++) adPtr[i] = ad[i];
+    final plaintextPtr = _mallocBytes(plaintext);
+    final adPtr = _mallocBytes(ad);
 
     final result = _pqaEncrypt(state, plaintextPtr, plaintext.length, adPtr, ad.length);
 
@@ -430,7 +413,7 @@ class PQAuraBridge {
 
     final msg = result.ref;
     final header = msg.header.asTypedList(msg.header_len).toList();
-    final payload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
+    final payload = msg.payload.asTypedList(msg.payload_len).toList();
 
     return PQAuraMessage(header: header, payload: payload, nativePtr: result);
   }
@@ -480,16 +463,16 @@ class PQAuraBridge {
 
     // Get the length first
     final len = _pqaSerializeStateLen(state);
-    return serialized.asTypedList(len).toList();
+    final data = serialized.asTypedList(len).toList();
+    _pqaFreeBuffer(serialized, len);
+    return data;
   }
 
   /// Deserialize the ratchet state
   Pointer<RatchetState>? deserializeState(List<int> data) {
     if (!_isLoaded) return null;
 
-    final dataPtr = calloc<Uint8>(data.length);
-    for (var i = 0; i < data.length; i++) dataPtr[i] = data[i];
-
+    final dataPtr = _mallocBytes(data);
     final result = _pqaDeserializeState(dataPtr, data.length);
     calloc.free(dataPtr);
 
@@ -523,7 +506,7 @@ class PQAuraBridge {
   /// Free a keypair
   void freeKeypair(Pointer<Pointer<FfiKeyPair>> kp) {
     if (!_isLoaded || kp == nullptr) return;
-    _pqaFreeKeypair(kp.ref);
+    _pqaFreeKeypair(kp.value);
     calloc.free(kp);
   }
 

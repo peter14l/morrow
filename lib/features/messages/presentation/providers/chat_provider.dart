@@ -710,17 +710,19 @@ class ChatProvider with ChangeNotifier {
       // Use PQ-Aura -> Signal -> RSA fallback encryption
       if (_encryptionService.isInitialized && content.isNotEmpty) {
         final encrypted = await _encryptContent(recipientId, content);
-        finalContent = encrypted.content;
-        
-        // Extract encryption metadata based on protocol used
-        if (encrypted.protocol == 'pq_aura') {
-          pqAuraHeader = encrypted.pqAuraHeader;
-          pqAuraPayload = encrypted.pqAuraPayload;
-        } else if (encrypted.protocol == 'signal') {
-          signalMessageType = encrypted.signalMessageType;
-        } else if (encrypted.protocol == 'rsa') {
-          encryptedKeys = encrypted.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
-          iv = encrypted.iv;
+        if (encrypted != null) {
+          finalContent = encrypted.content;
+          
+          // Extract encryption metadata based on protocol used
+          if (encrypted.protocol == 'pq_aura') {
+            pqAuraHeader = encrypted.pqAuraHeader;
+            pqAuraPayload = encrypted.pqAuraPayload;
+          } else if (encrypted.protocol == 'signal') {
+            signalMessageType = encrypted.signalMessageType;
+          } else if (encrypted.protocol == 'rsa') {
+            encryptedKeys = encrypted.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
+            iv = encrypted.iv;
+          }
         }
       } else {
         finalContent = content;

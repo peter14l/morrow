@@ -181,6 +181,8 @@ class MessagingService extends ChangeNotifier {
     Map<String, dynamic>? locationData,
     String mediaViewMode = 'unlimited',
     bool isSpoiler = false,
+    String? pqAuraHeader,
+    String? pqAuraPayload,
   }) => _chatMessagingService.sendMessage(
     conversationId: conversationId,
     senderId: senderId,
@@ -203,6 +205,8 @@ class MessagingService extends ChangeNotifier {
     locationData: locationData,
     mediaViewMode: mediaViewMode,
     isSpoiler: isSpoiler,
+    pqAuraHeader: pqAuraHeader,
+    pqAuraPayload: pqAuraPayload,
   );
 
   /// Records a read receipt for a specific message.
