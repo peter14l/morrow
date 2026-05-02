@@ -370,16 +370,31 @@ class MessageBubble extends StatelessWidget {
                 ),
               ),
             content,
-            if (isMe && !isSticker)
+            if (!isSticker)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Icon(
-                    isOptimistic ? Icons.access_time : Icons.done_all,
-                    size: 14,
-                    color: message.isRead ? Colors.blue : colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    if (message.pqAuraHeader != null)
+                      Icon(
+                        FluentIcons.shield_lock_12_filled,
+                        size: 10,
+                        color: isMe 
+                          ? colorScheme.onPrimaryContainer.withValues(alpha: 0.5)
+                          : colorScheme.onSurface.withValues(alpha: 0.4),
+                      ),
+                    if (message.pqAuraHeader != null) const SizedBox(width: 4),
+                    if (isMe)
+                      Icon(
+                        isOptimistic ? Icons.access_time : Icons.done_all,
+                        size: 14,
+                        color: message.isRead
+                            ? (isDesktop ? Colors.blue : Colors.blueAccent)
+                            : colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
+                      ),
+                  ],
                 ),
               ),
           ],

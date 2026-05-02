@@ -160,28 +160,45 @@ class ChatAppBar extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            Consumer<PresenceProvider>(
-                              builder: (context, presenceProvider, child) {
+                            Consumer2<PresenceProvider, ChatProvider>(
+                              builder: (context, presenceProvider, chatProvider, child) {
                                 final presence = otherUserId != null
                                     ? presenceProvider.getUserPresence(
                                         otherUserId!,
                                       )
                                     : null;
                                 final isOnline = presence?.status == 'online';
+                                final isPQ = chatProvider.isQuantumSecure;
 
                                 return Row(
                                   children: [
                                     if (isEncryptionReady) ...[
                                       Icon(
-                                        FluentIcons.lock_closed_12_filled,
+                                        isPQ 
+                                          ? FluentIcons.shield_lock_12_filled 
+                                          : FluentIcons.lock_closed_12_filled,
                                         size: 10,
-                                        color: backgroundUrl != null
+                                        color: isPQ 
+                                          ? Colors.cyanAccent 
+                                          : (backgroundUrl != null
                                             ? Colors.white70
                                             : colorScheme.primary.withValues(
                                                 alpha: 0.7,
-                                              ),
+                                              )),
                                       ),
                                       const SizedBox(width: 4),
+                                    ],
+                                    if (isPQ) ...[
+                                      Text(
+                                        'Quantum',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.cyanAccent,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
                                     ],
                                     Text(
                                       isOnline ? 'Online' : 'Offline',

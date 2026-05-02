@@ -91,6 +91,9 @@ class ChatProvider with ChangeNotifier {
   // PQ-Aura Service instance for post-quantum encryption
   final PQAuraService _pqauraService = PQAuraService.instance;
 
+  bool get isQuantumSecure =>
+      otherUserId != null && _pqauraService.hasSession(otherUserId!);
+
   // Callbacks for UI actions
   VoidCallback? onReloadRequested;
   Function(String)? onError;
