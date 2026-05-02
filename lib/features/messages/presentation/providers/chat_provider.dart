@@ -135,6 +135,7 @@ class ChatProvider with ChangeNotifier {
 
   /// Initialize all chat subsystems. Call this from the screen's initState.
   Future<void> initialize() async {
+    debugPrint('[ChatProvider] initialize() called for conversation: $conversationId');
     // Load settings and cached messages
     await settingsProvider.loadPersistedSettings(
       currentUserId: _authService.currentUser?.id,

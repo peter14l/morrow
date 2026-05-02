@@ -30,32 +30,49 @@ class PQAuraService {
 
   /// Initialize the PQ-Aura service
   Future<bool> init() async {
-    if (_isInitialized) return true;
+    if (_isInitialized) {
+      debugPrint('[PQAura] Service already initialized');
+      return true;
+    }
+
+    debugPrint('[PQAura] Starting service initialization...');
 
     // Load the native library
     if (!_bridge.load()) {
-      debugPrint('[PQAura] Failed to load native library');
+      debugPrint('[PQAura] FAILED: Native library could not be loaded');
       return false;
     }
 
     // Check if we have identity keys, if not generate them
     final hasKeys = await _store.hasIdentityKeys();
     if (!hasKeys) {
-      debugPrint('[PQAura] Generating new identity keys...');
-      await _store.generateAndStoreIdentityKeys();
+      debugPrint('[PQAura] No local keys found. Generating new hybrid identity keys...');
+      try {
+        await _store.generateAndStoreIdentityKeys();
+        debugPrint('[PQAura] Local identity keys generated successfully');
+      } catch (e) {
+        debugPrint('[PQAura] FAILED: Key generation error: $e');
+        return false;
+      }
+    } else {
+      debugPrint('[PQAura] Local identity keys found in store');
     }
 
     // Create pre-key bundle if not exists
+    debugPrint('[PQAura] Preparing pre-key bundle...');
     await _store.createPreKeyBundle();
 
     // NEW: Upload bundle to server during init so other users can find us
     final localKeys = await _store.getIdentityKeys();
     if (localKeys != null) {
+      debugPrint('[PQAura] Local keys retrieved. Uploading bundle to Supabase...');
       await _uploadBundleToServer(localKeys);
+    } else {
+      debugPrint('[PQAura] WARNING: Local keys retrieved as null after generation');
     }
 
     _isInitialized = true;
-    debugPrint('[PQAura] Initialization complete');
+    debugPrint('[PQAura] Initialization COMPLETE. User is now Post-Quantum Ready.');
     return true;
   }
 
