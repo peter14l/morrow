@@ -303,32 +303,39 @@ class PQAuraService {
       // Special case: Alice's FIRST message must carry the handshake
       if (_pendingHandshakes.containsKey(recipientId)) {
         final initialMsg = _pendingHandshakes.remove(recipientId);
-        debugPrint('[PQAura] Packing PQ-X3DH handshake into first message header');
+        if (initialMsg == null) {
+          debugPrint('[PQAura] Handshake message was null, falling back');
+          header = Uint8List.fromList(encrypted.header);
+          payload = Uint8List.fromList(encrypted.payload);
+        } else {
+          debugPrint(
+              '[PQAura] Packing PQ-X3DH handshake into first message header');
 
-        // Bob expects a JSON-serialized InitialMessage for pqa_init_bob
-        final aliceHandshake = {
-          'alice_identity_pk': {
-            'classic': initialMsg.aliceIdentityPk.sublist(0, 32),
-            'quantum': initialMsg.aliceIdentityPk.sublist(32),
-          },
-          'ephemeral_pk': {
-            'classic': initialMsg.ephemeralPk.sublist(0, 32),
-            'quantum': initialMsg.ephemeralPk.sublist(32),
-          },
-          'kem_ciphertext_identity': initialMsg.kemCiphertextIdentity,
-          'kem_ciphertext_signed': initialMsg.kemCiphertextSigned,
-          'kem_ciphertext_one_time': initialMsg.kemCiphertextOneTime,
-          'ratchet_message': {
-            'header_ciphertext': encrypted.header,
-            'payload_ciphertext': encrypted.payload,
-          }
-        };
+          // Bob expects a JSON-serialized InitialMessage for pqa_init_bob
+          final aliceHandshake = {
+            'alice_identity_pk': {
+              'classic': initialMsg.aliceIdentityPk.sublist(0, 32),
+              'quantum': initialMsg.aliceIdentityPk.sublist(32),
+            },
+            'ephemeral_pk': {
+              'classic': initialMsg.ephemeralPk.sublist(0, 32),
+              'quantum': initialMsg.ephemeralPk.sublist(32),
+            },
+            'kem_ciphertext_identity': initialMsg.kemCiphertextIdentity,
+            'kem_ciphertext_signed': initialMsg.kemCiphertextSigned,
+            'kem_ciphertext_one_time': initialMsg.kemCiphertextOneTime,
+            'ratchet_message': {
+              'header_ciphertext': encrypted.header,
+              'payload_ciphertext': encrypted.payload,
+            }
+          };
 
-        header = Uint8List.fromList(utf8.encode(jsonEncode(aliceHandshake)));
-        payload = Uint8List.fromList(encrypted.payload);
+          header = Uint8List.fromList(utf8.encode(jsonEncode(aliceHandshake)));
+          payload = Uint8List.fromList(encrypted.payload);
 
-        // Free the native initial message
-        _bridge.freeInitialMessage(initialMsg.nativePtr);
+          // Free the native initial message
+          _bridge.freeInitialMessage(initialMsg.nativePtr);
+        }
       } else {
         header = Uint8List.fromList(encrypted.header);
         payload = Uint8List.fromList(encrypted.payload);
