@@ -101,6 +101,8 @@ class PQAuraService {
   /// Initialize a session with a remote user (initiator - Alice)
   Future<bool> initSessionAlice(String remoteUserId) async {
     try {
+      debugPrint('[PQAura] Handshaking as Alice with user: $remoteUserId');
+
       // Get remote user's pre-key bundle from server
       final response = await _supabase
           .from('pq_keys')
@@ -109,14 +111,14 @@ class PQAuraService {
           .maybeSingle();
 
       if (response == null) {
-        debugPrint('[PQAura] No PQ keys found for user: $remoteUserId');
+        debugPrint('[PQAura] No PQ keys found for user: $remoteUserId. Fallback to classical.');
         return false;
       }
 
       // Get our local identity keys
       final localKeys = await _store.getIdentityKeys();
       if (localKeys == null) {
-        debugPrint('[PQAura] No local identity keys found');
+        debugPrint('[PQAura] FAILED: No local identity keys found');
         return false;
       }
 
@@ -144,7 +146,7 @@ class PQAuraService {
       );
 
       if (initialMsg == null) {
-        debugPrint('[PQAura] Failed to initiate Alice session');
+        debugPrint('[PQAura] FAILED: Alice handshake failed in Rust core');
         return false;
       }
 
@@ -158,16 +160,59 @@ class PQAuraService {
       // Cache the state pointer
       _activeSessions[remoteUserId] = initialMsg.statePtr;
 
-      // Upload our bundle to the server for future use (done once during init)
-      await _uploadBundleToServer(localKeys);
-
       // Free the initial message (but keep the state)
       _bridge.freeInitialMessage(initialMsg.nativePtr);
 
-      debugPrint('[PQAura] Session initialized with: $remoteUserId');
+      debugPrint('[PQAura] Alice handshake success. Session live with: $remoteUserId');
       return true;
     } catch (e) {
-      debugPrint('[PQAura] Error initializing Alice session: $e');
+      debugPrint('[PQAura] Error in initSessionAlice: $e');
+      return false;
+    }
+  }
+
+  /// Initialize a session as Bob (responder) using an initial message
+  Future<bool> initSessionBob(String senderId, Uint8List header, Uint8List payload) async {
+    try {
+      debugPrint('[PQAura] Initializing Bob session (responding to handshake) for: $senderId');
+      
+      final localKeys = await _store.getIdentityKeys();
+      if (localKeys == null) {
+        debugPrint('[PQAura] FAILED: Local keys missing for Bob init');
+        return false;
+      }
+
+      // Combine header and payload into the format Bob expects for handshake
+      final initialMsgMap = {
+        'header': header,
+        'initial_payload': payload,
+      };
+      final initialMsgBytes = utf8.encode(jsonEncode(initialMsgMap));
+
+      final statePtr = _bridge.initBob(
+        initialMessage: initialMsgBytes,
+        localIdentityPk: localKeys.publicKey.toList(),
+        localIdentitySk: localKeys.secretKey.toList(),
+        localSignedSk: localKeys.secretKey.toList(),
+        localOtSk: null,
+      );
+
+      if (statePtr == null || statePtr == nullptr) {
+        debugPrint('[PQAura] FAILED: Bob handshake failed in Rust core');
+        return false;
+      }
+
+      // Store the session state
+      final serializedState = _bridge.serializeState(statePtr);
+      if (serializedState != null) {
+        await _store.saveSession(senderId, Uint8List.fromList(serializedState));
+      }
+
+      _activeSessions[senderId] = statePtr;
+      debugPrint('[PQAura] Bob handshake success. Session live with: $senderId');
+      return true;
+    } catch (e) {
+      debugPrint('[PQAura] Error in initSessionBob: $e');
       return false;
     }
   }
@@ -182,7 +227,7 @@ class PQAuraService {
 
       final statePtr = _bridge.deserializeState(serializedState.toList());
       if (statePtr == null || statePtr == nullptr) {
-        debugPrint('[PQAura] Failed to deserialize state');
+        debugPrint('[PQAura] Failed to deserialize stored state for: $remoteUserId');
         return false;
       }
 
@@ -206,24 +251,19 @@ class PQAuraService {
 
       final state = _activeSessions[recipientId];
       if (state == null) {
-        debugPrint('[PQAura] No session found for: $recipientId');
+        debugPrint('[PQAura] No active session found for: $recipientId');
         return null;
       }
 
       // Prepare plaintext and additional data
       final plaintextBytes = utf8.encode(plaintext);
-      // Additional data: recipient ID as context
       final ad = utf8.encode(recipientId);
 
       // Encrypt
-      final encrypted = _bridge.encrypt(
-        state,
-        plaintextBytes,
-        ad,
-      );
+      final encrypted = _bridge.encrypt(state, plaintextBytes, ad);
 
       if (encrypted == null) {
-        debugPrint('[PQAura] Encryption failed');
+        debugPrint('[PQAura] Encryption failed in Rust core');
         return null;
       }
 
@@ -239,9 +279,7 @@ class PQAuraService {
         payload: Uint8List.fromList(encrypted.payload),
       );
 
-      // Free the native message
       _bridge.freeMessage(encrypted.nativePtr);
-
       return result;
     } catch (e) {
       debugPrint('[PQAura] Encryption error: $e');
@@ -256,36 +294,35 @@ class PQAuraService {
     Uint8List payload,
   ) async {
     try {
-      // Ensure we have a session
-      final success = await getOrCreateSession(senderId);
-      if (success != true) return null;
+      if (!_isInitialized) {
+        final ready = await init();
+        if (!ready) return null;
+      }
+
+      // If no session, Bob must respond to the handshake
+      if (!hasSession(senderId)) {
+        final loaded = await loadSession(senderId);
+        if (!loaded) {
+          final initiated = await initSessionBob(senderId, header, payload);
+          if (!initiated) return null;
+        }
+      }
 
       final state = _activeSessions[senderId];
-      if (state == null) {
-        return null;
-      }
+      if (state == null) return null;
 
-      // Additional data: sender ID as context
       final ad = utf8.encode(senderId);
-
-      // Decrypt
-      final plaintext = _bridge.decrypt(
-        state,
-        header.toList(),
-        payload.toList(),
-        ad,
-      );
+      final plaintext = _bridge.decrypt(state, header.toList(), payload.toList(), ad);
 
       if (plaintext == null) {
-        debugPrint('[PQAura] Decryption failed');
+        debugPrint('[PQAura] Decryption failed for user: $senderId');
         return null;
       }
 
-      // Serialize the session state after each message
+      // Save state after ratchet turn
       final serializedState = _bridge.serializeState(state);
       if (serializedState != null) {
-        await _store.saveSession(
-            senderId, Uint8List.fromList(serializedState));
+        await _store.saveSession(senderId, Uint8List.fromList(serializedState));
       }
 
       return utf8.decode(plaintext);
@@ -358,26 +395,35 @@ class PQAuraService {
   Future<void> _uploadBundleToServer(PQAuraKeyPairData keys) async {
     try {
       final bundle = await _store.getPreKeyBundle();
-      if (bundle == null) return;
+      if (bundle == null) {
+        debugPrint('[PQAura] Skip upload: Local bundle not ready');
+        return;
+      }
 
       final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return;
+      if (userId == null) {
+        debugPrint('[PQAura] Skip upload: No authenticated user');
+        return;
+      }
 
-      await _supabase.from('pq_keys').upsert({
+      debugPrint('[PQAura] Sending bundle to Supabase for user: $userId');
+      
+      final data = {
         'user_id': userId,
         'identity_pk': base64Encode(keys.publicKey),
-        'bundle': jsonEncode({
+        'bundle': {
           'identity_pk': base64Encode(bundle.identityPk),
           'signed_prekey': base64Encode(bundle.signedPreKey),
           'onetime_prekey': bundle.oneTimePreKey != null
               ? base64Encode(bundle.oneTimePreKey!)
               : null,
-        }),
-      });
+        },
+      };
 
-      debugPrint('[PQAura] Bundle uploaded to server');
+      await _supabase.from('pq_keys').upsert(data);
+      debugPrint('[PQAura] SUCCESS: PQ bundle is now live on server');
     } catch (e) {
-      debugPrint('[PQAura] Failed to upload bundle: $e');
+      debugPrint('[PQAura] FAILED to upload bundle: $e');
     }
   }
 
@@ -392,13 +438,10 @@ class PQAuraService {
 
   /// Clear all data (logout)
   Future<void> clearAllData() async {
-    // Free all native state pointers
     for (final state in _activeSessions.values) {
       _bridge.freeState(state);
     }
     _activeSessions.clear();
-
-    // Clear secure storage
     await _store.clearAll();
     _isInitialized = false;
   }
@@ -414,13 +457,11 @@ class PQAuraEncryptedMessage {
     required this.payload,
   });
 
-  /// Convert to JSON-serializable map
   Map<String, dynamic> toJson() => {
         'header': base64Encode(header),
         'payload': base64Encode(payload),
       };
 
-  /// Create from JSON map
   factory PQAuraEncryptedMessage.fromJson(Map<String, dynamic> json) {
     return PQAuraEncryptedMessage(
       header: base64Decode(json['header'] as String),
