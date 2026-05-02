@@ -9,6 +9,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/core/config/app_config.dart';
+import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
 
 /// Chat app bar with avatar, presence indicator, encryption lock, and action buttons.
 /// Extracted floating glassmorphic header from chat_screen.dart.
