@@ -176,7 +176,7 @@ class ChatAppBar extends StatelessWidget {
                                     if (isEncryptionReady) ...[
                                       Icon(
                                         isPQ 
-                                          ? FluentIcons.shield_lock_12_filled 
+                                          ? FluentIcons.shield_lock_24_filled 
                                           : FluentIcons.lock_closed_12_filled,
                                         size: 10,
                                         color: isPQ 

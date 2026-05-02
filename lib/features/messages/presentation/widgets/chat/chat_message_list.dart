@@ -380,7 +380,7 @@ class MessageBubble extends StatelessWidget {
                   children: [
                     if (message.pqAuraHeader != null)
                       Icon(
-                        FluentIcons.shield_lock_12_filled,
+                        FluentIcons.shield_lock_24_filled,
                         size: 10,
                         color: isMe 
                           ? colorScheme.onPrimaryContainer.withValues(alpha: 0.5)
