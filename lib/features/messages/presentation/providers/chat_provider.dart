@@ -778,10 +778,10 @@ class ChatProvider with ChangeNotifier {
         remoteMediaUrl = uploadResult.remoteUrl;
       }
 
-// Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
+      // Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
       // Only needed if Signal or PQ-Aura was used, otherwise content is already RSA encrypted.
-      final encrypted = await _encryptContent(recipientId, content);
-      if (encrypted.protocol != 'rsa' && _encryptionService.isInitialized && content.isNotEmpty) {
+      final encryptedFallback = await _encryptContent(recipientId, content);
+      if (encryptedFallback != null && encryptedFallback.protocol != 'rsa' && _encryptionService.isInitialized && content.isNotEmpty) {
         try {
           final List<String> publicKeys = [];
           if (recipientPublicKey != null) publicKeys.add(recipientPublicKey);
