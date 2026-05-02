@@ -128,6 +128,7 @@ jobs:
       - name: Build Rust Library (iOS)
         run: |
           cd PQ-DR
+          rustup target add aarch64-apple-ios x86_64-apple-ios
           cargo build --target aarch64-apple-ios --release
           cargo build --target x86_64-apple-ios --release
           mkdir -p ../ios/libs
@@ -136,6 +137,15 @@ jobs:
             target/aarch64-apple-ios/release/libpq_aura.a \
             target/x86_64-apple-ios/release/libpq_aura.a \
             -output ../ios/libs/libpq_aura.a
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Precache iOS artifacts
+        run: flutter precache --ios
 
       - name: Install dependencies
         run: flutter pub get
@@ -176,12 +186,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -198,6 +202,15 @@ jobs:
             target/aarch64-apple-darwin/release/libpq_aura.dylib \
             target/x86_64-apple-darwin/release/libpq_aura.dylib \
             -output ../macos/libs/libpq_aura.dylib
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Precache macOS artifacts
+        run: flutter precache --macos
 
       - name: Install dependencies
         run: flutter pub get
