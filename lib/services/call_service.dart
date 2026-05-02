@@ -8,7 +8,7 @@ import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audio_session/audio_session.dart';
+import 'package:audio_session/audio_session.dart' as session_pkg;
 import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -192,22 +192,21 @@ class CallService extends ChangeNotifier {
     if (kIsWeb) return;
     try {
       if (Platform.isIOS || Platform.isAndroid) {
-        final session = await AudioSession.instance;
-        await session.configure(AudioSessionConfiguration(
-          avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+        final session = await session_pkg.AudioSession.instance;
+        await session.configure(session_pkg.AudioSessionConfiguration(
+          avAudioSessionCategory: session_pkg.AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions:
-              AVAudioSessionCategoryOptions.allowBluetooth |
-              AVAudioSessionCategoryOptions.defaultToSpeaker,
-          avAudioSessionMode: isVideo ? AVAudioSessionMode.videoChat : AVAudioSessionMode.voiceChat,
+              session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
+              session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker,
+          avAudioSessionMode: isVideo ? session_pkg.AVAudioSessionMode.videoChat : session_pkg.AVAudioSessionMode.voiceChat,
           avAudioSessionRouteSharingPolicy:
-              AVAudioSessionRouteSharingPolicy.defaultPolicy,
-          avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
-          androidAudioAttributes: const AndroidAudioAttributes(
-            contentType: AndroidAudioContentType.communication,
-            usage: AndroidAudioUsage.notificationCommunicationRequest,
+              session_pkg.AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          avAudioSessionSetActiveOptions: session_pkg.AVAudioSessionSetActiveOptions.none,
+          androidAudioAttributes: const session_pkg.AndroidAudioAttributes(
+            contentType: session_pkg.AndroidAudioContentType.speech,
+            usage: session_pkg.AndroidAudioUsage.voiceCommunication,
           ),
-          androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransient,
-          androidAudioStreamType: AndroidAudioStreamType.voiceCall,
+          androidAudioFocusGainType: session_pkg.AndroidAudioFocusGainType.gainTransient,
         ));
         await session.setActive(true);
 
@@ -252,12 +251,6 @@ class CallService extends ChangeNotifier {
         try {
           if (event.track.kind == 'audio') {
             event.track.enabled = true;
-            try {
-              // Some versions of flutter_webrtc on Windows/Desktop benefit from explicit volume setting
-              await event.track.setVolume(1.0);
-            } catch (e) {
-              debugPrint('[CallService] Could not set remote track volume: $e');
-            }
           }
 
           MediaStream stream;

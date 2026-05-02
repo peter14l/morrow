@@ -115,6 +115,7 @@ import 'package:oasis/features/feed/presentation/widgets/polls/poll_widgets.dart
 import 'package:oasis/widgets/spoiler_widget.dart';
 import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
+import 'package:oasis/features/circles/domain/models/circles_models.dart';
 import 'package:oasis/themes/theme_provider.dart';
 
 class PostCard extends StatefulWidget {
