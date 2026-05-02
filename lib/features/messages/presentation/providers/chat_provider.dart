@@ -91,8 +91,10 @@ class ChatProvider with ChangeNotifier {
   // PQ-Aura Service instance for post-quantum encryption
   final PQAuraService _pqauraService = PQAuraService.instance;
 
-  bool get isQuantumSecure =>
-      otherUserId != null && _pqauraService.hasSession(otherUserId!);
+  bool get isQuantumSecure {
+    final uid = otherUserId ?? state.otherUserId;
+    return uid != null && _pqauraService.hasSession(uid);
+  }
 
   // Callbacks for UI actions
   VoidCallback? onReloadRequested;
@@ -221,6 +223,7 @@ class ChatProvider with ChangeNotifier {
       }
       if (_pqauraService.isReady) {
         debugPrint('[ChatProvider] PQ-Aura initialized successfully');
+        _checkPQAuraSession();
       }
     } catch (e) {
       debugPrint('[ChatProvider] PQ-Aura initialization failed: $e');
@@ -1059,8 +1062,33 @@ class ChatProvider with ChangeNotifier {
           ephemeralDuration: details.whisperMode == 1 ? 0 : 86400,
         ),
       );
+      
+      // Re-check PQ session now that we have details
+      _checkPQAuraSession();
     } catch (e) {
       debugPrint('Error fetching conversation details: $e');
+    }
+  }
+
+  /// Eagerly check and establish a PQ-Aura session with the other user.
+  Future<void> _checkPQAuraSession() async {
+    final recipientId = otherUserId ?? state.otherUserId;
+    if (recipientId == null) {
+      debugPrint('[ChatProvider] Cannot check PQ session: recipientId is null');
+      return;
+    }
+
+    debugPrint('[ChatProvider] Checking PQ session status for recipient: $recipientId');
+    try {
+      final success = await _pqauraService.getOrCreateSession(recipientId);
+      if (success == true) {
+        debugPrint('[ChatProvider] SUCCESS: PQ session established with $recipientId');
+      } else {
+        debugPrint('[ChatProvider] PQ session NOT available yet with $recipientId (Other user may not be PQ-ready)');
+      }
+      _safeNotifyListeners(); // Refresh UI to show the lock or stay as classic
+    } catch (e) {
+      debugPrint('[ChatProvider] Error checking PQ session for $recipientId: $e');
     }
   }
 

@@ -19,6 +19,9 @@ class PQAuraService {
   // In-memory session state pointers (keyed by remote user ID)
   final Map<String, Pointer<RatchetState>> _activeSessions = {};
 
+  // Pending handshake data for Alice's first message
+  final Map<String, PQAuraInitialMessage> _pendingHandshakes = {};
+
   bool _isInitialized = false;
 
   PQAuraService._();
@@ -88,13 +91,21 @@ class PQAuraService {
   Future<bool?> getOrCreateSession(String remoteUserId) async {
     if (!_isInitialized) await init();
     
-    if (hasSession(remoteUserId)) return true;
+    if (hasSession(remoteUserId)) {
+      debugPrint('[PQAura] Session already active in memory for: $remoteUserId');
+      return true;
+    }
     
     // Try to load from store
+    debugPrint('[PQAura] Checking local store for session with: $remoteUserId');
     final loaded = await loadSession(remoteUserId);
-    if (loaded) return true;
+    if (loaded) {
+      debugPrint('[PQAura] Session loaded from local store for: $remoteUserId');
+      return true;
+    }
     
     // If not in store, initiate as Alice
+    debugPrint('[PQAura] No local session found. Attempting to initiate as Alice for: $remoteUserId');
     final initiated = await initSessionAlice(remoteUserId);
     return initiated;
   }
@@ -112,14 +123,15 @@ class PQAuraService {
           .maybeSingle();
 
       if (response == null) {
-        debugPrint('[PQAura] No PQ keys found for user: $remoteUserId. Fallback to classical.');
+        debugPrint('[PQAura] No PQ keys found in Supabase for user: $remoteUserId. Handshake aborted.');
         return false;
       }
+      debugPrint('[PQAura] Found remote PQ bundle for $remoteUserId');
 
       // Get our local identity keys
       final localKeys = await _store.getIdentityKeys();
       if (localKeys == null) {
-        debugPrint('[PQAura] FAILED: No local identity keys found');
+        debugPrint('[PQAura] FAILED: No local identity keys found. Run init() first.');
         return false;
       }
 
@@ -131,15 +143,26 @@ class PQAuraService {
           ? base64Decode(bundle['onetime_prekey'] as String)
           : null;
 
+      debugPrint('[PQAura] Decoded remote bundle parts. PK sizes: IPK=${remoteIdentityPk.length}, SPK=${remoteSignedPk.length}');
+
+      // Helper to convert flat hybrid PK (1600 bytes) to Rust-expected JSON structure
+      Map<String, dynamic> toHybridPkMap(Uint8List flatPk) {
+        return {
+          'classic': flatPk.sublist(0, 32),
+          'quantum': flatPk.sublist(32),
+        };
+      }
+
       // Build the PreKeyBundle bytes for FFI
       final bundleMap = {
-        'identity_pk': remoteIdentityPk,
-        'signed_pre_key': remoteSignedPk,
-        'one_time_pre_key': remoteOtPk,
+        'identity_pk': toHybridPkMap(remoteIdentityPk),
+        'signed_pre_key': toHybridPkMap(remoteSignedPk),
+        'one_time_pre_key': remoteOtPk != null ? toHybridPkMap(remoteOtPk) : null,
       };
       final bundleBytes = utf8.encode(jsonEncode(bundleMap));
 
       // Initiate the handshake
+      debugPrint('[PQAura] Calling Rust init_alice...');
       final initialMsg = _bridge.initAlice(
         remoteBundle: bundleBytes,
         localIdentityPk: localKeys.publicKey.toList(),
@@ -147,27 +170,30 @@ class PQAuraService {
       );
 
       if (initialMsg == null) {
-        debugPrint('[PQAura] FAILED: Alice handshake failed in Rust core');
+        debugPrint('[PQAura] CRITICAL FAILED: Alice handshake failed in Rust core library');
         return false;
       }
+
+      debugPrint('[PQAura] Handshake message generated. Saving session state...');
 
       // Store the session state
       final serializedState = _bridge.serializeState(initialMsg.statePtr);
       if (serializedState != null) {
         await _store.saveSession(
             remoteUserId, Uint8List.fromList(serializedState));
+        debugPrint('[PQAura] Session state persisted for $remoteUserId');
       }
 
       // Cache the state pointer
       _activeSessions[remoteUserId] = initialMsg.statePtr;
+      
+      // Store the initial message to send as the first PQ message header
+      _pendingHandshakes[remoteUserId] = initialMsg;
 
-      // Free the initial message (but keep the state)
-      _bridge.freeInitialMessage(initialMsg.nativePtr);
-
-      debugPrint('[PQAura] Alice handshake success. Session live with: $remoteUserId');
+      debugPrint('[PQAura] Alice handshake SUCCESS. Session is now LIVE with: $remoteUserId');
       return true;
     } catch (e) {
-      debugPrint('[PQAura] Error in initSessionAlice: $e');
+      debugPrint('[PQAura] Error in initSessionAlice for $remoteUserId: $e');
       return false;
     }
   }
@@ -183,15 +209,11 @@ class PQAuraService {
         return false;
       }
 
-      // Combine header and payload into the format Bob expects for handshake
-      final initialMsgMap = {
-        'header': header,
-        'initial_payload': payload,
-      };
-      final initialMsgBytes = utf8.encode(jsonEncode(initialMsgMap));
+      // The header already contains the JSON-serialized InitialMessage (from Alice)
+      final initialMsgBytes = header;
 
       final statePtr = _bridge.initBob(
-        initialMessage: initialMsgBytes,
+        initialMessage: initialMsgBytes.toList(),
         localIdentityPk: localKeys.publicKey.toList(),
         localIdentitySk: localKeys.secretKey.toList(),
         localSignedSk: localKeys.secretKey.toList(),
@@ -199,21 +221,21 @@ class PQAuraService {
       );
 
       if (statePtr == null || statePtr == nullptr) {
-        debugPrint('[PQAura] FAILED: Bob handshake failed in Rust core');
+        debugPrint('[PQAura] CRITICAL FAILED: Bob handshake failed in Rust core');
         return false;
       }
 
-      // Store the session state
+      // Cache and persist the new state
+      _activeSessions[senderId] = statePtr;
       final serializedState = _bridge.serializeState(statePtr);
       if (serializedState != null) {
         await _store.saveSession(senderId, Uint8List.fromList(serializedState));
       }
 
-      _activeSessions[senderId] = statePtr;
-      debugPrint('[PQAura] Bob handshake success. Session live with: $senderId');
+      debugPrint('[PQAura] Bob handshake SUCCESS. Session is now LIVE with: $senderId');
       return true;
     } catch (e) {
-      debugPrint('[PQAura] Error in initSessionBob: $e');
+      debugPrint('[PQAura] Error in initSessionBob for $senderId: $e');
       return false;
     }
   }
@@ -275,9 +297,46 @@ class PQAuraService {
             recipientId, Uint8List.fromList(serializedState));
       }
 
+      Uint8List header;
+      Uint8List payload;
+
+      // Special case: Alice's FIRST message must carry the handshake
+      if (_pendingHandshakes.containsKey(recipientId)) {
+        final initialMsg = _pendingHandshakes.remove(recipientId);
+        debugPrint('[PQAura] Packing PQ-X3DH handshake into first message header');
+
+        // Bob expects a JSON-serialized InitialMessage for pqa_init_bob
+        final aliceHandshake = {
+          'alice_identity_pk': {
+            'classic': initialMsg.aliceIdentityPk.sublist(0, 32),
+            'quantum': initialMsg.aliceIdentityPk.sublist(32),
+          },
+          'ephemeral_pk': {
+            'classic': initialMsg.ephemeralPk.sublist(0, 32),
+            'quantum': initialMsg.ephemeralPk.sublist(32),
+          },
+          'kem_ciphertext_identity': initialMsg.kemCiphertextIdentity,
+          'kem_ciphertext_signed': initialMsg.kemCiphertextSigned,
+          'kem_ciphertext_one_time': initialMsg.kemCiphertextOneTime,
+          'ratchet_message': {
+            'header_ciphertext': encrypted.header,
+            'payload_ciphertext': encrypted.payload,
+          }
+        };
+
+        header = Uint8List.fromList(utf8.encode(jsonEncode(aliceHandshake)));
+        payload = Uint8List.fromList(encrypted.payload);
+
+        // Free the native initial message
+        _bridge.freeInitialMessage(initialMsg.nativePtr);
+      } else {
+        header = Uint8List.fromList(encrypted.header);
+        payload = Uint8List.fromList(encrypted.payload);
+      }
+
       final result = PQAuraEncryptedMessage(
-        header: Uint8List.fromList(encrypted.header),
-        payload: Uint8List.fromList(encrypted.payload),
+        header: header,
+        payload: payload,
       );
 
       _bridge.freeMessage(encrypted.nativePtr);
