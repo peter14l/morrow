@@ -40,6 +40,7 @@ class ChatDecryptionService {
     String? signalSenderContent,
     String? pqAuraHeader,
     String? pqAuraPayload,
+    bool isHistorical = false,
   }) async {
     try {
       final isSender = senderId == currentUserId;
@@ -70,6 +71,7 @@ class ChatDecryptionService {
           senderId,
           content,
           signalMessageType,
+          isHistorical: isHistorical,
         );
 
         // Handle Protocol Sync

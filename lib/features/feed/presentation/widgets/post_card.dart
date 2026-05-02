@@ -127,6 +127,7 @@ class PostCard extends StatefulWidget {
   final VoidCallback? onDelete;
   final Function(String optionId)? onVote;
   final bool isOwnPost;
+  final bool showInteractionButtons;
 
   const PostCard({
     super.key,
@@ -138,6 +139,7 @@ class PostCard extends StatefulWidget {
     this.onDelete,
     this.onVote,
     this.isOwnPost = false,
+    this.showInteractionButtons = true,
   });
 
   @override
@@ -786,32 +788,34 @@ class _PostCardState extends State<PostCard>
                   padding: const EdgeInsets.all(12),
                   child: Row(
                     children: [
-                      ScaleTransition(
-                        scale: _likeAnimation,
-                        child: fluent.IconButton(
-                          icon: Icon(
-                            widget.post.isLiked
-                                ? fluent.FluentIcons.heart_fill
-                                : fluent.FluentIcons.heart,
-                            color: widget.post.isLiked ? Colors.red : null,
-                            size: 20,
+                      if (widget.showInteractionButtons) ...[
+                        ScaleTransition(
+                          scale: _likeAnimation,
+                          child: fluent.IconButton(
+                            icon: Icon(
+                              widget.post.isLiked
+                                  ? fluent.FluentIcons.heart_fill
+                                  : fluent.FluentIcons.heart,
+                              color: widget.post.isLiked ? Colors.red : null,
+                              size: 20,
+                            ),
+                            onPressed: _handleLike,
                           ),
-                          onPressed: _handleLike,
                         ),
-                      ),
-                      if (widget.post.likes > 0) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          '${widget.post.likes}',
-                          style: fluent.FluentTheme.of(context).typography.caption,
+                        if (widget.post.likes > 0) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            '${widget.post.likes}',
+                            style: fluent.FluentTheme.of(context).typography.caption,
+                          ),
+                        ],
+                        const SizedBox(width: 16),
+                        fluent.IconButton(
+                          icon: const Icon(fluent.FluentIcons.comment, size: 20),
+                          onPressed: widget.onComment,
                         ),
+                        const SizedBox(width: 16),
                       ],
-                      const SizedBox(width: 16),
-                      fluent.IconButton(
-                        icon: const Icon(fluent.FluentIcons.comment, size: 20),
-                        onPressed: widget.onComment,
-                      ),
-                      const SizedBox(width: 16),
                       fluent.IconButton(
                         icon: const Icon(fluent.FluentIcons.share, size: 20),
                         onPressed: widget.onShare,
@@ -1162,46 +1166,48 @@ class _PostCardState extends State<PostCard>
                   ),
                   child: Row(
                     children: [
-                      ScaleTransition(
-                        scale: _likeAnimation,
-                        child: IconButton(
-                          key: const ValueKey('post_card_like_button'),
-                          icon: Icon(
-                            widget.post.isLiked
-                                ? FluentIcons.heart_24_filled
-                                : FluentIcons.heart_24_regular,
-                            color: widget.post.isLiked
-                                ? (isM3E ? colorScheme.tertiary : Colors.red)
-                                : null,
-                            size: isDesktop ? 28 : 32,
+                      if (widget.showInteractionButtons) ...[
+                        ScaleTransition(
+                          scale: _likeAnimation,
+                          child: IconButton(
+                            key: const ValueKey('post_card_like_button'),
+                            icon: Icon(
+                              widget.post.isLiked
+                                  ? FluentIcons.heart_24_filled
+                                  : FluentIcons.heart_24_regular,
+                              color: widget.post.isLiked
+                                  ? (isM3E ? colorScheme.tertiary : Colors.red)
+                                  : null,
+                              size: isDesktop ? 28 : 32,
+                            ),
+                            onPressed: _handleLike,
+                            padding: const EdgeInsets.all(8),
+                            constraints: null,
                           ),
-                          onPressed: _handleLike,
+                        ),
+                        if (widget.post.likes > 0) ...[
+                          const SizedBox(width: 4),
+                          Text(
+                            '${widget.post.likes}',
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(width: 12),
+                        IconButton(
+                          key: const ValueKey('post_card_comment_button'),
+                          icon: Icon(
+                            FluentIcons.chat_24_regular,
+                            size: isDesktop ? 26 : 28,
+                          ),
+                          onPressed: widget.onComment,
                           padding: const EdgeInsets.all(8),
                           constraints: null,
                         ),
-                      ),
-                      if (widget.post.likes > 0) ...[
-                        const SizedBox(width: 4),
-                        Text(
-                          '${widget.post.likes}',
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        const SizedBox(width: 12),
                       ],
-                      const SizedBox(width: 12),
-                      IconButton(
-                        key: const ValueKey('post_card_comment_button'),
-                        icon: Icon(
-                          FluentIcons.chat_24_regular,
-                          size: isDesktop ? 26 : 28,
-                        ),
-                        onPressed: widget.onComment,
-                        padding: const EdgeInsets.all(8),
-                        constraints: null,
-                      ),
-                      const SizedBox(width: 12),
                        IconButton(
                         key: const ValueKey('post_card_share_button'),
                         icon: Icon(

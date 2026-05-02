@@ -189,6 +189,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         children: [
           PostCard(
             post: _post!,
+            showInteractionButtons: false,
             isOwnPost: _post!.userId == currentUserId,
             onLike: () async {
               final userId = _authService.currentUser?.id;

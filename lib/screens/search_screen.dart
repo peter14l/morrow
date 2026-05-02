@@ -1137,7 +1137,7 @@ class _SearchScreenState extends State<SearchScreen>
       itemCount: _postResults.length,
       itemBuilder: (context, index) {
         final post = _postResults[index];
-        return PostCard(post: post);
+        return PostCard(post: post, showInteractionButtons: false);
       },
     );
 

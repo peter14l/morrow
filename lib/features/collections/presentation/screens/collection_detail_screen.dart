@@ -85,6 +85,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                 itemBuilder: (context, index) {
                   return PostCard(
                     post: state.collectionItems[index],
+                    showInteractionButtons: false,
                     onLike: () {},
                     onComment: () {},
                     onShare: () {},

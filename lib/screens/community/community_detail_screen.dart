@@ -295,6 +295,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                     final post = provider.communityPosts[index];
                     return PostCard(
                       post: post,
+                      showInteractionButtons: false,
                       isOwnPost: post.userId == _authService.currentUser?.id,
                       onLike: () {
                         final userId = _authService.currentUser?.id;

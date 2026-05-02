@@ -238,6 +238,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
 
                         return PostCard(
                           post: _posts[index],
+                          showInteractionButtons: false,
                           onLike: () => _handleLike(_posts[index]),
                           onComment: () => _handleComment(_posts[index]),
                           onShare: () => _handleShare(_posts[index]),

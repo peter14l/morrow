@@ -497,6 +497,7 @@ class _FeedScreenState extends State<FeedScreen>
   ) {
     return PostCard(
       post: post,
+      showInteractionButtons: false,
       onLike: () async {
         final userId = _authService.currentUser?.id;
         if (userId == null) return;

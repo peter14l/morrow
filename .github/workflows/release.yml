@@ -131,12 +131,13 @@ jobs:
           rustup target add aarch64-apple-ios x86_64-apple-ios
           cargo build --target aarch64-apple-ios --release
           cargo build --target x86_64-apple-ios --release
-          mkdir -p ../ios/libs
+          cd ..
+          mkdir -p ios/libs
           # Create a fat library (universal) for simulator + device
           lipo -create \
-            target/aarch64-apple-ios/release/libpq_aura.a \
-            target/x86_64-apple-ios/release/libpq_aura.a \
-            -output ../ios/libs/libpq_aura.a
+            PQ-DR/target/aarch64-apple-ios/release/libpq_aura.a \
+            PQ-DR/target/x86_64-apple-ios/release/libpq_aura.a \
+            -output ios/libs/libpq_aura.a
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -168,7 +169,8 @@ jobs:
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
 
       - name: Build iOS
-        run: flutter build ios --release --no-codesign --dart-define-from-file=".env"
+        run: |
+          flutter build ios --release --no-codesign --dart-define-from-file=".env"
 
       - name: Upload iOS Build
         uses: actions/upload-artifact@v4
@@ -196,12 +198,13 @@ jobs:
           cd PQ-DR
           cargo build --target aarch64-apple-darwin --release
           cargo build --target x86_64-apple-darwin --release
-          mkdir -p ../macos/libs
+          cd ..
+          mkdir -p macos/libs
           # Create a universal dylib for Apple Silicon + Intel
           lipo -create \
-            target/aarch64-apple-darwin/release/libpq_aura.dylib \
-            target/x86_64-apple-darwin/release/libpq_aura.dylib \
-            -output ../macos/libs/libpq_aura.dylib
+            PQ-DR/target/aarch64-apple-darwin/release/libpq_aura.dylib \
+            PQ-DR/target/x86_64-apple-darwin/release/libpq_aura.dylib \
+            -output macos/libs/libpq_aura.dylib
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -214,6 +217,12 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Prepare macOS Pods
+        run: |
+          cd macos
+          pod install
+          cd ..
 
       - name: Create .env from secrets
         run: |
@@ -265,11 +274,13 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust Library (Windows)
+        shell: pwsh
         run: |
           cd PQ-DR
           cargo build --release
-          mkdir -p ../windows/libs
-          cp target/release/pq_aura.dll ../windows/libs/
+          cd ..
+          if (!(Test-Path "windows/libs")) { New-Item -ItemType Directory -Path "windows/libs" }
+          Copy-Item "PQ-DR/target/release/pq_aura.dll" -Destination "windows/libs/"
 
       - name: Install dependencies
         run: flutter pub get

@@ -139,6 +139,9 @@ class _MyAppState extends State<MyApp> {
   material.ColorScheme? _cachedDarkScheme;
   String _cachedSettingsKey = '';
   bool _themeSettingsChanged = true;
+  bool? _cachedIsDark;
+  bool? _cachedMicaEnabled;
+  String? _cachedWindowEffect;
 
   @override
   void initState() {
@@ -732,9 +735,6 @@ void main() async {
 
   // 3. Catch all uncaught asynchronous errors (replaces runZonedGuarded)
   ui.PlatformDispatcher.instance.onError = (error, stack) {
-    material.debugPrint('--- UNCAUGHT ERROR ---');
-    material.debugPrint('Error: $error');
-
     final errorStr = error.toString().toLowerCase();
 
     // Ignore transient network or realtime errors that shouldn't crash the UI
@@ -743,11 +743,20 @@ void main() async {
         errorStr.contains('socketexception') ||
         errorStr.contains('handshakeexception') ||
         errorStr.contains('connection closed before full header') ||
-        errorStr.contains('software caused connection abort')) {
+        errorStr.contains('software caused connection abort') ||
+        errorStr.contains('authretryablefetchexception') ||
+        errorStr.contains('clientexception') ||
+        errorStr.contains('timeoutexception') ||
+        errorStr.contains('authapierror') ||
+        errorStr.contains('xmlhttprequest error') ||
+        errorStr.contains('failed host lookup')) {
       material.debugPrint(
-          '[GlobalError] Ignoring transient network/realtime error: $error');
+          '[GlobalError] Ignoring transient network/auth error: $error');
       return true;
     }
+
+    material.debugPrint('--- UNCAUGHT ERROR ---');
+    material.debugPrint('Error: $error');
 
     // If it is a FormatException during startup, it is likely disk corruption
     if (error is FormatException) {

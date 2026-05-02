@@ -345,6 +345,7 @@ class SignalService {
     String base64Ciphertext,
     int type, {
     int deviceId = 1,
+    bool isHistorical = false,
   }) async {
     if (!_isInitialized) {
       final success = await init();
@@ -377,6 +378,10 @@ class SignalService {
       final errorStr = e.toString();
       
       if (errorStr.contains('Bad Mac')) {
+        if (isHistorical) {
+          return '🔒 Message encrypted (Historical)';
+        }
+
         final now = DateTime.now();
         final lastAttempt = _lastRecoveryAttempt[senderId];
 

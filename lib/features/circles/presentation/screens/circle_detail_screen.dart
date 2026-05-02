@@ -186,6 +186,7 @@ class _FeedTab extends StatelessWidget {
               final post = provider.circleFeed[index];
               return PostCard(
                 post: post,
+                showInteractionButtons: true,
                 isOwnPost: post.userId == AuthService().currentUser?.id,
                 onLike: () {
                   final currentUserId = AuthService().currentUser?.id;
