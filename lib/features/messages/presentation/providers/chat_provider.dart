@@ -195,6 +195,18 @@ class ChatProvider with ChangeNotifier {
       }
     }
 
+    // Initialize PQ-Aura Service (new post-quantum protocol)
+    try {
+      if (!_pqauraService.isReady) {
+        await _pqauraService.init();
+      }
+      if (_pqauraService.isReady) {
+        debugPrint('[ChatProvider] PQ-Aura initialized successfully');
+      }
+    } catch (e) {
+      debugPrint('[ChatProvider] PQ-Aura initialization failed: $e');
+    }
+
     final status = await _encryptionService.init();
     debugPrint('[ChatProvider] Encryption status: $status');
 
