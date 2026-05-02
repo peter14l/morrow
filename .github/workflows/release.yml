@@ -29,6 +29,25 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-linux-android, armv7-linux-androideabi, x86_64-linux-android"
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build Rust Library (Android)
+        run: |
+          cd PQ-DR
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 build --release
+          mkdir -p ../android/app/src/main/jniLibs/arm64-v8a
+          mkdir -p ../android/app/src/main/jniLibs/armeabi-v7a
+          mkdir -p ../android/app/src/main/jniLibs/x86_64
+          cp target/aarch64-linux-android/release/libpq_aura.so ../android/app/src/main/jniLibs/arm64-v8a/
+          cp target/armv7-linux-androideabi/release/libpq_aura.so ../android/app/src/main/jniLibs/armeabi-v7a/
+          cp target/x86_64-linux-android/release/libpq_aura.so ../android/app/src/main/jniLibs/x86_64/
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -100,6 +119,16 @@ jobs:
         with:
           channel: 'stable'
           cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Library (Windows)
+        run: |
+          cd PQ-DR
+          cargo build --release
+          mkdir -p ../windows/libs
+          cp target/release/pq_aura.dll ../windows/libs/
 
       - name: Install dependencies
         run: flutter pub get

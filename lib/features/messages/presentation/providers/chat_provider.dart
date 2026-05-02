@@ -14,13 +14,31 @@ import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 import 'package:oasis/services/smart_reply_service.dart';
-import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
-import 'package:oasis/features/messages/presentation/providers/chat_encryption_provider.dart';
-import 'package:oasis/features/messages/presentation/providers/chat_settings_provider.dart';
-import 'package:oasis/features/messages/data/chat_media_service.dart';
-import 'package:oasis/services/curation_tracking_service.dart';
-import 'package:oasis/services/live_location_tracker.dart';
+
+/// Helper class to hold encrypted content and metadata
+class EncryptedContent {
+  final String content;
+  final String? pqAuraHeader;
+  final String? pqAuraPayload;
+  final String? pqAuraSenderPayload;
+  final int? signalMessageType;
+  final Map<String, dynamic>? encryptedKeys;
+  final String? iv;
+  final String protocol; // 'pq_aura', 'signal', 'rsa', 'plaintext'
+
+  EncryptedContent({
+    required this.content,
+    this.pqAuraHeader,
+    this.pqAuraPayload,
+    this.pqAuraSenderPayload,
+    this.signalMessageType,
+    this.encryptedKeys,
+    this.iv,
+    required this.protocol,
+  });
+}
 
 /// Main chat provider managing message list, sending, receiving, and UI state.
 /// Fully migrated from _ChatScreenState in chat_screen.dart.
@@ -62,6 +80,9 @@ class ChatProvider with ChangeNotifier {
 
   // Public key cache for encryption
   final Map<String, String> _publicKeyCache = {};
+
+  // PQ-Aura Service instance for post-quantum encryption
+  final PQAuraService _pqauraService = PQAuraService.instance;
 
   // Callbacks for UI actions
   VoidCallback? onReloadRequested;
@@ -191,6 +212,74 @@ class ChatProvider with ChangeNotifier {
     return encryptionProvider.decryptSingleMessage(
       message,
       _authService.currentUser?.id,
+    );
+  }
+
+  /// Encrypts content for a recipient using PQ-Aura -> Signal -> RSA fallback.
+  /// Returns encrypted content and metadata based on which protocol was used.
+  Future<EncryptedContent?> _encryptContent(
+    String recipientId,
+    String content,
+  ) async {
+    // Try PQ-Aura first (post-quantum encryption)
+    try {
+      final pqaEncrypted = await _pqauraService.encryptMessage(recipientId, content);
+      if (pqaEncrypted != null) {
+        debugPrint('[ChatProvider] Used PQ-Aura encryption for $recipientId');
+        return EncryptedContent(
+          content: base64Encode(pqaEncrypted.payload),
+          pqAuraHeader: base64Encode(pqaEncrypted.header),
+          pqAuraPayload: base64Encode(pqaEncrypted.payload),
+          protocol: 'pq_aura',
+        );
+      }
+    } catch (e) {
+      debugPrint('[ChatProvider] PQ-Aura encryption failed: $e');
+    }
+
+    // Fall back to Signal (classical E2EE)
+    if (SignalService().isInitialized) {
+      try {
+        final cipherMessage = await SignalService().encryptMessage(
+          recipientId,
+          content,
+        );
+        debugPrint('[ChatProvider] Used Signal encryption for $recipientId');
+        return EncryptedContent(
+          content: base64Encode(cipherMessage.serialize()),
+          signalMessageType: cipherMessage.getType(),
+          protocol: 'signal',
+        );
+      } catch (e) {
+        debugPrint('[ChatProvider] Signal encryption failed: $e');
+      }
+    }
+
+    // Fall back to RSA encryption (legacy)
+    String? recipientPublicKey = _publicKeyCache[recipientId];
+    if (recipientPublicKey != null) {
+      try {
+        final encrypted = await _encryptionService.encryptMessage(
+          content,
+          [recipientPublicKey],
+        );
+        debugPrint('[ChatProvider] Used RSA encryption for $recipientId');
+        return EncryptedContent(
+          content: encrypted.encryptedContent,
+          encryptedKeys: encrypted.encryptedKeys,
+          iv: encrypted.iv,
+          protocol: 'rsa',
+        );
+      } catch (e) {
+        debugPrint('[ChatProvider] RSA encryption failed: $e');
+      }
+    }
+
+    // No encryption available - send as plaintext (shouldn't happen in production)
+    debugPrint('[ChatProvider] No encryption available, sending plaintext');
+    return EncryptedContent(
+      content: content,
+      protocol: 'plaintext',
     );
   }
 
@@ -592,7 +681,8 @@ class ChatProvider with ChangeNotifier {
       String? iv;
       int? signalMessageType;
       String? signalSenderContent;
-      bool usedSignal = false;
+      String? pqAuraHeader;
+      String? pqAuraPayload;
 
       // Prepare recipient keys for media E2EE
       final recipientId = otherUserId ?? state.otherUserId;
@@ -611,36 +701,19 @@ class ChatProvider with ChangeNotifier {
       if (recipientPublicKey != null) mediaRecipientPublicKeys.add(recipientPublicKey);
       if (senderPublicKey != null) mediaRecipientPublicKeys.add(senderPublicKey);
 
+      // Use PQ-Aura -> Signal -> RSA fallback encryption
       if (_encryptionService.isInitialized && content.isNotEmpty) {
-        // Try Signal encryption first
-        if (SignalService().isInitialized) {
-          try {
-            final cipherMessage = await SignalService().encryptMessage(
-              recipientId,
-              content,
-            );
-            finalContent = base64Encode(cipherMessage.serialize());
-            signalMessageType = cipherMessage.getType();
-            usedSignal = true;
-          } catch (e) {
-            debugPrint('Signal encryption failed: $e, falling back to RSA');
-          }
-        }
-
-        // Fallback to RSA
-        if (!usedSignal) {
-          if (recipientPublicKey == null) {
-            throw Exception(
-              'Recipient has not set up their encryption keys yet.',
-            );
-          }
-
-          final encrypted = await _encryptionService.encryptMessage(
-            content,
-            [recipientPublicKey],
-          );
-          finalContent = encrypted.encryptedContent;
-          encryptedKeys = encrypted.encryptedKeys;
+        final encrypted = await _encryptContent(recipientId, content);
+        finalContent = encrypted.content;
+        
+        // Extract encryption metadata based on protocol used
+        if (encrypted.protocol == 'pq_aura') {
+          pqAuraHeader = encrypted.pqAuraHeader;
+          pqAuraPayload = encrypted.pqAuraPayload;
+        } else if (encrypted.protocol == 'signal') {
+          signalMessageType = encrypted.signalMessageType;
+        } else if (encrypted.protocol == 'rsa') {
+          encryptedKeys = encrypted.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
           iv = encrypted.iv;
         }
       } else {
@@ -661,6 +734,7 @@ class ChatProvider with ChangeNotifier {
           imageFile.path,
           type: 'images',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserId: recipientId,
           onProgress: onProgress,
         );
       } else if (videoFile != null) {
@@ -668,6 +742,7 @@ class ChatProvider with ChangeNotifier {
           videoFile.path,
           type: 'videos',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserId: recipientId,
           onProgress: onProgress,
         );
       } else if (docFile != null) {
@@ -676,6 +751,7 @@ class ChatProvider with ChangeNotifier {
             docFile.path!,
             type: 'documents',
             recipientPublicKeysPem: mediaRecipientPublicKeys,
+            recipientUserId: recipientId,
             onProgress: onProgress,
           );
           finalMimeType = docFile.extension;
@@ -685,6 +761,7 @@ class ChatProvider with ChangeNotifier {
           audioFile.path,
           type: 'recordings',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserId: recipientId,
           onProgress: onProgress,
         );
       }
@@ -693,9 +770,10 @@ class ChatProvider with ChangeNotifier {
         remoteMediaUrl = uploadResult.remoteUrl;
       }
 
-      // Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
-      // Only needed if Signal was actually used, otherwise finalContent is already RSA encrypted.
-      if (usedSignal && _encryptionService.isInitialized && content.isNotEmpty) {
+// Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
+      // Only needed if Signal or PQ-Aura was used, otherwise content is already RSA encrypted.
+      final encrypted = await _encryptContent(recipientId, content);
+      if (encrypted.protocol != 'rsa' && _encryptionService.isInitialized && content.isNotEmpty) {
         try {
           final List<String> publicKeys = [];
           if (recipientPublicKey != null) publicKeys.add(recipientPublicKey);
@@ -733,7 +811,9 @@ class ChatProvider with ChangeNotifier {
         isSpoiler: isSpoiler,
         replyToId: replyMessage?.id,
         mediaViewMode: mediaViewMode,
-        );
+        pqAuraHeader: pqAuraHeader,
+        pqAuraPayload: pqAuraPayload,
+      );
 
       // Replace optimistic message with the real one
       var decrypted = await _decryptSingleMessage(sentMessage);
@@ -815,60 +895,29 @@ class ChatProvider with ChangeNotifier {
 
     try {
       String content = '[GIF]';
-      String? finalContent;
-      Map<String, String>? encryptedKeys;
-      String? iv;
-      int? signalMessageType;
-      String? signalSenderContent;
-      bool usedSignal = false;
+      final recipientId = otherUserId ?? state.otherUserId;
 
-      if (_encryptionService.isInitialized) {
-        final recipientId = otherUserId ?? state.otherUserId;
-        if (recipientId != null) {
-          // Try Signal encryption first
-          if (SignalService().isInitialized) {
-            try {
-              final cipherMessage = await SignalService().encryptMessage(
-                recipientId,
-                content,
-              );
-              finalContent = base64Encode(cipherMessage.serialize());
-              signalMessageType = cipherMessage.getType();
-              usedSignal = true;
-            } catch (e) {
-              debugPrint('Signal encryption failed for GIF: $e');
-            }
-          }
-
-          if (!usedSignal) {
-            String? recipientPublicKey = _publicKeyCache[recipientId];
-            if (recipientPublicKey != null) {
-              final encrypted = await _encryptionService.encryptMessage(
-                content,
-                [recipientPublicKey],
-              );
-              finalContent = encrypted.encryptedContent;
-              encryptedKeys = encrypted.encryptedKeys;
-              iv = encrypted.iv;
-            }
-          }
-        }
-      } else {
-        finalContent = content;
+      EncryptedContent? encrypted;
+      if (_encryptionService.isInitialized && recipientId != null) {
+        encrypted = await _encryptContent(recipientId, content);
       }
 
       final sentMessage = await _messagingService.sendMessage(
         conversationId: conversationId,
         senderId: userId,
-        content: finalContent ?? content,
+        content: encrypted?.content ?? content,
         messageType: MessageType.gif,
         mediaUrl: gifUrl,
         whisperMode: state.whisperMode,
         replyToId: replyMessage?.id,
-        encryptedKeys: encryptedKeys,
-        iv: iv,
-        signalMessageType: signalMessageType,
-        );
+        encryptedKeys: encrypted?.encryptedKeys != null 
+            ? encrypted!.encryptedKeys!.map((k, v) => MapEntry(k, v.toString()))
+            : null,
+        iv: encrypted?.iv,
+        signalMessageType: encrypted?.signalMessageType,
+        pqAuraHeader: encrypted?.pqAuraHeader,
+        pqAuraPayload: encrypted?.pqAuraPayload,
+      );
 
       final decrypted = await _decryptSingleMessage(sentMessage);
       setState(
@@ -893,58 +942,29 @@ class ChatProvider with ChangeNotifier {
 
     try {
       String content = '[STICKER]';
-      String? finalContent;
-      Map<String, String>? encryptedKeys;
-      String? iv;
-      int? signalMessageType;
-      bool usedSignal = false;
+      final recipientId = otherUserId ?? state.otherUserId;
 
-      if (_encryptionService.isInitialized) {
-        final recipientId = otherUserId ?? state.otherUserId;
-        if (recipientId != null) {
-          if (SignalService().isInitialized) {
-            try {
-              final cipherMessage = await SignalService().encryptMessage(
-                recipientId,
-                content,
-              );
-              finalContent = base64Encode(cipherMessage.serialize());
-              signalMessageType = cipherMessage.getType();
-              usedSignal = true;
-            } catch (e) {
-              debugPrint('Signal encryption failed for Sticker: $e');
-            }
-          }
-
-          if (!usedSignal) {
-            String? recipientPublicKey = _publicKeyCache[recipientId];
-            if (recipientPublicKey != null) {
-              final encrypted = await _encryptionService.encryptMessage(
-                content,
-                [recipientPublicKey],
-              );
-              finalContent = encrypted.encryptedContent;
-              encryptedKeys = encrypted.encryptedKeys;
-              iv = encrypted.iv;
-            }
-          }
-        }
-      } else {
-        finalContent = content;
+      EncryptedContent? encrypted;
+      if (_encryptionService.isInitialized && recipientId != null) {
+        encrypted = await _encryptContent(recipientId, content);
       }
 
       final sentMessage = await _messagingService.sendMessage(
         conversationId: conversationId,
         senderId: userId,
-        content: finalContent ?? content,
+        content: encrypted?.content ?? content,
         messageType: MessageType.sticker,
         mediaUrl: stickerUrl,
         whisperMode: state.whisperMode,
         replyToId: replyMessage?.id,
-        encryptedKeys: encryptedKeys,
-        iv: iv,
-        signalMessageType: signalMessageType,
-        );
+        encryptedKeys: encrypted?.encryptedKeys != null 
+            ? encrypted!.encryptedKeys!.map((k, v) => MapEntry(k, v.toString()))
+            : null,
+        iv: encrypted?.iv,
+        signalMessageType: encrypted?.signalMessageType,
+        pqAuraHeader: encrypted?.pqAuraHeader,
+        pqAuraPayload: encrypted?.pqAuraPayload,
+      );
 
       final decrypted = await _decryptSingleMessage(sentMessage);
       setState(
@@ -1353,6 +1373,7 @@ class ChatProvider with ChangeNotifier {
         audioPath,
         type: 'recordings',
         recipientPublicKeysPem: mediaRecipientPublicKeys,
+        recipientUserId: recipientId,
         onProgress: (progress) {
           _updateMessageProgress(optimisticMessage.id, progress);
         },

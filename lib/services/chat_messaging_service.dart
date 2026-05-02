@@ -55,6 +55,7 @@ class ChatMessagingService {
             reply_to:reply_to_id (
               id, content, sender_id, image_url, video_url, file_url, voice_url, 
               iv, encrypted_keys, signal_message_type, signal_sender_content,
+              pq_aura_header, pq_aura_payload,
               profiles:sender_id (username)
             ),
             reactions:message_reactions(*),
@@ -183,6 +184,9 @@ class ChatMessagingService {
     Map<String, dynamic>? locationData,
     String mediaViewMode = 'unlimited',
     bool isSpoiler = false,
+    // PQ-Aura post-quantum encryption fields
+    String? pqAuraHeader,
+    String? pqAuraPayload,
   }) async {
     try {
       final response = await _supabase.rpc('send_message_v3', params: {
@@ -208,6 +212,8 @@ class ChatMessagingService {
         'p_location_data': locationData,
         'p_media_view_mode': mediaViewMode,
         'p_is_spoiler': isSpoiler,
+        'p_pq_aura_header': pqAuraHeader,
+        'p_pq_aura_payload': pqAuraPayload,
       });
 
       if (response == null) throw Exception('Failed to send message via RPC');

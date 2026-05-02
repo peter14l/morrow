@@ -44,6 +44,11 @@ abstract class Message with _$Message {
     @JsonKey(name: 'signal_message_type') int? signalMessageType,
     @JsonKey(name: 'signal_sender_content') String? signalSenderContent,
     @JsonKey(name: 'signal_sender_message_type') int? signalSenderMessageType,
+    // PQ-Aura Post-Quantum encryption fields
+    @JsonKey(name: 'pq_aura_header') String? pqAuraHeader,
+    @JsonKey(name: 'pq_aura_payload') String? pqAuraPayload,
+    @JsonKey(name: 'pq_aura_sender_header') String? pqAuraSenderHeader,
+    @JsonKey(name: 'pq_aura_sender_payload') String? pqAuraSenderPayload,
     @JsonKey(name: 'ripple_id') String? rippleId,
     @JsonKey(name: 'story_id') String? storyId,
     @JsonKey(name: 'post_id') String? postId,

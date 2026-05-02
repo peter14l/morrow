@@ -79,6 +79,7 @@ class ChatMediaService {
     String filePath, {
     required String type, // 'images', 'videos', 'documents', 'recordings'
     required List<String> recipientPublicKeysPem,
+    String? recipientUserId,
     Function(double)? onProgress,
   }) async {
     try {
@@ -102,6 +103,7 @@ class ChatMediaService {
       final encryptionResult = await _encryptionService.encryptMediaFile(
         file: file,
         recipientPublicKeysPem: recipientPublicKeysPem,
+        recipientUserId: recipientUserId,
       );
 
       final Uint8List encryptedBytes = encryptionResult['encryptedBytes'];
@@ -151,6 +153,7 @@ class ChatMediaService {
     required String fileId,
     required String iv,
     required Map<String, dynamic> encryptedKeys,
+    String? senderId,
   }) async {
     try {
       // 1. Download encrypted bytes
@@ -165,6 +168,7 @@ class ChatMediaService {
         encryptedBytes: encryptedBytes,
         ivBase64: iv,
         encryptedKeys: encryptedKeys,
+        senderId: senderId,
       );
 
       if (decryptedBytes == null) throw Exception('Decryption failed');

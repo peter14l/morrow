@@ -7,13 +7,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/services/key_management_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 export 'package:oasis/services/key_management_service.dart'
     show EncryptionStatus;
 
 /// Provider for cryptographic operations.
 ///
-/// Handles RSA/AES encryption and decryption for messages and media.
+/// Handles RSA/AES and PQ-Aura encryption and decryption for messages and media.
 /// Orchestrates the initialization and restoration of encryption keys
 /// via [KeyManagementService].
 class EncryptionService {
@@ -684,6 +685,7 @@ class EncryptionService {
   Future<Map<String, dynamic>> encryptMediaFile({
     required File file,
     required List<String> recipientPublicKeysPem,
+    String? recipientUserId,
   }) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null || !_isInitialized) {
@@ -721,6 +723,21 @@ class EncryptionService {
       }
     }
 
+    // NEW: Also encrypt with PQ-Aura if recipient user ID is available
+    if (recipientUserId != null && PQAuraService.instance.isReady) {
+      try {
+        final pqaEncryptedKey = await PQAuraService.instance.encryptMediaKey(
+          recipientUserId,
+          Uint8List.fromList(aesKey.bytes),
+        );
+        if (pqaEncryptedKey != null) {
+          encryptedKeys.addAll(pqaEncryptedKey);
+        }
+      } catch (e) {
+        debugPrint('[EncryptionService] PQ-Aura media key encryption failed: $e');
+      }
+    }
+
     return {
       'encryptedBytes': encryptedBytes,
       'iv': iv.base64,
@@ -733,9 +750,31 @@ class EncryptionService {
     required Uint8List encryptedBytes,
     required String ivBase64,
     required Map<String, dynamic> encryptedKeys,
+    String? senderId,
   }) async {
     try {
-      final key = await _decryptAESKey(encryptedKeys);
+      encrypt.Key? key;
+
+      // 1. Try PQ-Aura first if available and senderId is provided
+      if (senderId != null && 
+          encryptedKeys['protocol'] == 'pq_aura' && 
+          PQAuraService.instance.isReady) {
+        try {
+          final decryptedKey = await PQAuraService.instance.decryptMediaKey(
+            senderId,
+            encryptedKeys,
+          );
+          if (decryptedKey != null) {
+            key = encrypt.Key(decryptedKey);
+          }
+        } catch (e) {
+          debugPrint('[EncryptionService] PQ-Aura media key decryption failed: $e');
+        }
+      }
+
+      // 2. Fallback to RSA if PQ-Aura failed or wasn't available
+      key ??= await _decryptAESKey(encryptedKeys);
+      
       if (key == null) return null;
 
       final iv = encrypt.IV.fromBase64(ivBase64);
