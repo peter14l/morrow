@@ -428,7 +428,12 @@ class MessagingService extends ChangeNotifier {
           ),
           callback: (payload) => onUpdate(payload.newRecord),
         )
-        .subscribe();
+        .subscribe((status, [error]) {
+      if (status == RealtimeSubscribeStatus.channelError) {
+        debugPrint(
+            '[MessagingService] Message updates subscription error: $error');
+      }
+    });
     return channel;
   }
 

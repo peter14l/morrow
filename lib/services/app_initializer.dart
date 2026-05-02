@@ -247,6 +247,7 @@ Future<void> firebaseMessagingBackgroundHandler(
 }
 
 class AppInitializer {
+  static bool isInitialized = false;
 
   /// Step 1 — Load .env (best-effort, never fatal).
   static Future<void> loadEnv() async {
@@ -464,6 +465,8 @@ class AppInitializer {
         debugPrint('Non-critical background service init warning: $e');
       }
     }());
+
+    AppInitializer.isInitialized = true;
 
     return InitializedServices(
       themeProvider: themeProvider,

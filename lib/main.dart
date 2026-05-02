@@ -734,18 +734,38 @@ void main() async {
   ui.PlatformDispatcher.instance.onError = (error, stack) {
     material.debugPrint('--- UNCAUGHT ERROR ---');
     material.debugPrint('Error: $error');
-    
+
+    final errorStr = error.toString().toLowerCase();
+
+    // Ignore transient network or realtime errors that shouldn't crash the UI
+    if (errorStr.contains('realtimesubscribeexception') ||
+        errorStr.contains('channelerror') ||
+        errorStr.contains('socketexception') ||
+        errorStr.contains('handshakeexception') ||
+        errorStr.contains('connection closed before full header') ||
+        errorStr.contains('software caused connection abort')) {
+      material.debugPrint(
+          '[GlobalError] Ignoring transient network/realtime error: $error');
+      return true;
+    }
+
     // If it is a FormatException during startup, it is likely disk corruption
     if (error is FormatException) {
-       _showErrorScreen(
-         'Data Corruption Detected\\n\\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
-         stack,
-         isCorruption: true,
-       );
+      _showErrorScreen(
+        'Data Corruption Detected\\n\\nYour local session data was corrupted (likely due to a system crash). Please click "Repair App" to reset and log in again.',
+        stack,
+        isCorruption: true,
+      );
     } else {
-      _showErrorScreen(error, stack);
+      _showErrorScreen(
+        error,
+        stack,
+        title: AppInitializer.isInitialized
+            ? 'Unexpected Error'
+            : 'Failed to Initialize',
+      );
     }
-    
+
     // Also log to Sentry
     Sentry.captureException(error, stackTrace: stack);
     return true; // Return true to indicate the error was handled
@@ -810,7 +830,7 @@ void main() async {
 
 // Removed redundant _runAppInitialization
 
-void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false}) {
+void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false, String? title}) {
   runApp(
     material.MaterialApp(
       home: material.Scaffold(
@@ -821,11 +841,15 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
             child: material.Column(
               mainAxisAlignment: material.MainAxisAlignment.center,
               children: [
-                const material.Icon(material.Icons.warning_amber_rounded, color: material.Colors.amber, size: 64),
+                const material.Icon(material.Icons.warning_amber_rounded,
+                    color: material.Colors.amber, size: 64),
                 const material.SizedBox(height: 24),
                 material.Text(
-                  isCorruption ? 'App Needs Repair' : 'Failed to Initialize',
-                  style: const material.TextStyle(color: material.Colors.white, fontSize: 24, fontWeight: material.FontWeight.bold),
+                  title ?? (isCorruption ? 'App Needs Repair' : 'Failed to Initialize'),
+                  style: const material.TextStyle(
+                      color: material.Colors.white,
+                      fontSize: 24,
+                      fontWeight: material.FontWeight.bold),
                 ),
                 const material.SizedBox(height: 16),
                 material.ConstrainedBox(
@@ -833,7 +857,8 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
                   child: material.SingleChildScrollView(
                     child: material.Text(
                       error.toString(),
-                      style: material.TextStyle(color: material.Colors.white.withValues(alpha: 0.7)),
+                      style: material.TextStyle(
+                          color: material.Colors.white.withValues(alpha: 0.7)),
                       textAlign: material.TextAlign.center,
                     ),
                   ),
@@ -844,8 +869,12 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
                     // Logic to wipe cache would go here in a real production app
                     // For now, simple restart instruction
                     material.debugPrint('User requested app repair/reset');
+                    // On most platforms, we can't easily restart the whole process, 
+                    // but we can trigger a re-initialization of the root zone.
+                    main(); 
                   },
-                  child: material.Text(isCorruption ? 'Repair & Reset App' : 'Try Again'),
+                  child: material.Text(
+                      isCorruption ? 'Repair & Reset App' : 'Try Again'),
                 ),
               ],
             ),

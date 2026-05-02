@@ -471,7 +471,11 @@ class CallService extends ChangeNotifier {
           }
         });
       }
-    }).subscribe();
+    }).subscribe((status, [error]) {
+      if (status == RealtimeSubscribeStatus.channelError) {
+        debugPrint('[CallService] Signaling subscription error: $error');
+      }
+    });
   }
 
   Future<void> toggleScreenShare() async {
