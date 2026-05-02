@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:ffi/ffi.dart';
 
 /// FFI bindings to the PQ-Aura Rust library.
@@ -180,23 +181,47 @@ class PQAuraBridge {
 
     try {
       if (Platform.isAndroid) {
-        // Use DynamicLibrary.open for Android to load the .so file from jniLibs
+        debugPrint('[PQAuraBridge] Loading libpq_aura.so for Android...');
         _lib = DynamicLibrary.open('libpq_aura.so');
       } else if (Platform.isIOS) {
         _lib = DynamicLibrary.process();
       } else if (Platform.isWindows) {
-        _lib = DynamicLibrary.open('pq_aura.dll');
+        debugPrint('[PQAuraBridge] Loading pq_aura.dll for Windows...');
+        try {
+          _lib = DynamicLibrary.open('pq_aura.dll');
+        } catch (_) {
+          // If not found in path, try common dev locations
+          final possiblePaths = [
+            'windows/libs/pq_aura.dll',
+            'PQ-DR/target/release/pq_aura.dll',
+            'PQ-DR/target/debug/pq_aura.dll',
+          ];
+          
+          bool loaded = false;
+          for (final path in possiblePaths) {
+            if (File(path).existsSync()) {
+              debugPrint('[PQAuraBridge] Found library at: $path');
+              _lib = DynamicLibrary.open(path);
+              loaded = true;
+              break;
+            }
+          }
+          if (!loaded) rethrow;
+        }
       } else if (Platform.isMacOS) {
         _lib = DynamicLibrary.process();
       } else {
+        debugPrint('[PQAuraBridge] Unsupported platform: ${Platform.operatingSystem}');
         return false;
       }
 
       _bindFunctions();
       _isLoaded = true;
+      debugPrint('[PQAuraBridge] Native library loaded successfully');
       return true;
     } catch (e) {
-      debugPrint('[PQAuraBridge] Error loading library: $e');
+      debugPrint('[PQAuraBridge] CRITICAL: Error loading library: $e');
+      debugPrint('[PQAuraBridge] Ensure you have built the Rust library in the PQ-DR folder.');
       return false;
     }
   }
