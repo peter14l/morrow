@@ -559,10 +559,12 @@ class NotificationManager {
     
     try {
       final data = jsonDecode(payload);
-      final conversationId = data['conversation_id'];
+      // Use fallback logic for conversation_id consistent with showNotification
+      final conversationId = data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
       
       if (conversationId == null) {
         debugPrint('[NotificationManager] Reply failed: conversation_id missing in payload');
+        debugPrint('[NotificationManager] Payload keys: ${data.keys.toList()}');
         return;
       }
 
@@ -623,6 +625,24 @@ class NotificationManager {
         'p_iv': iv,
       });
       debugPrint('[NotificationManager] Reply successfully sent to $conversationId');
+
+      // Update notification to show success
+      await _localNotificationsPlugin.show(
+        8888, // Use a temporary ID for feedback
+        'Message Sent',
+        'Your reply to ${data['sender_name'] ?? 'user'} was delivered.',
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'oasis_silent_channel',
+            'Silent Notifications',
+            channelDescription: 'Feedback for background actions',
+            importance: Importance.low,
+            priority: Priority.low,
+          ),
+        ),
+      );
+      // Auto-cancel feedback after 2 seconds
+      Future.delayed(const Duration(seconds: 2), () => _localNotificationsPlugin.cancel(8888));
       
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification reply: $e');
@@ -642,6 +662,7 @@ class NotificationManager {
       
       if (messageId == null) {
         debugPrint('[NotificationManager] Like failed: message_id missing in payload');
+        debugPrint('[NotificationManager] Payload keys: ${data.keys.toList()}');
         return;
       }
 
@@ -667,6 +688,23 @@ class NotificationManager {
         'created_at': DateTime.now().toIso8601String(),
       }, onConflict: 'message_id, user_id');
       debugPrint('[NotificationManager] Like reaction successfully added to $messageId');
+
+      // Optional: Feedback notification for "Like"
+      await _localNotificationsPlugin.show(
+        8889,
+        'Liked message',
+        'Reaction added to message from ${data['sender_name'] ?? 'user'}',
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'oasis_silent_channel',
+            'Silent Notifications',
+            channelDescription: 'Feedback for background actions',
+            importance: Importance.low,
+            priority: Priority.low,
+          ),
+        ),
+      );
+      Future.delayed(const Duration(seconds: 2), () => _localNotificationsPlugin.cancel(8889));
       
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification like: $e');
