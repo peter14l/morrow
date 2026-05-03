@@ -407,6 +407,8 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       }
     }
   }
+
+  void _showSearchModal() {
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
     showModalBottomSheet(

@@ -1107,12 +1107,13 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
     String? base64Ciphertext,
     int? type, {
     int? deviceId = 1,
+    bool? isHistorical = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #decryptMessage,
               [senderId, base64Ciphertext, type],
-              {#deviceId: deviceId},
+              {#deviceId: deviceId, #isHistorical: isHistorical},
             ),
             returnValue: _i12.Future<String>.value(
               _i13.dummyValue<String>(
@@ -1120,7 +1121,7 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
                 Invocation.method(
                   #decryptMessage,
                   [senderId, base64Ciphertext, type],
-                  {#deviceId: deviceId},
+                  {#deviceId: deviceId, #isHistorical: isHistorical},
                 ),
               ),
             ),

@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$Conversation {
 
- String get id;@JsonKey(name: 'other_user_id') String get otherUserId;@JsonKey(name: 'other_user_name') String get otherUserName;@JsonKey(name: 'other_user_avatar') String get otherUserAvatar;@JsonKey(name: 'last_message') String? get lastMessage;@JsonKey(name: 'last_message_time') DateTime? get lastMessageTime;@JsonKey(name: 'last_message_read_at') DateTime? get lastMessageReadAt;@JsonKey(name: 'last_message_sender_id') String? get lastMessageSenderId;@JsonKey(name: 'unread_count') int get unreadCount;@JsonKey(name: 'last_message_type') String? get lastMessageType;@JsonKey(name: 'is_other_user_typing') bool get isOtherUserTyping;@JsonKey(name: 'whisper_mode') int get whisperMode;@JsonKey(name: 'is_pinned') bool get isPinned;@JsonKey(name: 'recent_messages') List<String> get recentMessages;
+ String get id; String get type;@JsonKey(name: 'other_user_id') String get otherUserId;@JsonKey(name: 'other_user_name') String get otherUserName;@JsonKey(name: 'other_user_avatar') String get otherUserAvatar;@JsonKey(name: 'last_message') String? get lastMessage;@JsonKey(name: 'last_message_time') DateTime? get lastMessageTime;@JsonKey(name: 'last_message_read_at') DateTime? get lastMessageReadAt;@JsonKey(name: 'last_message_sender_id') String? get lastMessageSenderId;@JsonKey(name: 'unread_count') int get unreadCount;@JsonKey(name: 'last_message_type') String? get lastMessageType;@JsonKey(name: 'is_other_user_typing') bool get isOtherUserTyping;@JsonKey(name: 'whisper_mode') int get whisperMode;@JsonKey(name: 'is_pinned') bool get isPinned;@JsonKey(name: 'recent_messages') List<String> get recentMessages;
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $ConversationCopyWith<Conversation> get copyWith => _$ConversationCopyWithImpl<C
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.otherUserId, otherUserId) || other.otherUserId == otherUserId)&&(identical(other.otherUserName, otherUserName) || other.otherUserName == otherUserName)&&(identical(other.otherUserAvatar, otherUserAvatar) || other.otherUserAvatar == otherUserAvatar)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.lastMessageTime, lastMessageTime) || other.lastMessageTime == lastMessageTime)&&(identical(other.lastMessageReadAt, lastMessageReadAt) || other.lastMessageReadAt == lastMessageReadAt)&&(identical(other.lastMessageSenderId, lastMessageSenderId) || other.lastMessageSenderId == lastMessageSenderId)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.lastMessageType, lastMessageType) || other.lastMessageType == lastMessageType)&&(identical(other.isOtherUserTyping, isOtherUserTyping) || other.isOtherUserTyping == isOtherUserTyping)&&(identical(other.whisperMode, whisperMode) || other.whisperMode == whisperMode)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&const DeepCollectionEquality().equals(other.recentMessages, recentMessages));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.otherUserId, otherUserId) || other.otherUserId == otherUserId)&&(identical(other.otherUserName, otherUserName) || other.otherUserName == otherUserName)&&(identical(other.otherUserAvatar, otherUserAvatar) || other.otherUserAvatar == otherUserAvatar)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.lastMessageTime, lastMessageTime) || other.lastMessageTime == lastMessageTime)&&(identical(other.lastMessageReadAt, lastMessageReadAt) || other.lastMessageReadAt == lastMessageReadAt)&&(identical(other.lastMessageSenderId, lastMessageSenderId) || other.lastMessageSenderId == lastMessageSenderId)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.lastMessageType, lastMessageType) || other.lastMessageType == lastMessageType)&&(identical(other.isOtherUserTyping, isOtherUserTyping) || other.isOtherUserTyping == isOtherUserTyping)&&(identical(other.whisperMode, whisperMode) || other.whisperMode == whisperMode)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&const DeepCollectionEquality().equals(other.recentMessages, recentMessages));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,otherUserId,otherUserName,otherUserAvatar,lastMessage,lastMessageTime,lastMessageReadAt,lastMessageSenderId,unreadCount,lastMessageType,isOtherUserTyping,whisperMode,isPinned,const DeepCollectionEquality().hash(recentMessages));
+int get hashCode => Object.hash(runtimeType,id,type,otherUserId,otherUserName,otherUserAvatar,lastMessage,lastMessageTime,lastMessageReadAt,lastMessageSenderId,unreadCount,lastMessageType,isOtherUserTyping,whisperMode,isPinned,const DeepCollectionEquality().hash(recentMessages));
 
 @override
 String toString() {
-  return 'Conversation(id: $id, otherUserId: $otherUserId, otherUserName: $otherUserName, otherUserAvatar: $otherUserAvatar, lastMessage: $lastMessage, lastMessageTime: $lastMessageTime, lastMessageReadAt: $lastMessageReadAt, lastMessageSenderId: $lastMessageSenderId, unreadCount: $unreadCount, lastMessageType: $lastMessageType, isOtherUserTyping: $isOtherUserTyping, whisperMode: $whisperMode, isPinned: $isPinned, recentMessages: $recentMessages)';
+  return 'Conversation(id: $id, type: $type, otherUserId: $otherUserId, otherUserName: $otherUserName, otherUserAvatar: $otherUserAvatar, lastMessage: $lastMessage, lastMessageTime: $lastMessageTime, lastMessageReadAt: $lastMessageReadAt, lastMessageSenderId: $lastMessageSenderId, unreadCount: $unreadCount, lastMessageType: $lastMessageType, isOtherUserTyping: $isOtherUserTyping, whisperMode: $whisperMode, isPinned: $isPinned, recentMessages: $recentMessages)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $ConversationCopyWith<$Res>  {
   factory $ConversationCopyWith(Conversation value, $Res Function(Conversation) _then) = _$ConversationCopyWithImpl;
 @useResult
 $Res call({
- String id,@JsonKey(name: 'other_user_id') String otherUserId,@JsonKey(name: 'other_user_name') String otherUserName,@JsonKey(name: 'other_user_avatar') String otherUserAvatar,@JsonKey(name: 'last_message') String? lastMessage,@JsonKey(name: 'last_message_time') DateTime? lastMessageTime,@JsonKey(name: 'last_message_read_at') DateTime? lastMessageReadAt,@JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,@JsonKey(name: 'unread_count') int unreadCount,@JsonKey(name: 'last_message_type') String? lastMessageType,@JsonKey(name: 'is_other_user_typing') bool isOtherUserTyping,@JsonKey(name: 'whisper_mode') int whisperMode,@JsonKey(name: 'is_pinned') bool isPinned,@JsonKey(name: 'recent_messages') List<String> recentMessages
+ String id, String type,@JsonKey(name: 'other_user_id') String otherUserId,@JsonKey(name: 'other_user_name') String otherUserName,@JsonKey(name: 'other_user_avatar') String otherUserAvatar,@JsonKey(name: 'last_message') String? lastMessage,@JsonKey(name: 'last_message_time') DateTime? lastMessageTime,@JsonKey(name: 'last_message_read_at') DateTime? lastMessageReadAt,@JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,@JsonKey(name: 'unread_count') int unreadCount,@JsonKey(name: 'last_message_type') String? lastMessageType,@JsonKey(name: 'is_other_user_typing') bool isOtherUserTyping,@JsonKey(name: 'whisper_mode') int whisperMode,@JsonKey(name: 'is_pinned') bool isPinned,@JsonKey(name: 'recent_messages') List<String> recentMessages
 });
 
 
@@ -65,9 +65,10 @@ class _$ConversationCopyWithImpl<$Res>
 
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? otherUserId = null,Object? otherUserName = null,Object? otherUserAvatar = null,Object? lastMessage = freezed,Object? lastMessageTime = freezed,Object? lastMessageReadAt = freezed,Object? lastMessageSenderId = freezed,Object? unreadCount = null,Object? lastMessageType = freezed,Object? isOtherUserTyping = null,Object? whisperMode = null,Object? isPinned = null,Object? recentMessages = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? type = null,Object? otherUserId = null,Object? otherUserName = null,Object? otherUserAvatar = null,Object? lastMessage = freezed,Object? lastMessageTime = freezed,Object? lastMessageReadAt = freezed,Object? lastMessageSenderId = freezed,Object? unreadCount = null,Object? lastMessageType = freezed,Object? isOtherUserTyping = null,Object? whisperMode = null,Object? isPinned = null,Object? recentMessages = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,otherUserId: null == otherUserId ? _self.otherUserId : otherUserId // ignore: cast_nullable_to_non_nullable
 as String,otherUserName: null == otherUserName ? _self.otherUserName : otherUserName // ignore: cast_nullable_to_non_nullable
 as String,otherUserAvatar: null == otherUserAvatar ? _self.otherUserAvatar : otherUserAvatar // ignore: cast_nullable_to_non_nullable
@@ -166,10 +167,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String type, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
-return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
+return $default(_that.id,_that.type,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
   return orElse();
 
 }
@@ -187,10 +188,10 @@ return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAv
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String type, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)  $default,) {final _that = this;
 switch (_that) {
 case _Conversation():
-return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
+return $default(_that.id,_that.type,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +208,10 @@ return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAv
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String type, @JsonKey(name: 'other_user_id')  String otherUserId, @JsonKey(name: 'other_user_name')  String otherUserName, @JsonKey(name: 'other_user_avatar')  String otherUserAvatar, @JsonKey(name: 'last_message')  String? lastMessage, @JsonKey(name: 'last_message_time')  DateTime? lastMessageTime, @JsonKey(name: 'last_message_read_at')  DateTime? lastMessageReadAt, @JsonKey(name: 'last_message_sender_id')  String? lastMessageSenderId, @JsonKey(name: 'unread_count')  int unreadCount, @JsonKey(name: 'last_message_type')  String? lastMessageType, @JsonKey(name: 'is_other_user_typing')  bool isOtherUserTyping, @JsonKey(name: 'whisper_mode')  int whisperMode, @JsonKey(name: 'is_pinned')  bool isPinned, @JsonKey(name: 'recent_messages')  List<String> recentMessages)?  $default,) {final _that = this;
 switch (_that) {
 case _Conversation() when $default != null:
-return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
+return $default(_that.id,_that.type,_that.otherUserId,_that.otherUserName,_that.otherUserAvatar,_that.lastMessage,_that.lastMessageTime,_that.lastMessageReadAt,_that.lastMessageSenderId,_that.unreadCount,_that.lastMessageType,_that.isOtherUserTyping,_that.whisperMode,_that.isPinned,_that.recentMessages);case _:
   return null;
 
 }
@@ -222,10 +223,11 @@ return $default(_that.id,_that.otherUserId,_that.otherUserName,_that.otherUserAv
 @JsonSerializable()
 
 class _Conversation extends Conversation {
-  const _Conversation({required this.id, @JsonKey(name: 'other_user_id') required this.otherUserId, @JsonKey(name: 'other_user_name') required this.otherUserName, @JsonKey(name: 'other_user_avatar') required this.otherUserAvatar, @JsonKey(name: 'last_message') this.lastMessage, @JsonKey(name: 'last_message_time') this.lastMessageTime, @JsonKey(name: 'last_message_read_at') this.lastMessageReadAt, @JsonKey(name: 'last_message_sender_id') this.lastMessageSenderId, @JsonKey(name: 'unread_count') this.unreadCount = 0, @JsonKey(name: 'last_message_type') this.lastMessageType, @JsonKey(name: 'is_other_user_typing') this.isOtherUserTyping = false, @JsonKey(name: 'whisper_mode') this.whisperMode = 0, @JsonKey(name: 'is_pinned') this.isPinned = false, @JsonKey(name: 'recent_messages') final  List<String> recentMessages = const []}): _recentMessages = recentMessages,super._();
+  const _Conversation({required this.id, this.type = 'direct', @JsonKey(name: 'other_user_id') required this.otherUserId, @JsonKey(name: 'other_user_name') required this.otherUserName, @JsonKey(name: 'other_user_avatar') required this.otherUserAvatar, @JsonKey(name: 'last_message') this.lastMessage, @JsonKey(name: 'last_message_time') this.lastMessageTime, @JsonKey(name: 'last_message_read_at') this.lastMessageReadAt, @JsonKey(name: 'last_message_sender_id') this.lastMessageSenderId, @JsonKey(name: 'unread_count') this.unreadCount = 0, @JsonKey(name: 'last_message_type') this.lastMessageType, @JsonKey(name: 'is_other_user_typing') this.isOtherUserTyping = false, @JsonKey(name: 'whisper_mode') this.whisperMode = 0, @JsonKey(name: 'is_pinned') this.isPinned = false, @JsonKey(name: 'recent_messages') final  List<String> recentMessages = const []}): _recentMessages = recentMessages,super._();
   factory _Conversation.fromJson(Map<String, dynamic> json) => _$ConversationFromJson(json);
 
 @override final  String id;
+@override@JsonKey() final  String type;
 @override@JsonKey(name: 'other_user_id') final  String otherUserId;
 @override@JsonKey(name: 'other_user_name') final  String otherUserName;
 @override@JsonKey(name: 'other_user_avatar') final  String otherUserAvatar;
@@ -259,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.otherUserId, otherUserId) || other.otherUserId == otherUserId)&&(identical(other.otherUserName, otherUserName) || other.otherUserName == otherUserName)&&(identical(other.otherUserAvatar, otherUserAvatar) || other.otherUserAvatar == otherUserAvatar)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.lastMessageTime, lastMessageTime) || other.lastMessageTime == lastMessageTime)&&(identical(other.lastMessageReadAt, lastMessageReadAt) || other.lastMessageReadAt == lastMessageReadAt)&&(identical(other.lastMessageSenderId, lastMessageSenderId) || other.lastMessageSenderId == lastMessageSenderId)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.lastMessageType, lastMessageType) || other.lastMessageType == lastMessageType)&&(identical(other.isOtherUserTyping, isOtherUserTyping) || other.isOtherUserTyping == isOtherUserTyping)&&(identical(other.whisperMode, whisperMode) || other.whisperMode == whisperMode)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&const DeepCollectionEquality().equals(other._recentMessages, _recentMessages));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Conversation&&(identical(other.id, id) || other.id == id)&&(identical(other.type, type) || other.type == type)&&(identical(other.otherUserId, otherUserId) || other.otherUserId == otherUserId)&&(identical(other.otherUserName, otherUserName) || other.otherUserName == otherUserName)&&(identical(other.otherUserAvatar, otherUserAvatar) || other.otherUserAvatar == otherUserAvatar)&&(identical(other.lastMessage, lastMessage) || other.lastMessage == lastMessage)&&(identical(other.lastMessageTime, lastMessageTime) || other.lastMessageTime == lastMessageTime)&&(identical(other.lastMessageReadAt, lastMessageReadAt) || other.lastMessageReadAt == lastMessageReadAt)&&(identical(other.lastMessageSenderId, lastMessageSenderId) || other.lastMessageSenderId == lastMessageSenderId)&&(identical(other.unreadCount, unreadCount) || other.unreadCount == unreadCount)&&(identical(other.lastMessageType, lastMessageType) || other.lastMessageType == lastMessageType)&&(identical(other.isOtherUserTyping, isOtherUserTyping) || other.isOtherUserTyping == isOtherUserTyping)&&(identical(other.whisperMode, whisperMode) || other.whisperMode == whisperMode)&&(identical(other.isPinned, isPinned) || other.isPinned == isPinned)&&const DeepCollectionEquality().equals(other._recentMessages, _recentMessages));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,otherUserId,otherUserName,otherUserAvatar,lastMessage,lastMessageTime,lastMessageReadAt,lastMessageSenderId,unreadCount,lastMessageType,isOtherUserTyping,whisperMode,isPinned,const DeepCollectionEquality().hash(_recentMessages));
+int get hashCode => Object.hash(runtimeType,id,type,otherUserId,otherUserName,otherUserAvatar,lastMessage,lastMessageTime,lastMessageReadAt,lastMessageSenderId,unreadCount,lastMessageType,isOtherUserTyping,whisperMode,isPinned,const DeepCollectionEquality().hash(_recentMessages));
 
 @override
 String toString() {
-  return 'Conversation(id: $id, otherUserId: $otherUserId, otherUserName: $otherUserName, otherUserAvatar: $otherUserAvatar, lastMessage: $lastMessage, lastMessageTime: $lastMessageTime, lastMessageReadAt: $lastMessageReadAt, lastMessageSenderId: $lastMessageSenderId, unreadCount: $unreadCount, lastMessageType: $lastMessageType, isOtherUserTyping: $isOtherUserTyping, whisperMode: $whisperMode, isPinned: $isPinned, recentMessages: $recentMessages)';
+  return 'Conversation(id: $id, type: $type, otherUserId: $otherUserId, otherUserName: $otherUserName, otherUserAvatar: $otherUserAvatar, lastMessage: $lastMessage, lastMessageTime: $lastMessageTime, lastMessageReadAt: $lastMessageReadAt, lastMessageSenderId: $lastMessageSenderId, unreadCount: $unreadCount, lastMessageType: $lastMessageType, isOtherUserTyping: $isOtherUserTyping, whisperMode: $whisperMode, isPinned: $isPinned, recentMessages: $recentMessages)';
 }
 
 
@@ -279,7 +281,7 @@ abstract mixin class _$ConversationCopyWith<$Res> implements $ConversationCopyWi
   factory _$ConversationCopyWith(_Conversation value, $Res Function(_Conversation) _then) = __$ConversationCopyWithImpl;
 @override @useResult
 $Res call({
- String id,@JsonKey(name: 'other_user_id') String otherUserId,@JsonKey(name: 'other_user_name') String otherUserName,@JsonKey(name: 'other_user_avatar') String otherUserAvatar,@JsonKey(name: 'last_message') String? lastMessage,@JsonKey(name: 'last_message_time') DateTime? lastMessageTime,@JsonKey(name: 'last_message_read_at') DateTime? lastMessageReadAt,@JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,@JsonKey(name: 'unread_count') int unreadCount,@JsonKey(name: 'last_message_type') String? lastMessageType,@JsonKey(name: 'is_other_user_typing') bool isOtherUserTyping,@JsonKey(name: 'whisper_mode') int whisperMode,@JsonKey(name: 'is_pinned') bool isPinned,@JsonKey(name: 'recent_messages') List<String> recentMessages
+ String id, String type,@JsonKey(name: 'other_user_id') String otherUserId,@JsonKey(name: 'other_user_name') String otherUserName,@JsonKey(name: 'other_user_avatar') String otherUserAvatar,@JsonKey(name: 'last_message') String? lastMessage,@JsonKey(name: 'last_message_time') DateTime? lastMessageTime,@JsonKey(name: 'last_message_read_at') DateTime? lastMessageReadAt,@JsonKey(name: 'last_message_sender_id') String? lastMessageSenderId,@JsonKey(name: 'unread_count') int unreadCount,@JsonKey(name: 'last_message_type') String? lastMessageType,@JsonKey(name: 'is_other_user_typing') bool isOtherUserTyping,@JsonKey(name: 'whisper_mode') int whisperMode,@JsonKey(name: 'is_pinned') bool isPinned,@JsonKey(name: 'recent_messages') List<String> recentMessages
 });
 
 
@@ -296,9 +298,10 @@ class __$ConversationCopyWithImpl<$Res>
 
 /// Create a copy of Conversation
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? otherUserId = null,Object? otherUserName = null,Object? otherUserAvatar = null,Object? lastMessage = freezed,Object? lastMessageTime = freezed,Object? lastMessageReadAt = freezed,Object? lastMessageSenderId = freezed,Object? unreadCount = null,Object? lastMessageType = freezed,Object? isOtherUserTyping = null,Object? whisperMode = null,Object? isPinned = null,Object? recentMessages = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? type = null,Object? otherUserId = null,Object? otherUserName = null,Object? otherUserAvatar = null,Object? lastMessage = freezed,Object? lastMessageTime = freezed,Object? lastMessageReadAt = freezed,Object? lastMessageSenderId = freezed,Object? unreadCount = null,Object? lastMessageType = freezed,Object? isOtherUserTyping = null,Object? whisperMode = null,Object? isPinned = null,Object? recentMessages = null,}) {
   return _then(_Conversation(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
 as String,otherUserId: null == otherUserId ? _self.otherUserId : otherUserId // ignore: cast_nullable_to_non_nullable
 as String,otherUserName: null == otherUserName ? _self.otherUserName : otherUserName // ignore: cast_nullable_to_non_nullable
 as String,otherUserAvatar: null == otherUserAvatar ? _self.otherUserAvatar : otherUserAvatar // ignore: cast_nullable_to_non_nullable

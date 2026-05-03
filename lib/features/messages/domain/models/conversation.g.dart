@@ -9,6 +9,7 @@ part of 'conversation.dart';
 _Conversation _$ConversationFromJson(Map<String, dynamic> json) =>
     _Conversation(
       id: json['id'] as String,
+      type: json['type'] as String? ?? 'direct',
       otherUserId: json['other_user_id'] as String,
       otherUserName: json['other_user_name'] as String,
       otherUserAvatar: json['other_user_avatar'] as String,
@@ -35,6 +36,7 @@ _Conversation _$ConversationFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$ConversationToJson(_Conversation instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'type': instance.type,
       'other_user_id': instance.otherUserId,
       'other_user_name': instance.otherUserName,
       'other_user_avatar': instance.otherUserAvatar,

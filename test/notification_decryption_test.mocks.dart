@@ -4,23 +4,21 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i6;
-import 'dart:io' as _i9;
-import 'dart:typed_data' as _i8;
-import 'dart:ui' as _i16;
+import 'dart:io' as _i8;
+import 'dart:typed_data' as _i7;
+import 'dart:ui' as _i15;
 
 import 'package:encrypt/encrypt.dart' as _i2;
-import 'package:flutter/material.dart' as _i15;
+import 'package:flutter/material.dart' as _i14;
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart' as _i4;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i11;
+import 'package:mockito/src/dummies.dart' as _i10;
 import 'package:oasis/features/auth/domain/models/app_user.dart' as _i5;
 import 'package:oasis/features/messages/data/encryption_service.dart' as _i3;
-import 'package:oasis/features/messages/data/signal/signal_service.dart'
-    as _i10;
-import 'package:oasis/services/auth_service.dart' as _i12;
-import 'package:oasis/services/key_management_service.dart' as _i7;
-import 'package:oasis/services/session_registry_service.dart' as _i13;
-import 'package:supabase_flutter/supabase_flutter.dart' as _i14;
+import 'package:oasis/features/messages/data/signal/signal_service.dart' as _i9;
+import 'package:oasis/services/auth_service.dart' as _i11;
+import 'package:oasis/services/session_registry_service.dart' as _i12;
+import 'package:supabase_flutter/supabase_flutter.dart' as _i13;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -73,14 +71,12 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
           as bool);
 
   @override
-  _i6.Future<_i7.EncryptionStatus> init() =>
+  _i6.Future<dynamic> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),
-            returnValue: _i6.Future<_i7.EncryptionStatus>.value(
-              _i7.EncryptionStatus.ready,
-            ),
+            returnValue: _i6.Future<dynamic>.value(),
           )
-          as _i6.Future<_i7.EncryptionStatus>);
+          as _i6.Future<dynamic>);
 
   @override
   _i6.Future<bool> restoreSecureKeys(String? pin) =>
@@ -183,17 +179,17 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
           as _i2.Key);
 
   @override
-  _i8.Uint8List encryptData(_i8.Uint8List? data, _i2.Key? key) =>
+  _i7.Uint8List encryptData(_i7.Uint8List? data, _i2.Key? key) =>
       (super.noSuchMethod(
             Invocation.method(#encryptData, [data, key]),
-            returnValue: _i8.Uint8List(0),
+            returnValue: _i7.Uint8List(0),
           )
-          as _i8.Uint8List);
+          as _i7.Uint8List);
 
   @override
-  _i8.Uint8List? decryptData(_i8.Uint8List? combinedData, _i2.Key? key) =>
+  _i7.Uint8List? decryptData(_i7.Uint8List? combinedData, _i2.Key? key) =>
       (super.noSuchMethod(Invocation.method(#decryptData, [combinedData, key]))
-          as _i8.Uint8List?);
+          as _i7.Uint8List?);
 
   @override
   _i6.Future<_i3.EncryptedMessage> encryptMessage(
@@ -238,7 +234,7 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
 
   @override
   _i6.Future<Map<String, dynamic>> encryptMediaFile({
-    required _i9.File? file,
+    required _i8.File? file,
     required List<String>? recipientPublicKeysPem,
     String? recipientUserId,
   }) =>
@@ -255,8 +251,8 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
           as _i6.Future<Map<String, dynamic>>);
 
   @override
-  _i6.Future<_i8.Uint8List?> decryptMediaFile({
-    required _i8.Uint8List? encryptedBytes,
+  _i6.Future<_i7.Uint8List?> decryptMediaFile({
+    required _i7.Uint8List? encryptedBytes,
     required String? ivBase64,
     required Map<String, dynamic>? encryptedKeys,
     String? senderId,
@@ -268,9 +264,9 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               #encryptedKeys: encryptedKeys,
               #senderId: senderId,
             }),
-            returnValue: _i6.Future<_i8.Uint8List?>.value(),
+            returnValue: _i6.Future<_i7.Uint8List?>.value(),
           )
-          as _i6.Future<_i8.Uint8List?>);
+          as _i6.Future<_i7.Uint8List?>);
 
   @override
   _i6.Future<bool> backupSignalIdentity(
@@ -313,7 +309,7 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
 /// A class which mocks [SignalService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSignalService extends _i1.Mock implements _i10.SignalService {
+class MockSignalService extends _i1.Mock implements _i9.SignalService {
   MockSignalService() {
     _i1.throwOnMissingStub(this);
   }
@@ -380,20 +376,21 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
     String? base64Ciphertext,
     int? type, {
     int? deviceId = 1,
+    bool? isHistorical = false,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #decryptMessage,
               [senderId, base64Ciphertext, type],
-              {#deviceId: deviceId},
+              {#deviceId: deviceId, #isHistorical: isHistorical},
             ),
             returnValue: _i6.Future<String>.value(
-              _i11.dummyValue<String>(
+              _i10.dummyValue<String>(
                 this,
                 Invocation.method(
                   #decryptMessage,
                   [senderId, base64Ciphertext, type],
-                  {#deviceId: deviceId},
+                  {#deviceId: deviceId, #isHistorical: isHistorical},
                 ),
               ),
             ),
@@ -404,26 +401,26 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
 /// A class which mocks [AuthService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAuthService extends _i1.Mock implements _i12.AuthService {
+class MockAuthService extends _i1.Mock implements _i11.AuthService {
   MockAuthService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  List<_i13.RegisteredAccount> get registeredAccounts =>
+  List<_i12.RegisteredAccount> get registeredAccounts =>
       (super.noSuchMethod(
             Invocation.getter(#registeredAccounts),
-            returnValue: <_i13.RegisteredAccount>[],
+            returnValue: <_i12.RegisteredAccount>[],
           )
-          as List<_i13.RegisteredAccount>);
+          as List<_i12.RegisteredAccount>);
 
   @override
-  _i6.Stream<_i14.AuthState> get authStateChanges =>
+  _i6.Stream<_i13.AuthState> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
-            returnValue: _i6.Stream<_i14.AuthState>.empty(),
+            returnValue: _i6.Stream<_i13.AuthState>.empty(),
           )
-          as _i6.Stream<_i14.AuthState>);
+          as _i6.Stream<_i13.AuthState>);
 
   @override
   bool get hasListeners =>
@@ -431,7 +428,7 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as bool);
 
   @override
-  _i6.Future<void> switchAccount(_i15.BuildContext? context, String? userId) =>
+  _i6.Future<void> switchAccount(_i14.BuildContext? context, String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#switchAccount, [context, userId]),
             returnValue: _i6.Future<void>.value(),
@@ -440,7 +437,7 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> removeAccount(_i15.BuildContext? context, String? userId) =>
+  _i6.Future<void> removeAccount(_i14.BuildContext? context, String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#removeAccount, [context, userId]),
             returnValue: _i6.Future<void>.value(),
@@ -532,7 +529,7 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as _i6.Future<_i5.AppUser>);
 
   @override
-  _i6.Future<void> signOut({_i15.BuildContext? context}) =>
+  _i6.Future<void> signOut({_i14.BuildContext? context}) =>
       (super.noSuchMethod(
             Invocation.method(#signOut, [], {#context: context}),
             returnValue: _i6.Future<void>.value(),
@@ -568,7 +565,7 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
       (super.noSuchMethod(
             Invocation.method(#uploadProfilePicture, [filePath]),
             returnValue: _i6.Future<String>.value(
-              _i11.dummyValue<String>(
+              _i10.dummyValue<String>(
                 this,
                 Invocation.method(#uploadProfilePicture, [filePath]),
               ),
@@ -622,13 +619,13 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as _i6.Future<void>);
 
   @override
-  void addListener(_i16.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i15.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#addListener, [listener]),
     returnValueForMissingStub: null,
   );
 
   @override
-  void removeListener(_i16.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i15.VoidCallback? listener) => super.noSuchMethod(
     Invocation.method(#removeListener, [listener]),
     returnValueForMissingStub: null,
   );
