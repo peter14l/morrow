@@ -523,7 +523,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 Clipboard.setData(ClipboardData(text: message.content));
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Copied to clipboard')),
+                    const SnackBar(content: Text('Copied to clipboard', style: TextStyle(color: Colors.white))),
                   );
                 }
               },
@@ -637,7 +637,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         type: type,
       );
       if (call != null && mounted) {
-        context.pushNamed('active_call', pathParameters: {'callId': call.id});
+        GoRouter.of(context).pushNamed('active_call', pathParameters: {'callId': call.id});
       } else if (mounted && callProvider.state.error != null) {
         _showError(callProvider.state.error!);
       }
