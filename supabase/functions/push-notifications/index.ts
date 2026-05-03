@@ -49,8 +49,16 @@ serve(async (req) => {
     const matchesPub = !!publishableKey && token === publishableKey;
 
     if (!matchesSecret && !matchesPub) {
-      console.error(`[Push Auth] Mismatch! Token does not match Secret or Publishable key.`);
-      throw new Error(`Unauthorized: Key Mismatch (T:${token.length} S:${secretKey?.length} P:${publishableKey?.length})`);
+      // If it doesn't match static keys, try validating as a User JWT
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+      
+      if (authError || !user) {
+        console.error(`[Push Auth] Mismatch! Token is neither a static key nor a valid User JWT.`);
+        throw new Error(`Unauthorized: Key Mismatch (T:${token.length} S:${secretKey?.length} P:${publishableKey?.length})`);
+      }
+      console.log(`[Push Auth] Validated via User JWT for user: ${user.id}`);
+    } else {
+      console.log(`[Push Auth] Validated via static ${matchesSecret ? 'Secret' : 'Publishable'} key.`);
     }
 
     const payload = await req.json();    const { record } = payload; 
