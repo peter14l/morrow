@@ -2,6 +2,7 @@ import 'package:universal_io/io.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/post_service.dart';
@@ -57,7 +58,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   Future<void> _pickImages() async {
     try {
-      final List<XFile> images = await _picker.pickMultiImage(imageQuality: 85);
+      List<XFile> images = [];
+      if (Platform.isWindows) {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.image,
+          allowMultiple: true,
+          initialDirectory:
+              'C:\\Users\\${Platform.environment['USERNAME']}\\Downloads',
+        );
+        if (result != null && result.paths.isNotEmpty) {
+          images = result.paths
+              .where((path) => path != null)
+              .map((path) => XFile(path!))
+              .toList();
+        }
+      } else {
+        images = await _picker.pickMultiImage(imageQuality: 85);
+      }
 
       if (images.isNotEmpty && mounted) {
         setState(() {
@@ -104,10 +121,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       if (widget.circleId != null) {
         final List<String> mediaUrls = [];
         if (_selectedImages.isNotEmpty) {
-           for (var file in _selectedImages) {
-              final url = await _postService.uploadPostMedia(userId, File(file.path));
-              mediaUrls.add(url);
-           }
+          for (var file in _selectedImages) {
+            final url = await _postService.uploadPostMedia(
+              userId,
+              File(file.path),
+            );
+            mediaUrls.add(url);
+          }
         }
 
         await context.read<CircleProvider>().createCirclePost(
@@ -126,10 +146,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         final post = await _postService.createPost(
           userId: userId,
           communityId: widget.communityId,
-          content:
-              _captionController.text.trim().isEmpty
-                  ? null
-                  : _captionController.text.trim(),
+          content: _captionController.text.trim().isEmpty
+              ? null
+              : _captionController.text.trim(),
           mediaFiles: _selectedImages.map((file) => File(file.path)).toList(),
           mediaTypes: List.filled(_selectedImages.length, 'image'),
           mood: _selectedMood?.name,
@@ -287,12 +306,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
         ),
-        backgroundColor:
-            isActive
-                ? colorScheme.primaryContainer
-                : (isM3E
-                    ? colorScheme.secondaryContainer.withValues(alpha: 0.7)
-                    : null),
+        backgroundColor: isActive
+            ? colorScheme.primaryContainer
+            : (isM3E
+                  ? colorScheme.secondaryContainer.withValues(alpha: 0.7)
+                  : null),
         foregroundColor: isActive ? colorScheme.onPrimaryContainer : null,
       ),
     );
@@ -311,7 +329,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         children: [
           IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go('/feed'),
             tooltip: 'Back',
           ),
           const SizedBox(width: 8),
@@ -324,14 +343,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           child: Center(
             child: FilledButton(
               onPressed: _isLoading ? null : _createPost,
-              child:
-                  _isLoading
-                      ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : const Text('Post'),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Post'),
             ),
           ),
         ),
@@ -344,9 +362,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               padding: const EdgeInsets.all(32),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDesktopEditorForm(),
-                ],
+                children: [_buildDesktopEditorForm()],
               ),
             ),
           ),
@@ -395,7 +411,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         children: [
           fluent.IconButton(
             icon: const Icon(fluent.FluentIcons.back),
-            onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
+            onPressed: () =>
+                context.canPop() ? context.pop() : context.go('/feed'),
           ),
           const SizedBox(width: 8),
           Text(widget.circleId != null ? 'Circle Post' : 'Create Post'),
@@ -404,14 +421,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       actions: [
         fluent.FilledButton(
           onPressed: _isLoading ? null : _createPost,
-          child:
-              _isLoading
-                  ? const fluent.SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: fluent.ProgressRing(strokeWidth: 2),
-                  )
-                  : const Text('Post'),
+          child: _isLoading
+              ? const fluent.SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: fluent.ProgressRing(strokeWidth: 2),
+                )
+              : const Text('Post'),
         ),
       ],
       body: Row(
@@ -433,7 +449,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     if (_showPollCreator)
                       PollCreator(
                         onPollCreated: _onPollCreated,
-                        onCancel: () => setState(() => _showPollCreator = false),
+                        onCancel: () =>
+                            setState(() => _showPollCreator = false),
                       ),
                     if (_attachedPoll != null) _buildFluentAttachedPoll(),
                     if (_locationController.text.isNotEmpty)
@@ -443,7 +460,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               ),
             ),
           ),
-          Container(width: 1, color: fluentTheme.resources.dividerStrokeColorDefault),
+          Container(
+            width: 1,
+            color: fluentTheme.resources.dividerStrokeColorDefault,
+          ),
           Expanded(
             flex: 2,
             child: Container(
@@ -626,9 +646,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     right: 4,
                     child: fluent.IconButton(
                       icon: const Icon(fluent.FluentIcons.clear, size: 12),
-                      onPressed: () => setState(() => _selectedImages.removeAt(index)),
+                      onPressed: () =>
+                          setState(() => _selectedImages.removeAt(index)),
                       style: fluent.ButtonStyle(
-                        backgroundColor: fluent.WidgetStateProperty.all(Colors.black54),
+                        backgroundColor: fluent.WidgetStateProperty.all(
+                          Colors.black54,
+                        ),
                       ),
                     ),
                   ),
@@ -649,7 +672,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(_attachedPoll!.question, style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(
+              _attachedPoll!.question,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             ..._attachedPoll!.options.map((o) => Text('• ${o.text}')),
             const SizedBox(height: 12),
@@ -693,8 +719,12 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               children: [
                 CircleAvatar(
                   radius: 24,
-                  backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-                  child: avatarUrl == null ? Text(displayName[0].toUpperCase()) : null,
+                  backgroundImage: avatarUrl != null
+                      ? NetworkImage(avatarUrl)
+                      : null,
+                  child: avatarUrl == null
+                      ? Text(displayName[0].toUpperCase())
+                      : null,
                 ),
                 const SizedBox(width: 12),
                 Text(displayName, style: theme.textTheme.titleMedium),
@@ -725,9 +755,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           spacing: 12,
           runSpacing: 12,
           children: [
-            _buildActionButton(icon: Icons.photo_library, label: 'Photo', onPressed: _pickImages, isM3E: isM3E),
-            _buildActionButton(icon: Icons.poll, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
-            _buildActionButton(icon: Icons.location_on, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
+            _buildActionButton(
+              icon: Icons.photo_library,
+              label: 'Photo',
+              onPressed: _pickImages,
+              isM3E: isM3E,
+            ),
+            _buildActionButton(
+              icon: Icons.poll,
+              label: 'Poll',
+              onPressed: _togglePollCreator,
+              isM3E: isM3E,
+            ),
+            _buildActionButton(
+              icon: Icons.location_on,
+              label: 'Location',
+              onPressed: _pickLocation,
+              isM3E: isM3E,
+            ),
             MoodSelector(
               selectedMood: _selectedMood,
               showLabel: false,
@@ -745,18 +790,31 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, index) => Stack(
                 children: [
-                  Image.file(File(_selectedImages[index].path), width: 150, height: 150, fit: BoxFit.cover),
+                  Image.file(
+                    File(_selectedImages[index].path),
+                    width: 150,
+                    height: 150,
+                    fit: BoxFit.cover,
+                  ),
                   Positioned(
                     top: 4,
                     right: 4,
-                    child: IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() => _selectedImages.removeAt(index))),
+                    child: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () =>
+                          setState(() => _selectedImages.removeAt(index)),
+                    ),
                   ),
                 ],
               ),
             ),
           ),
         ],
-        if (_showPollCreator) PollCreator(onPollCreated: _onPollCreated, onCancel: () => setState(() => _showPollCreator = false)),
+        if (_showPollCreator)
+          PollCreator(
+            onPollCreated: _onPollCreated,
+            onCancel: () => setState(() => _showPollCreator = false),
+          ),
       ],
     );
   }
@@ -784,7 +842,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             builder: (context, authService, child) {
               final user = authService.currentUser;
               final displayName = user?.displayName ?? user?.username ?? 'User';
-              final username = user?.username != null ? '@${user!.username}' : '';
+              final username = user?.username != null
+                  ? '@${user!.username}'
+                  : '';
               final avatarUrl = user?.photoUrl;
 
               return Container(
@@ -792,28 +852,49 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 decoration: BoxDecoration(
                   color: isM3E
                       ? colorScheme.surfaceContainer.withValues(alpha: 0.5)
-                      : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      : colorScheme.surfaceContainerHighest.withValues(
+                          alpha: 0.3,
+                        ),
                   borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
-                  border: isM3E ? Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.2)) : null,
+                  border: isM3E
+                      ? Border.all(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.2,
+                          ),
+                        )
+                      : null,
                 ),
                 child: Row(
                   children: [
                     Container(
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: isM3E ? Border.all(color: colorScheme.primary.withValues(alpha: 0.2), width: 2) : null,
+                        border: isM3E
+                            ? Border.all(
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.2,
+                                ),
+                                width: 2,
+                              )
+                            : null,
                       ),
                       padding: EdgeInsets.all(isM3E ? 2 : 0),
                       child: CircleAvatar(
                         radius: 24,
                         backgroundColor: colorScheme.surfaceContainerHighest,
-                        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+                        backgroundImage: avatarUrl != null
+                            ? NetworkImage(avatarUrl)
+                            : null,
                         child: avatarUrl == null
                             ? Text(
-                                displayName.isNotEmpty ? displayName[0].toUpperCase() : '?',
+                                displayName.isNotEmpty
+                                    ? displayName[0].toUpperCase()
+                                    : '?',
                                 style: TextStyle(
                                   fontSize: 20,
-                                  fontWeight: isM3E ? FontWeight.w800 : FontWeight.bold,
+                                  fontWeight: isM3E
+                                      ? FontWeight.w800
+                                      : FontWeight.bold,
                                   color: colorScheme.primary,
                                 ),
                               )
@@ -827,7 +908,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         Text(
                           displayName,
                           style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: isM3E ? FontWeight.bold : FontWeight.w600,
+                            fontWeight: isM3E
+                                ? FontWeight.bold
+                                : FontWeight.w600,
                             letterSpacing: isM3E ? -0.5 : null,
                           ),
                         ),
@@ -853,15 +936,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             minLines: 1,
             decoration: InputDecoration(
               hintText: 'What\'s on your mind?',
-              hintStyle: (isM3E ? theme.textTheme.titleMedium : theme.textTheme.bodyLarge)?.copyWith(
-                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-                fontWeight: isM3E ? FontWeight.w500 : null,
-              ),
+              hintStyle:
+                  (isM3E
+                          ? theme.textTheme.titleMedium
+                          : theme.textTheme.bodyLarge)
+                      ?.copyWith(
+                        color: colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.7,
+                        ),
+                        fontWeight: isM3E ? FontWeight.w500 : null,
+                      ),
               border: InputBorder.none,
             ),
-            style: (isM3E ? theme.textTheme.titleMedium : theme.textTheme.bodyLarge)?.copyWith(
-              height: 1.5,
-            ),
+            style:
+                (isM3E
+                        ? theme.textTheme.titleMedium
+                        : theme.textTheme.bodyLarge)
+                    ?.copyWith(height: 1.5),
             textCapitalization: TextCapitalization.sentences,
           ),
           const SizedBox(height: 12),
@@ -873,9 +964,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               hintStyle: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
               filled: true,
-              fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+              fillColor: colorScheme.surfaceContainerHighest.withValues(
+                alpha: 0.2,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
                 borderSide: BorderSide.none,
@@ -897,7 +993,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     width: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
-                      boxShadow: isM3E ? [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))] : null,
+                      boxShadow: isM3E
+                          ? [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ]
+                          : null,
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
@@ -909,9 +1013,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             top: 8,
                             right: 8,
                             child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white, size: 18),
-                              onPressed: () => setState(() => _selectedImages.removeAt(index)),
-                              style: IconButton.styleFrom(backgroundColor: Colors.black.withValues(alpha: 0.5)),
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                              onPressed: () => setState(
+                                () => _selectedImages.removeAt(index),
+                              ),
+                              style: IconButton.styleFrom(
+                                backgroundColor: Colors.black.withValues(
+                                  alpha: 0.5,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -935,19 +1049,36 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                _buildActionButton(icon: Icons.photo_library_outlined, label: 'Photo', onPressed: _pickImages, isM3E: isM3E),
+                _buildActionButton(
+                  icon: Icons.photo_library_outlined,
+                  label: 'Photo',
+                  onPressed: _pickImages,
+                  isM3E: isM3E,
+                ),
                 const SizedBox(width: 8),
                 _buildActionButton(
-                  icon: _isSpoiler ? Icons.visibility_off : Icons.visibility_off_outlined,
+                  icon: _isSpoiler
+                      ? Icons.visibility_off
+                      : Icons.visibility_off_outlined,
                   label: 'Spoiler',
                   onPressed: () => setState(() => _isSpoiler = !_isSpoiler),
                   isM3E: isM3E,
                   isActive: _isSpoiler,
                 ),
                 const SizedBox(width: 8),
-                _buildActionButton(icon: Icons.poll_outlined, label: 'Poll', onPressed: _togglePollCreator, isM3E: isM3E),
+                _buildActionButton(
+                  icon: Icons.poll_outlined,
+                  label: 'Poll',
+                  onPressed: _togglePollCreator,
+                  isM3E: isM3E,
+                ),
                 const SizedBox(width: 8),
-                _buildActionButton(icon: Icons.location_on_outlined, label: 'Location', onPressed: _pickLocation, isM3E: isM3E),
+                _buildActionButton(
+                  icon: Icons.location_on_outlined,
+                  label: 'Location',
+                  onPressed: _pickLocation,
+                  isM3E: isM3E,
+                ),
               ],
             ),
           ),
@@ -962,24 +1093,40 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.location_on, size: 18, color: colorScheme.secondary),
+                  Icon(
+                    Icons.location_on,
+                    size: 18,
+                    color: colorScheme.secondary,
+                  ),
                   const SizedBox(width: 8),
                   Text(_locationController.text),
                   const SizedBox(width: 8),
-                  InkWell(onTap: () => setState(() => _locationController.clear()), child: const Icon(Icons.close, size: 16)),
+                  InkWell(
+                    onTap: () => setState(() => _locationController.clear()),
+                    child: const Icon(Icons.close, size: 16),
+                  ),
                 ],
               ),
             ),
           ],
-          if (_showPollCreator) PollCreator(onPollCreated: _onPollCreated, onCancel: () => setState(() => _showPollCreator = false)),
+          if (_showPollCreator)
+            PollCreator(
+              onPollCreated: _onPollCreated,
+              onCancel: () => setState(() => _showPollCreator = false),
+            ),
           if (_attachedPoll != null) ...[
             const SizedBox(height: 16),
             ListTile(
               tileColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               leading: const Icon(Icons.poll),
               title: Text(_attachedPoll!.question),
-              trailing: IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() => _attachedPoll = null)),
+              trailing: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => setState(() => _attachedPoll = null),
+              ),
             ),
           ],
         ],
@@ -994,14 +1141,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           child: Center(
             child: FilledButton(
               onPressed: _isLoading ? null : _createPost,
-              child: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Post'),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Post'),
             ),
           ),
         ),
       ],
       body: Center(
         child: Container(
-          constraints: BoxConstraints(maxWidth: isDesktop ? 700 : double.infinity),
+          constraints: BoxConstraints(
+            maxWidth: isDesktop ? 700 : double.infinity,
+          ),
           child: formContent,
         ),
       ),

@@ -102,12 +102,7 @@ class ChatEncryptionProvider with ChangeNotifier {
             Uint8List.fromList(headerBytes),
             Uint8List.fromList(payloadBytes),
           );
-          if (decryptedContent != null) {
-            debugPrint('[Encryption] Decrypted with PQ-Aura');
-          }
-        } catch (e) {
-          debugPrint('[Encryption] PQ-Aura decryption failed: $e');
-        }
+        } catch (_) {}
       }
     }
 

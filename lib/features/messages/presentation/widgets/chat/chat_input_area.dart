@@ -1,5 +1,20 @@
 import 'dart:ui' as ui;
-import 'package:flutter/material.dart' hide IconButton, Icon, Row, Column, Container, Padding, Center, Stack, Align, Positioned, SizedBox, Expanded, Spacer, GestureDetector;
+import 'package:flutter/material.dart'
+    hide
+        IconButton,
+        Icon,
+        Row,
+        Column,
+        Container,
+        Padding,
+        Center,
+        Stack,
+        Align,
+        Positioned,
+        SizedBox,
+        Expanded,
+        Spacer,
+        GestureDetector;
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/foundation.dart';
@@ -87,12 +102,12 @@ class _ChatInputAreaState extends State<ChatInputArea> {
     final borderRadius = material.BorderRadius.circular(32);
 
     final decoration = material.BoxDecoration(
-      color: widget.isDesktop 
+      color: widget.isDesktop
           ? material.Colors.black.withValues(alpha: 0.85)
           : colorScheme.surface.withValues(alpha: 0.8),
       borderRadius: borderRadius,
       border: material.Border.all(
-        color: widget.isDesktop 
+        color: widget.isDesktop
             ? material.Colors.white.withValues(alpha: 0.1)
             : colorScheme.outlineVariant.withValues(alpha: 0.3),
         width: 1.0,
@@ -108,8 +123,8 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         material.Text(
           'Recording...',
           style: material.TextStyle(
-            color: widget.backgroundUrl != null 
-                ? material.Colors.white 
+            color: widget.backgroundUrl != null
+                ? material.Colors.white
                 : colorScheme.error,
             fontWeight: material.FontWeight.bold,
             fontSize: 14,
@@ -117,15 +132,17 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         ),
         const material.Spacer(),
         material.ValueListenableBuilder<String>(
-          valueListenable: widget.textNotifier ?? ValueNotifier(widget.controller.text),
+          valueListenable:
+              widget.textNotifier ?? ValueNotifier(widget.controller.text),
           builder: (context, text, child) {
-            final durationText =
-                widget.controller.text.isEmpty ? _formatDuration(widget.recordDuration) : '';
+            final durationText = widget.controller.text.isEmpty
+                ? _formatDuration(widget.recordDuration)
+                : '';
             return material.Text(
               durationText,
               style: material.TextStyle(
-                color: widget.backgroundUrl != null 
-                    ? material.Colors.white70 
+                color: widget.backgroundUrl != null
+                    ? material.Colors.white70
                     : colorScheme.onSurfaceVariant,
                 fontFeatures: [ui.FontFeature.tabularFigures()],
                 fontWeight: material.FontWeight.w500,
@@ -151,41 +168,51 @@ class _ChatInputAreaState extends State<ChatInputArea> {
 
       return material.AnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) => material.ScaleTransition(scale: animation, child: child),
+        transitionBuilder: (child, animation) =>
+            material.ScaleTransition(scale: animation, child: child),
         child: material.Container(
           key: material.ValueKey(buttonKey),
-          margin: widget.isDesktop ? const material.EdgeInsets.only(right: 4) : null,
+          margin: widget.isDesktop
+              ? const material.EdgeInsets.only(right: 4)
+              : null,
           decoration: material.BoxDecoration(
-            color:
-                widget.isSending
-                    ? colorScheme.onSurface.withValues(alpha: 0.12)
-                    : (showMic
-                        ? (widget.isRecording ? material.Colors.red : colorScheme.primary)
-                        : colorScheme.secondary),
+            color: widget.isSending
+                ? colorScheme.onSurface.withValues(alpha: 0.12)
+                : (showMic
+                      ? (widget.isRecording
+                            ? material.Colors.red
+                            : colorScheme.primary)
+                      : colorScheme.secondary),
             shape: material.BoxShape.circle,
           ),
           child: material.IconButton(
-            onPressed:
-                widget.isSending ? null : (showMic ? widget.onToggleRecording : widget.onSend),
+            onPressed: widget.isSending
+                ? null
+                : (showMic ? widget.onToggleRecording : widget.onSend),
             padding: widget.isDesktop ? const material.EdgeInsets.all(8) : null,
-            constraints: widget.isDesktop ? const material.BoxConstraints() : null,
-            icon:
-                widget.isSending
-                    ? material.SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: material.CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colorScheme.onPrimary,
-                      ),
-                    )
-                    : material.Icon(
-                      showMic
-                          ? (widget.isRecording ? material.Icons.stop_rounded : material.Icons.mic)
-                          : material.Icons.send_rounded,
-                      color: showMic ? colorScheme.onPrimary : colorScheme.onSecondary,
-                      size: widget.isDesktop ? 22 : null,
+            constraints: widget.isDesktop
+                ? const material.BoxConstraints()
+                : null,
+            icon: widget.isSending
+                ? material.SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: material.CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colorScheme.onPrimary,
                     ),
+                  )
+                : material.Icon(
+                    showMic
+                        ? (widget.isRecording
+                              ? material.Icons.stop_rounded
+                              : material.Icons.mic)
+                        : material.Icons.send_rounded,
+                    color: showMic
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSecondary,
+                    size: widget.isDesktop ? 22 : null,
+                  ),
           ),
         ),
       );
@@ -197,17 +224,17 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         vertical: widget.isDesktop ? 4 : 2,
       ),
       decoration: decoration,
-      child: material.ValueListenableBuilder<String>(
-        valueListenable: widget.textNotifier ?? ValueNotifier(widget.controller.text),
-        builder: (context, text, child) {
-          final bool isTyping = text.trim().isNotEmpty;
-          final bool hasSomething = isTyping || widget.hasAttachment;
-
-          return material.Row(
-            crossAxisAlignment: material.CrossAxisAlignment.center,
-            children: [
-              // Animated leading icons (Attachment & Stickers)
-              material.AnimatedSwitcher(
+      child: material.Row(
+        crossAxisAlignment: material.CrossAxisAlignment.center,
+        children: [
+          // Animated leading icons (Attachment & Stickers)
+          material.ValueListenableBuilder<String>(
+            valueListenable:
+                widget.textNotifier ??
+                material.ValueNotifier(widget.controller.text),
+            builder: (context, text, child) {
+              final bool isTyping = text.trim().isNotEmpty;
+              return material.AnimatedSwitcher(
                 duration: const Duration(milliseconds: 250),
                 transitionBuilder: (Widget child, Animation<double> animation) {
                   return material.SizeTransition(
@@ -221,223 +248,285 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                   );
                 },
                 child: (isTyping || widget.hasAttachment)
-                    ? const material.SizedBox.shrink(key: material.ValueKey('leading-hidden'))
+                    ? const material.SizedBox.shrink(
+                        key: material.ValueKey('leading-hidden'),
+                      )
                     : material.Row(
-                      key: material.ValueKey('leading-visible'),
-                      mainAxisSize: material.MainAxisSize.min,
-                      children: [
-                        widget.isDesktop
-                            ? fluent.FlyoutTarget(
-                              controller: _flyoutController,
-                              child: material.IconButton(
-                                onPressed: () {
-                                  _flyoutController.showFlyout(
-                                    autoModeConfiguration: fluent.FlyoutAutoConfiguration(
-                                      preferredMode: fluent.FlyoutPlacementMode.topCenter,
-                                    ),
-                                    barrierDismissible: true,
-                                    dismissWithEsc: true,
-                                    builder: (context) {
-                                      return fluent.MenuFlyout(
-                                        items: [
-                                          fluent.MenuFlyoutItem(
-                                            leading: const material.Icon(
-                                              material.Icons.image_rounded,
-                                              size: 20,
-                                              color: material.Color(0xFF3D8BFF),
+                        key: material.ValueKey('leading-visible'),
+                        mainAxisSize: material.MainAxisSize.min,
+                        children: [
+                          widget.isDesktop
+                              ? fluent.FlyoutTarget(
+                                  controller: _flyoutController,
+                                  child: material.IconButton(
+                                    onPressed: () {
+                                      _flyoutController.showFlyout(
+                                        autoModeConfiguration:
+                                            fluent.FlyoutAutoConfiguration(
+                                              preferredMode: fluent
+                                                  .FlyoutPlacementMode
+                                                  .topCenter,
                                             ),
-                                            text: const material.Text('Photo'),
-                                            onPressed: () {
-                                              _flyoutController.close();
-                                              widget.onPickImage?.call();
-                                            },
-                                          ),
-                                          fluent.MenuFlyoutItem(
-                                            leading: const material.Icon(
-                                              material.Icons.videocam_rounded,
-                                              size: 20,
-                                              color: material.Color(0xFFFF6B6B),
-                                            ),
-                                            text: const material.Text('Video'),
-                                            onPressed: () {
-                                              _flyoutController.close();
-                                              widget.onPickVideo?.call();
-                                            },
-                                          ),
-                                          fluent.MenuFlyoutItem(
-                                            leading: const material.Icon(
-                                              material.Icons.insert_drive_file_rounded,
-                                              size: 20,
-                                              color: material.Color(0xFF51CF66),
-                                            ),
-                                            text: const material.Text('File'),
-                                            onPressed: () {
-                                              _flyoutController.close();
-                                              widget.onPickFile?.call();
-                                            },
-                                          ),
-                                          fluent.MenuFlyoutItem(
-                                            leading: const material.Icon(
-                                              material.Icons.audio_file_rounded,
-                                              size: 20,
-                                              color: material.Color(0xFFFFD43B),
-                                            ),
-                                            text: const material.Text('Audio'),
-                                            onPressed: () {
-                                              _flyoutController.close();
-                                              widget.onPickAudio?.call();
-                                            },
-                                          ),
-                                        ],
+                                        barrierDismissible: true,
+                                        dismissWithEsc: true,
+                                        builder: (context) {
+                                          return fluent.MenuFlyout(
+                                            items: [
+                                              fluent.MenuFlyoutItem(
+                                                leading: const material.Icon(
+                                                  material.Icons.image_rounded,
+                                                  size: 20,
+                                                  color: material.Color(
+                                                    0xFF3D8BFF,
+                                                  ),
+                                                ),
+                                                text: const material.Text(
+                                                  'Photo',
+                                                ),
+                                                onPressed: () {
+                                                  _flyoutController.close();
+                                                  widget.onPickImage?.call();
+                                                },
+                                              ),
+                                              fluent.MenuFlyoutItem(
+                                                leading: const material.Icon(
+                                                  material
+                                                      .Icons
+                                                      .videocam_rounded,
+                                                  size: 20,
+                                                  color: material.Color(
+                                                    0xFFFF6B6B,
+                                                  ),
+                                                ),
+                                                text: const material.Text(
+                                                  'Video',
+                                                ),
+                                                onPressed: () {
+                                                  _flyoutController.close();
+                                                  widget.onPickVideo?.call();
+                                                },
+                                              ),
+                                              fluent.MenuFlyoutItem(
+                                                leading: const material.Icon(
+                                                  material
+                                                      .Icons
+                                                      .insert_drive_file_rounded,
+                                                  size: 20,
+                                                  color: material.Color(
+                                                    0xFF51CF66,
+                                                  ),
+                                                ),
+                                                text: const material.Text(
+                                                  'File',
+                                                ),
+                                                onPressed: () {
+                                                  _flyoutController.close();
+                                                  widget.onPickFile?.call();
+                                                },
+                                              ),
+                                              fluent.MenuFlyoutItem(
+                                                leading: const material.Icon(
+                                                  material
+                                                      .Icons
+                                                      .audio_file_rounded,
+                                                  size: 20,
+                                                  color: material.Color(
+                                                    0xFFFFD43B,
+                                                  ),
+                                                ),
+                                                text: const material.Text(
+                                                  'Audio',
+                                                ),
+                                                onPressed: () {
+                                                  _flyoutController.close();
+                                                  widget.onPickAudio?.call();
+                                                },
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       );
                                     },
-                                  );
-                                },
-                                icon: material.Icon(
-                                  material.Icons.add_circle_outline,
-                                  color: material.Colors.white70,
-                                  size: 24,
+                                    icon: material.Icon(
+                                      material.Icons.add_circle_outline,
+                                      color: material.Colors.white70,
+                                      size: 24,
+                                    ),
+                                    constraints:
+                                        const material.BoxConstraints(),
+                                    padding: const material.EdgeInsets.all(8),
+                                  ),
+                                )
+                              : material.IconButton(
+                                  onPressed: widget.onAttachment,
+                                  icon: material.Icon(
+                                    material.Icons.add_circle_outline,
+                                    color: colorScheme.primary,
+                                  ),
                                 ),
-                                constraints: const material.BoxConstraints(),
-                                padding: const material.EdgeInsets.all(8),
-                              ),
-                            )
-                            : material.IconButton(
-                              onPressed: widget.onAttachment,
-                              icon: material.Icon(
-                                material.Icons.add_circle_outline,
-                                color: colorScheme.primary,
-                              ),
+                          material.IconButton(
+                            onPressed: widget.onSticker,
+                            icon: material.Icon(
+                              material.Icons.sticky_note_2_outlined,
+                              color: widget.isDesktop
+                                  ? material.Colors.white70
+                                  : colorScheme.primary.withValues(alpha: 0.6),
+                              size: widget.isDesktop ? 24 : null,
                             ),
-                        material.IconButton(
-                          onPressed: widget.onSticker,
-                          icon: material.Icon(
-                            material.Icons.sticky_note_2_outlined,
-                            color:
-                                widget.isDesktop
-                                    ? material.Colors.white70
-                                    : colorScheme.primary.withValues(alpha: 0.6),
-                            size: widget.isDesktop ? 24 : null,
+                            constraints: widget.isDesktop
+                                ? const material.BoxConstraints()
+                                : null,
+                            padding: widget.isDesktop
+                                ? const material.EdgeInsets.all(8)
+                                : null,
+                            tooltip: 'Stickers & GIFs',
                           ),
-                          constraints:
-                              widget.isDesktop ? const material.BoxConstraints() : null,
-                          padding:
-                              widget.isDesktop ? const material.EdgeInsets.all(8) : null,
-                          tooltip: 'Stickers & GIFs',
-                        ),
-                        const material.SizedBox(width: 4),
-                      ],
-                    ),
-              ),
+                          const material.SizedBox(width: 4),
+                        ],
+                      ),
+              );
+            },
+          ),
 
-              // Spoiler Toggle
-              material.AnimatedSwitcher(
+          // Spoiler Toggle
+          material.ValueListenableBuilder<String>(
+            valueListenable:
+                widget.textNotifier ??
+                material.ValueNotifier(widget.controller.text),
+            builder: (context, text, child) {
+              final bool hasSomething =
+                  text.trim().isNotEmpty || widget.hasAttachment;
+              return material.AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 child: hasSomething
                     ? material.IconButton(
-                      key: const material.ValueKey('spoiler-btn'),
-                      onPressed: widget.onSpoilerToggle,
-                      icon: material.Icon(
-                        widget.isSpoiler ? material.Icons.visibility_off : material.Icons.visibility_off_outlined,
-                        color: widget.isSpoiler ? colorScheme.primary : (widget.isDesktop ? material.Colors.white38 : colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
-                        size: widget.isDesktop ? 22 : 20,
-                      ),
-                      tooltip: 'Mark as Spoiler',
-                      constraints: const material.BoxConstraints(),
-                      padding: const material.EdgeInsets.all(8),
-                    )
-                    : const material.SizedBox.shrink(),
-              ),
-
-              material.Expanded(
-                child:
-                    widget.isRecording
-                        ? recordingView
-                        : material.CallbackShortcuts(
-                          bindings: {
-                            const material.SingleActivator(
-                              LogicalKeyboardKey.enter,
-                              includeRepeats: false,
-                            ): () {
-                              final keys = HardwareKeyboard.instance.logicalKeysPressed;
-                              if (keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                                  keys.contains(LogicalKeyboardKey.shiftRight)) {
-                                return;
-                              }
-                              if (widget.controller.text.trim().isNotEmpty ||
-                                  widget.hasAttachment) {
-                                widget.onSend();
-                              }
-                            },
-                          },
-                          child:
-                              widget.isDesktop
-                                  ? material.SizedBox(
-                                    height: 36,
-                                    child: fluent.TextBox(
-                                      controller: widget.controller,
-                                      focusNode: widget.focusNode,
-                                      placeholder: widget.hintText ?? 'Type a message...',
-                                      padding: const material.EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 6,
-                                      ),
-                                      decoration: fluent.WidgetStateProperty.resolveWith((
-                                        states,
-                                      ) {
-                                        return fluent.BoxDecoration(
-                                          color: material.Colors.transparent,
-                                          borderRadius: material.BorderRadius.circular(32),
-                                          border: material.Border.all(
-                                            color: material.Colors.transparent,
-                                            width: 0,
-                                          ),
-                                        );
-                                      }),
-                                      style: material.TextStyle(
-                                        color: material.Colors.white,
-                                        fontSize: 14,
-                                      ),
-                                      placeholderStyle: material.TextStyle(
-                                        color: material.Colors.white38,
-                                        fontSize: 14,
-                                      ),
-                                      cursorColor: fluent.FluentTheme.of(context).accentColor,
-                                      scrollPhysics: const material.BouncingScrollPhysics(),
-                                      maxLines: 1,
-                                    ),
-                                  )
-                                  : CustomTextField(
-                                    controller: widget.controller,
-                                    focusNode: widget.focusNode,
-                                    hint: widget.hintText ?? 'Type a message...',
-                                    fillColor: material.Colors.transparent,
-                                    textColor: widget.isDesktop ? material.Colors.white : null,
-                                    hintColor:
-                                        widget.isDesktop ? material.Colors.white38 : null,
-                                    maxLines: 5,
-                                    minLines: 1,
-                                    textCapitalization: material.TextCapitalization.sentences,
-                                    isDense: true,
-                                    contentPadding: const material.EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 10,
-                                    ),
-                                    margin: material.EdgeInsets.zero,
-                                    border: material.InputBorder.none,
-                                    enabledBorder: material.InputBorder.none,
-                                    focusedBorder: material.InputBorder.none,
-                                  ),
+                        key: const material.ValueKey('spoiler-btn'),
+                        onPressed: widget.onSpoilerToggle,
+                        icon: material.Icon(
+                          widget.isSpoiler
+                              ? material.Icons.visibility_off
+                              : material.Icons.visibility_off_outlined,
+                          color: widget.isSpoiler
+                              ? colorScheme.primary
+                              : (widget.isDesktop
+                                    ? material.Colors.white38
+                                    : colorScheme.onSurfaceVariant.withValues(
+                                        alpha: 0.6,
+                                      )),
+                          size: widget.isDesktop ? 22 : 20,
                         ),
-              ),
-              const material.SizedBox(width: 4),
-              material.Padding(
+                        tooltip: 'Mark as Spoiler',
+                        constraints: const material.BoxConstraints(),
+                        padding: const material.EdgeInsets.all(8),
+                      )
+                    : const material.SizedBox.shrink(),
+              );
+            },
+          ),
+
+          material.Expanded(
+            child: widget.isRecording
+                ? recordingView
+                : material.CallbackShortcuts(
+                    bindings: {
+                      const material.SingleActivator(
+                        LogicalKeyboardKey.enter,
+                        includeRepeats: false,
+                      ): () {
+                        final keys =
+                            HardwareKeyboard.instance.logicalKeysPressed;
+                        if (keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                            keys.contains(LogicalKeyboardKey.shiftRight)) {
+                          return;
+                        }
+                        if (widget.controller.text.trim().isNotEmpty ||
+                            widget.hasAttachment) {
+                          widget.onSend();
+                        }
+                      },
+                    },
+                    child: widget.isDesktop
+                        ? material.SizedBox(
+                            height: 36,
+                            child: fluent.TextBox(
+                              controller: widget.controller,
+                              focusNode: widget.focusNode,
+                              placeholder:
+                                  widget.hintText ?? 'Type a message...',
+                              padding: const material.EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration:
+                                  fluent.WidgetStateProperty.resolveWith((
+                                    states,
+                                  ) {
+                                    return fluent.BoxDecoration(
+                                      color: material.Colors.transparent,
+                                      borderRadius:
+                                          material.BorderRadius.circular(32),
+                                      border: material.Border.all(
+                                        color: material.Colors.transparent,
+                                        width: 0,
+                                      ),
+                                    );
+                                  }),
+                              style: material.TextStyle(
+                                color: material.Colors.white,
+                                fontSize: 14,
+                              ),
+                              placeholderStyle: material.TextStyle(
+                                color: material.Colors.white38,
+                                fontSize: 14,
+                              ),
+                              cursorColor: fluent.FluentTheme.of(
+                                context,
+                              ).accentColor,
+                              scrollPhysics:
+                                  const material.BouncingScrollPhysics(),
+                              maxLines: 1,
+                            ),
+                          )
+                        : CustomTextField(
+                            controller: widget.controller,
+                            focusNode: widget.focusNode,
+                            hint: widget.hintText ?? 'Type a message...',
+                            fillColor: material.Colors.transparent,
+                            textColor: widget.isDesktop
+                                ? material.Colors.white
+                                : null,
+                            hintColor: widget.isDesktop
+                                ? material.Colors.white38
+                                : null,
+                            maxLines: 5,
+                            minLines: 1,
+                            textCapitalization:
+                                material.TextCapitalization.sentences,
+                            isDense: true,
+                            contentPadding: const material.EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 10,
+                            ),
+                            margin: material.EdgeInsets.zero,
+                            border: material.InputBorder.none,
+                            enabledBorder: material.InputBorder.none,
+                            focusedBorder: material.InputBorder.none,
+                          ),
+                  ),
+          ),
+          const material.SizedBox(width: 4),
+          material.ValueListenableBuilder<String>(
+            valueListenable:
+                widget.textNotifier ??
+                material.ValueNotifier(widget.controller.text),
+            builder: (context, text, child) {
+              return material.Padding(
                 padding: const material.EdgeInsets.only(bottom: 0),
-                child: buildActionButton(isTyping),
-              ),
-            ],
-          );
-        },
+                child: buildActionButton(text.trim().isNotEmpty),
+              );
+            },
+          ),
+        ],
       ),
     );
 
@@ -450,7 +539,10 @@ class _ChatInputAreaState extends State<ChatInputArea> {
           dash: 4,
           borderRadius: borderRadius,
         ),
-        child: material.Padding(padding: const material.EdgeInsets.all(4), child: inputArea),
+        child: material.Padding(
+          padding: const material.EdgeInsets.all(4),
+          child: inputArea,
+        ),
       );
     }
 

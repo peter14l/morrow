@@ -11,15 +11,21 @@ class AppFluentTheme {
     bool micaEnabled = false,
   }) {
     final isDark = brightness == material.Brightness.dark;
-    
+
     // Core colors synchronized with Material 3 / Oasis Palette
-    final primaryColor = materialColorScheme?.primary ?? 
+    final primaryColor =
+        materialColorScheme?.primary ??
         (isDark ? DarkColors.primary : LightColors.primary);
-    
-    final scaffoldColor = isDark ? OasisColors.deep : (materialColorScheme?.surface ?? LightColors.background);
+
+    final scaffoldColor = isDark
+        ? OasisColors.deep
+        : (materialColorScheme?.surface ?? LightColors.background);
 
     // Mica/Acrylic transparency should only be applied on Windows/macOS
-    final bool canUseTransparency = !kIsWeb && (defaultTargetPlatform == TargetPlatform.windows || defaultTargetPlatform == TargetPlatform.macOS);
+    final bool canUseTransparency =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.macOS);
     final bool shouldBeTransparent = micaEnabled && canUseTransparency;
 
     final accentColor = AccentColor.swatch({
@@ -37,35 +43,67 @@ class AppFluentTheme {
       accentColor: accentColor,
       fontFamily: fontFamily,
       visualDensity: VisualDensity.standard,
-      scaffoldBackgroundColor: shouldBeTransparent ? Colors.transparent : scaffoldColor,
-      micaBackgroundColor: shouldBeTransparent ? Colors.transparent : scaffoldColor,
-      micaAltBackgroundColor: shouldBeTransparent ? Colors.transparent : scaffoldColor,
-      
+      scaffoldBackgroundColor: shouldBeTransparent
+          ? Colors.transparent
+          : scaffoldColor,
+      micaBackgroundColor: shouldBeTransparent
+          ? Colors.transparent
+          : scaffoldColor,
+      micaAltBackgroundColor: shouldBeTransparent
+          ? Colors.transparent
+          : scaffoldColor,
+
       // Animation curves updated to WinUI 3 "Fluid" motion
       animationCurve: standardCurve,
-      
+
       // Shadows standardized via FluentShadows
-      shadows: FluentShadows.fromBrightness(isDark ? Brightness.dark : Brightness.light),
+      shadows: FluentShadows.fromBrightness(
+        isDark ? Brightness.dark : Brightness.light,
+      ),
 
       // Typography updated to Segoe UI Variable by default
-      typography: Typography.fromBrightness(
-        brightness: isDark ? Brightness.dark : Brightness.light,
-        color: isDark ? DarkColors.onBackground : LightColors.onBackground,
-      ).apply(fontFamily: fontFamily ?? (defaultTargetPlatform == material.TargetPlatform.windows ? 'Segoe UI Variable' : 'Segoe UI')),
+      typography:
+          Typography.fromBrightness(
+            brightness: isDark ? Brightness.dark : Brightness.light,
+            color: isDark ? DarkColors.onBackground : LightColors.onBackground,
+          ).apply(
+            fontFamily:
+                fontFamily ??
+                (defaultTargetPlatform == material.TargetPlatform.windows
+                    ? 'Segoe UI Variable'
+                    : 'Segoe UI'),
+          ),
 
       navigationPaneTheme: NavigationPaneThemeData(
-        backgroundColor: shouldBeTransparent 
-            ? (isDark ? DarkColors.surface.withValues(alpha: 0.7) : LightColors.surface.withValues(alpha: 0.7))
+        backgroundColor: shouldBeTransparent
+            ? Colors.transparent
+            : (isDark ? DarkColors.surface : LightColors.surface),
+        overlayBackgroundColor: shouldBeTransparent
+            ? (isDark
+                  ? DarkColors.surface.withValues(alpha: 0.8)
+                  : LightColors.surface.withValues(alpha: 0.8))
             : (isDark ? DarkColors.surface : LightColors.surface),
         highlightColor: primaryColor,
         selectedIconColor: WidgetStateProperty.all(primaryColor),
-        selectedTextStyle: WidgetStateProperty.all(TextStyle(
-          color: primaryColor,
-          fontWeight: FontWeight.bold,
-        )),
+        selectedTextStyle: WidgetStateProperty.all(
+          TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+        ),
         unselectedIconColor: WidgetStateProperty.all(
           isDark ? DarkColors.hint : LightColors.hint,
         ),
+        tileColor: WidgetStateProperty.resolveWith((states) {
+          if (states.isPressed) {
+            return isDark
+                ? material.Colors.white.withValues(alpha: 0.05)
+                : material.Colors.black.withValues(alpha: 0.05);
+          }
+          if (states.isHovered) {
+            return isDark
+                ? material.Colors.white.withValues(alpha: 0.03)
+                : material.Colors.black.withValues(alpha: 0.03);
+          }
+          return Colors.transparent;
+        }),
       ),
 
       checkboxTheme: CheckboxThemeData(
@@ -77,14 +115,14 @@ class AppFluentTheme {
           backgroundColor: WidgetStateProperty.all(primaryColor),
           foregroundColor: WidgetStateProperty.all(material.Colors.white),
           shape: WidgetStateProperty.all(
-            const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8.0))),
+            const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
           ),
         ),
       ),
-      
-      dividerTheme: const DividerThemeData(
-        thickness: 1,
-      ),
+
+      dividerTheme: const DividerThemeData(thickness: 1),
     );
   }
 }

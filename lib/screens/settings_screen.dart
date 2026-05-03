@@ -87,11 +87,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final isM3E = themeProvider.isM3EEnabled;
     final useFluent = themeProvider.useFluentUI;
 
+    final userSettingsProvider = Provider.of<UserSettingsProvider>(context);
     final Widget layout;
     if (useFluent) {
-      layout = _buildFluentSettings(context, themeProvider, colorScheme);
+      layout = _buildFluentSettings(
+        context,
+        themeProvider,
+        userSettingsProvider,
+        colorScheme,
+      );
     } else if (isDesktop) {
-      layout = _buildMaterialDesktopSettings(context, themeProvider, colorScheme, isM3E);
+      layout = _buildMaterialDesktopSettings(
+        context,
+        themeProvider,
+        colorScheme,
+        isM3E,
+      );
     } else {
       // Mobile Layout
       layout = MaxWidthContainer(
@@ -150,6 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildFluentSettings(
     BuildContext context,
     ThemeProvider themeProvider,
+    UserSettingsProvider userSettingsProvider,
     material.ColorScheme colorScheme,
   ) {
     final bodyContent = _selectedSubPage != null
@@ -158,12 +170,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             header: fluent.PageHeader(
               title: Text(_getCategoryTitle(_selectedCategory)),
             ),
-            children: [
-              _buildSelectedCategoryContent(context),
-            ],
+            children: [_buildSelectedCategoryContent(context)],
           );
 
     return fluent.NavigationView(
+      key: ValueKey(
+        'settings_fluent_${userSettingsProvider.micaEnabled}_${userSettingsProvider.windowEffect}',
+      ),
       pane: fluent.NavigationPane(
         selected: _selectedCategory.index,
         onChanged: (index) {
@@ -232,10 +245,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         footerItems: [
           fluent.PaneItemSeparator(),
           fluent.PaneItemAction(
-            icon: const material.Icon(FluentIcons.sign_out_24_regular,
-                color: material.Colors.red),
-            title: const Text('Sign Out',
-                style: TextStyle(color: material.Colors.red)),
+            icon: const material.Icon(
+              FluentIcons.sign_out_24_regular,
+              color: material.Colors.red,
+            ),
+            title: const Text(
+              'Sign Out',
+              style: TextStyle(color: material.Colors.red),
+            ),
             onTap: _handleSignOut,
           ),
         ],
@@ -257,7 +274,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           decoration: BoxDecoration(
             color: colorScheme.surface.withValues(alpha: 0.4),
             borderRadius: BorderRadius.circular(isM3E ? 32 : 24),
-            border: Border.all(color: material.Colors.white.withValues(alpha: 0.05)),
+            border: Border.all(
+              color: material.Colors.white.withValues(alpha: 0.05),
+            ),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isM3E ? 32 : 24),
@@ -274,9 +293,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                       border: Border(
                         right: BorderSide(
-                          color: colorScheme.onSurface.withValues(
-                            alpha: 0.05,
-                          ),
+                          color: colorScheme.onSurface.withValues(alpha: 0.05),
                         ),
                       ),
                     ),
@@ -326,8 +343,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               _buildSidebarItem(
                                 icon: FluentIcons.paint_brush_24_regular,
-                                selectedIcon:
-                                    FluentIcons.paint_brush_24_filled,
+                                selectedIcon: FluentIcons.paint_brush_24_filled,
                                 label: 'Appearance',
                                 category: SettingsCategory.appearance,
                               ),
@@ -355,10 +371,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         Padding(
                           padding: const EdgeInsets.all(24),
-                          child: _buildSignOutButton(
-                            context,
-                            isDesktop: true,
-                          ),
+                          child: _buildSignOutButton(context, isDesktop: true),
                         ),
                       ],
                     ),
@@ -453,7 +466,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Row(
             children: [
-              material.Icon(material.Icons.info_outline, color: colorScheme.secondary),
+              material.Icon(
+                material.Icons.info_outline,
+                color: colorScheme.secondary,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: material.Text(
@@ -490,7 +506,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _subPageTitle = title;
       });
     } else {
-      Navigator.of(context).push(material.MaterialPageRoute(builder: (context) => page));
+      Navigator.of(
+        context,
+      ).push(material.MaterialPageRoute(builder: (context) => page));
     }
   }
 
@@ -577,8 +595,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSelectedCategoryContent(BuildContext context) {
-    final useFluent = Provider.of<ThemeProvider>(context, listen: false).useFluentUI;
-    
+    final useFluent = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).useFluentUI;
+
     switch (_selectedCategory) {
       case SettingsCategory.account:
         return Center(
@@ -761,28 +782,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: 'Theme',
         subtitle: _getThemeModeName(themeProvider.themeMode),
         iconColor: material.Colors.blue,
-        trailing: useFluent 
-          ? fluent.ComboBox<material.ThemeMode>(
-              value: themeProvider.themeMode,
-              items: const [
-                fluent.ComboBoxItem(value: material.ThemeMode.system, child: fluent.Text('System')),
-                fluent.ComboBoxItem(value: material.ThemeMode.light, child: fluent.Text('Light')),
-                fluent.ComboBoxItem(value: material.ThemeMode.dark, child: fluent.Text('Dark')),
-              ],
-              onChanged: (mode) => mode != null ? themeProvider.setTheme(mode) : null,
-            )
-          : material.DropdownButton<material.ThemeMode>(
-              value: themeProvider.themeMode,
-              dropdownColor: colorScheme.surfaceContainerHigh,
-              underline: const SizedBox(),
-              onChanged: (mode) =>
-                  mode != null ? themeProvider.setTheme(mode) : null,
-              items: const [
-                material.DropdownMenuItem(value: material.ThemeMode.system, child: material.Text('System')),
-                material.DropdownMenuItem(value: material.ThemeMode.light, child: material.Text('Light')),
-                material.DropdownMenuItem(value: material.ThemeMode.dark, child: material.Text('Dark')),
-              ],
-            ),
+        trailing: useFluent
+            ? fluent.ComboBox<material.ThemeMode>(
+                value: themeProvider.themeMode,
+                items: const [
+                  fluent.ComboBoxItem(
+                    value: material.ThemeMode.system,
+                    child: fluent.Text('System'),
+                  ),
+                  fluent.ComboBoxItem(
+                    value: material.ThemeMode.light,
+                    child: fluent.Text('Light'),
+                  ),
+                  fluent.ComboBoxItem(
+                    value: material.ThemeMode.dark,
+                    child: fluent.Text('Dark'),
+                  ),
+                ],
+                onChanged: (mode) =>
+                    mode != null ? themeProvider.setTheme(mode) : null,
+              )
+            : material.DropdownButton<material.ThemeMode>(
+                value: themeProvider.themeMode,
+                dropdownColor: colorScheme.surfaceContainerHigh,
+                underline: const SizedBox(),
+                onChanged: (mode) =>
+                    mode != null ? themeProvider.setTheme(mode) : null,
+                items: const [
+                  material.DropdownMenuItem(
+                    value: material.ThemeMode.system,
+                    child: material.Text('System'),
+                  ),
+                  material.DropdownMenuItem(
+                    value: material.ThemeMode.light,
+                    child: material.Text('Light'),
+                  ),
+                  material.DropdownMenuItem(
+                    value: material.ThemeMode.dark,
+                    child: material.Text('Dark'),
+                  ),
+                ],
+              ),
       ),
       _buildSettingsTile(
         context,
@@ -791,33 +831,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: userSettingsProvider.fontFamily,
         iconColor: material.Colors.teal,
         trailing: useFluent
-          ? fluent.ComboBox<String>(
-              value: userSettingsProvider.fontFamily,
-              onChanged: (font) => font != null ? userSettingsProvider.setFontFamily(font) : null,
-              items: _fonts.map((font) => fluent.ComboBoxItem(
-                value: font,
-                child: fluent.Text(font, style: TextStyle(fontFamily: font == 'System' ? null : font)),
-              )).toList(),
-            )
-          : material.DropdownButton<String>(
-              value: userSettingsProvider.fontFamily,
-              dropdownColor: colorScheme.surfaceContainerHigh,
-              underline: const SizedBox(),
-              onChanged: (font) {
-                if (font != null) {
-                  userSettingsProvider.setFontFamily(font);
-                }
-              },
-              items: _fonts.map((font) {
-                return material.DropdownMenuItem(
-                  value: font,
-                  child: material.Text(
-                    font,
-                    style: TextStyle(fontFamily: font == 'System' ? null : font),
-                  ),
-                );
-              }).toList(),
-            ),
+            ? fluent.ComboBox<String>(
+                value: userSettingsProvider.fontFamily,
+                onChanged: (font) => font != null
+                    ? userSettingsProvider.setFontFamily(font)
+                    : null,
+                items: _fonts
+                    .map(
+                      (font) => fluent.ComboBoxItem(
+                        value: font,
+                        child: fluent.Text(
+                          font,
+                          style: TextStyle(
+                            fontFamily: font == 'System' ? null : font,
+                          ),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              )
+            : material.DropdownButton<String>(
+                value: userSettingsProvider.fontFamily,
+                dropdownColor: colorScheme.surfaceContainerHigh,
+                underline: const SizedBox(),
+                onChanged: (font) {
+                  if (font != null) {
+                    userSettingsProvider.setFontFamily(font);
+                  }
+                },
+                items: _fonts.map((font) {
+                  return material.DropdownMenuItem(
+                    value: font,
+                    child: material.Text(
+                      font,
+                      style: TextStyle(
+                        fontFamily: font == 'System' ? null : font,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
       ),
       _buildSettingsTile(
         context,
@@ -826,18 +879,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: 'Vibrant & high-contrast design.',
         iconColor: material.Colors.pink,
         trailing: useFluent
-          ? fluent.ToggleSwitch(
-              checked: themeProvider.isM3EEnabled,
-              onChanged: (v) {
-                themeProvider.setM3EEnabled(v);
-              },
-            )
-          : material.Switch(
-              value: themeProvider.isM3EEnabled,
-              onChanged: (v) {
-                themeProvider.setM3EEnabled(v);
-              },
-            ),
+            ? fluent.ToggleSwitch(
+                checked: themeProvider.isM3EEnabled,
+                onChanged: (v) {
+                  themeProvider.setM3EEnabled(v);
+                },
+              )
+            : material.Switch(
+                value: themeProvider.isM3EEnabled,
+                onChanged: (v) {
+                  themeProvider.setM3EEnabled(v);
+                },
+              ),
       ),
       if (themeProvider.isM3EEnabled)
         _buildSettingsTile(
@@ -847,14 +900,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: 'Use system colors (Material You).',
           iconColor: material.Colors.orange,
           trailing: useFluent
-            ? fluent.ToggleSwitch(
-                checked: themeProvider.useMaterialYou,
-                onChanged: (v) => themeProvider.setMaterialYou(v),
-              )
-            : material.Switch(
-                value: themeProvider.useMaterialYou,
-                onChanged: (v) => themeProvider.setMaterialYou(v),
-              ),
+              ? fluent.ToggleSwitch(
+                  checked: themeProvider.useMaterialYou,
+                  onChanged: (v) => themeProvider.setMaterialYou(v),
+                )
+              : material.Switch(
+                  value: themeProvider.useMaterialYou,
+                  onChanged: (v) => themeProvider.setMaterialYou(v),
+                ),
         ),
       if (themeProvider.isM3EEnabled && !themeProvider.useMaterialYou)
         _buildSettingsTile(
@@ -864,51 +917,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
           subtitle: _getPaletteName(themeProvider.colorPalette),
           iconColor: _getPaletteColor(themeProvider.colorPalette),
           trailing: useFluent
-            ? fluent.ComboBox<ColorPalette>(
-                value: themeProvider.colorPalette,
-                onChanged: (p) => p != null ? themeProvider.setColorPalette(p) : null,
-                items: ColorPalette.values.map((p) => fluent.ComboBoxItem(
-                  value: p,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(width: 16, height: 16, decoration: BoxDecoration(color: _getPaletteColor(p), shape: BoxShape.circle)),
-                      const SizedBox(width: 8),
-                      fluent.Text(_getPaletteName(p)),
-                    ],
-                  ),
-                )).toList(),
-              )
-            : material.DropdownButton<ColorPalette>(
-                value: themeProvider.colorPalette,
-                dropdownColor: colorScheme.surfaceContainerHigh,
-                underline: const SizedBox(),
-                onChanged: (palette) {
-                  if (palette != null) {
-                    themeProvider.setColorPalette(palette);
-                  }
-                },
-                items: ColorPalette.values.map((palette) {
-                  return material.DropdownMenuItem(
-                    value: palette,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 16,
-                          height: 16,
-                          decoration: BoxDecoration(
-                            color: _getPaletteColor(palette),
-                            shape: BoxShape.circle,
+              ? fluent.ComboBox<ColorPalette>(
+                  value: themeProvider.colorPalette,
+                  onChanged: (p) =>
+                      p != null ? themeProvider.setColorPalette(p) : null,
+                  items: ColorPalette.values
+                      .map(
+                        (p) => fluent.ComboBoxItem(
+                          value: p,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: _getPaletteColor(p),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              fluent.Text(_getPaletteName(p)),
+                            ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        material.Text(_getPaletteName(palette)),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ),
+                      )
+                      .toList(),
+                )
+              : material.DropdownButton<ColorPalette>(
+                  value: themeProvider.colorPalette,
+                  dropdownColor: colorScheme.surfaceContainerHigh,
+                  underline: const SizedBox(),
+                  onChanged: (palette) {
+                    if (palette != null) {
+                      themeProvider.setColorPalette(palette);
+                    }
+                  },
+                  items: ColorPalette.values.map((palette) {
+                    return material.DropdownMenuItem(
+                      value: palette,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: _getPaletteColor(palette),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          material.Text(_getPaletteName(palette)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
         ),
       if (kIsWeb == false && Platform.isWindows) ...[
         const SizedBox(height: 24),
@@ -944,8 +1009,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ? userSettingsProvider.setWindowEffect(v)
                           : null,
                       items: const [
-                        fluent.ComboBoxItem(value: 'mica', child: fluent.Text('Mica (Default)')),
-                        fluent.ComboBoxItem(value: 'acrylic', child: fluent.Text('Acrylic')),
+                        fluent.ComboBoxItem(
+                          value: 'mica',
+                          child: fluent.Text('Mica (Default)'),
+                        ),
+                        fluent.ComboBoxItem(
+                          value: 'acrylic',
+                          child: fluent.Text('Acrylic'),
+                        ),
                       ],
                     )
                   : material.DropdownButton<String>(
@@ -956,8 +1027,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ? userSettingsProvider.setWindowEffect(v)
                           : null,
                       items: const [
-                        material.DropdownMenuItem(value: 'mica', child: material.Text('Mica')),
-                        material.DropdownMenuItem(value: 'acrylic', child: material.Text('Acrylic')),
+                        material.DropdownMenuItem(
+                          value: 'mica',
+                          child: material.Text('Mica'),
+                        ),
+                        material.DropdownMenuItem(
+                          value: 'acrylic',
+                          child: material.Text('Acrylic'),
+                        ),
                       ],
                     ),
             ),
@@ -988,14 +1065,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: 'Reduce data usage',
         iconColor: material.Colors.cyan,
         trailing: useFluent
-          ? fluent.ToggleSwitch(
-              checked: userSettingsProvider.dataSaver,
-              onChanged: (v) => userSettingsProvider.setDataSaver(v),
-            )
-          : material.Switch(
-              value: userSettingsProvider.dataSaver,
-              onChanged: (v) => userSettingsProvider.setDataSaver(v),
-            ),
+            ? fluent.ToggleSwitch(
+                checked: userSettingsProvider.dataSaver,
+                onChanged: (v) => userSettingsProvider.setDataSaver(v),
+              )
+            : material.Switch(
+                value: userSettingsProvider.dataSaver,
+                onChanged: (v) => userSettingsProvider.setDataSaver(v),
+              ),
       ),
     ]);
   }
@@ -1020,14 +1097,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         subtitle: 'Improve visibility',
         iconColor: material.Theme.of(context).colorScheme.tertiary,
         trailing: useFluent
-          ? fluent.ToggleSwitch(
-              checked: themeProvider.highContrast,
-              onChanged: (v) => themeProvider.setHighContrast(v),
-            )
-          : material.Switch(
-              value: themeProvider.highContrast,
-              onChanged: (v) => themeProvider.setHighContrast(v),
-            ),
+            ? fluent.ToggleSwitch(
+                checked: themeProvider.highContrast,
+                onChanged: (v) => themeProvider.setHighContrast(v),
+              )
+            : material.Switch(
+                value: themeProvider.highContrast,
+                onChanged: (v) => themeProvider.setHighContrast(v),
+              ),
       ),
     ]);
   }
@@ -1080,25 +1157,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const material.Icon(FluentIcons.sign_out_24_regular, color: material.Colors.red, size: 20),
+            const material.Icon(
+              FluentIcons.sign_out_24_regular,
+              color: material.Colors.red,
+              size: 20,
+            ),
             const SizedBox(width: 8),
-            const fluent.Text('Sign Out', style: TextStyle(color: material.Colors.red)),
+            const fluent.Text(
+              'Sign Out',
+              style: TextStyle(color: material.Colors.red),
+            ),
           ],
         ),
       );
     }
 
     final button = material.ListTile(
-      leading: const material.Icon(material.Icons.logout, color: material.Colors.red),
+      leading: const material.Icon(
+        material.Icons.logout,
+        color: material.Colors.red,
+      ),
       title: const material.Text(
         'Sign Out',
-        style: TextStyle(color: material.Colors.red, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: material.Colors.red,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       onTap: _handleSignOut,
     );
 
     if (isDesktop) {
-      return material.Material(color: material.Colors.transparent, child: button);
+      return material.Material(
+        color: material.Colors.transparent,
+        child: button,
+      );
     }
 
     return Container(
@@ -1162,11 +1255,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final useFluent = themeProvider.useFluentUI;
-    
+
     if (useFluent) {
-      return Column(
-        children: children,
-      );
+      return Column(children: children);
     }
 
     final theme = material.Theme.of(context);
@@ -1177,30 +1268,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     BorderRadius borderRadius;
     if (isM3E) {
       switch (index % 3) {
-        case 0: borderRadius = BorderRadius.circular(32); break;
-        case 1: borderRadius = const BorderRadius.only(topLeft: Radius.circular(48), bottomRight: Radius.circular(48), topRight: Radius.circular(12), bottomLeft: Radius.circular(12)); break;
-        case 2: borderRadius = BorderRadius.circular(16); break;
-        default: borderRadius = BorderRadius.circular(24);
+        case 0:
+          borderRadius = BorderRadius.circular(32);
+          break;
+        case 1:
+          borderRadius = const BorderRadius.only(
+            topLeft: Radius.circular(48),
+            bottomRight: Radius.circular(48),
+            topRight: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          );
+          break;
+        case 2:
+          borderRadius = BorderRadius.circular(16);
+          break;
+        default:
+          borderRadius = BorderRadius.circular(24);
       }
     } else {
       borderRadius = BorderRadius.circular(16);
     }
 
     final bgColor = isM3E
-        ? (disableTransparency ? (index % 2 == 0 ? colorScheme.surfaceContainerHigh : colorScheme.surfaceContainerLow) : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3))
+        ? (disableTransparency
+              ? (index % 2 == 0
+                    ? colorScheme.surfaceContainerHigh
+                    : colorScheme.surfaceContainerLow)
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3))
         : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
 
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: borderRadius,
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: isM3E ? 0.3 : 0.5), width: isM3E ? 1.5 : 1),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(
+            alpha: isM3E ? 0.3 : 0.5,
+          ),
+          width: isM3E ? 1.5 : 1,
+        ),
       ),
       child: ClipRRect(
         borderRadius: borderRadius,
         child: Column(
           children: List.generate(children.length * 2 - 1, (idx) {
-            if (idx.isOdd) return material.Divider(height: 1, indent: 56, color: colorScheme.outlineVariant.withValues(alpha: 0.3));
+            if (idx.isOdd)
+              return material.Divider(
+                height: 1,
+                indent: 56,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+              );
             return children[idx ~/ 2];
           }),
         ),
@@ -1240,20 +1357,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
       leading: Container(
         padding: EdgeInsets.all(isM3E ? 10 : 8),
         decoration: BoxDecoration(
-          color: (iconColor ?? colorScheme.primary).withValues(alpha: isM3E ? 0.15 : 0.1),
+          color: (iconColor ?? colorScheme.primary).withValues(
+            alpha: isM3E ? 0.15 : 0.1,
+          ),
           borderRadius: BorderRadius.circular(isM3E ? 16 : 10),
         ),
-        child: material.Icon(icon, color: iconColor ?? colorScheme.primary, size: isM3E ? 22 : 24),
+        child: material.Icon(
+          icon,
+          color: iconColor ?? colorScheme.primary,
+          size: isM3E ? 22 : 24,
+        ),
       ),
-      title: Text(title, style: theme.textTheme.titleMedium?.copyWith(fontWeight: isM3E ? FontWeight.w600 : FontWeight.w500, color: textColor)),
-      subtitle: subtitle != null ? Text(subtitle, style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)) : null,
-      trailing: trailing ?? (onTap != null ? material.Icon(material.Icons.chevron_right, color: colorScheme.onSurfaceVariant) : null),
+      title: Text(
+        title,
+        style: theme.textTheme.titleMedium?.copyWith(
+          fontWeight: isM3E ? FontWeight.w600 : FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+      subtitle: subtitle != null
+          ? Text(
+              subtitle,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            )
+          : null,
+      trailing:
+          trailing ??
+          (onTap != null
+              ? material.Icon(
+                  material.Icons.chevron_right,
+                  color: colorScheme.onSurfaceVariant,
+                )
+              : null),
       onTap: onTap,
     );
   }
 
   void _showFeedbackDialog(BuildContext context) {
-    final useFluent = Provider.of<ThemeProvider>(context, listen: false).useFluentUI;
+    final useFluent = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).useFluentUI;
 
     if (useFluent) {
       fluent.showDialog(
@@ -1264,7 +1410,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               fluent.ListTile(
-                leading: const material.Icon(material.Icons.bug_report_outlined, color: material.Colors.red),
+                leading: const material.Icon(
+                  material.Icons.bug_report_outlined,
+                  color: material.Colors.red,
+                ),
                 title: const fluent.Text('Report a Bug'),
                 onPressed: () {
                   Navigator.pop(context);
@@ -1272,7 +1421,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
               fluent.ListTile(
-                leading: const material.Icon(material.Icons.lightbulb_outline, color: material.Colors.amber),
+                leading: const material.Icon(
+                  material.Icons.lightbulb_outline,
+                  color: material.Colors.amber,
+                ),
                 title: const fluent.Text('Suggest a Feature'),
                 onPressed: () {
                   Navigator.pop(context);
@@ -1282,7 +1434,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
           actions: [
-            fluent.Button(child: const fluent.Text('Close'), onPressed: () => Navigator.pop(context)),
+            fluent.Button(
+              child: const fluent.Text('Close'),
+              onPressed: () => Navigator.pop(context),
+            ),
           ],
         ),
       );
@@ -1306,13 +1461,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Text(
                     'Send Feedback',
-                    style: material.Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: material.Theme.of(context).textTheme.titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                 ),
                 material.ListTile(
-                  leading: const material.Icon(material.Icons.bug_report_outlined, color: material.Colors.red),
+                  leading: const material.Icon(
+                    material.Icons.bug_report_outlined,
+                    color: material.Colors.red,
+                  ),
                   title: const material.Text('Report a Bug'),
                   onTap: () {
                     Navigator.pop(context);
@@ -1320,7 +1477,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 material.ListTile(
-                  leading: const material.Icon(material.Icons.lightbulb_outline, color: material.Colors.amber),
+                  leading: const material.Icon(
+                    material.Icons.lightbulb_outline,
+                    color: material.Colors.amber,
+                  ),
                   title: const material.Text('Suggest a Feature'),
                   onTap: () {
                     Navigator.pop(context);
@@ -1344,7 +1504,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'oasis.officialsupport@gmail.com',
-      query: 'subject=${Uri.encodeComponent('${prefix}Oasis App Feedback: $label')}',
+      query:
+          'subject=${Uri.encodeComponent('${prefix}Oasis App Feedback: $label')}',
     );
 
     try {
@@ -1356,33 +1517,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   String _getThemeModeName(material.ThemeMode mode) {
     switch (mode) {
-      case material.ThemeMode.system: return 'System';
-      case material.ThemeMode.light: return 'Light';
-      case material.ThemeMode.dark: return 'Dark';
+      case material.ThemeMode.system:
+        return 'System';
+      case material.ThemeMode.light:
+        return 'Light';
+      case material.ThemeMode.dark:
+        return 'Dark';
     }
   }
 
   String _getPaletteName(ColorPalette palette) {
     switch (palette) {
-      case ColorPalette.none: return 'None (Default)';
-      case ColorPalette.emerald: return 'Emerald';
-      case ColorPalette.ocean: return 'Ocean';
-      case ColorPalette.sunset: return 'Sunset';
-      case ColorPalette.lavender: return 'Lavender';
-      case ColorPalette.rose: return 'Rose';
-      case ColorPalette.teal: return 'Teal';
+      case ColorPalette.none:
+        return 'None (Default)';
+      case ColorPalette.emerald:
+        return 'Emerald';
+      case ColorPalette.ocean:
+        return 'Ocean';
+      case ColorPalette.sunset:
+        return 'Sunset';
+      case ColorPalette.lavender:
+        return 'Lavender';
+      case ColorPalette.rose:
+        return 'Rose';
+      case ColorPalette.teal:
+        return 'Teal';
     }
   }
 
   material.Color _getPaletteColor(ColorPalette palette) {
     switch (palette) {
-      case ColorPalette.none: return material.Colors.grey;
-      case ColorPalette.emerald: return const material.Color(0xFF1C6758);
-      case ColorPalette.ocean: return const material.Color(0xFF0D47A1);
-      case ColorPalette.sunset: return const material.Color(0xFFE65100);
-      case ColorPalette.lavender: return const material.Color(0xFF7E57C2);
-      case ColorPalette.rose: return const material.Color(0xFFC2185B);
-      case ColorPalette.teal: return const material.Color(0xFF00796B);
+      case ColorPalette.none:
+        return material.Colors.grey;
+      case ColorPalette.emerald:
+        return const material.Color(0xFF1C6758);
+      case ColorPalette.ocean:
+        return const material.Color(0xFF0D47A1);
+      case ColorPalette.sunset:
+        return const material.Color(0xFFE65100);
+      case ColorPalette.lavender:
+        return const material.Color(0xFF7E57C2);
+      case ColorPalette.rose:
+        return const material.Color(0xFFC2185B);
+      case ColorPalette.teal:
+        return const material.Color(0xFF00796B);
     }
   }
 }

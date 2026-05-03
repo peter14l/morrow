@@ -104,7 +104,9 @@ class ChatDecryptionService {
 
       return content;
     } catch (e) {
-      debugPrint('[ChatDecryption] Error decrypting: $e');
+      if (kDebugMode) {
+        debugPrint('[ChatDecryption] Error decrypting: $e');
+      }
       return '🔒 Message encrypted';
     }
   }

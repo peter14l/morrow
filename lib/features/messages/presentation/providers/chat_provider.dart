@@ -123,7 +123,7 @@ class ChatProvider with ChangeNotifier {
 
   void _safeNotifyListeners() {
     if (_isDisposed) return;
-    
+
     // Defer notification if the framework is currently building or locked
     if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
       Future.microtask(() {
@@ -140,7 +140,9 @@ class ChatProvider with ChangeNotifier {
 
   /// Initialize all chat subsystems. Call this from the screen's initState.
   Future<void> initialize() async {
-    debugPrint('[ChatProvider] initialize() called for conversation: $conversationId');
+    debugPrint(
+      '[ChatProvider] initialize() called for conversation: $conversationId',
+    );
     // Load settings and cached messages
     await settingsProvider.loadPersistedSettings(
       currentUserId: _authService.currentUser?.id,
@@ -263,7 +265,10 @@ class ChatProvider with ChangeNotifier {
   ) async {
     // Try PQ-Aura first (post-quantum encryption)
     try {
-      final pqaEncrypted = await _pqauraService.encryptMessage(recipientId, content);
+      final pqaEncrypted = await _pqauraService.encryptMessage(
+        recipientId,
+        content,
+      );
       if (pqaEncrypted != null) {
         debugPrint('[ChatProvider] Used PQ-Aura encryption for $recipientId');
         return EncryptedContent(
@@ -299,10 +304,9 @@ class ChatProvider with ChangeNotifier {
     String? recipientPublicKey = _publicKeyCache[recipientId];
     if (recipientPublicKey != null) {
       try {
-        final encrypted = await _encryptionService.encryptMessage(
-          content,
-          [recipientPublicKey],
-        );
+        final encrypted = await _encryptionService.encryptMessage(content, [
+          recipientPublicKey,
+        ]);
         debugPrint('[ChatProvider] Used RSA encryption for $recipientId');
         return EncryptedContent(
           content: encrypted.encryptedContent,
@@ -317,10 +321,7 @@ class ChatProvider with ChangeNotifier {
 
     // No encryption available - send as plaintext (shouldn't happen in production)
     debugPrint('[ChatProvider] No encryption available, sending plaintext');
-    return EncryptedContent(
-      content: content,
-      protocol: 'plaintext',
-    );
+    return EncryptedContent(content: content, protocol: 'plaintext');
   }
 
   // =========================================================================
@@ -364,9 +365,11 @@ class ChatProvider with ChangeNotifier {
       await settingsProvider.saveMessagesToCache(filtered);
     } catch (e) {
       debugPrint('Error loading messages (attempt ${retryCount + 1}): $e');
-      
+
       // Handle network errors with retries
-      if (retryCount < 3 && (e.toString().contains('SocketException') || e.toString().contains('ClientException'))) {
+      if (retryCount < 3 &&
+          (e.toString().contains('SocketException') ||
+              e.toString().contains('ClientException'))) {
         await Future.delayed(Duration(seconds: 1 * (retryCount + 1)));
         return loadMessages(silent: silent, retryCount: retryCount + 1);
       }
@@ -408,9 +411,11 @@ class ChatProvider with ChangeNotifier {
         int optimisticIndex = -1;
         if (index == -1 && decryptedMessage.senderId == currentUserId) {
           optimisticIndex = state.messages.indexWhere(
-            (m) => m.id.startsWith('optimistic_') && 
-                   m.messageType == decryptedMessage.messageType &&
-                   (m.content == decryptedMessage.content || m.mediaFileName == decryptedMessage.mediaFileName)
+            (m) =>
+                m.id.startsWith('optimistic_') &&
+                m.messageType == decryptedMessage.messageType &&
+                (m.content == decryptedMessage.content ||
+                    m.mediaFileName == decryptedMessage.mediaFileName),
           );
         }
 
@@ -433,43 +438,49 @@ class ChatProvider with ChangeNotifier {
         // Mark as read if message is from other user
         if (decryptedMessage.senderId != currentUserId) {
           markAsRead();
-          
+
           // Auto-download media in background
-          if (decryptedMessage.mediaUrl != null && 
-              decryptedMessage.encryptedKeys != null && 
+          if (decryptedMessage.mediaUrl != null &&
+              decryptedMessage.encryptedKeys != null &&
               decryptedMessage.iv != null &&
               decryptedMessage.messageType != MessageType.text &&
               decryptedMessage.messageType != MessageType.system &&
               decryptedMessage.messageType != MessageType.location) {
-            
             String mediaType = 'images';
             if (decryptedMessage.messageType == MessageType.document) {
-               if (decryptedMessage.mediaUrl!.contains('videos')) {
-                 mediaType = 'videos';
-               } else {
-                 mediaType = 'documents';
-               }
+              if (decryptedMessage.mediaUrl!.contains('videos')) {
+                mediaType = 'videos';
+              } else {
+                mediaType = 'documents';
+              }
             } else if (decryptedMessage.messageType == MessageType.voice) {
-               mediaType = 'recordings';
+              mediaType = 'recordings';
             }
 
             // Fire and forget download
-            _chatMediaService.downloadAndDecryptMedia(
-              remoteUrl: decryptedMessage.mediaUrl!,
-              type: mediaType,
-              fileId: decryptedMessage.id,
-              iv: decryptedMessage.iv!,
-              encryptedKeys: decryptedMessage.encryptedKeys!,
-            ).then((localPath) {
-               // Update state to trigger UI refresh (shows the image instead of download button)
-               final updatedIndex = state.messages.indexWhere((m) => m.id == decryptedMessage.id);
-               if (updatedIndex != -1) {
-                  // We just need to force a rebuild, the bubbles check cache in initState
-                  setState((s) => s); 
-               }
-            }).catchError((e) {
-               debugPrint('[AutoDownload] Failed for message ${decryptedMessage.id}: $e');
-            });
+            _chatMediaService
+                .downloadAndDecryptMedia(
+                  remoteUrl: decryptedMessage.mediaUrl!,
+                  type: mediaType,
+                  fileId: decryptedMessage.id,
+                  iv: decryptedMessage.iv!,
+                  encryptedKeys: decryptedMessage.encryptedKeys!,
+                )
+                .then((localPath) {
+                  // Update state to trigger UI refresh (shows the image instead of download button)
+                  final updatedIndex = state.messages.indexWhere(
+                    (m) => m.id == decryptedMessage.id,
+                  );
+                  if (updatedIndex != -1) {
+                    // We just need to force a rebuild, the bubbles check cache in initState
+                    setState((s) => s);
+                  }
+                })
+                .catchError((e) {
+                  debugPrint(
+                    '[AutoDownload] Failed for message ${decryptedMessage.id}: $e',
+                  );
+                });
           }
         }
       },
@@ -491,7 +502,7 @@ class ChatProvider with ChangeNotifier {
       onUpdate: (messageId, userId, readAt) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           if (_isDisposed) return;
-          
+
           final index = state.messages.indexWhere((m) => m.id == messageId);
           if (index < 0) return;
 
@@ -537,7 +548,7 @@ class ChatProvider with ChangeNotifier {
       onUpdate: (messageId, reactions) {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           if (_isDisposed) return;
-          
+
           final index = state.messages.indexWhere((m) => m.id == messageId);
           if (index < 0) return;
 
@@ -593,6 +604,12 @@ class ChatProvider with ChangeNotifier {
   Future<void> markAsRead() async {
     final currentUserId = _authService.currentUser?.id;
     if (currentUserId == null) return;
+
+    // Only mark as read if the app is active and in the foreground.
+    // This prevents background apps/minimized windows from accidentally marking messages as read.
+    if (WidgetsBinding.instance.lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
 
     final unreadMessageIds = state.messages
         .where((m) => m.senderId != currentUserId && !m.isRead)
@@ -667,7 +684,8 @@ class ChatProvider with ChangeNotifier {
       mediaUrl = imageFile.path;
       fileName = imageFile.name;
     } else if (videoFile != null) {
-      messageType = MessageType.document; // Videos are sent as document type in this app
+      messageType =
+          MessageType.document; // Videos are sent as document type in this app
       mediaUrl = videoFile.path;
       fileName = videoFile.path.split(Platform.pathSeparator).last;
     } else if (audioFile != null) {
@@ -702,14 +720,18 @@ class ChatProvider with ChangeNotifier {
       replyToContent: replyMessage?.content,
       replyToSenderName: replyMessage?.senderName,
       mediaViewMode: mediaViewMode,
-      isUploading: imageFile != null || videoFile != null || audioFile != null || docFile != null,
+      isUploading:
+          imageFile != null ||
+          videoFile != null ||
+          audioFile != null ||
+          docFile != null,
       uploadProgress: 0.0,
     );
 
     setState(
       (s) => s.copyWith(
         messages: [...s.messages, optimisticMessage],
-        isSending: false, 
+        isSending: false,
         replyMessage: null,
         selectedImages: const <XFile>[],
         selectedVideo: null,
@@ -731,7 +753,7 @@ class ChatProvider with ChangeNotifier {
       // Prepare recipient keys for media E2EE
       final recipientId = otherUserId ?? state.otherUserId;
       if (recipientId == null) throw Exception('Recipient ID is required');
-      
+
       String? recipientPublicKey = _publicKeyCache[recipientId];
       if (recipientPublicKey == null) {
         recipientPublicKey = await _authService.getPublicKey(recipientId);
@@ -739,18 +761,20 @@ class ChatProvider with ChangeNotifier {
           _publicKeyCache[recipientId] = recipientPublicKey;
         }
       }
-      
+
       final senderPublicKey = await _authService.getPublicKey(userId);
       final List<String> mediaRecipientPublicKeys = [];
-      if (recipientPublicKey != null) mediaRecipientPublicKeys.add(recipientPublicKey);
-      if (senderPublicKey != null) mediaRecipientPublicKeys.add(senderPublicKey);
+      if (recipientPublicKey != null)
+        mediaRecipientPublicKeys.add(recipientPublicKey);
+      if (senderPublicKey != null)
+        mediaRecipientPublicKeys.add(senderPublicKey);
 
       // Use PQ-Aura -> Signal -> RSA fallback encryption
       if (_encryptionService.isInitialized && content.isNotEmpty) {
         final encrypted = await _encryptContent(recipientId, content);
         if (encrypted != null) {
           finalContent = encrypted.content;
-          
+
           // Extract encryption metadata based on protocol used
           if (encrypted.protocol == 'pq_aura') {
             pqAuraHeader = encrypted.pqAuraHeader;
@@ -758,7 +782,9 @@ class ChatProvider with ChangeNotifier {
           } else if (encrypted.protocol == 'signal') {
             signalMessageType = encrypted.signalMessageType;
           } else if (encrypted.protocol == 'rsa') {
-            encryptedKeys = encrypted.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
+            encryptedKeys = encrypted.encryptedKeys?.map(
+              (k, v) => MapEntry(k, v.toString()),
+            );
             iv = encrypted.iv;
           }
         }
@@ -819,7 +845,10 @@ class ChatProvider with ChangeNotifier {
       // Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
       // Only needed if Signal or PQ-Aura was used, otherwise content is already RSA encrypted.
       final encryptedFallback = await _encryptContent(recipientId, content);
-      if (encryptedFallback != null && encryptedFallback.protocol != 'rsa' && _encryptionService.isInitialized && content.isNotEmpty) {
+      if (encryptedFallback != null &&
+          encryptedFallback.protocol != 'rsa' &&
+          _encryptionService.isInitialized &&
+          content.isNotEmpty) {
         try {
           final List<String> publicKeys = [];
           if (recipientPublicKey != null) publicKeys.add(recipientPublicKey);
@@ -849,7 +878,9 @@ class ChatProvider with ChangeNotifier {
         mediaFileName: fileName,
         mediaFileSize: fileSize,
         mediaMimeType: finalMimeType,
-        encryptedKeys: uploadResult != null ? uploadResult.encryptedKeys : encryptedKeys,
+        encryptedKeys: uploadResult != null
+            ? uploadResult.encryptedKeys
+            : encryptedKeys,
         iv: uploadResult != null ? uploadResult.iv : iv,
         signalMessageType: signalMessageType,
         signalSenderContent: signalSenderContent,
@@ -863,24 +894,28 @@ class ChatProvider with ChangeNotifier {
 
       // Replace optimistic message with the real one
       var decrypted = await _decryptSingleMessage(sentMessage);
-      
+
       if (decrypted.replyToId != null && decrypted.replyToContent == null) {
         decrypted = decrypted.copyWith(
           replyToContent: optimisticMessage.replyToContent,
           replyToSenderName: optimisticMessage.replyToSenderName,
         );
       }
-      if (decrypted.content == '🔒 Message encrypted' || decrypted.content.contains('🔒')) {
+      if (decrypted.content == '🔒 Message encrypted' ||
+          decrypted.content.contains('🔒')) {
         decrypted = decrypted.copyWith(content: optimisticMessage.content);
       }
-      if (optimisticMessage.mediaUrl != null && !optimisticMessage.mediaUrl!.startsWith('http')) {
+      if (optimisticMessage.mediaUrl != null &&
+          !optimisticMessage.mediaUrl!.startsWith('http')) {
         decrypted = decrypted.copyWith(mediaUrl: optimisticMessage.mediaUrl);
       }
 
       setState(
         (s) => s.copyWith(
           messages: [
-            ...s.messages.where((m) => m.id != optimisticMessage.id && m.id != decrypted.id),
+            ...s.messages.where(
+              (m) => m.id != optimisticMessage.id && m.id != decrypted.id,
+            ),
             decrypted,
           ],
         ),
@@ -956,7 +991,7 @@ class ChatProvider with ChangeNotifier {
         mediaUrl: gifUrl,
         whisperMode: state.whisperMode,
         replyToId: replyMessage?.id,
-        encryptedKeys: encrypted?.encryptedKeys != null 
+        encryptedKeys: encrypted?.encryptedKeys != null
             ? encrypted!.encryptedKeys!.map((k, v) => MapEntry(k, v.toString()))
             : null,
         iv: encrypted?.iv,
@@ -1003,7 +1038,7 @@ class ChatProvider with ChangeNotifier {
         mediaUrl: stickerUrl,
         whisperMode: state.whisperMode,
         replyToId: replyMessage?.id,
-        encryptedKeys: encrypted?.encryptedKeys != null 
+        encryptedKeys: encrypted?.encryptedKeys != null
             ? encrypted!.encryptedKeys!.map((k, v) => MapEntry(k, v.toString()))
             : null,
         iv: encrypted?.iv,
@@ -1062,7 +1097,7 @@ class ChatProvider with ChangeNotifier {
           ephemeralDuration: details.whisperMode == 1 ? 0 : 86400,
         ),
       );
-      
+
       // Re-check PQ session now that we have details
       _checkPQAuraSession();
     } catch (e) {
@@ -1078,17 +1113,25 @@ class ChatProvider with ChangeNotifier {
       return;
     }
 
-    debugPrint('[ChatProvider] Checking PQ session status for recipient: $recipientId');
+    debugPrint(
+      '[ChatProvider] Checking PQ session status for recipient: $recipientId',
+    );
     try {
       final success = await _pqauraService.getOrCreateSession(recipientId);
       if (success == true) {
-        debugPrint('[ChatProvider] SUCCESS: PQ session established with $recipientId');
+        debugPrint(
+          '[ChatProvider] SUCCESS: PQ session established with $recipientId',
+        );
       } else {
-        debugPrint('[ChatProvider] PQ session NOT available yet with $recipientId (Other user may not be PQ-ready)');
+        debugPrint(
+          '[ChatProvider] PQ session NOT available yet with $recipientId (Other user may not be PQ-ready)',
+        );
       }
       _safeNotifyListeners(); // Refresh UI to show the lock or stay as classic
     } catch (e) {
-      debugPrint('[ChatProvider] Error checking PQ session for $recipientId: $e');
+      debugPrint(
+        '[ChatProvider] Error checking PQ session for $recipientId: $e',
+      );
     }
   }
 
@@ -1204,13 +1247,19 @@ class ChatProvider with ChangeNotifier {
     }
     _lastResumeTime = now;
 
-    // Small delay to let the OS re-establish network connectivity
-    await Future.delayed(const Duration(seconds: 1));
+    // Remove the heavy delay. Instead, yield once to ensure UI is visible
+    // before starting background sync work.
+    await Future.microtask(() {});
+
+    if (_isDisposed) return;
 
     // Reload messages silently, reconnect realtime
     await loadMessages(silent: true);
     _reconnectRealtime();
     await fetchConversationDetails();
+
+    // After sync is complete, mark all newly arrived messages as read (if screen is focused)
+    await markAsRead();
   }
 
   void _reconnectRealtime() {
@@ -1438,8 +1487,10 @@ class ChatProvider with ChangeNotifier {
       final recipientPublicKey = await _authService.getPublicKey(recipientId);
       final senderPublicKey = await _authService.getPublicKey(userId);
       final List<String> mediaRecipientPublicKeys = [];
-      if (recipientPublicKey != null) mediaRecipientPublicKeys.add(recipientPublicKey);
-      if (senderPublicKey != null) mediaRecipientPublicKeys.add(senderPublicKey);
+      if (recipientPublicKey != null)
+        mediaRecipientPublicKeys.add(recipientPublicKey);
+      if (senderPublicKey != null)
+        mediaRecipientPublicKeys.add(senderPublicKey);
 
       final uploadResult = await _chatMediaService.uploadChatMediaSecure(
         audioPath,
@@ -1481,7 +1532,9 @@ class ChatProvider with ChangeNotifier {
       debugPrint('Error sending audio message: $e');
       setState(
         (s) => s.copyWith(
-          messages: s.messages.where((m) => m.id != optimisticMessage.id).toList(),
+          messages: s.messages
+              .where((m) => m.id != optimisticMessage.id)
+              .toList(),
         ),
       );
       onError?.call('Failed to send audio message: $e');

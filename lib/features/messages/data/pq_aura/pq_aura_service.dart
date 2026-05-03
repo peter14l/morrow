@@ -24,6 +24,9 @@ class PQAuraService {
 
   bool _isInitialized = false;
 
+  // Failure cache to prevent repeated heavy crypto on broken sessions
+  final Set<String> _corruptSessions = {};
+
   PQAuraService._();
 
   static PQAuraService get instance {
@@ -33,50 +36,32 @@ class PQAuraService {
 
   /// Initialize the PQ-Aura service
   Future<bool> init() async {
-    if (_isInitialized) {
-      debugPrint('[PQAura] Service already initialized');
-      return true;
-    }
-
-    debugPrint('[PQAura] Starting service initialization...');
+    if (_isInitialized) return true;
 
     // Load the native library
     if (!_bridge.load()) {
-      debugPrint('[PQAura] CRITICAL FAILED: Native library could not be loaded. Handshakes will fail.');
+      debugPrint('[PQAura] CRITICAL: Native library failed to load.');
       return false;
     }
-    debugPrint('[PQAura] Native library loaded successfully.');
 
-    // Check if we have identity keys, if not generate them
     final hasKeys = await _store.hasIdentityKeys();
     if (!hasKeys) {
-      debugPrint('[PQAura] No local keys found. Generating new hybrid identity keys...');
       try {
         await _store.generateAndStoreIdentityKeys();
-        debugPrint('[PQAura] Local identity keys generated successfully');
       } catch (e) {
-        debugPrint('[PQAura] FAILED: Key generation error: $e');
+        debugPrint('[PQAura] Key generation error: $e');
         return false;
       }
-    } else {
-      debugPrint('[PQAura] Local identity keys found in store');
     }
 
-    // Create pre-key bundle if not exists
-    debugPrint('[PQAura] Preparing pre-key bundle...');
     await _store.createPreKeyBundle();
 
-    // NEW: Upload bundle to server during init so other users can find us
     final localKeys = await _store.getIdentityKeys();
     if (localKeys != null) {
-      debugPrint('[PQAura] Local keys retrieved. Uploading bundle to Supabase...');
       await _uploadBundleToServer(localKeys);
-    } else {
-      debugPrint('[PQAura] WARNING: Local keys retrieved as null after generation');
     }
 
     _isInitialized = true;
-    debugPrint('[PQAura] Initialization COMPLETE. User is now Post-Quantum Ready.');
     return true;
   }
 
@@ -90,52 +75,28 @@ class PQAuraService {
   /// Get or create a session with a remote user
   Future<bool?> getOrCreateSession(String remoteUserId) async {
     if (!_isInitialized) await init();
+    if (hasSession(remoteUserId)) return true;
     
-    if (hasSession(remoteUserId)) {
-      debugPrint('[PQAura] Session already active in memory for: $remoteUserId');
-      return true;
-    }
-    
-    // Try to load from store
-    debugPrint('[PQAura] Checking local store for session with: $remoteUserId');
     final loaded = await loadSession(remoteUserId);
-    if (loaded) {
-      debugPrint('[PQAura] Session loaded from local store for: $remoteUserId');
-      return true;
-    }
+    if (loaded) return true;
     
-    // If not in store, initiate as Alice
-    debugPrint('[PQAura] No local session found. Attempting to initiate as Alice for: $remoteUserId');
-    final initiated = await initSessionAlice(remoteUserId);
-    return initiated;
+    return await initSessionAlice(remoteUserId);
   }
 
   /// Initialize a session with a remote user (initiator - Alice)
   Future<bool> initSessionAlice(String remoteUserId) async {
     try {
-      debugPrint('[PQAura] Handshaking as Alice with user: $remoteUserId');
-
-      // Get remote user's pre-key bundle from server
       final response = await _supabase
           .from('pq_keys')
           .select()
           .eq('user_id', remoteUserId)
           .maybeSingle();
 
-      if (response == null) {
-        debugPrint('[PQAura] No PQ keys found in Supabase for user: $remoteUserId. Handshake aborted.');
-        return false;
-      }
-      debugPrint('[PQAura] Found remote PQ bundle for $remoteUserId');
+      if (response == null) return false;
 
-      // Get our local identity keys
       final localKeys = await _store.getIdentityKeys();
-      if (localKeys == null) {
-        debugPrint('[PQAura] FAILED: No local identity keys found. Run init() first.');
-        return false;
-      }
+      if (localKeys == null) return false;
 
-      // Parse the remote bundle from JSON
       final bundle = response['bundle'] as Map<String, dynamic>;
       final remoteIdentityPk = base64Decode(bundle['identity_pk'] as String);
       final remoteSignedPk = base64Decode(bundle['signed_prekey'] as String);
@@ -143,9 +104,6 @@ class PQAuraService {
           ? base64Decode(bundle['onetime_prekey'] as String)
           : null;
 
-      debugPrint('[PQAura] Decoded remote bundle parts. PK sizes: IPK=${remoteIdentityPk.length}, SPK=${remoteSignedPk.length}');
-
-      // Helper to convert flat hybrid PK (1600 bytes) to Rust-expected JSON structure
       Map<String, dynamic> toHybridPkMap(Uint8List flatPk) {
         return {
           'classic': flatPk.sublist(0, 32),
@@ -153,7 +111,6 @@ class PQAuraService {
         };
       }
 
-      // Build the PreKeyBundle bytes for FFI
       final bundleMap = {
         'identity_pk': toHybridPkMap(remoteIdentityPk),
         'signed_pre_key': toHybridPkMap(remoteSignedPk),
@@ -161,35 +118,24 @@ class PQAuraService {
       };
       final bundleBytes = utf8.encode(jsonEncode(bundleMap));
 
-      // Initiate the handshake
-      debugPrint('[PQAura] Calling Rust init_alice...');
       final initialMsg = _bridge.initAlice(
         remoteBundle: bundleBytes,
         localIdentityPk: localKeys.publicKey.toList(),
         localIdentitySk: localKeys.secretKey.toList(),
       );
 
-      if (initialMsg == null) {
-        debugPrint('[PQAura] CRITICAL FAILED: Alice handshake failed in Rust core library');
-        return false;
-      }
+      if (initialMsg == null) return false;
 
-      debugPrint('[PQAura] Handshake message generated. Saving session state...');
-
-      // Store the session state atomically
       await _store.saveSessionAtomic(remoteUserId, initialMsg.statePtr);
-      debugPrint('[PQAura] Session state persisted atomically for $remoteUserId');
 
-      // Cache the state pointer
       _activeSessions[remoteUserId] = initialMsg.statePtr;
-      
-      // Store the initial message to send as the first PQ message header
+      _corruptSessions.remove(remoteUserId);
       _pendingHandshakes[remoteUserId] = initialMsg;
 
-      debugPrint('[PQAura] Alice handshake SUCCESS. Session is now LIVE with: $remoteUserId');
+      debugPrint('[PQAura] Session initiated with: $remoteUserId');
       return true;
     } catch (e) {
-      debugPrint('[PQAura] Error in initSessionAlice for $remoteUserId: $e');
+      debugPrint('[PQAura] Alice init error ($remoteUserId): $e');
       return false;
     }
   }
@@ -197,38 +143,27 @@ class PQAuraService {
   /// Initialize a session as Bob (responder) using an initial message
   Future<bool> initSessionBob(String senderId, Uint8List header, Uint8List payload) async {
     try {
-      debugPrint('[PQAura] Initializing Bob session (responding to handshake) for: $senderId');
-      
       final localKeys = await _store.getIdentityKeys();
-      if (localKeys == null) {
-        debugPrint('[PQAura] FAILED: Local keys missing for Bob init');
-        return false;
-      }
-
-      // The header already contains the JSON-serialized InitialMessage (from Alice)
-      final initialMsgBytes = header;
+      if (localKeys == null) return false;
 
       final statePtr = _bridge.initBob(
-        initialMessage: initialMsgBytes.toList(),
+        initialMessage: header.toList(),
         localIdentityPk: localKeys.publicKey.toList(),
         localIdentitySk: localKeys.secretKey.toList(),
         localSignedSk: localKeys.secretKey.toList(),
         localOtSk: null,
       );
 
-      if (statePtr == null || statePtr == nullptr) {
-        debugPrint('[PQAura] CRITICAL FAILED: Bob handshake failed in Rust core');
-        return false;
-      }
+      if (statePtr == null || statePtr == nullptr) return false;
 
-      // Cache and persist the new state
       _activeSessions[senderId] = statePtr;
+      _corruptSessions.remove(senderId);
       await _store.saveSessionAtomic(senderId, statePtr);
 
-      debugPrint('[PQAura] Bob handshake SUCCESS. Session is now LIVE with: $senderId');
+      debugPrint('[PQAura] Session established with: $senderId');
       return true;
     } catch (e) {
-      debugPrint('[PQAura] Error in initSessionBob for $senderId: $e');
+      debugPrint('[PQAura] Bob init error ($senderId): $e');
       return false;
     }
   }
@@ -236,23 +171,21 @@ class PQAuraService {
   /// Load an existing session from storage
   Future<bool> loadSession(String remoteUserId) async {
     try {
-      // 1. Try atomic load first
       var statePtr = await _store.loadSessionAtomic(remoteUserId);
       
       if (statePtr != null && statePtr != nullptr) {
         _activeSessions[remoteUserId] = statePtr;
+        _corruptSessions.remove(remoteUserId);
         return true;
       }
 
-      // 2. Fallback to legacy load and migrate
       final serializedState = await _store.loadSession(remoteUserId);
       if (serializedState != null) {
-        debugPrint('[PQAura] Migrating legacy session for: $remoteUserId');
         statePtr = _bridge.deserializeState(serializedState.toList());
         
         if (statePtr != null && statePtr != nullptr) {
           _activeSessions[remoteUserId] = statePtr;
-          // Save in new format immediately
+          _corruptSessions.remove(remoteUserId);
           await _store.saveSessionAtomic(remoteUserId, statePtr);
           return true;
         }
@@ -260,7 +193,7 @@ class PQAuraService {
 
       return false;
     } catch (e) {
-      debugPrint('[PQAura] Error loading session: $e');
+      debugPrint('[PQAura] Load session error: $e');
       return false;
     }
   }
@@ -277,7 +210,6 @@ class PQAuraService {
 
       final state = _activeSessions[recipientId];
       if (state == null) {
-        debugPrint('[PQAura] No active session found for: $recipientId');
         return null;
       }
 
@@ -289,7 +221,6 @@ class PQAuraService {
       final encrypted = _bridge.encrypt(state, plaintextBytes, ad);
 
       if (encrypted == null) {
-        debugPrint('[PQAura] Encryption failed in Rust core');
         return null;
       }
 
@@ -303,13 +234,9 @@ class PQAuraService {
       if (_pendingHandshakes.containsKey(recipientId)) {
         final initialMsg = _pendingHandshakes.remove(recipientId);
         if (initialMsg == null) {
-          debugPrint('[PQAura] Handshake message was null, falling back');
           header = Uint8List.fromList(encrypted.header);
           payload = Uint8List.fromList(encrypted.payload);
         } else {
-          debugPrint(
-              '[PQAura] Packing PQ-X3DH handshake into first message header');
-
           // Bob expects a JSON-serialized InitialMessage for pqa_init_bob
           final aliceHandshake = {
             'alice_identity_pk': {
@@ -365,6 +292,9 @@ class PQAuraService {
         if (!ready) return null;
       }
 
+      // If we know this session is broken, don't keep trying heavy crypto
+      if (_corruptSessions.contains(senderId)) return null;
+
       // If no session, Bob must respond to the handshake
       if (!hasSession(senderId)) {
         final loaded = await loadSession(senderId);
@@ -381,7 +311,10 @@ class PQAuraService {
       final plaintext = _bridge.decrypt(state, header.toList(), payload.toList(), ad);
 
       if (plaintext == null) {
-        debugPrint('[PQAura] Decryption failed for user: $senderId');
+        if (kDebugMode) {
+           debugPrint('[PQAura] Decryption failed for user: $senderId. Marking session as corrupt.');
+        }
+        _corruptSessions.add(senderId);
         return null;
       }
 
@@ -390,7 +323,9 @@ class PQAuraService {
 
       return utf8.decode(plaintext);
     } catch (e) {
-      debugPrint('[PQAura] Decryption error: $e');
+      if (kDebugMode) {
+        debugPrint('[PQAura] Decryption error: $e');
+      }
       return null;
     }
   }
