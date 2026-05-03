@@ -25,24 +25,32 @@ serve(async (req) => {
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   
-  console.log("Received push notification request");
+  const authHeader = req.headers.get('Authorization');
+  console.log(`[Push Request] Auth Header present: ${!!authHeader}`);
 
   try {
     // 0. AUTHENTICATION & VALIDATION
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader) throw new Error('No authorization header')
+    if (!authHeader) {
+      console.error("[Push Auth] Error: Missing Authorization header");
+      throw new Error('No authorization header');
+    }
 
-    const token = authHeader.replace('Bearer ', '').trim()
+    const token = authHeader.replace(/bearer /i, '').trim();
     const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
     const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEY");
 
-    console.log(`[Push Debug] Token length: ${token.length}, startsWith: ${token.substring(0, 10)}...`);
-    console.log(`[Push Debug] PubKey length: ${publishableKey?.length}, SecKey length: ${secretKey?.length}`);
+    // Diagnostic logging
+    console.log(`[Push Auth] Token (first 5): ${token.substring(0, 5)}... Length: ${token.length}`);
+    console.log(`[Push Auth] Available Env Vars: ${Object.keys(Deno.env.toObject()).filter(k => k.includes('SUPABASE') || k.includes('KEY')).join(', ')}`);
+    console.log(`[Push Auth] Keys Found - Pub: ${!!publishableKey} (${publishableKey?.length}), Sec: ${!!secretKey} (${secretKey?.length})`);
 
     // We verify if the request comes from our own database trigger (using secret or publishable key)
-    if (token !== secretKey && token !== publishableKey) {
-      console.error(`[Push Debug] Auth Mismatch. Expected match with Secret or Publishable key.`);
-      throw new Error('Unauthorized: Invalid Webhook Signature/Key')
+    const matchesSecret = !!secretKey && token === secretKey;
+    const matchesPub = !!publishableKey && token === publishableKey;
+
+    if (!matchesSecret && !matchesPub) {
+      console.error(`[Push Auth] Mismatch! Token does not match Secret or Publishable key.`);
+      throw new Error(`Unauthorized: Key Mismatch (T:${token.length} S:${secretKey?.length} P:${publishableKey?.length})`);
     }
 
     const payload = await req.json();    const { record } = payload; 
