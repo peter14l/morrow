@@ -1,9 +1,13 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:oasis/core/storage/secure_storage.dart';
 
 /// A persistent implementation of SignalProtocolStore using SecureStorage
 /// for identity keys, and SharedPreferences for session/prekey state.
-class PersistentSignalStore implements SignalProtocolStore {
+class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeyStore, IdentityKeyStore {
   final InMemorySignalProtocolStore _inMemoryStore;
   final SecureStorage _secureStorage = SecureStorage();
   late final SharedPreferences _prefs;

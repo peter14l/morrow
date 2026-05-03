@@ -6,6 +6,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 
 class GroupMemberSelectionScreen extends StatefulWidget {
   final bool isAddingMembers;
@@ -177,10 +178,10 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundImage: user.photoUrl.isNotEmpty
-                                  ? CachedNetworkImageProvider(user.photoUrl)
+                              backgroundImage: (user.avatarUrl ?? '').isNotEmpty
+                                  ? CachedNetworkImageProvider(user.avatarUrl!)
                                   : null,
-                              child: user.photoUrl.isEmpty
+                              child: (user.avatarUrl ?? '').isEmpty
                                   ? Text(user.username[0].toUpperCase())
                                   : null,
                             ),
@@ -209,7 +210,7 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
                             user.username,
                             style: theme.textTheme.bodySmall,
                             overflow: TextOverflow.ellipsis,
-                            textAlign: Center,
+                            textAlign: TextAlign.center,
                           ),
                         ),
                       ],
@@ -242,10 +243,10 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
                         title: Text(user.username),
                         subtitle: Text(user.bio ?? ''),
                         secondary: CircleAvatar(
-                          backgroundImage: user.photoUrl.isNotEmpty
-                              ? CachedNetworkImageProvider(user.photoUrl)
+                          backgroundImage: (user.avatarUrl ?? '').isNotEmpty
+                              ? CachedNetworkImageProvider(user.avatarUrl!)
                               : null,
-                          child: user.photoUrl.isEmpty
+                          child: (user.avatarUrl ?? '').isEmpty
                               ? Text(user.username[0].toUpperCase())
                               : null,
                         ),

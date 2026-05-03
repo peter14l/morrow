@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/core/storage/secure_storage.dart';
+import 'package:oasis/services/key_management_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 export 'package:oasis/services/key_management_service.dart'
     show EncryptionStatus;

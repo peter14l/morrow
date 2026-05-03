@@ -14,6 +14,8 @@ import 'package:oasis/features/messages/presentation/providers/chat_provider.dar
 import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
