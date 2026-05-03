@@ -43,6 +43,7 @@ import 'package:oasis/features/messages/presentation/widgets/modals/message_opti
 import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
@@ -144,9 +145,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     _chatProvider.onError = (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.red),
-        );
+        context.showErrorSnackBar(error);
       }
     };
 
@@ -649,9 +648,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void _showError(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
+      context.showErrorSnackBar(message);
     }
   }
 
