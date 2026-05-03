@@ -4,10 +4,7 @@ import 'dart:io';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/foundation.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:oasis/services/key_management_service.dart';
-import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
+import 'package:oasis/core/storage/secure_storage.dart';
 
 export 'package:oasis/services/key_management_service.dart'
     show EncryptionStatus;
@@ -23,7 +20,7 @@ class EncryptionService {
   EncryptionService._internal();
 
   final KeyManagementService _keyManager = KeyManagementService();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final SecureStorage _secureStorage = SecureStorage();
   final SupabaseClient _supabase = Supabase.instance.client;
 
   bool _isInitialized = false;

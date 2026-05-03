@@ -7,9 +7,11 @@ import 'package:local_auth/local_auth.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/subscription_service.dart';
 
+import 'package:oasis/core/storage/secure_storage.dart';
+
 /// Vault mode service for biometric protection of sensitive content
 class VaultService with ChangeNotifier {
-  final _storage = const FlutterSecureStorage();
+  final _storage = SecureStorage();
   final _supabase = SupabaseService().client;
 
   static const _vaultEnabledKey = 'vault_enabled';
@@ -36,8 +38,12 @@ class VaultService with ChangeNotifier {
     if (_initCompleter != null) return _initCompleter!.future;
     _initCompleter = Completer<void>();
     
+    debugPrint('[VaultService] Initializing...');
     await _loadIntervals();
     await _refreshVaultItemCache();
+    
+    final enabled = await isVaultEnabled();
+    debugPrint('[VaultService] Initialization complete. Enabled: $enabled');
     
     _isInitDone = true;
     _initCompleter!.complete();
@@ -61,7 +67,7 @@ class VaultService with ChangeNotifier {
           _itemIntervals[_normalizeId(key)] = value.toString();
         });
       } catch (e) {
-        debugPrint('Error loading intervals: $e');
+        debugPrint('[VaultService] Error loading intervals: $e');
       }
     }
   }
@@ -76,12 +82,18 @@ class VaultService with ChangeNotifier {
 
   /// Check if vault is enabled
   Future<bool> isVaultEnabled() async {
-    final enabled = await _storage.read(key: _vaultEnabledKey);
-    return enabled == 'true';
+    try {
+      final enabled = await _storage.read(key: _vaultEnabledKey);
+      return enabled == 'true';
+    } catch (e) {
+      debugPrint('[VaultService] Error reading enabled status: $e');
+      return false;
+    }
   }
 
   /// Enable vault mode
   Future<void> enableVault({String? pin}) async {
+    debugPrint('[VaultService] Enabling vault...');
     await _storage.write(key: _vaultEnabledKey, value: 'true');
     if (pin != null) {
       await _storage.write(key: _vaultPinKey, value: pin);
@@ -91,6 +103,7 @@ class VaultService with ChangeNotifier {
 
   /// Disable vault mode
   Future<void> disableVault() async {
+    debugPrint('[VaultService] Disabling vault...');
     await _storage.write(key: _vaultEnabledKey, value: 'false');
     await _storage.delete(key: _vaultPinKey);
     _unlockedItemIds.clear();

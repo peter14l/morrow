@@ -1,15 +1,11 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oasis/core/storage/secure_storage.dart';
 
-/// A persistent implementation of SignalProtocolStore using flutter_secure_storage
+/// A persistent implementation of SignalProtocolStore using SecureStorage
 /// for identity keys, and SharedPreferences for session/prekey state.
 class PersistentSignalStore implements SignalProtocolStore {
   final InMemorySignalProtocolStore _inMemoryStore;
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final SecureStorage _secureStorage = SecureStorage();
   late final SharedPreferences _prefs;
 
 
@@ -32,7 +28,7 @@ class PersistentSignalStore implements SignalProtocolStore {
   /// Check if local keys exist and belong to the current user
   static Future<bool> hasKeys() async {
     debugPrint('[SignalStore] hasKeys check starting...');
-    const secureStorage = FlutterSecureStorage();
+    final secureStorage = SecureStorage();
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) {
       debugPrint('[SignalStore] hasKeys: No user logged in');
@@ -79,7 +75,7 @@ class PersistentSignalStore implements SignalProtocolStore {
     int registrationId,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    const secureStorage = FlutterSecureStorage();
+    final secureStorage = SecureStorage();
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) throw Exception('Cannot save keys: No user');
 
@@ -101,7 +97,7 @@ class PersistentSignalStore implements SignalProtocolStore {
 
   static Future<PersistentSignalStore> init() async {
     final prefs = await SharedPreferences.getInstance();
-    const secureStorage = FlutterSecureStorage();
+    final secureStorage = SecureStorage();
     final userId = Supabase.instance.client.auth.currentUser?.id;
     if (userId == null) throw Exception('Cannot init SignalStore: No user');
 
