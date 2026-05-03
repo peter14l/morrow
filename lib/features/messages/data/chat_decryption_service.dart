@@ -47,13 +47,32 @@ class ChatDecryptionService {
       String? decryptedContent;
 
       // 1. Try PQ-Aura (Post-Quantum)
-      if (pqAuraHeader != null && pqAuraPayload != null && !isSender) {
+      if (!isSender) {
         final pqaService = PQAuraService.instance;
-        decryptedContent = await pqaService.decryptMessage(
-          senderId,
-          base64Decode(pqAuraHeader),
-          base64Decode(pqAuraPayload),
-        );
+        
+        // Group PQ-Aura check
+        if (encryptedKeys != null && encryptedKeys['protocol'] == 'pq_aura_group') {
+          final headerKey = 'pqa_header_$currentUserId';
+          final payloadKey = 'pqa_payload_$currentUserId';
+          
+          if (encryptedKeys.containsKey(headerKey) && encryptedKeys.containsKey(payloadKey)) {
+            decryptedContent = await pqaService.decryptMessage(
+              senderId,
+              base64Decode(encryptedKeys[headerKey]!),
+              base64Decode(encryptedKeys[payloadKey]!),
+            );
+          }
+        }
+        
+        // Single recipient PQ-Aura check
+        if (decryptedContent == null && pqAuraHeader != null && pqAuraPayload != null) {
+          decryptedContent = await pqaService.decryptMessage(
+            senderId,
+            base64Decode(pqAuraHeader),
+            base64Decode(pqAuraPayload),
+          );
+        }
+
         // Handle Protocol Sync
         if (decryptedContent == 'PROTOCOL_SYNC') {
           return '🔒 Connection optimized';

@@ -81,6 +81,25 @@ class MessagingService extends ChangeNotifier {
     user2Id: user2Id,
   );
 
+  /// Creates a new group conversation.
+  Future<String> createGroupConversation({
+    required String name,
+    required List<String> participantIds,
+  }) => _conversationService.createGroupConversation(
+    name: name,
+    participantIds: participantIds,
+  );
+
+  /// Updates the name of a group conversation.
+  Future<void> updateGroupName(String conversationId, String newName) =>
+      _conversationService.updateGroupName(conversationId, newName);
+
+  /// Adds new members to an existing group.
+  Future<void> addGroupMembers(
+    String conversationId,
+    List<String> participantIds,
+  ) => _conversationService.addGroupMembers(conversationId, participantIds);
+
   /// Subscribes to thread-level updates for a user.
   RealtimeChannel subscribeToConversations({
     required String userId,

@@ -358,7 +358,55 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     });
   }
 
-  void _showSearchModal() {
+  Future<void> _renameGroup() async {
+    final controller = TextEditingController(text: widget.otherUserName);
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Group'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: 'New group name'),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (newName != null && newName.isNotEmpty && mounted) {
+      try {
+        await context.read<ChatProvider>().updateGroupName(newName);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error renaming group: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _addParticipants() async {
+    // Navigate to GroupMemberSelectionScreen but with "Add" mode
+    final List<String>? selectedUserIds = await context.push<List<String>>('/messages/add-members');
+    
+    if (selectedUserIds != null && selectedUserIds.isNotEmpty && mounted) {
+      try {
+        await context.read<ChatProvider>().addMembers(selectedUserIds);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error adding members: $e')),
+        );
+      }
+    }
+  }
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
     showModalBottomSheet(
@@ -772,6 +820,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           ),
           children: [
             _buildProfileHeader(theme, colorScheme),
+            _buildParticipantsSection(theme, colorScheme),
             const SizedBox(height: 24),
             _buildSectionTitle(theme, 'Personalization'),
             _buildDetailCard(
@@ -1161,6 +1210,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   }
 
   Widget _buildProfileHeader(ThemeData theme, ColorScheme colorScheme) {
+    final chatState = context.watch<ChatProvider>().state;
+    final isGroup = chatState.conversationType == 'group';
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -1178,22 +1230,35 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   ? CachedNetworkImageProvider(widget.otherUserAvatar)
                   : null,
               child: widget.otherUserAvatar.isEmpty
-                  ? Text(
-                      widget.otherUserName[0].toUpperCase(),
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        color: colorScheme.primary,
-                      ),
+                  ? Icon(
+                      isGroup ? Icons.group : Icons.person,
+                      size: 48,
+                      color: colorScheme.primary,
                     )
                   : null,
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            widget.otherUserName,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              letterSpacing: -0.5,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Text(
+                  widget.otherUserName,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              if (isGroup)
+                IconButton(
+                  icon: const Icon(FluentIcons.edit_24_regular, size: 20),
+                  onPressed: _renameGroup,
+                  tooltip: 'Rename Group',
+                ),
+            ],
           ),
           const SizedBox(height: 12),
           Container(
@@ -1224,6 +1289,64 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildParticipantsSection(ThemeData theme, ColorScheme colorScheme) {
+    final chatState = context.watch<ChatProvider>().state;
+    if (chatState.conversationType != 'group') return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        _buildSectionTitle(theme, 'Participants'),
+        _buildDetailCard(
+          colorScheme,
+          child: Column(
+            children: [
+              _buildActionTile(
+                icon: FluentIcons.person_add_24_regular,
+                title: 'Add Members',
+                onTap: _addParticipants,
+              ),
+              const Divider(indent: 56),
+              ...chatState.participantIds.map((userId) {
+                // Ideally we'd have a UserProvider to resolve these names
+                return ListTile(
+                  leading: CircleAvatar(
+                    radius: 16,
+                    child: const Icon(Icons.person, size: 16),
+                  ),
+                  title: FutureBuilder<String>(
+                    future: _resolveUsername(userId),
+                    builder: (context, snapshot) => Text(
+                      snapshot.data ?? 'Loading...',
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                  trailing: userId == _authService.currentUser?.id
+                      ? const Text('You', style: TextStyle(fontSize: 12, color: Colors.grey))
+                      : null,
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Future<String> _resolveUsername(String userId) async {
+    try {
+      final response = await SupabaseService().client
+          .from('profiles')
+          .select('username')
+          .eq('id', userId)
+          .single();
+      return response['username'] as String;
+    } catch (e) {
+      return 'Unknown User';
+    }
   }
 
   Widget _buildSectionTitle(ThemeData theme, String title) {

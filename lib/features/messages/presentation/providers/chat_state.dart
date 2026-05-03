@@ -41,6 +41,8 @@ class ChatState {
   final String? otherUserId;
   final String? otherUserAvatar;
   final String? highlightedMessageId;
+  final String conversationType;
+  final List<String> participantIds;
 
   const ChatState({
     this.messages = const [],
@@ -75,6 +77,8 @@ class ChatState {
     this.otherUserId,
     this.otherUserAvatar,
     this.highlightedMessageId,
+    this.conversationType = 'direct',
+    this.participantIds = const [],
   });
 
   ChatState copyWith({
@@ -110,6 +114,8 @@ class ChatState {
     Object? otherUserId = _sentinel,
     Object? otherUserAvatar = _sentinel,
     Object? highlightedMessageId = _sentinel,
+    String? conversationType,
+    List<String>? participantIds,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
@@ -158,6 +164,8 @@ class ChatState {
           otherUserAvatar == _sentinel ? this.otherUserAvatar : (otherUserAvatar as String?),
       highlightedMessageId:
           highlightedMessageId == _sentinel ? this.highlightedMessageId : (highlightedMessageId as String?),
+      conversationType: conversationType ?? this.conversationType,
+      participantIds: participantIds ?? this.participantIds,
     );
   }
 }

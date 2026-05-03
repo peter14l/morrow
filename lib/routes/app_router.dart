@@ -58,6 +58,8 @@ import 'package:oasis/features/stories/presentation/screens/story_view_screen.da
     as new_story_view;
 import 'package:oasis/features/stories/presentation/screens/create_story_screen.dart'
     as new_create_story;
+import 'package:oasis/features/messages/presentation/screens/group_member_selection_screen.dart';
+
 import '../features/auth/presentation/screens/login_screen.dart'
     as login_screen;
 import '../features/auth/presentation/screens/register_screen.dart';
@@ -1286,6 +1288,30 @@ class AppRouter {
                 );
               },
               routes: [
+                GoRoute(
+                  path: 'new-group',
+                  name: 'new_group',
+                  parentNavigatorKey: rootNavigatorKey,
+                  pageBuilder: (context, state) => const MaterialPage(
+                    fullscreenDialog: true,
+                    child: GroupMemberSelectionScreen(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'add-members',
+                  name: 'add_members',
+                  parentNavigatorKey: rootNavigatorKey,
+                  pageBuilder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>?;
+                    return MaterialPage(
+                      fullscreenDialog: true,
+                      child: GroupMemberSelectionScreen(
+                        isAddingMembers: true,
+                        existingParticipantIds: extra?['participantIds'] ?? [],
+                      ),
+                    );
+                  },
+                ),
                 GoRoute(
                   path: ':conversationId',
                   name: 'chat_nested',

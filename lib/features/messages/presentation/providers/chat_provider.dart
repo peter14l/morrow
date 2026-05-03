@@ -265,18 +265,33 @@ class ChatProvider with ChangeNotifier {
   ) async {
     // Try PQ-Aura first (post-quantum encryption)
     try {
-      final pqaEncrypted = await _pqauraService.encryptMessage(
-        recipientId,
-        content,
-      );
-      if (pqaEncrypted != null) {
-        debugPrint('[ChatProvider] Used PQ-Aura encryption for $recipientId');
-        return EncryptedContent(
-          content: base64Encode(pqaEncrypted.payload),
-          pqAuraHeader: base64Encode(pqaEncrypted.header),
-          pqAuraPayload: base64Encode(pqaEncrypted.payload),
-          protocol: 'pq_aura',
+      if (state.conversationType == 'group') {
+        final groupEncrypted = await _pqauraService.encryptGroupMessage(
+          state.participantIds,
+          content,
         );
+        if (groupEncrypted != null) {
+          debugPrint('[ChatProvider] Used Group PQ-Aura encryption');
+          return EncryptedContent(
+            content: '[PQ-Aura Group Message]',
+            encryptedKeys: groupEncrypted,
+            protocol: 'pq_aura_group',
+          );
+        }
+      } else {
+        final pqaEncrypted = await _pqauraService.encryptMessage(
+          recipientId,
+          content,
+        );
+        if (pqaEncrypted != null) {
+          debugPrint('[ChatProvider] Used PQ-Aura encryption for $recipientId');
+          return EncryptedContent(
+            content: base64Encode(pqaEncrypted.payload),
+            pqAuraHeader: base64Encode(pqaEncrypted.header),
+            pqAuraPayload: base64Encode(pqaEncrypted.payload),
+            protocol: 'pq_aura',
+          );
+        }
       }
     } catch (e) {
       debugPrint('[ChatProvider] PQ-Aura encryption failed: $e');
@@ -1088,6 +1103,17 @@ class ChatProvider with ChangeNotifier {
       final details = await _messagingService.getConversationDetails(
         conversationId,
       );
+      
+      // Fetch participants for group support
+      final participantsResponse = await SupabaseService().client
+          .from('conversation_participants')
+          .select('user_id')
+          .eq('conversation_id', conversationId);
+      
+      final List<String> participantIds = (participantsResponse as List)
+          .map((p) => p['user_id'] as String)
+          .toList();
+
       setState(
         (s) => s.copyWith(
           otherUserName: details.otherUserName,
@@ -1095,13 +1121,39 @@ class ChatProvider with ChangeNotifier {
           otherUserAvatar: details.otherUserAvatar,
           whisperMode: 0, // Forced to 0 to disable Whisper Mode
           ephemeralDuration: details.whisperMode == 1 ? 0 : 86400,
+          conversationType: details.type,
+          participantIds: participantIds,
         ),
       );
 
       // Re-check PQ session now that we have details
-      _checkPQAuraSession();
+      if (details.type == 'direct') {
+        _checkPQAuraSession();
+      }
     } catch (e) {
       debugPrint('Error fetching conversation details: $e');
+    }
+  }
+
+  /// Updates the name of a group conversation.
+  Future<void> updateGroupName(String newName) async {
+    try {
+      await _messagingService.updateGroupName(conversationId, newName);
+      setState((s) => s.copyWith(otherUserName: newName));
+    } catch (e) {
+      debugPrint('[ChatProvider] Error updating group name: $e');
+      rethrow;
+    }
+  }
+
+  /// Adds new members to the group.
+  Future<void> addMembers(List<String> newUserIds) async {
+    try {
+      await _messagingService.addGroupMembers(conversationId, newUserIds);
+      await fetchConversationDetails();
+    } catch (e) {
+      debugPrint('[ChatProvider] Error adding members: $e');
+      rethrow;
     }
   }
 

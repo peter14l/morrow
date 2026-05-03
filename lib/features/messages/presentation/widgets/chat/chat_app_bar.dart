@@ -105,20 +105,20 @@ class ChatAppBar extends StatelessWidget {
                                 ? CachedNetworkImageProvider(otherUserAvatar!)
                                 : null,
                             child: (otherUserAvatar ?? '').isEmpty
-                                ? Text(
-                                    (otherUserName.isNotEmpty
-                                            ? otherUserName[0]
-                                            : 'U')
-                                        .toUpperCase(),
-                                    style: TextStyle(
-                                      color: colorScheme.onPrimaryContainer,
-                                      fontSize: 14,
-                                    ),
+                                ? Icon(
+                                    context.read<ChatProvider>().state.conversationType == 'group'
+                                        ? Icons.group
+                                        : Icons.person,
+                                    color: colorScheme.onPrimaryContainer,
+                                    size: 16,
                                   )
                                 : null,
                           ),
                           Consumer<PresenceProvider>(
                             builder: (context, presenceProvider, child) {
+                              if (context.read<ChatProvider>().state.conversationType == 'group') {
+                                return const SizedBox.shrink();
+                              }
                               final isOnline =
                                   otherUserId != null &&
                                   presenceProvider.isUserOnline(otherUserId!);

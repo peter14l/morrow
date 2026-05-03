@@ -280,6 +280,49 @@ class PQAuraService {
     }
   }
 
+  /// Encrypt a message for multiple recipients (group chat)
+  Future<Map<String, dynamic>?> encryptGroupMessage(
+    List<String> recipientIds,
+    String plaintext,
+  ) async {
+    try {
+      final Map<String, dynamic> encryptedHeaders = {};
+      final String currentUserId = _supabase.auth.currentUser?.id ?? '';
+
+      for (final recipientId in recipientIds) {
+        // Skip self
+        if (recipientId == currentUserId) continue;
+
+        final encrypted = await encryptMessage(recipientId, plaintext);
+        if (encrypted != null) {
+          encryptedHeaders['pqa_header_$recipientId'] = base64Encode(encrypted.header);
+          // Payload is same for all if we use same AES key? 
+          // Wait, PQAura encrypts the plaintext directly in the native bridge.
+          // So each recipient gets a different header AND payload.
+          // In pairwise PQ-DR, the message on the server would need to store 
+          // all headers and all payloads? No, usually we encrypt a random AES key 
+          // with PQ-Aura and then encrypt the plaintext with AES.
+          // BUT the current PQAuraService encrypts the plaintext directly.
+          
+          // Let's check how decryptMessage works. It takes header and payload.
+          // If I want to avoid storing N payloads, I should refactor to encrypt a key.
+          
+          // However, to keep it simple and following "Pairwise PQ-DR" strictly as implemented in the bridge:
+          // We will store pqa_header_[id] and pqa_payload_[id].
+          encryptedHeaders['pqa_payload_$recipientId'] = base64Encode(encrypted.payload);
+        }
+      }
+      
+      if (encryptedHeaders.isEmpty) return null;
+      
+      encryptedHeaders['protocol'] = 'pq_aura_group';
+      return encryptedHeaders;
+    } catch (e) {
+      debugPrint('[PQAura] Group encryption error: $e');
+      return null;
+    }
+  }
+
   /// Decrypt a message from a specific user
   Future<String?> decryptMessage(
     String senderId,

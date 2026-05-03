@@ -111,6 +111,17 @@ class ConversationService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) throw Exception('Not authenticated');
 
+      // Fetch conversation metadata
+      final convMeta = await _supabase
+          .from(SupabaseConfig.conversationsTable)
+          .select('type, name, image_url')
+          .eq('id', conversationId)
+          .single();
+
+      final String type = convMeta['type'] as String? ?? 'direct';
+      final String? name = convMeta['name'] as String?;
+      final String? imageUrl = convMeta['image_url'] as String?;
+
       // Fetch participants for this conversation only
       final participants = await _supabase
           .from(SupabaseConfig.conversationParticipantsTable)
@@ -183,11 +194,10 @@ class ConversationService {
 
       final conversationMap = <String, dynamic>{
         'id': conversationId,
-        'type': 'direct',
+        'type': type,
         'other_user_id': other['user_id'],
-        'other_user_name':
-            otherProfile['username'] ?? otherProfile['full_name'] ?? 'Unknown',
-        'other_user_avatar': otherProfile['avatar_url'] ?? '',
+        'other_user_name': type == 'group' ? (name ?? 'Group') : (otherProfile['username'] ?? otherProfile['full_name'] ?? 'Unknown'),
+        'other_user_avatar': type == 'group' ? (imageUrl ?? '') : (otherProfile['avatar_url'] ?? ''),
         'unread_count': unreadCount,
         'is_muted': me['is_muted'] ?? false,
         'last_message': lastMessage,
@@ -202,6 +212,67 @@ class ConversationService {
       debugPrint(
         '[ConversationService] Error fetching conversation details: $e',
       );
+      rethrow;
+    }
+  }
+
+  /// Respond as Bob (receiver) to an initial message
+  Future<String> createGroupConversation({
+    required String name,
+    required List<String> participantIds,
+  }) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) throw Exception('Not authenticated');
+
+      // Ensure creator is in the list
+      if (!participantIds.contains(userId)) {
+        participantIds.add(userId);
+      }
+
+      final response = await _supabase.rpc(
+        'create_group_conversation',
+        params: {
+          'p_name': name,
+          'p_participant_ids': participantIds,
+          'p_created_by': userId,
+        },
+      );
+      return response as String;
+    } catch (e) {
+      debugPrint('[ConversationService] Error creating group chat: $e');
+      rethrow;
+    }
+  }
+
+  /// Update the name of a group conversation.
+  Future<void> updateGroupName(String conversationId, String newName) async {
+    try {
+      await _supabase
+          .from(SupabaseConfig.conversationsTable)
+          .update({'name': newName})
+          .eq('id', conversationId);
+    } catch (e) {
+      debugPrint('[ConversationService] Error updating group name: $e');
+      rethrow;
+    }
+  }
+
+  /// Add new members to an existing group.
+  Future<void> addGroupMembers(
+    String conversationId,
+    List<String> participantIds,
+  ) async {
+    try {
+      await _supabase.rpc(
+        'add_group_members',
+        params: {
+          'p_conversation_id': conversationId,
+          'p_participant_ids': participantIds,
+        },
+      );
+    } catch (e) {
+      debugPrint('[ConversationService] Error adding group members: $e');
       rethrow;
     }
   }

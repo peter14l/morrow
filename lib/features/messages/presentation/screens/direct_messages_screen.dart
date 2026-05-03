@@ -474,6 +474,13 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
         title: const Text('Messages'),
         actions: [
           fluent.Tooltip(
+            message: 'New Group',
+            child: fluent.IconButton(
+              icon: const Icon(FluentIcons.people_add_24_regular, size: 20),
+              onPressed: () => context.push('/messages/new-group'),
+            ),
+          ),
+          fluent.Tooltip(
             message: 'New Message',
             child: fluent.IconButton(
               icon: const Icon(Icons.edit_outlined, size: 20),
@@ -494,8 +501,14 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
               title: 'Messages',
               actions: [
                 IconButton(
+                  icon: const Icon(FluentIcons.people_add_24_regular),
+                  onPressed: () => context.push('/messages/new-group'),
+                  tooltip: 'New Group',
+                ),
+                IconButton(
                   icon: const Icon(Icons.edit_outlined),
                   onPressed: () => context.push('/new-message'),
+                  tooltip: 'New Message',
                 ),
               ],
             ),
@@ -537,6 +550,11 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             ),
             centerTitle: true,
             actions: [
+              IconButton(
+                icon: const Icon(FluentIcons.people_add_24_regular),
+                onPressed: () => context.push('/messages/new-group'),
+                tooltip: 'New Group',
+              ),
               IconButton(
                 icon: Icon(Icons.edit_outlined, color: colorScheme.onSurface),
                 onPressed: () => context.push('/new-message'),
@@ -1148,7 +1166,7 @@ class _BentoItem extends StatelessWidget {
                                               provider,
                                               child,
                                             ) => _PresenceRipple(
-                                              active: provider.isUserOnline(
+                                              active: conversation.type == 'direct' && provider.isUserOnline(
                                                 conversation.otherUserId,
                                               ),
                                               child: CircleAvatar(
@@ -1166,15 +1184,18 @@ class _BentoItem extends StatelessWidget {
                                                     conversation
                                                             .otherUserAvatar
                                                             .isEmpty
-                                                        ? Text(
-                                                          conversation
-                                                              .otherUserName[0]
-                                                              .toUpperCase(),
-                                                          style:
-                                                              const TextStyle(
-                                                                fontSize: 12,
-                                                              ),
-                                                        )
+                                                        ? (conversation.type == 'group'
+                                                            ? const Icon(Icons.group, size: 20)
+                                                            : Text(
+                                                              conversation
+                                                                  .otherUserName.isNotEmpty
+                                                                  ? conversation.otherUserName[0].toUpperCase()
+                                                                  : 'U',
+                                                              style:
+                                                                  const TextStyle(
+                                                                    fontSize: 12,
+                                                                  ),
+                                                            ))
                                                         : null,
                                               ),
                                             ),
@@ -1438,7 +1459,7 @@ class _FloatingBubble extends StatelessWidget {
               Consumer<PresenceProvider>(
                 builder:
                     (context, provider, child) => _PresenceRipple(
-                      active: provider.isUserOnline(conversation.otherUserId),
+                      active: conversation.type == 'direct' && provider.isUserOnline(conversation.otherUserId),
                       child: Container(
                         width: 64,
                         height: 64,
@@ -1469,17 +1490,20 @@ class _FloatingBubble extends StatelessWidget {
                                         fit: BoxFit.cover,
                                       )
                                       : Center(
-                                        child: Text(
-                                          conversation.otherUserName[0]
-                                              .toUpperCase(),
-                                          style: TextStyle(
-                                            color: vibeColor.withValues(
-                                              alpha: 0.8,
+                                        child: conversation.type == 'group'
+                                          ? Icon(Icons.group, color: vibeColor.withValues(alpha: 0.8), size: 30)
+                                          : Text(
+                                            conversation.otherUserName.isNotEmpty
+                                                ? conversation.otherUserName[0].toUpperCase()
+                                                : 'U',
+                                            style: TextStyle(
+                                              color: vibeColor.withValues(
+                                                alpha: 0.8,
+                                              ),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
                                             ),
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 20,
                                           ),
-                                        ),
                                       ),
                             ),
                           ),

@@ -7,6 +7,7 @@ part 'conversation.g.dart';
 abstract class Conversation with _$Conversation {
   const factory Conversation({
     required String id,
+    @Default('direct') String type,
     @JsonKey(name: 'other_user_id') required String otherUserId,
     @JsonKey(name: 'other_user_name') required String otherUserName,
     @JsonKey(name: 'other_user_avatar') required String otherUserAvatar,
@@ -33,11 +34,21 @@ abstract class Conversation with _$Conversation {
     Map<String, dynamic> json,
   ) {
     final Map<String, dynamic> normalized = Map.from(json);
+    final isGroup = json['type'] == 'group';
+    
+    normalized['type'] = json['type'] ?? 'direct';
     normalized['other_user_id'] = json['other_user_id'] ?? '';
-    normalized['other_user_name'] =
-        json['other_user_name'] ?? json['other_user_username'] ?? '';
-    normalized['other_user_avatar'] =
-        json['other_user_avatar'] ?? json['other_user_avatar_url'] ?? '';
+    
+    if (isGroup) {
+      normalized['other_user_name'] = json['name'] ?? 'Group';
+      normalized['other_user_avatar'] = json['image_url'] ?? '';
+    } else {
+      normalized['other_user_name'] =
+          json['other_user_name'] ?? json['other_user_username'] ?? '';
+      normalized['other_user_avatar'] =
+          json['other_user_avatar'] ?? json['other_user_avatar_url'] ?? '';
+    }
+    
     normalized['whisper_mode'] =
         json['whisper_mode'] ?? (json['is_whisper_mode'] == true ? 1 : 0);
     return normalized;
