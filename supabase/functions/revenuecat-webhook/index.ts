@@ -15,7 +15,15 @@ serve(async (req) => {
     
     if (!event) throw new Error('No event found in request body')
 
-    // 1. Setup Supabase
+    // 1. Authenticate Webhook
+    const authHeader = req.headers.get('Authorization')
+    const expectedToken = Deno.env.get('RC_WEBHOOK_AUTH_TOKEN')
+    
+    if (expectedToken && authHeader !== `Bearer ${expectedToken}` && authHeader !== expectedToken) {
+      throw new Error('Unauthorized: Invalid or missing Webhook Auth Token')
+    }
+
+    // 2. Setup Supabase
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!

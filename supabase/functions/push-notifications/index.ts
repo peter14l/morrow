@@ -29,12 +29,20 @@ serve(async (req) => {
 
   try {
     // 0. AUTHENTICATION & VALIDATION
-    // Note: We have simplified this to bypass strictly synced token checks which were causing 
-    // "Unauthorized" and "missing sub claim" errors due to environment key mismatches.
-    // In a high-security production environment, you should use a dedicated Webhook Secret.
-    
-    const payload = await req.json();
-    const { record } = payload; 
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) throw new Error('No authorization header')
+
+    const token = authHeader.replace('Bearer ', '').trim()
+    const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
+    const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEY");
+
+    // We verify if the request comes from our own database trigger (using secret or publishable key)
+    // If it's a user JWT, we could add supabase.auth.getUser() here, but this function is meant for webhooks.
+    if (token !== secretKey && token !== publishableKey) {
+      throw new Error('Unauthorized: Invalid Webhook Signature/Key')
+    }
+
+    const payload = await req.json();    const { record } = payload; 
 
     if (!record || !record.user_id || !record.type) {
       console.error("Invalid payload structure:", payload);

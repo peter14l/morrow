@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { createHmac } from "node:crypto"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,7 +11,20 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   try {
-    const payload = await req.json()
+    const textBody = await req.text()
+    const signature = req.headers.get('X-Razorpay-Signature')
+    const webhookSecret = Deno.env.get('RAZORPAY_WEBHOOK_SECRET')
+    
+    if (webhookSecret && signature) {
+      const expectedSignature = createHmac('sha256', webhookSecret)
+        .update(textBody)
+        .digest('hex')
+      if (expectedSignature !== signature) {
+        throw new Error('Unauthorized: Invalid Webhook Signature')
+      }
+    }
+
+    const payload = JSON.parse(textBody)
     const event = payload.event
     
     console.log(`[Razorpay Webhook] Received event: ${event}`)
