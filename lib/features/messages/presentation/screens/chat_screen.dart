@@ -145,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _chatProvider.onError = (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error), backgroundColor: Colors.red),
+          SnackBar(content: Text(error, style: const TextStyle(color: Colors.white)), backgroundColor: Colors.red),
         );
       }
     };
