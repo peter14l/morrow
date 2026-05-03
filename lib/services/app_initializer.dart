@@ -138,111 +138,117 @@ class InitializedServices {
 
 /// Background FCM message handler (must be top-level).
 @pragma('vm:entry-point')
-Future<void> firebaseMessagingBackgroundHandler(
-  RemoteMessage message,
-) async {
-  // Required for plugin communication in background isolates
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // 1. FAST PATH: Required for plugin communication in background isolates
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize database factory for desktop background processes
-  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
-  
-  // 1. Core initialization for the background isolate
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
-  try {
-    await PrefsStorage.init();
-    // Supabase is critical for decryption (holds user identity)
-    await SupabaseService.initialize();
-    
-    // Give Supabase a tiny moment to restore session from storage
-    int retry = 0;
-    while (Supabase.instance.client.auth.currentUser == null && retry < 10) {
-      await Future.delayed(const Duration(milliseconds: 100));
-      retry++;
-    }
-  } catch (e) {
-    debugPrint('Background Supabase init failed: $e');
-  }
-
+  // 2. Initialize notification manager IMMEDIATELY
+  // We don't await heavy core inits yet to ensure we show SOMETHING before OS kills isolate
   await NotificationManager.instance.initialize(isBackground: true);
 
   debugPrint('Handling a background message: ${message.messageId}');
 
-  // 2. Data processing
-  if (message.data.isNotEmpty || message.notification != null) {
-    final messageType = message.data['message_type'] ?? message.data['type'];
+  if (message.data.isEmpty && message.notification == null) return;
 
-    if (messageType == 'call') {
-      final callId = message.data['call_id'] ?? '';
-      final callerName = message.data['title'] ?? 'Someone';
-      final callerAvatar = message.data['sender_avatar'] ?? '';
-      final callType = message.data['call_type'] == 'video' ? 1 : 0;
-      
-      final params = CallKitParams(
-        id: callId,
-        nameCaller: callerName,
-        appName: 'Oasis',
-        avatar: callerAvatar,
-        handle: 'Incoming Call',
-        type: callType,
-        duration: 30000,
-        textAccept: 'Accept',
-        textDecline: 'Decline',
-        missedCallNotification: const NotificationParams(
-          showNotification: true,
-          isShowCallback: false,
-          subtitle: 'Missed call',
-        ),
-        extra: message.data,
-      );
-      
-      await FlutterCallkitIncoming.showCallkitIncoming(params);
-      return;
-    }
+  final messageType = message.data['message_type'] ?? message.data['type'];
 
-    // 3. Decryption
-    String title =
-        message.data['title'] ??
-        message.notification?.title ??
-        'New Notification';
-    
-    String body =
-        message.data['body'] ??
-        message.notification?.body ?? 
-        '';
-    
-    // Decrypt body if it's an encrypted message
-    try {
-      final decryptedBody = await NotificationDecryptionService().decryptMessage(message.data);
-      if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
-        body = decryptedBody;
-      } else if (body.length > 100 && !body.contains(' ')) {
-         // If body looks like a long base64/hex string and decryption failed, 
-         // better show a placeholder than the raw ciphertext.
-         body = '🔒 Encrypted message';
-      }
-    } catch (e) {
-      debugPrint('Background decryption failed: $e');
-    }
-
-    final String? payload = message.data.isNotEmpty
-        ? jsonEncode(message.data)
-        : null;
-
-    // 4. Show Notification
-    await NotificationManager.instance.showNotification(
-      title: title,
-      body: body,
-      payload: payload,
-      senderAvatar: message.data['sender_avatar'],
-      messageType: message.data['message_type'] ?? message.data['type'],
+  // Handle incoming calls immediately via CallKit (it has its own background logic)
+  if (messageType == 'call') {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
     );
+    final callId = message.data['call_id'] ?? '';
+    final callerName = message.data['title'] ?? 'Someone';
+    final callerAvatar = message.data['sender_avatar'] ?? '';
+    final callType = message.data['call_type'] == 'video' ? 1 : 0;
+
+    final params = CallKitParams(
+      id: callId,
+      nameCaller: callerName,
+      appName: 'Oasis',
+      avatar: callerAvatar,
+      handle: 'Incoming Call',
+      type: callType,
+      duration: 30000,
+      textAccept: 'Accept',
+      textDecline: 'Decline',
+      missedCallNotification: const NotificationParams(
+        showNotification: true,
+        isShowCallback: false,
+        subtitle: 'Missed call',
+      ),
+      extra: message.data,
+    );
+
+    await FlutterCallkitIncoming.showCallkitIncoming(params);
+    return;
+  }
+
+  // 3. Prepare initial notification data (fallback/un-decrypted)
+  String title =
+      message.data['title'] ??
+      message.notification?.title ??
+      'New Notification';
+
+  String body = message.data['body'] ?? message.notification?.body ?? '';
+
+  final String? payload =
+      message.data.isNotEmpty ? jsonEncode(message.data) : null;
+
+  // 4. SHOW NOTIFICATION IMMEDIATELY (Fast Path)
+  // This ensures the user sees the notification even if decryption fails or hangs.
+  // We use a specific ID if it's a DM to allow updating it later.
+  await NotificationManager.instance.showNotification(
+    title: title,
+    body: body.isNotEmpty ? body : 'New Message',
+    payload: payload,
+    senderAvatar: message.data['sender_avatar'],
+    messageType: messageType,
+  );
+
+  // 5. DEEP INITIALIZATION & DECRYPTION (Background Path)
+  // Now that the notification is visible, we can try to decrypt it if needed.
+  try {
+    // Initialize database factory for desktop background processes
+    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
+      sqfliteFfiInit();
+      databaseFactory = databaseFactoryFfi;
+    }
+
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+
+    await PrefsStorage.init();
+    await SupabaseService.initialize();
+
+    // Give Supabase a moment to restore session
+    int retry = 0;
+    while (Supabase.instance.client.auth.currentUser == null && retry < 5) {
+      await Future.delayed(const Duration(milliseconds: 200));
+      retry++;
+    }
+
+    // Attempt decryption
+    final decryptedBody = await NotificationDecryptionService().decryptMessage(
+      message.data,
+    );
+
+    if (decryptedBody != null &&
+        decryptedBody.isNotEmpty &&
+        decryptedBody != body &&
+        !decryptedBody.contains('🔒')) {
+      // 6. UPDATE NOTIFICATION (If decrypted successfully)
+      await NotificationManager.instance.showNotification(
+        title: title,
+        body: decryptedBody,
+        payload: payload,
+        senderAvatar: message.data['sender_avatar'],
+        messageType: messageType,
+      );
+    }
+  } catch (e) {
+    debugPrint('Background decryption path failed: $e');
   }
 }
 
