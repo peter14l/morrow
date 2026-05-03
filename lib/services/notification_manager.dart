@@ -46,7 +46,11 @@ void notificationTapBackground(NotificationResponse response) async {
     // 1. Initialize Supabase
     await SupabaseService.initialize();
     // 2. IMPORTANT: Wait for session restoration in background isolate
-    await SupabaseService().waitForSession(timeoutMs: 1500);
+    // Increased timeout to 3000ms for better reliability on slower devices
+    await SupabaseService().waitForSession(timeoutMs: 3000);
+    
+    // 3. Initialize NotificationManager in the background isolate
+    await NotificationManager.instance.initialize(isBackground: true);
   } catch (e) {
     debugPrint('Background Notification Init Error: $e');
   }
@@ -353,6 +357,19 @@ class NotificationManager {
     AndroidNotificationDetails? androidDetails;
     DarwinNotificationDetails? darwinDetails;
 
+    // Common Android settings for lock screen visibility and high priority
+    const commonAndroidDetails = AndroidNotificationDetails(
+      'oasis_channel',
+      'Oasis Notifications',
+      channelDescription: 'Main notification channel for Oasis',
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+      fullScreenIntent: true, // Crucial for lock screen waking/visibility on many devices
+      visibility: NotificationVisibility.public, // Ensure content is visible on lock screen
+      category: AndroidNotificationCategory.message,
+    );
+
     if (conversationId != null && Platform.isAndroid) {
       final group = _activeMessageGroups[conversationId] ?? [];
       final List<Message> messages = group.map((m) => 
@@ -364,12 +381,15 @@ class NotificationManager {
       ).toList();
 
       androidDetails = AndroidNotificationDetails(
-        'oasis_channel',
-        'Oasis Notifications',
-        channelDescription: 'Main notification channel for Oasis',
-        importance: Importance.max,
-        priority: Priority.high,
-        showWhen: true,
+        commonAndroidDetails.channelId,
+        commonAndroidDetails.channelName,
+        channelDescription: commonAndroidDetails.channelDescription,
+        importance: commonAndroidDetails.importance,
+        priority: commonAndroidDetails.priority,
+        showWhen: commonAndroidDetails.showWhen,
+        fullScreenIntent: commonAndroidDetails.fullScreenIntent,
+        visibility: commonAndroidDetails.visibility,
+        category: commonAndroidDetails.category,
         styleInformation: MessagingStyleInformation(
           Person(name: 'Me'), // Receiver
           conversationTitle: group.length > 1 ? 'Messages from $title' : null,
@@ -401,12 +421,15 @@ class NotificationManager {
         );
 
         androidDetails = AndroidNotificationDetails(
-          'oasis_channel',
-          'Oasis Notifications',
-          channelDescription: 'Main notification channel for Oasis',
-          importance: Importance.max,
-          priority: Priority.high,
-          showWhen: true,
+          commonAndroidDetails.channelId,
+          commonAndroidDetails.channelName,
+          channelDescription: commonAndroidDetails.channelDescription,
+          importance: commonAndroidDetails.importance,
+          priority: commonAndroidDetails.priority,
+          showWhen: commonAndroidDetails.showWhen,
+          fullScreenIntent: commonAndroidDetails.fullScreenIntent,
+          visibility: commonAndroidDetails.visibility,
+          category: commonAndroidDetails.category,
           largeIcon: FilePathAndroidBitmap(largeIconPath),
           actions: conversationId != null ? [
             AndroidNotificationAction(
@@ -439,15 +462,15 @@ class NotificationManager {
     }
 
     androidDetails ??= AndroidNotificationDetails(
-      'oasis_channel',
-      'Oasis Notifications',
-      channelDescription: 'Main notification channel for Oasis',
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-      fullScreenIntent: true,
-      category: AndroidNotificationCategory.message,
-      visibility: NotificationVisibility.public,
+      commonAndroidDetails.channelId,
+      commonAndroidDetails.channelName,
+      channelDescription: commonAndroidDetails.channelDescription,
+      importance: commonAndroidDetails.importance,
+      priority: commonAndroidDetails.priority,
+      showWhen: commonAndroidDetails.showWhen,
+      fullScreenIntent: commonAndroidDetails.fullScreenIntent,
+      visibility: commonAndroidDetails.visibility,
+      category: commonAndroidDetails.category,
       actions: conversationId != null ? [
         AndroidNotificationAction(
           'reply_action',
@@ -529,72 +552,83 @@ class NotificationManager {
     required String? payload,
     required String content,
   }) async {
-    if (payload == null) return;
+    if (payload == null) {
+      debugPrint('[NotificationManager] Reply failed: Payload is null');
+      return;
+    }
+    
     try {
       final data = jsonDecode(payload);
       final conversationId = data['conversation_id'];
+      
+      if (conversationId == null) {
+        debugPrint('[NotificationManager] Reply failed: conversation_id missing in payload');
+        return;
+      }
+
       final client = Supabase.instance.client;
       final userId = client.auth.currentUser?.id;
 
       if (userId == null) {
-        debugPrint('[NotificationManager] Reply failed: No active session');
-        return;
-      }
-
-      if (conversationId != null) {
-        String finalContent = content;
-        Map<String, String>? encryptedKeys;
-        String? iv;
-
-        // E2EE Support in background:
-        // Try to fetch recipient keys to encrypt if it's an E2EE conversation
-        try {
-          final conversation = await client
-              .from('conversations')
-              .select('is_encrypted')
-              .eq('id', conversationId)
-              .maybeSingle();
-
-          if (conversation != null && conversation['is_encrypted'] == true) {
-             final encryptionService = EncryptionService();
-             if (!encryptionService.isInitialized) await encryptionService.init();
-
-             // Fetch other participants' public keys
-             final participants = await client
-                .from('conversation_participants')
-                .select('profiles(public_key)')
-                .eq('conversation_id', conversationId)
-                .neq('user_id', userId);
-             
-             final List<String> publicKeys = [];
-             for (final p in participants) {
-               final key = p['profiles']?['public_key'];
-               if (key != null) publicKeys.add(key as String);
-             }
-
-             if (publicKeys.isNotEmpty) {
-               final encrypted = await encryptionService.encryptMessage(content, publicKeys);
-               finalContent = encrypted.encryptedContent;
-               encryptedKeys = encrypted.encryptedKeys;
-               iv = encrypted.iv;
-               debugPrint('[NotificationManager] Reply encrypted for E2EE chat');
-             }
-          }
-        } catch (e) {
-          debugPrint('[NotificationManager] E2EE check/encryption failed: $e');
-          // Fallback to unencrypted (or let RPC handle it if it enforces E2EE)
+        debugPrint('[NotificationManager] Reply failed: No active session after wait');
+        // Try one more immediate check for the session
+        final session = client.auth.currentSession;
+        if (session == null) {
+          debugPrint('[NotificationManager] Reply failed: Session still null, cannot send');
+          return;
         }
-
-        // Use RPC directly to avoid service dependency issues in background isolate
-        await client.rpc('send_message_v3', params: {
-          'p_conversation_id': conversationId,
-          'p_content': finalContent,
-          'p_message_type': 'text',
-          'p_encrypted_keys': encryptedKeys,
-          'p_iv': iv,
-        });
-        debugPrint('[NotificationManager] Reply sent to $conversationId');
       }
+
+      String finalContent = content;
+      Map<String, String>? encryptedKeys;
+      String? iv;
+
+      // E2EE Support in background:
+      try {
+        final conversation = await client
+            .from('conversations')
+            .select('is_encrypted')
+            .eq('id', conversationId)
+            .maybeSingle();
+
+        if (conversation != null && conversation['is_encrypted'] == true) {
+           final encryptionService = EncryptionService();
+           if (!encryptionService.isInitialized) await encryptionService.init();
+
+           // Fetch other participants' public keys
+           final participants = await client
+              .from('conversation_participants')
+              .select('profiles(public_key)')
+              .eq('conversation_id', conversationId)
+              .neq('user_id', userId);
+           
+           final List<String> publicKeys = [];
+           for (final p in participants) {
+             final key = p['profiles']?['public_key'];
+             if (key != null) publicKeys.add(key as String);
+           }
+
+           if (publicKeys.isNotEmpty) {
+             final encrypted = await encryptionService.encryptMessage(content, publicKeys);
+             finalContent = encrypted.encryptedContent;
+             encryptedKeys = encrypted.encryptedKeys;
+             iv = encrypted.iv;
+             debugPrint('[NotificationManager] Reply encrypted for E2EE chat');
+           }
+        }
+      } catch (e) {
+        debugPrint('[NotificationManager] E2EE check/encryption failed: $e');
+      }
+
+      await client.rpc('send_message_v3', params: {
+        'p_conversation_id': conversationId,
+        'p_content': finalContent,
+        'p_message_type': 'text',
+        'p_encrypted_keys': encryptedKeys,
+        'p_iv': iv,
+      });
+      debugPrint('[NotificationManager] Reply successfully sent to $conversationId');
+      
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification reply: $e');
     }
@@ -602,10 +636,20 @@ class NotificationManager {
 
   /// Handle DM like action from notification
   Future<void> _handleLike({required String? payload}) async {
-    if (payload == null) return;
+    if (payload == null) {
+      debugPrint('[NotificationManager] Like failed: Payload is null');
+      return;
+    }
+
     try {
       final data = jsonDecode(payload);
-      final messageId = data['message_id'];
+      final messageId = data['message_id'] ?? data['id'];
+      
+      if (messageId == null) {
+        debugPrint('[NotificationManager] Like failed: message_id missing in payload');
+        return;
+      }
+
       final client = Supabase.instance.client;
       final userId = client.auth.currentUser?.id;
 
@@ -619,17 +663,16 @@ class NotificationManager {
           client.auth.currentUser?.email?.split('@').first ??
           'User';
 
-      if (messageId != null) {
-        // Use RPC or table insert directly for reactions
-        await client.from('message_reactions').upsert({
-          'message_id': messageId,
-          'user_id': userId,
-          'emoji': '❤️',
-          'username': username,
-          'created_at': DateTime.now().toIso8601String(),
-        }, onConflict: 'message_id, user_id');
-        debugPrint('[NotificationManager] Like reaction added to $messageId');
-      }
+      // Use RPC or table insert directly for reactions
+      await client.from('message_reactions').upsert({
+        'message_id': messageId,
+        'user_id': userId,
+        'emoji': '❤️',
+        'username': username,
+        'created_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'message_id, user_id');
+      debugPrint('[NotificationManager] Like reaction successfully added to $messageId');
+      
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification like: $e');
     }
@@ -721,6 +764,7 @@ class NotificationManager {
           playSound: true,
           enableVibration: true,
           showBadge: true,
+          visibility: NotificationVisibility.public,
         ),
       );
     }
