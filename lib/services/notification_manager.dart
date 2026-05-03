@@ -189,6 +189,11 @@ class NotificationManager {
       finalBody = '📷 Photo';
     }
 
+    // Hide ciphertext if it hasn't been decrypted yet
+    if (finalBody.length > 60 && !finalBody.contains(' ') && !finalBody.contains('🔒')) {
+      finalBody = '🔒 Encrypted message';
+    }
+
     // Handle Grouping for DMs
     String? conversationId;
     if (payload != null && (messageType == 'dm' || messageType == 'message' || messageType == 'text')) {
@@ -196,7 +201,6 @@ class NotificationManager {
         final data = jsonDecode(payload);
         conversationId = data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
       } catch (_) {
-        // If payload is just the conversationId string (from some sources)
         if (payload.length > 20 && !payload.contains('{')) conversationId = payload;
       }
     }
@@ -204,20 +208,38 @@ class NotificationManager {
     if (conversationId != null) {
       final group = _activeMessageGroups.putIfAbsent(conversationId, () => []);
       
-      // Check if this message is already in the group (avoid duplicates during background updates)
-      final bool alreadyExists = group.any((m) => m.content == finalBody && m.senderName == title);
-      
-      if (!alreadyExists) {
-        group.add(NotificationMessage(
+      // Check if we are updating an existing "Encrypted message" placeholder
+      final int existingPlaceholderIndex = group.indexWhere(
+        (m) => m.senderName == title && (m.content == '🔒 Encrypted message' || (m.content.length > 60 && !m.content.contains(' ')))
+      );
+
+      final bool isDecryptedUpdate = existingPlaceholderIndex != -1 && 
+                                     finalBody != '🔒 Encrypted message' && 
+                                     !(finalBody.length > 60 && !finalBody.contains(' '));
+
+      if (isDecryptedUpdate) {
+        // Replace the placeholder with the actual content
+        group[existingPlaceholderIndex] = NotificationMessage(
           senderName: title,
           content: finalBody,
           timestamp: DateTime.now(),
-        ));
-
-        // Keep only last 5 messages
-        if (group.length > 5) {
-          group.removeAt(0);
+        );
+      } else {
+        // Check for exact duplicate to avoid double-posting the same decrypted message
+        final bool alreadyExists = group.any((m) => m.content == finalBody && m.senderName == title);
+        
+        if (!alreadyExists) {
+          group.add(NotificationMessage(
+            senderName: title,
+            content: finalBody,
+            timestamp: DateTime.now(),
+          ));
         }
+      }
+
+      // Keep only last 5 messages
+      if (group.length > 5) {
+        group.removeAt(0);
       }
 
       // On non-Android platforms, we manually build a multi-line body for the group

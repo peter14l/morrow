@@ -186,30 +186,14 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     return;
   }
 
-  // 3. Prepare initial notification data (fallback/un-decrypted)
-  String title =
-      message.data['title'] ??
-      message.notification?.title ??
-      'New Notification';
+  // 3. Prepare initial notification data
+  final String title = message.data['title'] ?? message.notification?.title ?? 'New Notification';
+  final String body = message.data['body'] ?? message.notification?.body ?? '';
+  final String? payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
 
-  String body = message.data['body'] ?? message.notification?.body ?? '';
-
-  final String? payload =
-      message.data.isNotEmpty ? jsonEncode(message.data) : null;
-
-  // 4. SHOW NOTIFICATION IMMEDIATELY (Fast Path)
-  // This ensures the user sees the notification even if decryption fails or hangs.
-  // We use a specific ID if it's a DM to allow updating it later.
-  await NotificationManager.instance.showNotification(
-    title: title,
-    body: body.isNotEmpty ? body : 'New Message',
-    payload: payload,
-    senderAvatar: message.data['sender_avatar'],
-    messageType: messageType,
-  );
-
-  // 5. DEEP INITIALIZATION & DECRYPTION (Background Path)
-  // Now that the notification is visible, we can try to decrypt it if needed.
+  // 4. DEEP INITIALIZATION & DECRYPTION (Background Path)
+  // We initialize services and attempt decryption before showing the notification
+  // to ensure the user only sees readable content.
   try {
     // Initialize database factory for desktop background processes
     if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
@@ -228,25 +212,45 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await SupabaseService().waitForSession(timeoutMs: 1500);
 
     // Attempt decryption
-    final decryptedBody = await NotificationDecryptionService().decryptMessage(
-      message.data,
-    );
-
-    if (decryptedBody != null &&
-        decryptedBody.isNotEmpty &&
-        decryptedBody != body &&
-        !decryptedBody.contains('🔒')) {
-      // 6. UPDATE NOTIFICATION (If decrypted successfully)
-      await NotificationManager.instance.showNotification(
-        title: title,
-        body: decryptedBody,
-        payload: payload,
-        senderAvatar: message.data['sender_avatar'],
-        messageType: messageType,
+    String finalBody = body.isNotEmpty ? body : 'New Message';
+    try {
+      final decryptedBody = await NotificationDecryptionService().decryptMessage(
+        message.data,
       );
+      if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
+        finalBody = decryptedBody;
+      }
+    } catch (e) {
+      debugPrint('Decryption failed: $e');
     }
+
+    // Hide ciphertext if it still hasn't been decrypted or if decryption failed
+    if (finalBody.length > 60 && !finalBody.contains(' ') && !finalBody.contains('🔒')) {
+      finalBody = 'New Message'; // Use a generic fallback instead of showing the key or a lock icon
+    }
+
+    // 4. SHOW NOTIFICATION (Single call with final content)
+    await NotificationManager.instance.showNotification(
+      title: title,
+      body: finalBody,
+      payload: payload,
+      senderAvatar: message.data['sender_avatar'],
+      messageType: messageType,
+    );
   } catch (e) {
-    debugPrint('Background decryption path failed: $e');
+    debugPrint('Background processing path failed: $e');
+    
+    // Ultimate fallback for any catastrophic failure
+    String fallbackBody = body.isNotEmpty ? body : 'New Message';
+    if (fallbackBody.length > 60 && !fallbackBody.contains(' ')) fallbackBody = 'New Message';
+
+    await NotificationManager.instance.showNotification(
+      title: title,
+      body: fallbackBody,
+      payload: payload,
+      senderAvatar: message.data['sender_avatar'],
+      messageType: messageType,
+    );
   }
 }
 
