@@ -90,12 +90,27 @@ class DesktopWindowService extends WindowListener with TrayListener {
     }
   }
 
+  bool? _lastEffectEnabled;
+  String? _lastEffectType;
+  bool? _lastEffectIsDark;
+
   Future<void> setWindowEffect({
     required bool enabled,
     String effect = 'mica',
     bool isDark = true,
   }) async {
     if (!Platform.isWindows) return;
+
+    // Avoid redundant native calls
+    if (enabled == _lastEffectEnabled &&
+        effect == _lastEffectType &&
+        isDark == _lastEffectIsDark) {
+      return;
+    }
+
+    _lastEffectEnabled = enabled;
+    _lastEffectType = effect;
+    _lastEffectIsDark = isDark;
 
     if (!enabled) {
       await Window.setEffect(effect: WindowEffect.disabled);
@@ -108,7 +123,6 @@ class DesktopWindowService extends WindowListener with TrayListener {
 
     switch (effect) {
       case 'micaAlt':
-        // Fallback to mica if micaAlt is missing in the current package version
         windowEffect = WindowEffect.mica;
         break;
       case 'acrylic':
@@ -167,15 +181,8 @@ class DesktopWindowService extends WindowListener with TrayListener {
 
   @override
   Future<void> onWindowFocus() async {
-    // Ensure window is shown and focused when OS focus events occur
-    if (Platform.isWindows) {
-      final isMinimized = await windowManager.isMinimized();
-      if (isMinimized) {
-        await windowManager.restore();
-      }
-      // Use setSkipTaskbar to ensure it appears in switcher
-      await windowManager.setSkipTaskbar(false);
-    }
+    // OS handles focus and restoration naturally. 
+    // Manual manipulation here can cause native crashes on some Windows builds.
   }
 
   @override
