@@ -175,7 +175,7 @@ class PQAuraStore {
 
   /// Get the local file path for a session state
   Future<String> _getSessionPath(String remoteUserId) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationSupportDirectory();
     final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
     if (!await pqaDir.exists()) {
       await pqaDir.create(recursive: true);
@@ -223,7 +223,7 @@ class PQAuraStore {
 
   /// Get all session user IDs
   Future<List<String>> getAllSessionUserIds() async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationSupportDirectory();
     final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
     if (!await pqaDir.exists()) return [];
 
@@ -268,7 +268,7 @@ class PQAuraStore {
     }
 
     // Clear session directory
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationSupportDirectory();
     final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
     if (await pqaDir.exists()) {
       await pqaDir.delete(recursive: true);
