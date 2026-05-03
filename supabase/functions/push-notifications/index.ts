@@ -25,23 +25,26 @@ serve(async (req) => {
 
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
   
+  const oasisKey = req.headers.get('X-Oasis-Key');
   const authHeader = req.headers.get('Authorization');
-  console.log(`[Push Request] Auth Header present: ${!!authHeader}`);
+  
+  console.log(`[Push Request] X-Oasis-Key present: ${!!oasisKey}, Auth Header present: ${!!authHeader}`);
 
   try {
     // 0. AUTHENTICATION & VALIDATION
-    if (!authHeader) {
-      console.error("[Push Auth] Error: Missing Authorization header");
-      throw new Error('No authorization header');
+    // We prioritize the custom X-Oasis-Key to bypass Gateway JWT validation issues
+    const token = oasisKey || (authHeader ? authHeader.replace(/bearer /i, '').trim() : null);
+
+    if (!token) {
+      console.error("[Push Auth] Error: Missing Authentication token (X-Oasis-Key or Authorization)");
+      throw new Error('No authentication token provided');
     }
 
-    const token = authHeader.replace(/bearer /i, '').trim();
     const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
     const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEY");
 
     // Diagnostic logging
     console.log(`[Push Auth] Token (first 5): ${token.substring(0, 5)}... Length: ${token.length}`);
-    console.log(`[Push Auth] Available Env Vars: ${Object.keys(Deno.env.toObject()).filter(k => k.includes('SUPABASE') || k.includes('KEY')).join(', ')}`);
     console.log(`[Push Auth] Keys Found - Pub: ${!!publishableKey} (${publishableKey?.length}), Sec: ${!!secretKey} (${secretKey?.length})`);
 
     // We verify if the request comes from our own database trigger (using modern secret or publishable key)
