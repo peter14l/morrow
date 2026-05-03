@@ -570,13 +570,8 @@ class NotificationManager {
       final userId = client.auth.currentUser?.id;
 
       if (userId == null) {
-        debugPrint('[NotificationManager] Reply failed: No active session after wait');
-        // Try one more immediate check for the session
-        final session = client.auth.currentSession;
-        if (session == null) {
-          debugPrint('[NotificationManager] Reply failed: Session still null, cannot send');
-          return;
-        }
+        debugPrint('[NotificationManager] Reply failed: No active session');
+        return;
       }
 
       String finalContent = content;
@@ -600,7 +595,7 @@ class NotificationManager {
               .from('conversation_participants')
               .select('profiles(public_key)')
               .eq('conversation_id', conversationId)
-              .neq('user_id', userId);
+              .neq('user_id', userId!);
            
            final List<String> publicKeys = [];
            for (final p in participants) {
@@ -764,7 +759,6 @@ class NotificationManager {
           playSound: true,
           enableVibration: true,
           showBadge: true,
-          visibility: NotificationVisibility.public,
         ),
       );
     }
