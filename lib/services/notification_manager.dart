@@ -14,6 +14,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:oasis/services/notification_decryption_service.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
+import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 
 /// Represents a message in a notification group history
@@ -42,12 +43,14 @@ void notificationTapBackground(NotificationResponse response) async {
   }
 
   try {
-    // Basic initialization for Supabase to allow DB operations
+    // 1. Initialize Supabase
     await SupabaseService.initialize();
+    // 2. IMPORTANT: Wait for session restoration in background isolate
+    await SupabaseService().waitForSession(timeoutMs: 1500);
   } catch (e) {
     debugPrint('Background Notification Init Error: $e');
   }
-  
+
   NotificationManager.instance.handleNotificationResponse(response);
 }
 
@@ -200,15 +203,21 @@ class NotificationManager {
 
     if (conversationId != null) {
       final group = _activeMessageGroups.putIfAbsent(conversationId, () => []);
-      group.add(NotificationMessage(
-        senderName: title,
-        content: finalBody,
-        timestamp: DateTime.now(),
-      ));
+      
+      // Check if this message is already in the group (avoid duplicates during background updates)
+      final bool alreadyExists = group.any((m) => m.content == finalBody && m.senderName == title);
+      
+      if (!alreadyExists) {
+        group.add(NotificationMessage(
+          senderName: title,
+          content: finalBody,
+          timestamp: DateTime.now(),
+        ));
 
-      // Keep only last 5 messages
-      if (group.length > 5) {
-        group.removeAt(0);
+        // Keep only last 5 messages
+        if (group.length > 5) {
+          group.removeAt(0);
+        }
       }
 
       // On non-Android platforms, we manually build a multi-line body for the group
@@ -456,7 +465,7 @@ class NotificationManager {
   }
 
   /// Master response handler for all local notification actions.
-  void handleNotificationResponse(NotificationResponse response) {
+  void handleNotificationResponse(NotificationResponse response) async {
     if (response.actionId == 'accept_call' ||
         response.actionId == 'decline_call') {
       _handleCallAction(
@@ -469,13 +478,24 @@ class NotificationManager {
     if (response.actionId == 'reply_action') {
       final content = response.input;
       if (content != null && content.isNotEmpty) {
-        _handleReply(payload: response.payload, content: content);
+        await _handleReply(payload: response.payload, content: content);
+        
+        // Android: Clear the input spinner by updating or canceling the notification
+        if (response.id != null) {
+          await _localNotificationsPlugin.cancel(response.id!);
+        }
       }
       return;
     }
 
     if (response.actionId == 'like_action') {
-      _handleLike(payload: response.payload);
+      await _handleLike(payload: response.payload);
+      
+      // Feedback: Briefly update or cancel to show action complete
+      if (response.id != null) {
+        // For 'Like', we can just cancel or show a small feedback
+        await _localNotificationsPlugin.cancel(response.id!);
+      }
       return;
     }
 
@@ -492,14 +512,64 @@ class NotificationManager {
       final data = jsonDecode(payload);
       final conversationId = data['conversation_id'];
       final client = Supabase.instance.client;
-      final senderId = client.auth.currentUser?.id;
+      final userId = client.auth.currentUser?.id;
+
+      if (userId == null) {
+        debugPrint('[NotificationManager] Reply failed: No active session');
+        return;
+      }
 
       if (conversationId != null) {
+        String finalContent = content;
+        Map<String, String>? encryptedKeys;
+        String? iv;
+
+        // E2EE Support in background:
+        // Try to fetch recipient keys to encrypt if it's an E2EE conversation
+        try {
+          final conversation = await client
+              .from('conversations')
+              .select('is_encrypted')
+              .eq('id', conversationId)
+              .maybeSingle();
+
+          if (conversation != null && conversation['is_encrypted'] == true) {
+             final encryptionService = EncryptionService();
+             if (!encryptionService.isInitialized) await encryptionService.init();
+
+             // Fetch other participants' public keys
+             final participants = await client
+                .from('conversation_participants')
+                .select('profiles(public_key)')
+                .eq('conversation_id', conversationId)
+                .neq('user_id', userId);
+             
+             final List<String> publicKeys = [];
+             for (final p in participants) {
+               final key = p['profiles']?['public_key'];
+               if (key != null) publicKeys.add(key as String);
+             }
+
+             if (publicKeys.isNotEmpty) {
+               final encrypted = await encryptionService.encryptMessage(content, publicKeys);
+               finalContent = encrypted.encryptedContent;
+               encryptedKeys = encrypted.encryptedKeys;
+               iv = encrypted.iv;
+               debugPrint('[NotificationManager] Reply encrypted for E2EE chat');
+             }
+          }
+        } catch (e) {
+          debugPrint('[NotificationManager] E2EE check/encryption failed: $e');
+          // Fallback to unencrypted (or let RPC handle it if it enforces E2EE)
+        }
+
         // Use RPC directly to avoid service dependency issues in background isolate
         await client.rpc('send_message_v3', params: {
           'p_conversation_id': conversationId,
-          'p_content': content,
+          'p_content': finalContent,
           'p_message_type': 'text',
+          'p_encrypted_keys': encryptedKeys,
+          'p_iv': iv,
         });
         debugPrint('[NotificationManager] Reply sent to $conversationId');
       }
@@ -516,11 +586,18 @@ class NotificationManager {
       final messageId = data['message_id'];
       final client = Supabase.instance.client;
       final userId = client.auth.currentUser?.id;
+
+      if (userId == null) {
+        debugPrint('[NotificationManager] Like failed: No active session');
+        return;
+      }
+
       final username =
           client.auth.currentUser?.userMetadata?['username'] ??
+          client.auth.currentUser?.email?.split('@').first ??
           'User';
 
-      if (messageId != null && userId != null) {
+      if (messageId != null) {
         // Use RPC or table insert directly for reactions
         await client.from('message_reactions').upsert({
           'message_id': messageId,
@@ -528,7 +605,7 @@ class NotificationManager {
           'emoji': '❤️',
           'username': username,
           'created_at': DateTime.now().toIso8601String(),
-        });
+        }, onConflict: 'message_id, user_id');
         debugPrint('[NotificationManager] Like reaction added to $messageId');
       }
     } catch (e) {

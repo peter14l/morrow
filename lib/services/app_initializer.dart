@@ -222,12 +222,8 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await PrefsStorage.init();
     await SupabaseService.initialize();
 
-    // Give Supabase a moment to restore session
-    int retry = 0;
-    while (Supabase.instance.client.auth.currentUser == null && retry < 5) {
-      await Future.delayed(const Duration(milliseconds: 200));
-      retry++;
-    }
+    // Ensure session is restored before decryption
+    await SupabaseService().waitForSession(timeoutMs: 1500);
 
     // Attempt decryption
     final decryptedBody = await NotificationDecryptionService().decryptMessage(

@@ -97,6 +97,20 @@ class SupabaseService {
     }
   }
 
+  /// Wait for the session to be restored from storage.
+  /// Useful in background isolates.
+  Future<bool> waitForSession({int timeoutMs = 2000}) async {
+    if (!isInitialized) return false;
+    
+    int elapsed = 0;
+    while (client.auth.currentUser == null && elapsed < timeoutMs) {
+      await Future.delayed(const Duration(milliseconds: 100));
+      elapsed += 100;
+    }
+    
+    return client.auth.currentUser != null;
+  }
+
   // Auth methods
   GoTrueClient get auth {
     _checkInitialized();

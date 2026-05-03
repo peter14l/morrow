@@ -51,16 +51,25 @@ class NotificationDecryptionService {
     try {
       // Initialize encryption services if needed
       if (!_encryptionService.isInitialized) {
+        debugPrint('[NotificationDecryption] Initializing EncryptionService...');
         await _encryptionService.init();
       }
       if (!_signalService.isInitialized) {
+        debugPrint('[NotificationDecryption] Initializing SignalService...');
         await _signalService.init();
       }
 
+      final userId = _authService.currentUser?.id;
       final senderId = data['sender_id'] ?? data['actor_id'];
+      
+      if (userId == null) {
+        debugPrint('[NotificationDecryption] Decryption failed: No active session/userId');
+        return '🔒 New Message';
+      }
 
       // 1. Try Signal decryption first if applicable
       if (hasSignalType && senderId != null) {
+        debugPrint('[NotificationDecryption] Attempting Signal decryption...');
         final signalType = int.tryParse(data['signal_message_type'].toString());
         if (signalType != null) {
           try {
@@ -80,6 +89,7 @@ class NotificationDecryptionService {
                 data['signal_sender_content'] != null &&
                 hasEncryptedKeys &&
                 data['iv'] != null) {
+              debugPrint('[NotificationDecryption] Signal returned placeholder, trying RSA fallback...');
               return await _decryptRSAFallback(data);
             }
             
@@ -92,6 +102,7 @@ class NotificationDecryptionService {
 
       // 2. Try RSA decryption
       if (hasEncryptedKeys && data['iv'] != null) {
+        debugPrint('[NotificationDecryption] Attempting RSA decryption...');
         return await _decryptRSAFallback(data);
       }
     } catch (e) {
@@ -100,6 +111,7 @@ class NotificationDecryptionService {
 
     // If we reached here, decryption failed or metadata was missing
     if (isGenericPlaceholder || hasEncryptedKeys || hasSignalType || isLikelyEncrypted) {
+      debugPrint('[NotificationDecryption] Decryption reached fallback: placeholder returned');
       return '🔒 Encrypted message';
     }
 
