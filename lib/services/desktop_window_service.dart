@@ -23,10 +23,14 @@ class DesktopWindowService extends WindowListener with TrayListener {
     try {
       await windowManager.setBackgroundColor(Colors.transparent);
     } catch (e) {
-      debugPrint('DesktopWindowService: Failed to set transparent background: $e');
+      debugPrint(
+        'DesktopWindowService: Failed to set transparent background: $e',
+      );
     }
-    await windowManager.setTitleBarStyle(TitleBarStyle.hidden,
-        windowButtonVisibility: false);
+    await windowManager.setTitleBarStyle(
+      TitleBarStyle.hidden,
+      windowButtonVisibility: false,
+    );
 
     // Set title
     await windowManager.setTitle('   Oasis');
@@ -109,9 +113,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
         break;
       case 'acrylic':
         windowEffect = WindowEffect.acrylic;
-        color = isDark 
-            ? const Color(0xCC1A1D24) 
-            : const Color(0xCCFFFFFF);
+        color = isDark ? const Color(0xCC1A1D24) : const Color(0xCCFFFFFF);
         break;
       case 'mica':
       default:
@@ -125,10 +127,14 @@ class DesktopWindowService extends WindowListener with TrayListener {
         dark: isDark,
         color: color ?? (isDark ? Colors.black : Colors.white),
       );
-      debugPrint('DesktopWindowService: $effect effect enabled (dark: $isDark)');
+      debugPrint(
+        'DesktopWindowService: $effect effect enabled (dark: $isDark)',
+      );
     } catch (e) {
       // Fallback to Mica or Acrylic if specific effect is unavailable
-      debugPrint('DesktopWindowService: Effect $effect failed, falling back. Error: $e');
+      debugPrint(
+        'DesktopWindowService: Effect $effect failed, falling back. Error: $e',
+      );
       try {
         await Window.setEffect(effect: WindowEffect.mica, dark: isDark);
       } catch (_) {
@@ -146,7 +152,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
 
   // WindowManager overrides
   @override
-  void onWindowClose() async {
+  Future<void> onWindowClose() async {
     final bool isPreventClose = await windowManager.isPreventClose();
     if (isPreventClose) {
       await windowManager.hide();
@@ -155,10 +161,26 @@ class DesktopWindowService extends WindowListener with TrayListener {
   }
 
   @override
-  void onWindowMinimize() async {
-    // Optionally hide to tray on minimize
-    // await windowManager.hide();
-    // await windowManager.setSkipTaskbar(true);
+  Future<void> onWindowMinimize() async {
+    // Keep reference to visibility
+  }
+
+  @override
+  Future<void> onWindowFocus() async {
+    // Ensure window is shown and focused when OS focus events occur
+    if (Platform.isWindows) {
+      final isMinimized = await windowManager.isMinimized();
+      if (isMinimized) {
+        await windowManager.restore();
+      }
+      // Use setSkipTaskbar to ensure it appears in switcher
+      await windowManager.setSkipTaskbar(false);
+    }
+  }
+
+  @override
+  Future<void> onWindowBlur() async {
+    // Optional: handle blur if needed
   }
 
   // TrayListener overrides - single left click to show window

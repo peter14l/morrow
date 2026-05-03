@@ -9,7 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:universal_io/io.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrintThrottled, kDebugMode;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, debugPrintThrottled, kDebugMode;
 
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/routes/app_router.dart';
@@ -102,16 +103,21 @@ class _LifecycleManagerState extends State<LifecycleManager>
       }
       presence.pauseHeartbeat();
     } else if (state == material.AppLifecycleState.resumed) {
-      screenTime.startTracking();
-      energyMeter.onResumed();
-      wellness.onResumed();
-      ripples.onResumed();
+      // Use a microtask to spread the resume load across frames
+      Future.microtask(() {
+        if (!mounted) return;
 
-      final userId = auth.currentUser?.id;
-      if (userId != null) {
-        presence.updateUserPresence(userId, 'online');
-      }
-      presence.resumeHeartbeat();
+        screenTime.startTracking();
+        energyMeter.onResumed();
+        wellness.onResumed();
+        ripples.onResumed();
+
+        final userId = auth.currentUser?.id;
+        if (userId != null) {
+          presence.updateUserPresence(userId, 'online');
+        }
+        presence.resumeHeartbeat();
+      });
     }
   }
 
@@ -179,7 +185,9 @@ class _MyAppState extends State<MyApp> {
               color: material.Theme.of(context).colorScheme.surface,
               borderRadius: material.BorderRadius.circular(24),
               border: material.Border.all(
-                color: material.Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                color: material.Theme.of(
+                  context,
+                ).colorScheme.outlineVariant.withValues(alpha: 0.5),
               ),
               boxShadow: [
                 material.BoxShadow(
@@ -200,7 +208,9 @@ class _MyAppState extends State<MyApp> {
                       material.Container(
                         padding: const material.EdgeInsets.all(12),
                         decoration: material.BoxDecoration(
-                          color: material.Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          color: material.Theme.of(
+                            context,
+                          ).colorScheme.primaryContainer.withValues(alpha: 0.3),
                           borderRadius: material.BorderRadius.circular(16),
                         ),
                         child: material.Icon(
@@ -216,14 +226,22 @@ class _MyAppState extends State<MyApp> {
                           children: [
                             material.Text(
                               'Update Available',
-                              style: material.Theme.of(context).textTheme.headlineSmall?.copyWith(
+                              style: material.Theme.of(context)
+                                  .textTheme
+                                  .headlineSmall
+                                  ?.copyWith(
                                     fontWeight: material.FontWeight.bold,
                                   ),
                             ),
                             material.Text(
                               'Version ${updateInfo.latestVersion} is ready to install',
-                              style: material.Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: material.Theme.of(context).colorScheme.onSurfaceVariant,
+                              style: material.Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
+                                    color: material.Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                             ),
                           ],
@@ -235,15 +253,16 @@ class _MyAppState extends State<MyApp> {
                   if (updateInfo.releaseNotes.isNotEmpty) ...[
                     material.Text(
                       'What\'s New:',
-                      style: material.Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: material.FontWeight.bold,
-                          ),
+                      style: material.Theme.of(context).textTheme.titleSmall
+                          ?.copyWith(fontWeight: material.FontWeight.bold),
                     ),
                     const material.SizedBox(height: 12),
                     material.Container(
                       padding: const material.EdgeInsets.all(16),
                       decoration: material.BoxDecoration(
-                        color: material.Theme.of(context).colorScheme.surfaceContainerLow,
+                        color: material.Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerLow,
                         borderRadius: material.BorderRadius.circular(12),
                       ),
                       child: material.Text(
@@ -263,13 +282,17 @@ class _MyAppState extends State<MyApp> {
                           onPressed: () => material.Navigator.pop(context),
                           child: const material.Text('Later'),
                         ),
-                      if (!updateInfo.isRequired) const material.SizedBox(width: 12),
+                      if (!updateInfo.isRequired)
+                        const material.SizedBox(width: 12),
                       material.FilledButton.icon(
                         onPressed: () {
                           material.Navigator.pop(context);
                           context.push('/settings/update');
                         },
-                        icon: const material.Icon(material.Icons.download, size: 18),
+                        icon: const material.Icon(
+                          material.Icons.download,
+                          size: 18,
+                        ),
                         label: const material.Text('Update Now'),
                       ),
                     ],
@@ -291,7 +314,9 @@ class _MyAppState extends State<MyApp> {
         padding: const material.EdgeInsets.all(24),
         decoration: material.BoxDecoration(
           color: material.Theme.of(context).colorScheme.surface,
-          borderRadius: const material.BorderRadius.vertical(top: material.Radius.circular(32)),
+          borderRadius: const material.BorderRadius.vertical(
+            top: material.Radius.circular(32),
+          ),
         ),
         child: material.Column(
           mainAxisSize: material.MainAxisSize.min,
@@ -322,14 +347,16 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       material.Text(
                         'New Version Available',
-                        style: material.Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: material.FontWeight.bold,
-                            ),
+                        style: material.Theme.of(context).textTheme.titleLarge
+                            ?.copyWith(fontWeight: material.FontWeight.bold),
                       ),
                       material.Text(
                         'Version ${updateInfo.latestVersion} is ready',
-                        style: material.Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: material.Theme.of(context).colorScheme.onSurfaceVariant,
+                        style: material.Theme.of(context).textTheme.bodyMedium
+                            ?.copyWith(
+                              color: material.Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                             ),
                       ),
                     ],
@@ -341,9 +368,8 @@ class _MyAppState extends State<MyApp> {
             if (updateInfo.releaseNotes.isNotEmpty) ...[
               material.Text(
                 'What\'s New:',
-                style: material.Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: material.FontWeight.bold,
-                    ),
+                style: material.Theme.of(context).textTheme.titleSmall
+                    ?.copyWith(fontWeight: material.FontWeight.bold),
               ),
               const material.SizedBox(height: 8),
               material.Text(
@@ -413,32 +439,41 @@ class _MyAppState extends State<MyApp> {
     if (userId != null) {
       // Use unawaited to fire off data loads concurrently without blocking UI
       // We still use slight delays to prioritize the very first frame of the home screen
-      unawaited(Future.microtask(() {
-        if (!mounted) return;
-        context.read<NotificationProvider>().init(userId);
-        context.read<PresenceProvider>().updateUserPresence(userId, 'online');
-      }));
+      unawaited(
+        Future.microtask(() {
+          if (!mounted) return;
+          context.read<NotificationProvider>().init(userId);
+          context.read<PresenceProvider>().updateUserPresence(userId, 'online');
+        }),
+      );
 
-      unawaited(Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) context.read<ConversationProvider>().initialize(userId);
-      }));
+      unawaited(
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) context.read<ConversationProvider>().initialize(userId);
+        }),
+      );
 
-      unawaited(Future.delayed(const Duration(milliseconds: 200), () {
-        if (mounted) context.read<ProfileProvider>().loadCurrentProfile(userId);
-      }));
+      unawaited(
+        Future.delayed(const Duration(milliseconds: 200), () {
+          if (mounted)
+            context.read<ProfileProvider>().loadCurrentProfile(userId);
+        }),
+      );
 
       // Non-critical data can wait even longer or be triggered by screen entry
-      unawaited(Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          context.read<CircleProvider>().loadCircles(userId);
-          context.read<CanvasProvider>().loadCanvases(userId);
-          
-          if (AppConfig.enableCalls) {
-            // Eagerly instantiate CallProvider to attach incoming call listeners
-            context.read<CallProvider>();
+      unawaited(
+        Future.delayed(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            context.read<CircleProvider>().loadCircles(userId);
+            context.read<CanvasProvider>().loadCanvases(userId);
+
+            if (AppConfig.enableCalls) {
+              // Eagerly instantiate CallProvider to attach incoming call listeners
+              context.read<CallProvider>();
+            }
           }
-        }
-      }));
+        }),
+      );
 
       SharingService().init(context);
       DeepLinkService().init();
@@ -470,7 +505,7 @@ class _MyAppState extends State<MyApp> {
 
         if (settingsKey != _cachedSettingsKey) {
           _cachedSettingsKey = settingsKey;
-          
+
           material.ColorScheme? lightScheme;
           material.ColorScheme? darkScheme;
 
@@ -479,13 +514,17 @@ class _MyAppState extends State<MyApp> {
             darkScheme = darkDynamic;
           } else if (themeProvider.colorPalette != ColorPalette.none &&
               themeProvider.isM3EEnabled) {
-            lightScheme = themeProvider.getPaletteColorScheme(material.Brightness.light);
-            darkScheme = themeProvider.getPaletteColorScheme(material.Brightness.dark);
+            lightScheme = themeProvider.getPaletteColorScheme(
+              material.Brightness.light,
+            );
+            darkScheme = themeProvider.getPaletteColorScheme(
+              material.Brightness.dark,
+            );
           }
 
           _cachedLightScheme = lightScheme;
           _cachedDarkScheme = darkScheme;
-          
+
           _cachedLightTheme = AppTheme.getTheme(
             material.Brightness.light,
             isM3E: themeProvider.isM3EEnabled,
@@ -519,10 +558,12 @@ class _MyAppState extends State<MyApp> {
 
             // Apply window effects whenever the theme or settings change
             if (Platform.isWindows) {
-              final isDark = themeProvider.themeMode == material.ThemeMode.system
-                  ? material.MediaQuery.platformBrightnessOf(context) == material.Brightness.dark
+              final isDark =
+                  themeProvider.themeMode == material.ThemeMode.system
+                  ? material.MediaQuery.platformBrightnessOf(context) ==
+                        material.Brightness.dark
                   : themeProvider.themeMode == material.ThemeMode.dark;
-                  
+
               material.WidgetsBinding.instance.addPostFrameCallback((_) {
                 DesktopWindowService.instance.setWindowEffect(
                   enabled: userSettings.micaEnabled,
@@ -551,8 +592,8 @@ class _MyAppState extends State<MyApp> {
                 themeMode: themeProvider.themeMode == material.ThemeMode.system
                     ? fluent.ThemeMode.system
                     : themeProvider.themeMode == material.ThemeMode.dark
-                        ? fluent.ThemeMode.dark
-                        : fluent.ThemeMode.light,
+                    ? fluent.ThemeMode.dark
+                    : fluent.ThemeMode.light,
                 routerConfig: router,
                 builder: (context, child) {
                   return material.ScaffoldMessenger(
@@ -560,13 +601,18 @@ class _MyAppState extends State<MyApp> {
                       children: [
                         material.Column(
                           children: [
-                            if (Platform.isWindows) const WindowsTitleBar(height: 48),
+                            if (Platform.isWindows)
+                              const WindowsTitleBar(height: 48),
                             material.Expanded(
                               child: material.MediaQuery(
                                 data: material.MediaQuery.of(context).copyWith(
-                                  textScaler: material.TextScaler.linear(userSettings.fontSizeFactor),
+                                  textScaler: material.TextScaler.linear(
+                                    userSettings.fontSizeFactor,
+                                  ),
                                 ),
-                                child: GlobalWellnessWrapper(child: CallNavigator(child: child!)),
+                                child: GlobalWellnessWrapper(
+                                  child: CallNavigator(child: child!),
+                                ),
                               ),
                             ),
                           ],
@@ -591,14 +637,19 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     material.Column(
                       children: [
-                        if (Platform.isWindows) const WindowsTitleBar(height: 48),
+                        if (Platform.isWindows)
+                          const WindowsTitleBar(height: 48),
                         material.Expanded(
                           child: material.MediaQuery(
                             data: material.MediaQuery.of(context).copyWith(
-                              textScaler: material.TextScaler.linear(userSettings.fontSizeFactor),
+                              textScaler: material.TextScaler.linear(
+                                userSettings.fontSizeFactor,
+                              ),
                               boldText: false,
                             ),
-                            child: GlobalWellnessWrapper(child: CallNavigator(child: child!)),
+                            child: GlobalWellnessWrapper(
+                              child: CallNavigator(child: child!),
+                            ),
                           ),
                         ),
                       ],
@@ -665,17 +716,18 @@ class CallNavigator extends StatelessWidget {
 
     Widget childWidget = child;
 
-    final bool canUseTransparency = !kIsWeb && (Platform.isWindows || Platform.isMacOS);
+    final bool canUseTransparency =
+        !kIsWeb && (Platform.isWindows || Platform.isMacOS);
     final bool useTransparency = userSettings.micaEnabled && canUseTransparency;
 
     if (useTransparency) {
       final theme = material.Theme.of(context);
       final isDark = theme.brightness == material.Brightness.dark;
-      
+
       childWidget = material.Theme(
         data: theme.copyWith(
           colorScheme: theme.colorScheme.copyWith(
-            surface: isDark 
+            surface: isDark
                 ? const material.Color(0xFF1A1D24).withValues(alpha: 0.9)
                 : material.Colors.white.withValues(alpha: 0.9),
             surfaceContainer: isDark
@@ -689,8 +741,8 @@ class CallNavigator extends StatelessWidget {
               ? material.Colors.white.withValues(alpha: 0.05)
               : material.Colors.black.withValues(alpha: 0.05),
           bottomSheetTheme: theme.bottomSheetTheme.copyWith(
-            backgroundColor: isDark 
-                ? const material.Color(0xFF0D1F1A) 
+            backgroundColor: isDark
+                ? const material.Color(0xFF0D1F1A)
                 : const material.Color(0xFFFEF7FF),
             surfaceTintColor: material.Colors.transparent,
             elevation: 8,
@@ -699,15 +751,21 @@ class CallNavigator extends StatelessWidget {
         child: childWidget,
       );
 
-      childWidget = Container(color: material.Colors.transparent, child: childWidget);
+      childWidget = Container(
+        color: material.Colors.transparent,
+        child: childWidget,
+      );
     }
 
-    final isDark = material.Theme.of(context).brightness == material.Brightness.dark;
-    
+    final isDark =
+        material.Theme.of(context).brightness == material.Brightness.dark;
+
     return Container(
-      color: useTransparency 
-          ? material.Colors.transparent 
-          : (isDark ? const material.Color(0xFF080A0E) : const material.Color(0xFFF8F9FA)),
+      color: useTransparency
+          ? material.Colors.transparent
+          : (isDark
+                ? const material.Color(0xFF080A0E)
+                : const material.Color(0xFFF8F9FA)),
       child: childWidget,
     );
   }
@@ -723,7 +781,8 @@ void main() async {
     final exception = details.exception;
     if (exception is AssertionError) {
       final message = exception.message?.toString() ?? '';
-      if (message.contains('RawKeyDownEvent') && message.contains('_keysPressed.isNotEmpty')) {
+      if (message.contains('RawKeyDownEvent') &&
+          message.contains('_keysPressed.isNotEmpty')) {
         // Silencing the Windows "Alt" key assertion error
         return;
       }
@@ -751,7 +810,8 @@ void main() async {
         errorStr.contains('xmlhttprequest error') ||
         errorStr.contains('failed host lookup')) {
       material.debugPrint(
-          '[GlobalError] Ignoring transient network/auth error: $error');
+        '[GlobalError] Ignoring transient network/auth error: $error',
+      );
       return true;
     }
 
@@ -784,16 +844,23 @@ void main() async {
   const int wrapWidth = 100;
   material.debugPrint = (String? message, {int? wrapWidth}) {
     if (message == null) return;
-    
+
     // Ignore frequent layout/render noise in debug console
-    if (message.contains('Sentry') || message.contains('Firebase') || message.contains('Supabase') || message.contains('[PQAura]') || message.contains('[Signal]')) {
+    if (message.contains('Sentry') ||
+        message.contains('Firebase') ||
+        message.contains('Supabase') ||
+        message.contains('[PQAura]') ||
+        message.contains('[Signal]')) {
       if (kDebugMode) {
         debugPrintThrottled(message, wrapWidth: wrapWidth);
         return;
       }
     }
 
-    if (message.contains('ERROR') || message.contains('failed') || message.contains('EXCEPTION') || message.contains('UNCAUGHT')) {
+    if (message.contains('ERROR') ||
+        message.contains('failed') ||
+        message.contains('EXCEPTION') ||
+        message.contains('UNCAUGHT')) {
       debugPrintThrottled(message, wrapWidth: wrapWidth);
     }
   };
@@ -839,7 +906,12 @@ void main() async {
 
 // Removed redundant _runAppInitialization
 
-void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false, String? title}) {
+void _showErrorScreen(
+  Object error,
+  StackTrace stack, {
+  bool isCorruption = false,
+  String? title,
+}) {
   runApp(
     material.MaterialApp(
       home: material.Scaffold(
@@ -850,15 +922,22 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
             child: material.Column(
               mainAxisAlignment: material.MainAxisAlignment.center,
               children: [
-                const material.Icon(material.Icons.warning_amber_rounded,
-                    color: material.Colors.amber, size: 64),
+                const material.Icon(
+                  material.Icons.warning_amber_rounded,
+                  color: material.Colors.amber,
+                  size: 64,
+                ),
                 const material.SizedBox(height: 24),
                 material.Text(
-                  title ?? (isCorruption ? 'App Needs Repair' : 'Failed to Initialize'),
+                  title ??
+                      (isCorruption
+                          ? 'App Needs Repair'
+                          : 'Failed to Initialize'),
                   style: const material.TextStyle(
-                      color: material.Colors.white,
-                      fontSize: 24,
-                      fontWeight: material.FontWeight.bold),
+                    color: material.Colors.white,
+                    fontSize: 24,
+                    fontWeight: material.FontWeight.bold,
+                  ),
                 ),
                 const material.SizedBox(height: 16),
                 material.ConstrainedBox(
@@ -867,7 +946,8 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
                     child: material.Text(
                       error.toString(),
                       style: material.TextStyle(
-                          color: material.Colors.white.withValues(alpha: 0.7)),
+                        color: material.Colors.white.withValues(alpha: 0.7),
+                      ),
                       textAlign: material.TextAlign.center,
                     ),
                   ),
@@ -878,12 +958,13 @@ void _showErrorScreen(Object error, StackTrace stack, {bool isCorruption = false
                     // Logic to wipe cache would go here in a real production app
                     // For now, simple restart instruction
                     material.debugPrint('User requested app repair/reset');
-                    // On most platforms, we can't easily restart the whole process, 
+                    // On most platforms, we can't easily restart the whole process,
                     // but we can trigger a re-initialization of the root zone.
-                    main(); 
+                    main();
                   },
                   child: material.Text(
-                      isCorruption ? 'Repair & Reset App' : 'Try Again'),
+                    isCorruption ? 'Repair & Reset App' : 'Try Again',
+                  ),
                 ),
               ],
             ),
