@@ -44,22 +44,15 @@ serve(async (req) => {
     console.log(`[Push Auth] Available Env Vars: ${Object.keys(Deno.env.toObject()).filter(k => k.includes('SUPABASE') || k.includes('KEY')).join(', ')}`);
     console.log(`[Push Auth] Keys Found - Pub: ${!!publishableKey} (${publishableKey?.length}), Sec: ${!!secretKey} (${secretKey?.length})`);
 
-    // We verify if the request comes from our own database trigger (using secret or publishable key)
+    // We verify if the request comes from our own database trigger (using modern secret or publishable key)
     const matchesSecret = !!secretKey && token === secretKey;
     const matchesPub = !!publishableKey && token === publishableKey;
 
     if (!matchesSecret && !matchesPub) {
-      // If it doesn't match static keys, try validating as a User JWT
-      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-      
-      if (authError || !user) {
-        console.error(`[Push Auth] Mismatch! Token is neither a static key nor a valid User JWT.`);
-        throw new Error(`Unauthorized: Key Mismatch (T:${token.length} S:${secretKey?.length} P:${publishableKey?.length})`);
-      }
-      console.log(`[Push Auth] Validated via User JWT for user: ${user.id}`);
-    } else {
-      console.log(`[Push Auth] Validated via static ${matchesSecret ? 'Secret' : 'Publishable'} key.`);
+      console.error(`[Push Auth] Mismatch! Token is not a valid modern Secret or Publishable key.`);
+      throw new Error(`Unauthorized: Key Mismatch (T:${token.length} S:${secretKey?.length} P:${publishableKey?.length})`);
     }
+    console.log(`[Push Auth] Validated via modern ${matchesSecret ? 'Secret' : 'Publishable'} key.`);
 
     const payload = await req.json();    const { record } = payload; 
 
