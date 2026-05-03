@@ -36,9 +36,12 @@ serve(async (req) => {
     const publishableKey = Deno.env.get("SUPABASE_ANON_KEY") || Deno.env.get("SUPABASE_PUBLISHABLE_KEY");
     const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || Deno.env.get("SUPABASE_SECRET_KEY");
 
+    console.log(`[Push Debug] Token length: ${token.length}, startsWith: ${token.substring(0, 10)}...`);
+    console.log(`[Push Debug] PubKey length: ${publishableKey?.length}, SecKey length: ${secretKey?.length}`);
+
     // We verify if the request comes from our own database trigger (using secret or publishable key)
-    // If it's a user JWT, we could add supabase.auth.getUser() here, but this function is meant for webhooks.
     if (token !== secretKey && token !== publishableKey) {
+      console.error(`[Push Debug] Auth Mismatch. Expected match with Secret or Publishable key.`);
       throw new Error('Unauthorized: Invalid Webhook Signature/Key')
     }
 
