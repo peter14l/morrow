@@ -44,28 +44,24 @@ class ChatDecryptionService {
   }) async {
     try {
       final isSender = senderId == currentUserId;
-      String decryptedContent = content;
+      String? decryptedContent;
 
-      // 1. Try PQ-Aura (Post-Quantum) first if metadata is present
-      if (pqAuraHeader != null && pqAuraPayload != null) {
+      // 1. Try PQ-Aura (Post-Quantum)
+      if (pqAuraHeader != null && pqAuraPayload != null && !isSender) {
         final pqaService = PQAuraService.instance;
-        final pqaDecrypted = await pqaService.decryptMessage(
+        decryptedContent = await pqaService.decryptMessage(
           senderId,
           base64Decode(pqAuraHeader),
           base64Decode(pqAuraPayload),
         );
-        if (pqaDecrypted != null) {
-          decryptedContent = pqaDecrypted;
-          // Handle Protocol Sync
-          if (decryptedContent == 'PROTOCOL_SYNC') {
-            return '🔒 Connection optimized';
-          }
-          return decryptedContent;
+        // Handle Protocol Sync
+        if (decryptedContent == 'PROTOCOL_SYNC') {
+          return '🔒 Connection optimized';
         }
       }
 
       // 2. Try Signal (Classical E2EE)
-      if (!isSender && signalMessageType != null) {
+      if (decryptedContent == null && !isSender && signalMessageType != null) {
         await _signalService.init();
         decryptedContent = await _signalService.decryptMessage(
           senderId,
@@ -74,52 +70,39 @@ class ChatDecryptionService {
           isHistorical: isHistorical,
         );
 
-        // Handle Protocol Sync
+        // Handle Protocol Sync or placeholder
         if (decryptedContent == 'PROTOCOL_SYNC') {
           return '🔒 Connection optimized';
         }
+        if (decryptedContent.contains('🔒') || decryptedContent.contains('Optimizing')) {
+          decryptedContent = null;
+        }
+      }
 
-        // Fallback to RSA if Signal decryption fails or is a placeholder
-        if (decryptedContent.contains('🔒') &&
-            encryptedKeys != null &&
-            iv != null &&
-            signalSenderContent != null) {
-          final rsaDecrypted = await _encryptionService.decryptMessage(
-            signalSenderContent,
+      // 3. Try RSA Fallback (Dual-layer for both sender and recipient)
+      if (decryptedContent == null) {
+        final rsaCiphertext = isSender 
+            ? signalSenderContent 
+            : (signalSenderContent ?? content);
+        
+        if (rsaCiphertext != null && encryptedKeys != null && iv != null) {
+          decryptedContent = await _encryptionService.decryptMessage(
+            rsaCiphertext,
             Map<String, String>.from(encryptedKeys),
             iv,
           );
-          if (rsaDecrypted != null) decryptedContent = rsaDecrypted;
         }
-      } else if (isSender &&
-          signalSenderContent != null &&
-          encryptedKeys != null &&
-          iv != null) {
-        // Decrypt sent message using our own RSA key (dual-layer fallback)
-        final decrypted = await _encryptionService.decryptMessage(
-          signalSenderContent,
-          Map<String, String>.from(encryptedKeys),
-          iv,
-        );
-        decryptedContent = decrypted ?? '🔒 Message encrypted';
-      } else if (encryptedKeys != null && iv != null) {
-        // Legacy RSA-only encryption
-        final decrypted = await _encryptionService.decryptMessage(
-          content,
-          Map<String, String>.from(encryptedKeys),
-          iv,
-        );
-        decryptedContent = decrypted ?? '🔒 Message encrypted';
       }
 
-      // Safety fallback: if content looks like a raw encrypted blob (no spaces, likely base64/hex)
-      if (decryptedContent == content &&
-          !content.contains(' ') &&
+      if (decryptedContent != null) return decryptedContent;
+
+      // Safety fallback: if content looks like a raw encrypted blob
+      if (!content.contains(' ') &&
           (content.length > 30 || _isBase64(content))) {
         return '🔒 Message encrypted';
       }
 
-      return decryptedContent;
+      return content;
     } catch (e) {
       debugPrint('[ChatDecryption] Error decrypting: $e');
       return '🔒 Message encrypted';

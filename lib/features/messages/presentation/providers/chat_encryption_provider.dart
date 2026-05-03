@@ -87,109 +87,80 @@ class ChatEncryptionProvider with ChangeNotifier {
     String? currentUserId,
   ) async {
     Message decryptedMessage = message;
+    String? decryptedContent;
+    final isSender = currentUserId != null &&
+        message.senderId.toLowerCase() == currentUserId.toLowerCase();
 
-    // Check for PQ-Aura encrypted message first (new protocol)
+    // 1. Try PQ-Aura (Post-Quantum)
     if (message.pqAuraHeader != null && message.pqAuraPayload != null) {
-      try {
-        final isSender = currentUserId != null &&
-            message.senderId.toLowerCase() == currentUserId.toLowerCase();
-
-        if (isSender && message.pqAuraSenderPayload != null && message.encryptedKeys != null && message.iv != null) {
-          // Self-sent message - decrypt using RSA (for now) or handle PQ-Aura self-sync
-          final decrypted = await _encryptionService.decryptMessage(
-            message.pqAuraSenderPayload!,
-            message.encryptedKeys!,
-            message.iv!,
-          );
-          decryptedMessage = decryptedMessage.copyWith(
-            content: decrypted ?? '🔒 Message encrypted (PQ-Aura)',
-          );
-        } else if (!isSender && _pqauraService.isReady) {
-          // Message from other user - decrypt with PQ-Aura
+      if (!isSender && _pqauraService.isReady) {
+        try {
           final headerBytes = base64Decode(message.pqAuraHeader!);
           final payloadBytes = base64Decode(message.pqAuraPayload!);
-          final decrypted = await _pqauraService.decryptMessage(
+          decryptedContent = await _pqauraService.decryptMessage(
             message.senderId,
             Uint8List.fromList(headerBytes),
             Uint8List.fromList(payloadBytes),
           );
-          if (decrypted != null) {
-            decryptedMessage = decryptedMessage.copyWith(content: decrypted);
-          } else {
-            // Fall back to Signal if PQ-Aura decryption fails
-            decryptedMessage = await _decryptWithSignal(message, currentUserId);
+          if (decryptedContent != null) {
+            debugPrint('[Encryption] Decrypted with PQ-Aura');
           }
+        } catch (e) {
+          debugPrint('[Encryption] PQ-Aura decryption failed: $e');
+        }
+      }
+    }
+
+    // 2. Try Signal (Classical E2EE)
+    if (decryptedContent == null && !isSender && message.signalMessageType != null) {
+      try {
+        decryptedContent = await SignalService().decryptMessage(
+          message.senderId,
+          message.content,
+          message.signalMessageType!,
+        );
+        // Ignore "Optimizing..." or "🔒" markers from Signal as success
+        if (decryptedContent.contains('🔒') || decryptedContent.contains('Optimizing')) {
+          decryptedContent = null;
+        } else {
+          debugPrint('[Encryption] Decrypted with Signal');
         }
       } catch (e) {
-        debugPrint('[Encryption] PQ-Aura decryption failed: $e, falling back to Signal');
-        decryptedMessage = await _decryptWithSignal(message, currentUserId);
+        debugPrint('[Encryption] Signal decryption failed: $e');
       }
-    } 
-    // Check for Signal encrypted message
-    else if (message.signalMessageType != null) {
-      decryptedMessage = await _decryptWithSignal(message, currentUserId);
     }
-    // Fall back to RSA encryption (legacy)
-    else if (message.encryptedKeys != null && message.iv != null) {
-      try {
-        final isSender =
-            currentUserId != null &&
-            message.senderId.toLowerCase() == currentUserId.toLowerCase();
 
-        if (isSender &&
-            message.signalSenderContent != null &&
-            message.encryptedKeys != null &&
-            message.iv != null) {
-          final decrypted = await _encryptionService.decryptMessage(
-            message.signalSenderContent!,
+    // 3. Try RSA Fallback (Dual-layer for both sender and recipient)
+    if (decryptedContent == null) {
+      final rsaCiphertext = isSender 
+          ? (message.pqAuraSenderPayload ?? message.signalSenderContent) 
+          : (message.signalSenderContent ?? message.content);
+      
+      if (rsaCiphertext != null && message.encryptedKeys != null && message.iv != null) {
+        try {
+          decryptedContent = await _encryptionService.decryptMessage(
+            rsaCiphertext,
             message.encryptedKeys!,
             message.iv!,
           );
-          decryptedMessage = decryptedMessage.copyWith(
-            content: decrypted ?? '🔒 Message encrypted',
-          );
-        } else if (!isSender) {
-          String? decrypted;
-          if (message.signalMessageType != null) {
-            decrypted = await SignalService().decryptMessage(
-              message.senderId,
-              message.content,
-              message.signalMessageType!,
-            );
+          if (decryptedContent != null) {
+            debugPrint('[Encryption] Decrypted with RSA fallback');
           }
-
-          if ((decrypted == null || decrypted.contains('🔒') ||
-                  decrypted.contains('Optimizing secure connection')) &&
-              message.signalSenderContent != null &&
-              message.encryptedKeys != null &&
-              message.iv != null) {
-            final rsaDecrypted = await _encryptionService.decryptMessage(
-              message.signalSenderContent!,
-              message.encryptedKeys!,
-              message.iv!,
-            );
-            if (rsaDecrypted != null) decrypted = rsaDecrypted;
-          }
-          decryptedMessage = decryptedMessage.copyWith(content: decrypted ?? '🔒 Message encrypted');
+        } catch (e) {
+          debugPrint('[Encryption] RSA fallback failed: $e');
         }
-      } catch (e) {
-        debugPrint('Decryption failed: $e');
-        decryptedMessage = decryptedMessage.copyWith(
-          content: '🔒 Message encrypted',
-        );
       }
-    } else if (message.encryptedKeys != null && message.iv != null) {
-      final decrypted = await _encryptionService.decryptMessage(
-        message.content,
-        message.encryptedKeys!,
-        message.iv!,
-      );
-      decryptedMessage = decryptedMessage.copyWith(
-        content: decrypted ?? '🔒 Message encrypted',
-      );
     }
 
-    // 2. Decrypt reply content if available
+    // 4. Update message content if decrypted
+    if (decryptedContent != null) {
+      decryptedMessage = decryptedMessage.copyWith(content: decryptedContent);
+    } else if (message.pqAuraHeader != null || message.signalMessageType != null || (message.encryptedKeys != null && message.iv != null)) {
+      // If we failed to decrypt a known encrypted message, set placeholder
+      decryptedMessage = decryptedMessage.copyWith(content: '🔒 Message encrypted');
+    }
+
+    // 5. Decrypt reply content if available (recursive-like logic)
     if (decryptedMessage.replyToId != null &&
         decryptedMessage.replyToData != null) {
       final replyData = decryptedMessage.replyToData!;
@@ -200,68 +171,59 @@ class ChatEncryptionProvider with ChangeNotifier {
       final replySignalType = replyData['signal_message_type'] as int?;
       final replyContent = replyData['content'] as String?;
       final replySenderContent = replyData['signal_sender_content'] as String?;
+      final replyPqaHeader = replyData['pq_aura_header'] as String?;
+      final replyPqaPayload = replyData['pq_aura_payload'] as String?;
 
-      if (replySenderId != null && replyContent != null) {
+      if (replySenderId != null) {
         String? decryptedReply;
-        try {
-          if (replySignalType != null) {
-            final isSender =
-                currentUserId != null &&
-                replySenderId.toLowerCase() == currentUserId.toLowerCase();
+        final isReplyMe = currentUserId != null &&
+            replySenderId.toLowerCase() == currentUserId.toLowerCase();
 
-            if (isSender &&
-                replySenderContent != null &&
-                replyEncryptedKeys != null &&
-                replyIv != null) {
+        // Try PQ-Aura for reply
+        if (replyPqaHeader != null && replyPqaPayload != null && !isReplyMe && _pqauraService.isReady) {
+          try {
+            decryptedReply = await _pqauraService.decryptMessage(
+              replySenderId,
+              base64Decode(replyPqaHeader),
+              base64Decode(replyPqaPayload),
+            );
+          } catch (_) {}
+        }
+
+        // Try Signal for reply
+        if (decryptedReply == null && replySignalType != null && !isReplyMe) {
+          try {
+            decryptedReply = await SignalService().decryptMessage(
+              replySenderId,
+              replyContent ?? '',
+              replySignalType,
+            );
+            if (decryptedReply.contains('🔒')) decryptedReply = null;
+          } catch (_) {}
+        }
+
+        // Try RSA for reply
+        if (decryptedReply == null) {
+          final replyRsaCiphertext = isReplyMe
+              ? replySenderContent
+              : (replySenderContent ?? replyContent);
+          
+          if (replyRsaCiphertext != null && replyEncryptedKeys != null && replyIv != null) {
+            try {
               decryptedReply = await _encryptionService.decryptMessage(
-                replySenderContent,
+                replyRsaCiphertext,
                 replyEncryptedKeys,
                 replyIv,
               );
-            } else {
-              decryptedReply = await SignalService().decryptMessage(
-                replySenderId,
-                replyContent,
-                replySignalType,
-              );
-
-              if (decryptedReply.contains('🔒') &&
-                  replySenderContent != null &&
-                  replyEncryptedKeys != null &&
-                  replyIv != null) {
-                decryptedReply = await _encryptionService.decryptMessage(
-                  replySenderContent,
-                  replyEncryptedKeys,
-                  replyIv,
-                );
-              }
-            }
-          } else if (replyEncryptedKeys != null && replyIv != null) {
-            decryptedReply = await _encryptionService.decryptMessage(
-              replyContent,
-              replyEncryptedKeys,
-              replyIv,
-            );
+            } catch (_) {}
           }
+        }
 
-          if (decryptedReply != null && !decryptedReply.contains('🔒')) {
-            decryptedMessage = decryptedMessage.copyWith(
-              replyToContent: decryptedReply,
-            );
-          } else {
-            debugPrint(
-              'Reply decryption resulted in placeholder or null for msg ${message.id}',
-            );
-          }
-        } catch (e) {
-          debugPrint(
-            'Failed to decrypt reply context for msg ${message.id}: $e',
+        if (decryptedReply != null && !decryptedReply.contains('🔒')) {
+          decryptedMessage = decryptedMessage.copyWith(
+            replyToContent: decryptedReply,
           );
         }
-      } else {
-        debugPrint(
-          'Missing sender_id or content in replyToData for msg ${message.id}',
-        );
       }
     }
 

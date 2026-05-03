@@ -176,13 +176,9 @@ class PQAuraService {
 
       debugPrint('[PQAura] Handshake message generated. Saving session state...');
 
-      // Store the session state
-      final serializedState = _bridge.serializeState(initialMsg.statePtr);
-      if (serializedState != null) {
-        await _store.saveSession(
-            remoteUserId, Uint8List.fromList(serializedState));
-        debugPrint('[PQAura] Session state persisted for $remoteUserId');
-      }
+      // Store the session state atomically
+      await _store.saveSessionAtomic(remoteUserId, initialMsg.statePtr);
+      debugPrint('[PQAura] Session state persisted atomically for $remoteUserId');
 
       // Cache the state pointer
       _activeSessions[remoteUserId] = initialMsg.statePtr;
@@ -227,10 +223,7 @@ class PQAuraService {
 
       // Cache and persist the new state
       _activeSessions[senderId] = statePtr;
-      final serializedState = _bridge.serializeState(statePtr);
-      if (serializedState != null) {
-        await _store.saveSession(senderId, Uint8List.fromList(serializedState));
-      }
+      await _store.saveSessionAtomic(senderId, statePtr);
 
       debugPrint('[PQAura] Bob handshake SUCCESS. Session is now LIVE with: $senderId');
       return true;
@@ -240,22 +233,32 @@ class PQAuraService {
     }
   }
 
-  /// Load an existing session from storage (responder - Bob)
+  /// Load an existing session from storage
   Future<bool> loadSession(String remoteUserId) async {
     try {
+      // 1. Try atomic load first
+      var statePtr = await _store.loadSessionAtomic(remoteUserId);
+      
+      if (statePtr != null && statePtr != nullptr) {
+        _activeSessions[remoteUserId] = statePtr;
+        return true;
+      }
+
+      // 2. Fallback to legacy load and migrate
       final serializedState = await _store.loadSession(remoteUserId);
-      if (serializedState == null) {
-        return false;
+      if (serializedState != null) {
+        debugPrint('[PQAura] Migrating legacy session for: $remoteUserId');
+        statePtr = _bridge.deserializeState(serializedState.toList());
+        
+        if (statePtr != null && statePtr != nullptr) {
+          _activeSessions[remoteUserId] = statePtr;
+          // Save in new format immediately
+          await _store.saveSessionAtomic(remoteUserId, statePtr);
+          return true;
+        }
       }
 
-      final statePtr = _bridge.deserializeState(serializedState.toList());
-      if (statePtr == null || statePtr == nullptr) {
-        debugPrint('[PQAura] Failed to deserialize stored state for: $remoteUserId');
-        return false;
-      }
-
-      _activeSessions[remoteUserId] = statePtr;
-      return true;
+      return false;
     } catch (e) {
       debugPrint('[PQAura] Error loading session: $e');
       return false;
@@ -290,12 +293,8 @@ class PQAuraService {
         return null;
       }
 
-      // Serialize the session state after each message
-      final serializedState = _bridge.serializeState(state);
-      if (serializedState != null) {
-        await _store.saveSession(
-            recipientId, Uint8List.fromList(serializedState));
-      }
+      // Save the session state atomically after each message
+      await _store.saveSessionAtomic(recipientId, state);
 
       Uint8List header;
       Uint8List payload;
@@ -386,11 +385,8 @@ class PQAuraService {
         return null;
       }
 
-      // Save state after ratchet turn
-      final serializedState = _bridge.serializeState(state);
-      if (serializedState != null) {
-        await _store.saveSession(senderId, Uint8List.fromList(serializedState));
-      }
+      // Save state atomically after ratchet turn
+      await _store.saveSessionAtomic(senderId, state);
 
       return utf8.decode(plaintext);
     } catch (e) {
@@ -415,6 +411,9 @@ class PQAuraService {
       final encrypted = _bridge.encrypt(state, mediaKey.toList(), ad);
 
       if (encrypted == null) return null;
+
+      // Save state atomically
+      await _store.saveSessionAtomic(recipientId, state);
 
       final result = {
         'pq_header': base64Encode(Uint8List.fromList(encrypted.header)),
@@ -451,6 +450,10 @@ class PQAuraService {
       final decrypted = _bridge.decrypt(state, header.toList(), payload.toList(), ad);
 
       if (decrypted == null) return null;
+
+      // Save state atomically
+      await _store.saveSessionAtomic(senderId, state);
+
       return Uint8List.fromList(decrypted);
     } catch (e) {
       debugPrint('[PQAura] Media key decryption error: $e');

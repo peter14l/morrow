@@ -79,6 +79,16 @@ typedef PqaFreeBufferDart = void Function(Pointer<Uint8>, int);
 typedef PqaFreeInitialMessageNative = Void Function(Pointer<FfiInitialMessage>);
 typedef PqaFreeInitialMessageDart = void Function(Pointer<FfiInitialMessage>);
 
+typedef PqaSaveAtomicNative = Bool Function(
+    Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaSaveAtomicDart = bool Function(
+    Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
+
+typedef PqaLoadAtomicNative = Pointer<RatchetState> Function(
+    Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaLoadAtomicDart = Pointer<RatchetState> Function(
+    Pointer<Utf8>, Pointer<Uint8>);
+
 /// FFI Structures matching Rust FFI types
 
 final class FfiKeyPair extends Struct {
@@ -167,6 +177,8 @@ class PQAuraBridge {
   late final PqaFreeMessageDart _pqaFreeMessage;
   late final PqaFreeBufferDart _pqaFreeBuffer;
   late final PqaFreeInitialMessageDart _pqaFreeInitialMessage;
+  late final PqaSaveAtomicDart _pqaSaveAtomic;
+  late final PqaLoadAtomicDart _pqaLoadAtomic;
 
   PQAuraBridge._();
 
@@ -310,6 +322,14 @@ class PQAuraBridge {
 
     _pqaFreeInitialMessage = _lib
         .lookup<NativeFunction<PqaFreeInitialMessageNative>>('pqa_free_initial_message')
+        .asFunction();
+
+    _pqaSaveAtomic = _lib
+        .lookup<NativeFunction<PqaSaveAtomicNative>>('pqa_save_atomic')
+        .asFunction();
+
+    _pqaLoadAtomic = _lib
+        .lookup<NativeFunction<PqaLoadAtomicNative>>('pqa_load_atomic')
         .asFunction();
   }
 
@@ -570,6 +590,37 @@ class PQAuraBridge {
   void freeBundle(Pointer<FfiPreKeyBundle> bundle) {
     if (!_isLoaded || bundle == nullptr) return;
     _pqaFreeBundle(bundle);
+  }
+
+  /// Atomically save the ratchet state to a file
+  bool saveStateAtomic(Pointer<RatchetState> state, String path, List<int> encryptionKey) {
+    if (!_isLoaded) return false;
+
+    final pathPtr = path.toNativeUtf8();
+    final keyPtr = _mallocBytes(encryptionKey);
+
+    final result = _pqaSaveAtomic(state, pathPtr, keyPtr);
+
+    calloc.free(pathPtr);
+    calloc.free(keyPtr);
+
+    return result;
+  }
+
+  /// Load the ratchet state from an atomically saved file
+  Pointer<RatchetState>? loadStateAtomic(String path, List<int> encryptionKey) {
+    if (!_isLoaded) return null;
+
+    final pathPtr = path.toNativeUtf8();
+    final keyPtr = _mallocBytes(encryptionKey);
+
+    final result = _pqaLoadAtomic(pathPtr, keyPtr);
+
+    calloc.free(pathPtr);
+    calloc.free(keyPtr);
+
+    if (result == nullptr) return null;
+    return result;
   }
 }
 

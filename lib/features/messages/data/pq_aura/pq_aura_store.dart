@@ -1,12 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:oasis/core/crypto/pq_aura_bridge.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 /// Persistent storage for PQ-Aura session states.
-/// Uses flutter_secure_storage for encrypted local storage.
+/// Uses flutter_secure_storage for keys and file-system for atomic session states.
 class PQAuraStore {
   static PQAuraStore? _instance;
   final FlutterSecureStorage _secureStorage;
@@ -14,7 +18,7 @@ class PQAuraStore {
   // Storage keys
   static const String _identityKeyPairKey = 'pq_aura_identity_keypair';
   static const String _signedPreKeyKey = 'pq_aura_signed_prekey';
-  static const String _oneTimePreKeysKey = 'pq_aura_onetime_prekeys';
+  static const String _stateEncryptionKey = 'pq_aura_state_encryption_key';
   static const String _sessionsKeyPrefix = 'pq_aura_session_';
 
   PQAuraStore._() : _secureStorage = const FlutterSecureStorage(
@@ -25,6 +29,24 @@ class PQAuraStore {
   static PQAuraStore get instance {
     _instance ??= PQAuraStore._();
     return _instance!;
+  }
+
+  // ============================================================================
+  // Encryption Key Management
+  // ============================================================================
+
+  /// Get or create the dedicated key for encrypting session states on disk
+  Future<Uint8List> _getStateEncryptionKey() async {
+    final stored = await _secureStorage.read(key: _stateEncryptionKey);
+    if (stored != null) {
+      return base64Decode(stored);
+    }
+
+    // Generate a fresh 32-byte key
+    final random = Random.secure();
+    final key = Uint8List.fromList(List.generate(32, (_) => random.nextInt(256)));
+    await _secureStorage.write(key: _stateEncryptionKey, value: base64Encode(key));
+    return key;
   }
 
   // ============================================================================
@@ -147,42 +169,85 @@ class PQAuraStore {
   }
 
   // ============================================================================
-  // Session State Management
+  // Session State Management (Atomic File-Based)
   // ============================================================================
+
+  /// Get the local file path for a session state
+  Future<String> _getSessionPath(String remoteUserId) async {
+    final dir = await getApplicationDocumentsDirectory();
+    final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
+    if (!await pqaDir.exists()) {
+      await pqaDir.create(recursive: true);
+    }
+    return p.join(pqaDir.path, 'session_$remoteUserId.pqa');
+  }
 
   /// Check if we have a session with a specific user
   Future<bool> hasSession(String remoteUserId) async {
-    final session = await _secureStorage.read(key: '$_sessionsKeyPrefix$remoteUserId');
-    return session != null;
+    final path = await _getSessionPath(remoteUserId);
+    return File(path).exists();
   }
 
-  /// Save session state for a conversation
-  Future<void> saveSession(String remoteUserId, Uint8List serializedState) async {
-    await _secureStorage.write(
-      key: '$_sessionsKeyPrefix$remoteUserId',
-      value: base64Encode(serializedState),
-    );
+  /// Save session state atomically using Rust FFI
+  Future<bool> saveSessionAtomic(String remoteUserId, Pointer<RatchetState> state) async {
+    final path = await _getSessionPath(remoteUserId);
+    final key = await _getStateEncryptionKey();
+    
+    final success = PQAuraBridge.instance.saveStateAtomic(state, path, key);
+    if (!success) {
+      debugPrint('[PQAuraStore] FAILED to save session atomically for: $remoteUserId');
+    }
+    return success;
   }
 
-  /// Load session state for a conversation
-  Future<Uint8List?> loadSession(String remoteUserId) async {
-    final stored = await _secureStorage.read(key: '$_sessionsKeyPrefix$remoteUserId');
-    if (stored == null) return null;
-    return base64Decode(stored);
+  /// Load session state atomically using Rust FFI
+  Future<Pointer<RatchetState>?> loadSessionAtomic(String remoteUserId) async {
+    final path = await _getSessionPath(remoteUserId);
+    if (!await File(path).exists()) return null;
+
+    final key = await _getStateEncryptionKey();
+    return PQAuraBridge.instance.loadStateAtomic(path, key);
   }
 
-  /// Delete session state
+  /// Delete session state file
   Future<void> deleteSession(String remoteUserId) async {
+    final path = await _getSessionPath(remoteUserId);
+    final file = File(path);
+    if (await file.exists()) {
+      await file.delete();
+    }
+    // Also cleanup legacy secure storage if it exists
     await _secureStorage.delete(key: '$_sessionsKeyPrefix$remoteUserId');
   }
 
   /// Get all session user IDs
   Future<List<String>> getAllSessionUserIds() async {
-    final all = await _secureStorage.readAll();
-    return all.keys
-        .where((key) => key.startsWith(_sessionsKeyPrefix))
-        .map((key) => key.substring(_sessionsKeyPrefix.length))
-        .toList();
+    final dir = await getApplicationDocumentsDirectory();
+    final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
+    if (!await pqaDir.exists()) return [];
+
+    final files = await pqaDir.list().toList();
+    final userIds = <String>[];
+    
+    for (final entity in files) {
+      if (entity is File) {
+        final name = p.basename(entity.path);
+        if (name.startsWith('session_') && name.endsWith('.pqa')) {
+          userIds.add(name.substring(8, name.length - 4));
+        }
+      }
+    }
+    
+    return userIds;
+  }
+
+  // Legacy methods kept for compatibility or internal use during transition
+  
+  /// Load session state (Legacy)
+  Future<Uint8List?> loadSession(String remoteUserId) async {
+    final stored = await _secureStorage.read(key: '$_sessionsKeyPrefix$remoteUserId');
+    if (stored == null) return null;
+    return base64Decode(stored);
   }
 
   // ============================================================================
@@ -195,9 +260,17 @@ class PQAuraStore {
     for (final key in keys.keys) {
       if (key == _identityKeyPairKey ||
           key == _signedPreKeyKey ||
+          key == _stateEncryptionKey ||
           key.startsWith(_sessionsKeyPrefix)) {
         await _secureStorage.delete(key: key);
       }
+    }
+
+    // Clear session directory
+    final dir = await getApplicationDocumentsDirectory();
+    final pqaDir = Directory(p.join(dir.path, 'pqa_sessions'));
+    if (await pqaDir.exists()) {
+      await pqaDir.delete(recursive: true);
     }
   }
 }
