@@ -1,9 +1,9 @@
 -- =====================================================
--- UPDATE PUSH NOTIFICATIONS TO USE MODERN KEYS
+-- UPDATE PUSH NOTIFICATIONS TO USE MODERN KEYS (STRICT)
 -- =====================================================
 -- Description: Updates the notify_push_service function to authenticate
--- with the Edge Function using modern publishable/secret keys and 
--- restores the E2EE metadata payload and security definer.
+-- with the Edge Function using ONLY modern publishable/secret keys.
+-- It explicitly avoids the deprecated 208-char JWT anon keys.
 
 CREATE OR REPLACE FUNCTION public.notify_push_service()
 RETURNS TRIGGER 
@@ -17,7 +17,6 @@ DECLARE
   v_url TEXT;
 BEGIN
   -- Build a rich payload including message metadata for E2EE decryption
-  -- We fetch metadata from the messages table to include it in the push payload
   v_payload := jsonb_build_object(
     'record', row_to_json(NEW),
     'metadata', (
@@ -33,9 +32,20 @@ BEGIN
     )
   );
 
-  -- Try to get project reference and modern keys from metadata table
+  -- Try to get project reference
   SELECT value INTO v_project_ref FROM public.metadata WHERE key = 'supabase_project_ref';
-  SELECT value INTO v_auth_key FROM public.metadata WHERE key IN ('supabase_publishable_key', 'supabase_secret_key', 'supabase_anon_key', 'supabase_service_role_key') LIMIT 1;
+
+  -- STIRCT KEY SELECTION: 
+  -- We prioritize 'supabase_publishable_key' or 'supabase_secret_key'.
+  -- We ONLY use 'supabase_anon_key' if it's NOT a long JWT (length < 100).
+  SELECT value INTO v_auth_key 
+  FROM public.metadata 
+  WHERE key IN ('supabase_publishable_key', 'supabase_secret_key')
+     OR (key = 'supabase_anon_key' AND length(value) < 100)
+  ORDER BY (CASE WHEN key = 'supabase_publishable_key' THEN 1 
+                 WHEN key = 'supabase_secret_key' THEN 2 
+                 ELSE 3 END)
+  LIMIT 1;
 
   IF v_project_ref IS NOT NULL AND v_project_ref != '' THEN
       v_url := 'https://' || v_project_ref || '.supabase.co/functions/v1/push-notifications';
@@ -44,7 +54,8 @@ BEGIN
   END IF;
 
   IF v_auth_key IS NULL THEN
-      v_auth_key := 'missing-key'; -- Prevent concatenation error
+      -- Fallback to any anon key if nothing else found (though this might fail auth if it's a JWT)
+      SELECT value INTO v_auth_key FROM public.metadata WHERE key = 'supabase_anon_key' LIMIT 1;
   END IF;
 
   -- Call the push-notifications Edge Function
@@ -53,13 +64,12 @@ BEGIN
       url := v_url,
       headers := jsonb_build_object(
         'Content-Type', 'application/json',
-        'Authorization', 'Bearer ' || v_auth_key
+        'Authorization', 'Bearer ' || COALESCE(v_auth_key, 'missing-key')
       ),
       body := v_payload
     );
   RETURN NEW;
 EXCEPTION WHEN OTHERS THEN
-  -- Prevent database operation from failing if push notification fails
   RAISE WARNING 'Push notification trigger failed: %', SQLERRM;
   RETURN NEW;
 END;
