@@ -27,6 +27,8 @@ class CircleProvider with ChangeNotifier {
   Future<void> loadCircleFeed(String circleId, String userId, {bool refresh = false}) async {
     if (_state.isLoadingFeed) return;
     
+    // Preserve existing posts on refresh in case DB returns empty
+    final existingPosts = refresh ? List<Post>.from(_state.circleFeed) : <Post>[];
     final offset = refresh ? 0 : _state.circleFeed.length;
     _state = _state.copyWith(isLoadingFeed: true);
     if (refresh) notifyListeners();
@@ -39,13 +41,24 @@ class CircleProvider with ChangeNotifier {
         offset: offset,
       );
 
-      final newList = refresh ? posts : [..._state.circleFeed, ...posts];
+      // If refresh returned empty but we have existing posts, keep them
+      // This prevents posts from vanishing on pull-to-refresh
+      final newList = refresh 
+          ? (posts.isEmpty ? existingPosts : posts)
+          : [..._state.circleFeed, ...posts];
+          
       _state = _state.copyWith(
         circleFeed: newList,
         hasMoreFeed: posts.length == 20,
       );
+      
+      debugPrint('[CircleProvider] loadCircleFeed: refresh=$refresh, fetched=${posts.length}, total=${newList.length}');
     } catch (e) {
       debugPrint('[CircleProvider] loadCircleFeed error: $e');
+      // On error, preserve existing posts if this was a refresh
+      if (refresh && existingPosts.isNotEmpty) {
+        _state = _state.copyWith(circleFeed: existingPosts);
+      }
     } finally {
       _state = _state.copyWith(isLoadingFeed: false);
       notifyListeners();

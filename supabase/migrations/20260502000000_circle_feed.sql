@@ -191,7 +191,7 @@ RETURNS TABLE (
     storage_provider TEXT
 ) AS $$
 BEGIN
-    -- Check if user is a member of the circle
+    -- Check if user is a member of the circle using p_user_id parameter
     IF NOT EXISTS (
         SELECT 1 FROM public.circle_members 
         WHERE circle_id = p_circle_id AND user_id = p_user_id

@@ -168,6 +168,8 @@ class CircleRemoteDatasource {
     int offset = 0,
   }) async {
     try {
+      debugPrint('[CircleRemoteDatasource] getCircleFeed: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
+      
       final response = await _supabase.rpc('get_circle_feed', params: {
         'p_user_id': userId,
         'p_circle_id': circleId,
@@ -182,6 +184,12 @@ class CircleRemoteDatasource {
 
       final List<Map<String, dynamic>> posts = (response as List).cast<Map<String, dynamic>>();
       debugPrint('[CircleRemoteDatasource] getCircleFeed: returned ${posts.length} posts for circle $circleId');
+      
+      // Log first post's circle_id to verify posts have circle_id set
+      if (posts.isNotEmpty) {
+        debugPrint('[CircleRemoteDatasource] First post circle_id: ${posts.first['circle_id']}');
+      }
+      
       return posts;
     } catch (e) {
       debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e');
