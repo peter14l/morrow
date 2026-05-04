@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
@@ -6,6 +7,8 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
+import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 
 /// Navigation shell with bottom navigation bar
 class NavigationShell extends material.StatelessWidget {
@@ -143,47 +146,91 @@ class NavigationShell extends material.StatelessWidget {
     bool isM3E,
     int unreadCount,
   ) {
+    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+    
+    final navigationBar = material.NavigationBar(
+      selectedIndex: currentIndex,
+      onDestinationSelected:
+          (index) => _onDestinationSelected(context, index),
+      destinations: [
+        const material.NavigationDestination(
+          icon: material.Icon(FluentIcons.home_24_regular),
+          selectedIcon: material.Icon(FluentIcons.home_24_filled),
+          label: 'Feed',
+        ),
+        const material.NavigationDestination(
+          icon: material.Icon(FluentIcons.search_24_regular),
+          selectedIcon: material.Icon(FluentIcons.search_24_filled),
+          label: 'Search',
+        ),
+        const material.NavigationDestination(
+          icon: material.Icon(FluentIcons.people_24_regular),
+          selectedIcon: material.Icon(FluentIcons.people_24_filled),
+          label: 'Circles',
+        ),
+        material.NavigationDestination(
+          icon: material.Badge(
+            isLabelVisible: unreadCount > 0,
+            label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+            child: const material.Icon(FluentIcons.chat_24_regular),
+          ),
+          selectedIcon: material.Badge(
+            isLabelVisible: unreadCount > 0,
+            label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+            child: const material.Icon(FluentIcons.chat_24_filled),
+          ),
+          label: 'Messages',
+        ),
+        const material.NavigationDestination(
+          icon: material.Icon(FluentIcons.alert_24_regular),
+          selectedIcon: material.Icon(FluentIcons.alert_24_filled),
+          label: 'Alerts',
+        ),
+      ],
+    );
+
+    // Apply liquid glass effect if enabled
+    if (liquidGlassMode != LiquidGlassMode.disabled) {
+      return material.Scaffold(
+        body: child,
+        bottomNavigationBar: _applyLiquidGlassToBottomNav(navigationBar, liquidGlassMode, theme.brightness),
+      );
+    }
+
     return material.Scaffold(
       body: child,
-      bottomNavigationBar: material.NavigationBar(
-        selectedIndex: currentIndex,
-        onDestinationSelected:
-            (index) => _onDestinationSelected(context, index),
-        destinations: [
-          const material.NavigationDestination(
-            icon: material.Icon(FluentIcons.home_24_regular),
-            selectedIcon: material.Icon(FluentIcons.home_24_filled),
-            label: 'Feed',
-          ),
-          const material.NavigationDestination(
-            icon: material.Icon(FluentIcons.search_24_regular),
-            selectedIcon: material.Icon(FluentIcons.search_24_filled),
-            label: 'Search',
-          ),
-          const material.NavigationDestination(
-            icon: material.Icon(FluentIcons.people_24_regular),
-            selectedIcon: material.Icon(FluentIcons.people_24_filled),
-            label: 'Circles',
-          ),
-          material.NavigationDestination(
-            icon: material.Badge(
-              isLabelVisible: unreadCount > 0,
-              label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
-              child: const material.Icon(FluentIcons.chat_24_regular),
+      bottomNavigationBar: navigationBar,
+    );
+  }
+
+  Widget _applyLiquidGlassToBottomNav(Widget navBar, LiquidGlassMode mode, material.Brightness brightness) {
+    if (mode == LiquidGlassMode.fake) {
+      return ClipRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          child: Container(
+            decoration: BoxDecoration(
+              color: brightness == material.Brightness.dark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.white.withValues(alpha: 0.3),
             ),
-            selectedIcon: material.Badge(
-              isLabelVisible: unreadCount > 0,
-              label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
-              child: const material.Icon(FluentIcons.chat_24_filled),
-            ),
-            label: 'Messages',
+            child: navBar,
           ),
-          const material.NavigationDestination(
-            icon: material.Icon(FluentIcons.alert_24_regular),
-            selectedIcon: material.Icon(FluentIcons.alert_24_filled),
-            label: 'Alerts',
+        ),
+      );
+    }
+    // For real mode, fall back to fake for bottom nav (better performance)
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            color: brightness == material.Brightness.dark
+                ? Colors.white.withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.4),
           ),
-        ],
+          child: navBar,
+        ),
       ),
     );
   }

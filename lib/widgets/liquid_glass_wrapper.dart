@@ -296,3 +296,65 @@ LiquidGlassMode getLiquidGlassMode(BuildContext context) {
   final settings = context.read<UserSettingsProvider>();
   return settings.liquidGlassMode;
 }
+
+/// Extension to wrap Material FloatingActionButton with liquid glass
+extension LiquidGlassFloatingActionButton on Widget {
+  Widget asLiquidGlassFAB({
+    double borderRadius = 28,
+    LiquidGlassConfig config = LiquidGlassConfig.Light,
+  }) {
+    return LiquidGlassWrapper(
+      borderRadius: borderRadius,
+      config: config,
+      child: this,
+    );
+  }
+}
+
+/// Extension to wrap Card with liquid glass
+extension LiquidGlassCard on Widget {
+  Widget asLiquidGlassCard({
+    double borderRadius = 20,
+    LiquidGlassConfig config = LiquidGlassConfig.Medium,
+  }) {
+    return LiquidGlassWrapper(
+      borderRadius: borderRadius,
+      config: config,
+      child: this,
+    );
+  }
+}
+
+/// Extension to wrap Dialog with liquid glass
+extension LiquidGlassDialog on Widget {
+  Widget asLiquidGlassDialog({
+    double borderRadius = 28,
+    LiquidGlassConfig config = LiquidGlassConfig.Medium,
+  }) {
+    return LiquidGlassWrapper(
+      borderRadius: borderRadius,
+      config: config,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: this,
+      ),
+    );
+  }
+}
+
+/// Extension to wrap BottomSheet with liquid glass
+extension LiquidGlassBottomSheet on Widget {
+  Widget asLiquidGlassBottomSheet({
+    double borderRadius = 24,
+    LiquidGlassConfig config = LiquidGlassConfig.Light,
+  }) {
+    return LiquidGlassWrapper(
+      borderRadius: borderRadius,
+      config: config,
+      child: ClipRRect(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
+        child: this,
+      ),
+    );
+  }
+}
