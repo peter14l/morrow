@@ -190,6 +190,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final String title = message.data['title'] ?? message.notification?.title ?? 'New Notification';
   final String body = message.data['body'] ?? message.notification?.body ?? '';
   final String? payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
+  final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
 
   // 4. DEEP INITIALIZATION & DECRYPTION (Background Path)
   // We initialize services and attempt decryption before showing the notification
@@ -208,14 +209,27 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     await PrefsStorage.init();
     await SupabaseService.initialize();
 
+    // 1. Requirement (a): Only show if logged in.
+    final accounts = await SessionRegistryService().getAllAccounts();
+    if (accounts.isEmpty) {
+      debugPrint('[BackgroundFCM] Suppressing notification: No accounts logged in.');
+      return;
+    }
+
+    if (receiverId != null && !accounts.any((a) => a.userId == receiverId)) {
+      debugPrint('[BackgroundFCM] Suppressing notification: Recipient $receiverId is not a logged-in account.');
+      return;
+    }
+
     // Ensure session is restored before decryption
     await SupabaseService().waitForSession(timeoutMs: 1500);
 
-    // Attempt decryption
+    // Attempt decryption using the correct receiver's keys
     String finalBody = body.isNotEmpty ? body : 'New Message';
     try {
       final decryptedBody = await NotificationDecryptionService().decryptMessage(
         message.data,
+        targetUserId: receiverId,
       );
       if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
         finalBody = decryptedBody;
@@ -226,10 +240,10 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     // Hide ciphertext if it still hasn't been decrypted or if decryption failed
     if (finalBody.length > 60 && !finalBody.contains(' ') && !finalBody.contains('🔒')) {
-      finalBody = 'New Message'; // Use a generic fallback instead of showing the key or a lock icon
+      finalBody = 'New Message'; 
     }
 
-    // 4. SHOW NOTIFICATION (Single call with final content)
+    // 5. SHOW NOTIFICATION (Single call with final content)
     await NotificationManager.instance.showNotification(
       title: title,
       body: finalBody,

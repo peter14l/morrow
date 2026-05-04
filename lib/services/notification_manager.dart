@@ -907,17 +907,33 @@ class NotificationManager {
       debugPrint('FCM onMessage received: ${message.messageId}');
       
       if (message.notification != null || message.data.isNotEmpty) {
+        final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
+        
+        // 1. Requirement (a): Only show if logged in.
+        // Check if receiverId is one of our registered accounts.
+        final accounts = await SessionRegistryService().getAllAccounts();
+        if (accounts.isEmpty) {
+           debugPrint('[NotificationManager] Suppressing notification: No accounts logged in.');
+           return;
+        }
+
+        if (receiverId != null && !accounts.any((a) => a.userId == receiverId)) {
+           debugPrint('[NotificationManager] Suppressing notification: Recipient $receiverId is not a logged-in account.');
+           return;
+        }
+
         String title = message.notification?.title ?? message.data['title'] ?? 'New Notification';
         String body = message.notification?.body ?? message.data['body'] ?? '';
         
-        // Decrypt body if it's an encrypted message
+        // Decrypt body if it's an encrypted message using the correct receiver's keys
         try {
-          final decryptedBody = await NotificationDecryptionService().decryptMessage(message.data);
+          final decryptedBody = await NotificationDecryptionService().decryptMessage(
+            message.data,
+            targetUserId: receiverId,
+          );
           if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
             body = decryptedBody;
           } else if (body.length > 100 && !body.contains(' ')) {
-             // If body looks like a long base64/hex string and decryption failed, 
-             // better show a placeholder than the raw ciphertext.
              body = '🔒 Encrypted message';
           }
         } catch (e) {
@@ -958,11 +974,29 @@ class NotificationManager {
     );
   }
 
-  void _handleNotificationTap(String? payload) {
+  Future<void> _handleNotificationTap(String? payload) async {
     if (payload == null) return;
 
     try {
       final data = jsonDecode(payload) as Map<String, dynamic>;
+      final receiverId = data['receiver_id'] ?? data['user_id'];
+      final currentUserId = Supabase.instance.client.auth.currentUser?.id;
+
+      // Requirement (c): Switch account if notification is for a different account
+      if (receiverId != null && receiverId != currentUserId) {
+        debugPrint('[NotificationManager] Switching account to $receiverId for notification');
+        final context = AppRouter.rootNavigatorKey.currentContext;
+        if (context != null) {
+          try {
+            await AuthService().switchAccount(context, receiverId);
+            // Brief delay for session state to propagate
+            await Future.delayed(const Duration(milliseconds: 500));
+          } catch (e) {
+            debugPrint('[NotificationManager] Failed to switch account: $e');
+          }
+        }
+      }
+
       final type = data['type'] as String?;
       final conversationId = data['conversation_id'] as String?;
 

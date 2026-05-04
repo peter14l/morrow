@@ -4,6 +4,7 @@ import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'signal_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignalService {
   static final SignalService _instance = SignalService._internal();
@@ -11,25 +12,33 @@ class SignalService {
   SignalService._internal();
 
   final SupabaseClient _supabase = Supabase.instance.client;
-  late PersistentSignalStore _store;
+  final Map<String, PersistentSignalStore> _stores = {};
   bool _isInitialized = false;
   bool _isInitializing = false;
 
   bool get isInitialized => _isInitialized;
 
-  /// Initialize the Signal Service.
-  /// Generates keys and uploads to Supabase if not done yet.
-  Future<bool> init() async {
-    final userId = _supabase.auth.currentUser?.id;
-    if (userId == null) return false;
+  /// Get the store for a specific user ID, or the current user if not provided.
+  PersistentSignalStore? _getStore(String? userId) {
+    final uid = userId ?? _supabase.auth.currentUser?.id;
+    if (uid == null) return null;
+    return _stores[uid];
+  }
 
-    if (_isInitialized) {
-      // Check for user affinity (account switch protection)
-      final hasCorrectKeys = await PersistentSignalStore.hasKeys();
+  /// Initialize the Signal Service for a specific user.
+  /// Generates keys and uploads to Supabase if not done yet.
+  Future<bool> init({String? userId}) async {
+    final uid = userId ?? _supabase.auth.currentUser?.id;
+    if (uid == null) return false;
+
+    if (_stores.containsKey(uid)) {
+      // Check for keys presence
+      final hasCorrectKeys = await PersistentSignalStore.hasKeys(userId: uid);
       if (!hasCorrectKeys) {
-        debugPrint('[Signal] User mismatch or keys missing. Resetting...');
-        await clearData();
+        debugPrint('[Signal] Keys missing for $uid. Resetting...');
+        _stores.remove(uid);
       } else {
+        if (userId == null) _isInitialized = true;
         return true;
       }
     }
@@ -39,134 +48,128 @@ class SignalService {
       while (_isInitializing) {
         await Future.delayed(const Duration(milliseconds: 100));
       }
-      return _isInitialized;
+      return _stores.containsKey(uid);
     }
 
     _isInitializing = true;
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) {
-        _isInitializing = false;
-        return false;
-      }
-
       // 1. Initialize persistent store
-      // If local keys are missing, try to restore from Supabase backup
-      final hasLocalKeys = await PersistentSignalStore.hasKeys();
+      final hasLocalKeys = await PersistentSignalStore.hasKeys(userId: uid);
 
+      PersistentSignalStore store;
       if (!hasLocalKeys) {
-        debugPrint('[Signal] Local keys missing, attempting restoration...');
+        debugPrint('[Signal] Local keys missing for $uid, attempting restoration...');
         final backup = await EncryptionService().restoreSignalIdentity();
         if (backup != null) {
-          debugPrint('[Signal] Restoration data found, saving locally...');
+          debugPrint('[Signal] Restoration data found for $uid, saving locally...');
           final identityKeyPair = IdentityKeyPair.fromSerialized(
             base64Decode(backup['identityKeyPair'] as String),
           );
           final registrationId = backup['registrationId'] as int;
 
-          _store = await PersistentSignalStore.saveAndInit(
+          store = await PersistentSignalStore.saveAndInit(
             identityKeyPair,
             registrationId,
+            userId: uid,
           );
-          debugPrint('[Signal] Restoration complete.');
+          debugPrint('[Signal] Restoration complete for $uid.');
         } else {
           debugPrint(
-            '[Signal] No backup found on server, will generate new keys.',
+            '[Signal] No backup found for $uid, will generate new keys.',
           );
-          _store = await PersistentSignalStore.init();
+          store = await _initStoreForUser(uid);
         }
       } else {
-        _store = await PersistentSignalStore.init();
+        store = await _initStoreForUser(uid);
       }
 
-      // 2. Verify identity alignment with server
-      final identityKeyPair = await _store.getIdentityKeyPair();
-      final localIdentityKeyBase64 = base64Encode(
-        identityKeyPair.getPublicKey().serialize(),
-      );
+      _stores[uid] = store;
 
-      final response =
-          await _supabase
-              .from('signal_keys')
-              .select('user_id, identity_key')
-              .eq('user_id', userId)
-              .maybeSingle();
-
-      final serverIdentityKey = response?['identity_key'] as String?;
-      final isIdentityMismatch =
-          serverIdentityKey != null &&
-          serverIdentityKey != localIdentityKeyBase64;
-
-      // Check if we have local pre-keys
-      final hasLocalPreKeys = await _store.hasPreKeys();
-      final hasLocalSignedPreKey = await _store.hasSignedPreKeys();
-
-      // Check if private backup exists in profile
-      final profile =
-          await _supabase
-              .from('profiles')
-              .select('encrypted_signal_identity')
-              .eq('id', userId)
-              .maybeSingle();
-
-      if (response == null ||
-          !hasLocalPreKeys ||
-          !hasLocalSignedPreKey ||
-          isIdentityMismatch) {
-        // No bundle on server OR missing local keys OR identity changed — refresh bundle
-        debugPrint(
-          '[Signal] Bundle refresh required (New user, missing keys, or identity change). Generating...',
-        );
-        await _generateAndUploadBundle(userId);
-      } else if (profile == null ||
-          profile['encrypted_signal_identity'] == null) {
-        // Public bundle exists but private backup is missing — perform backup
-        debugPrint(
-          '[Signal] Public bundle exists but private backup missing. Triggering backup...',
-        );
-        final identityKeyPair = await _store.getIdentityKeyPair();
-        final registrationId = await _store.getLocalRegistrationId();
-        await EncryptionService().backupSignalIdentity(
-          base64Encode(identityKeyPair.serialize()),
-          registrationId,
-        );
+      // 2. Verify identity alignment with server (Only for active user to avoid unnecessary network calls)
+      if (uid == _supabase.auth.currentUser?.id) {
+        await _verifyIdentityWithServer(uid, store);
+        _isInitialized = true;
       }
 
-      _isInitialized = true;
       _isInitializing = false;
-      debugPrint('[Signal] Initialization complete.');
       return true;
     } catch (e) {
+      debugPrint('[Signal] Initialization error for $uid: $e');
       _isInitializing = false;
-      debugPrint('[Signal] Initialization error: $e');
       return false;
     }
   }
 
-  /// Wipe all local Signal state
-  Future<void> clearData() async {
+  Future<PersistentSignalStore> _initStoreForUser(String userId) async {
+    final identityKeyPair = generateIdentityKeyPair();
+    final registrationId = generateRegistrationId(false);
+
+    return await PersistentSignalStore.saveAndInit(
+      identityKeyPair, 
+      registrationId, 
+      userId: userId,
+    );
+  }
+
+  Future<void> _verifyIdentityWithServer(String userId, PersistentSignalStore store) async {
+    final identityKeyPair = await store.getIdentityKeyPair();
+    final localIdentityKeyBase64 = base64Encode(
+      identityKeyPair.getPublicKey().serialize(),
+    );
+
+    final response = await _supabase
+        .from('signal_keys')
+        .select('user_id, identity_key')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+    final serverIdentityKey = response?['identity_key'] as String?;
+    final isIdentityMismatch =
+        serverIdentityKey != null &&
+        serverIdentityKey != localIdentityKeyBase64;
+    
+    if (isIdentityMismatch) {
+      debugPrint('[Signal] Server identity mismatch for $userId. Updating...');
+      await _generateAndUploadBundle(userId);
+    }
+  }
+
+  /// Wipe all local Signal state for a specific user
+  Future<void> clearData({String? userId}) async {
+    final uid = userId ?? _supabase.auth.currentUser?.id;
+    if (uid == null) return;
+    
     try {
-      await _store.clearAll();
-      _isInitialized = false;
+      final store = _stores[uid];
+      if (store != null) {
+        await store.clearAll();
+        _stores.remove(uid);
+      }
+      if (uid == _supabase.auth.currentUser?.id) {
+        _isInitialized = false;
+      }
     } catch (e) {
-      debugPrint('[Signal] Error clearing data: $e');
+      debugPrint('[Signal] Error clearing data for $uid: $e');
     }
   }
 
   /// Generate SignedPreKey and OneTimePreKeys and upload bundle
   Future<void> _generateAndUploadBundle(String userId) async {
-    final identityKeyPair = await _store.getIdentityKeyPair();
-    final registrationId = await _store.getLocalRegistrationId();
+    final store = _getStore(userId);
+    if (store == null) return;
+
+    final identityKeyPair = await store.getIdentityKeyPair();
+    final registrationId = await store.getLocalRegistrationId();
 
     // Generate Signed PreKey (id: 1)
     final signedPreKey = generateSignedPreKey(identityKeyPair, 1);
-    await _store.storeSignedPreKey(1, signedPreKey);
+    await store.storeSignedPreKey(1, signedPreKey);
 
     // Generate One-Time PreKeys (id: 1 to 100)
     final preKeys = generatePreKeys(1, 100);
     final preKeysMap = <String, String>{};
     for (final pk in preKeys) {
-      await _store.storePreKey(pk.id, pk);
+      await store.storePreKey(pk.id, pk);
       preKeysMap[pk.id.toString()] = base64Encode(
         pk.getKeyPair().publicKey.serialize(),
       );
@@ -198,21 +201,22 @@ class SignalService {
   }
 
   /// Ensure we have an active session with [remoteUserId].
-  /// If not, fetch their bundle and build a session.
-  Future<void> _ensureSession(String remoteUserId, {int deviceId = 1}) async {
+  Future<void> _ensureSession(String remoteUserId, {String? localUserId, int deviceId = 1}) async {
+    final store = _getStore(localUserId);
+    if (store == null) throw Exception('No store found for local user $localUserId');
+
     final address = SignalProtocolAddress(remoteUserId, deviceId);
 
-    if (await _store.containsSession(address)) {
+    if (await store.containsSession(address)) {
       return; // Session already exists
     }
 
     // Fetch bundle from Supabase
-    final response =
-        await _supabase
-            .from('signal_keys')
-            .select()
-            .eq('user_id', remoteUserId)
-            .maybeSingle();
+    final response = await _supabase
+        .from('signal_keys')
+        .select()
+        .eq('user_id', remoteUserId)
+        .maybeSingle();
 
     if (response == null) {
       throw Exception('Remote user has not registered Signal keys yet.');
@@ -254,23 +258,14 @@ class SignalService {
       identityKey,
     );
 
-    // Force trust the fetched identity key to prevent UntrustedIdentityException 
-    // if the remote user has re-installed or changed their keys.
-    // First, remove the old key (if any) because libsignal ignores updates to existing keys.
-    await _store.saveIdentity(address, null);
-    await _store.saveIdentity(address, identityKey);
+    await store.saveIdentity(address, null);
+    await store.saveIdentity(address, identityKey);
 
     // Build Session
-    final sessionBuilder = SessionBuilder(
-      _store,
-      _store,
-      _store,
-      _store,
-      address,
-    );
+    final sessionBuilder = SessionBuilder(store, store, store, store, address);
     await sessionBuilder.processPreKeyBundle(preKeyBundle);
 
-    // Remove the used one-time prekey from Supabase so others don't use it
+    // Remove the used one-time prekey
     onetimePrekeys.remove(firstKeyIdString);
     await _supabase
         .from('signal_keys')
@@ -279,64 +274,52 @@ class SignalService {
   }
 
   /// Force a refresh of a remote user's bundle and rebuild the session.
-  /// Used when a session is corrupted (e.g. Bad MAC).
-  Future<void> forceRefreshBundle(String remoteUserId) async {
+  Future<void> forceRefreshBundle(String remoteUserId, {String? localUserId}) async {
     debugPrint('[Signal] Force-refreshing bundle for $remoteUserId...');
+    final store = _getStore(localUserId);
+    if (store == null) return;
     final address = SignalProtocolAddress(remoteUserId, 1);
-    await _store.deleteSession(address);
-    await _ensureSession(remoteUserId);
+    await store.deleteSession(address);
+    await _ensureSession(remoteUserId, localUserId: localUserId);
   }
 
   /// Encrypt a string message for a specific user
   Future<CiphertextMessage> encryptMessage(
     String recipientId,
     String plaintext, {
+    String? localUserId,
     int deviceId = 1,
   }) async {
-    if (!_isInitialized) {
-      final success = await init();
-      if (!success) {
-        throw Exception('SignalService not initialized and init failed');
-      }
-    }
+    final uid = localUserId ?? _supabase.auth.currentUser?.id;
+    if (uid == null) throw Exception('No user ID for encryption');
 
-    await _ensureSession(recipientId, deviceId: deviceId);
+    if (!_stores.containsKey(uid)) {
+      final success = await init(userId: uid);
+      if (!success) throw Exception('SignalService init failed for $uid');
+    }
+    
+    final store = _stores[uid]!;
+    await _ensureSession(recipientId, localUserId: uid, deviceId: deviceId);
 
     final address = SignalProtocolAddress(recipientId, deviceId);
-    final sessionCipher = SessionCipher(
-      _store,
-      _store,
-      _store,
-      _store,
-      address,
-    );
+    final sessionCipher = SessionCipher(store, store, store, store, address);
 
     try {
-      final ciphertextMessage = await sessionCipher.encrypt(
+      return await sessionCipher.encrypt(
         Uint8List.fromList(utf8.encode(plaintext)),
       );
-      return ciphertextMessage;
     } catch (e) {
-      debugPrint('[Signal] Session encryption failed: $e. Rebuilding session...');
-      // If encryption fails (e.g. InvalidKeyException), the session is corrupted.
-      // Delete the session and retry once.
-      await _store.deleteSession(address);
-      await _ensureSession(recipientId, deviceId: deviceId);
+      await store.deleteSession(address);
+      await _ensureSession(recipientId, localUserId: uid, deviceId: deviceId);
       
-      final retryCipher = SessionCipher(
-        _store,
-        _store,
-        _store,
-        _store,
-        address,
-      );
+      final retryCipher = SessionCipher(store, store, store, store, address);
       return await retryCipher.encrypt(
         Uint8List.fromList(utf8.encode(plaintext)),
       );
     }
   }
 
-  // Track recent recovery attempts to prevent spamming
+  // Track recent recovery attempts
   final Map<String, DateTime> _lastRecoveryAttempt = {};
 
   /// Decrypt an incoming message.
@@ -344,22 +327,21 @@ class SignalService {
     String senderId,
     String base64Ciphertext,
     int type, {
+    String? localUserId,
     int deviceId = 1,
     bool isHistorical = false,
   }) async {
-    if (!_isInitialized) {
-      final success = await init();
+    final uid = localUserId ?? _supabase.auth.currentUser?.id;
+    if (uid == null) return '🔒 Message encrypted (No user session)';
+
+    if (!_stores.containsKey(uid)) {
+      final success = await init(userId: uid);
       if (!success) return '🔒 Message encrypted (Initialization error)';
     }
 
+    final store = _stores[uid]!;
     final address = SignalProtocolAddress(senderId, deviceId);
-    final sessionCipher = SessionCipher(
-      _store,
-      _store,
-      _store,
-      _store,
-      address,
-    );
+    final sessionCipher = SessionCipher(store, store, store, store, address);
     final ciphertextBytes = base64Decode(base64Ciphertext);
 
     try {
@@ -376,57 +358,24 @@ class SignalService {
       return utf8.decode(plaintextBytes);
     } catch (e) {
       final errorStr = e.toString();
-      
       if (errorStr.contains('Bad Mac')) {
-        if (isHistorical) {
-          return '🔒 Message encrypted (Historical)';
-        }
-
+        if (isHistorical) return '🔒 Message encrypted (Historical)';
+        
         final now = DateTime.now();
         final lastAttempt = _lastRecoveryAttempt[senderId];
-
-        // Only attempt recovery once every 5 minutes per user to prevent loops and spam
         if (lastAttempt == null || now.difference(lastAttempt).inMinutes > 5) {
           _lastRecoveryAttempt[senderId] = now;
-          debugPrint(
-            '[Signal] Message authentication failed (Bad MAC) with $senderId. Resetting session to recover...',
-          );
-
-          // Proactive: Trigger a refresh and send a SYNC message to fix the other side
-          forceRefreshBundle(senderId)
-              .then((_) async {
-                try {
-                  // Send a hidden empty message to force the remote side to rebuild their session
-                  await encryptMessage(senderId, 'PROTOCOL_SYNC');
-                } catch (syncError) {
-                  debugPrint('[Signal] Sync send failed: $syncError');
-                }
-              })
-              .catchError((e) {
-                debugPrint('[Signal] Recovery failed: $e');
-              });
+          forceRefreshBundle(senderId, localUserId: uid).then((_) async {
+            try {
+              await encryptMessage(senderId, 'PROTOCOL_SYNC', localUserId: uid);
+            } catch (_) {}
+          }).catchError((_) {});
         }
-
         return '🔒 Optimizing secure connection...';
-      } else if (errorStr.contains('No valid sessions') ||
-          errorStr.contains('InvalidMessageException')) {
-        debugPrint(
-          '[Signal] No valid session or invalid message from $senderId. Clearing session.',
-        );
-        await _store.deleteSession(address);
-        return '🔒 Session expired (Resetting...)';
-      } else if (errorStr.contains('DuplicateMessageException')) {
-        return '🔒 Message encrypted (Duplicate)';
-      } else if (errorStr.contains('InvalidKeyIdException')) {
-        debugPrint(
-          '[Signal] Pre-key mismatch with $senderId: $e. Likely local pre-keys were lost.',
-        );
-        return '🔒 Key mismatch (Establishing new...)';
-      } else if (errorStr.contains('UntrustedIdentityException')) {
-        debugPrint('[Signal] Untrusted identity for $senderId. Key changed?');
-        return '🔒 Identity changed (Verifying...)';
+      } else if (errorStr.contains('No valid sessions') || errorStr.contains('InvalidMessageException')) {
+        await store.deleteSession(address);
+        return '🔒 Session expired';
       }
-
       return '🔒 Message encrypted';
     }
   }

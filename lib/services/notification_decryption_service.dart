@@ -32,7 +32,7 @@ class NotificationDecryptionService {
   }
 
   /// Decrypts a message from FCM data payload.
-  Future<String?> decryptMessage(Map<String, dynamic> data) async {
+  Future<String?> decryptMessage(Map<String, dynamic> data, {String? targetUserId}) async {
     String? content = data['body'] ?? data['content'] ?? data['message'];
     if (content == null) return null;
 
@@ -49,17 +49,7 @@ class NotificationDecryptionService {
     }
 
     try {
-      // Initialize encryption services if needed
-      if (!_encryptionService.isInitialized) {
-        debugPrint('[NotificationDecryption] Initializing EncryptionService...');
-        await _encryptionService.init();
-      }
-      if (!_signalService.isInitialized) {
-        debugPrint('[NotificationDecryption] Initializing SignalService...');
-        await _signalService.init();
-      }
-
-      final userId = _authService.currentUser?.id;
+      final userId = targetUserId ?? _authService.currentUser?.id;
       final senderId = data['sender_id'] ?? data['actor_id'];
       
       if (userId == null) {
@@ -67,9 +57,19 @@ class NotificationDecryptionService {
         return '🔒 New Message';
       }
 
+      // Initialize encryption services if needed
+      if (!_encryptionService.isInitialized) {
+        debugPrint('[NotificationDecryption] Initializing EncryptionService...');
+        await _encryptionService.init();
+      }
+      
+      // SignalService handles its own per-user initialization now
+      // but we might want to ensure it's ready for this user
+      await _signalService.init(userId: userId);
+
       // 1. Try Signal decryption first if applicable
       if (hasSignalType && senderId != null) {
-        debugPrint('[NotificationDecryption] Attempting Signal decryption...');
+        debugPrint('[NotificationDecryption] Attempting Signal decryption for $userId...');
         final signalType = int.tryParse(data['signal_message_type'].toString());
         if (signalType != null) {
           try {
@@ -82,6 +82,7 @@ class NotificationDecryptionService {
               senderId,
               ciphertext,
               signalType,
+              localUserId: userId,
             );
             
             // If signal decryption returned a placeholder but we have RSA fallback
@@ -90,7 +91,7 @@ class NotificationDecryptionService {
                 hasEncryptedKeys &&
                 data['iv'] != null) {
               debugPrint('[NotificationDecryption] Signal returned placeholder, trying RSA fallback...');
-              return await _decryptRSAFallback(data);
+              return await _decryptRSAFallback(data, userId: userId);
             }
             
             return decrypted;
@@ -102,8 +103,8 @@ class NotificationDecryptionService {
 
       // 2. Try RSA decryption
       if (hasEncryptedKeys && data['iv'] != null) {
-        debugPrint('[NotificationDecryption] Attempting RSA decryption...');
-        return await _decryptRSAFallback(data);
+        debugPrint('[NotificationDecryption] Attempting RSA decryption for $userId...');
+        return await _decryptRSAFallback(data, userId: userId);
       }
     } catch (e) {
       debugPrint('[NotificationDecryption] Decryption error: $e');
@@ -127,7 +128,7 @@ class NotificationDecryptionService {
     }
   }
 
-  Future<String?> _decryptRSAFallback(Map<String, dynamic> data) async {
+  Future<String?> _decryptRSAFallback(Map<String, dynamic> data, {String? userId}) async {
     final String? content = data['signal_sender_content'] ?? data['body'] ?? data['content'];
     final dynamic encryptedKeysRaw = data['encrypted_keys'];
     final String? iv = data['iv'];
@@ -152,6 +153,7 @@ class NotificationDecryptionService {
       content,
       encryptedKeys,
       iv,
+      userId: userId,
     );
   }
 }

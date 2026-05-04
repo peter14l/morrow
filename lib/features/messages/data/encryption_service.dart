@@ -601,11 +601,12 @@ class EncryptionService {
   Future<String?> decryptMessage(
     String encryptedContentBase64,
     Map<String, dynamic> encryptedKeys,
-    String ivBase64,
-  ) async {
+    String ivBase64, {
+    String? userId,
+  }) async {
     if (encryptedContentBase64.isEmpty) return '';
     
-    final key = await _decryptAESKey(encryptedKeys);
+    final key = await _decryptAESKey(encryptedKeys, targetUserId: userId);
     if (key == null) return null;
     try {
       final encrypter = encrypt.Encrypter(encrypt.AES(key));
@@ -620,21 +621,23 @@ class EncryptionService {
   }
 
   Future<encrypt.Key?> _decryptAESKey(
-    Map<String, dynamic> encryptedKeys,
-  ) async {
-    final userId = _supabase.auth.currentUser?.id;
+    Map<String, dynamic> encryptedKeys, {
+    String? targetUserId,
+  }) async {
+    final userId = targetUserId ?? _supabase.auth.currentUser?.id;
     
     if (userId != null) {
-      if (!_isInitialized) await init();
+      // If we're initializing for another user, we might need a separate status check, 
+      // but init() is currently hardcoded to current user.
+      // For notifications, we assume keys are already present if targetUserId is provided.
+      if (targetUserId == null && !_isInitialized) await init();
 
-      if (_cachedPrimaryKey == null) {
-        _cachedPrimaryKey = await _secureStorage.read(
-          key: KeyManagementService.privateKeyKey(userId),
-        );
-      }
+      final pk = await _secureStorage.read(
+        key: KeyManagementService.privateKeyKey(userId),
+      );
       
-      if (_cachedPrimaryKey != null) {
-        final key = await _tryDecryptWithPrivateKey(_cachedPrimaryKey!, encryptedKeys);
+      if (pk != null) {
+        final key = await _tryDecryptWithPrivateKey(pk, encryptedKeys);
         if (key != null) return key;
       }
     }

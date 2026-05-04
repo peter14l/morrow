@@ -29,25 +29,25 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
         registrationId,
       );
 
-  /// Check if local keys exist and belong to the current user
-  static Future<bool> hasKeys() async {
+  /// Check if local keys exist and belong to a specific user
+  static Future<bool> hasKeys({String? userId}) async {
     debugPrint('[SignalStore] hasKeys check starting...');
     final secureStorage = SecureStorage();
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) {
-      debugPrint('[SignalStore] hasKeys: No user logged in');
+    final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) {
+      debugPrint('[SignalStore] hasKeys: No user ID provided and no current user');
       return false;
     }
 
     try {
       final identityKeyString = await secureStorage.read(
-        key: _identityKeyPairKey(userId),
+        key: _identityKeyPairKey(uid),
       );
       final registrationIdString = await secureStorage.read(
-        key: _localRegistrationIdKey(userId),
+        key: _localRegistrationIdKey(uid),
       );
 
-      debugPrint('[SignalStore] hasKeys result: identity=${identityKeyString != null}, registration=${registrationIdString != null}');
+      debugPrint('[SignalStore] hasKeys result for $uid: identity=${identityKeyString != null}, registration=${registrationIdString != null}');
       return identityKeyString != null && registrationIdString != null;
     } catch (e) {
       debugPrint('[SignalStore] hasKeys error: $e');
@@ -55,46 +55,47 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
     }
   }
 
-  /// Check if we have any pre-keys stored locally
-  Future<bool> hasPreKeys() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return false;
+  /// Check if we have any pre-keys stored locally for a specific user
+  Future<bool> hasPreKeys({String? userId}) async {
+    final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return false;
     final keys = _prefs.getKeys();
-    final prefix = _preKeysKeyPrefix(userId);
+    final prefix = _preKeysKeyPrefix(uid);
     return keys.any((k) => k.startsWith(prefix));
   }
 
-  /// Check if we have any signed pre-keys stored locally
-  Future<bool> hasSignedPreKeys() async {
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) return false;
+  /// Check if we have any signed pre-keys stored locally for a specific user
+  Future<bool> hasSignedPreKeys({String? userId}) async {
+    final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) return false;
     final keys = _prefs.getKeys();
-    final prefix = _signedPreKeyKeyPrefix(userId);
+    final prefix = _signedPreKeyKeyPrefix(uid);
     return keys.any((k) => k.startsWith(prefix));
   }
 
   /// Manually save keys and initialize (used for restoration)
   static Future<PersistentSignalStore> saveAndInit(
     IdentityKeyPair identityKeyPair,
-    int registrationId,
-  ) async {
+    int registrationId, {
+    String? userId,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
     final secureStorage = SecureStorage();
-    final userId = Supabase.instance.client.auth.currentUser?.id;
-    if (userId == null) throw Exception('Cannot save keys: No user');
+    final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) throw Exception('Cannot save keys: No user ID provided');
 
     await secureStorage.write(
-      key: _identityKeyPairKey(userId),
+      key: _identityKeyPairKey(uid),
       value: base64Encode(identityKeyPair.serialize()),
     );
     await secureStorage.write(
-      key: _localRegistrationIdKey(userId),
+      key: _localRegistrationIdKey(uid),
       value: registrationId.toString(),
     );
 
     final store = PersistentSignalStore(identityKeyPair, registrationId);
     store._prefs = prefs;
-    await store._loadState(userId);
+    await store._loadState(uid);
 
     return store;
   }
