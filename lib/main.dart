@@ -177,9 +177,9 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.checkIn();
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            material.SnackBar(
               content: Text('❤️ Your partner has been notified!'),
-              backgroundColor: Colors.green,
+              backgroundColor: material.Colors.green,
             ),
           );
           }
@@ -189,9 +189,9 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.verifyCheckIn(wasAccurate: false);
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
+            material.SnackBar(
               content: Text('⚠️ Your partner has been warned'),
-              backgroundColor: Colors.orange,
+              backgroundColor: material.Colors.orange,
             ),
           );
           }
