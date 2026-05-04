@@ -30,15 +30,16 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final currentUserId = AuthService().currentUser?.id;
-      if (currentUserId != null) {
-        context.read<CircleProvider>().setActiveCircle(widget.circleId, currentUserId);
-        context.read<CircleProvider>().loadCircleFeed(widget.circleId, currentUserId, refresh: true);
+      if (currentUserId != null && mounted) {
+        final provider = context.read<CircleProvider>();
+        await provider.setActiveCircle(widget.circleId, currentUserId);
+        if (mounted) {
+          await provider.loadCircleFeed(widget.circleId, currentUserId, refresh: true);
+        }
       }
     });
-
-    _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
@@ -61,7 +62,7 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
     final currentUserId = AuthService().currentUser?.id;
     if (currentUserId == null) return;
 
-    final result = await Navigator.push<bool>(
+    await Navigator.push<bool>(
       context,
       MaterialPageRoute(
         builder: (context) => CreatePostScreen(
@@ -70,11 +71,8 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
       ),
     );
 
-    if (result == true) {
-      if (mounted) {
-        context.read<CircleProvider>().loadCircleFeed(widget.circleId, currentUserId, refresh: true);
-      }
-    }
+    // The post is already added to the local state by CircleProvider.createCirclePost
+    // No need to refresh here as it causes a race condition with DB visibility lag.
   }
 
   @override

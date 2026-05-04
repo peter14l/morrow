@@ -202,6 +202,7 @@ class CircleRemoteDatasource {
         'user_id': userId,
         'circle_id': circleId,
         'content': content,
+        'image_url': mediaUrls.isNotEmpty ? mediaUrls.first : null,
         'media_urls': mediaUrls,
         'media_types': mediaTypes,
         'mood': mood,
