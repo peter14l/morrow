@@ -34,6 +34,7 @@ import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 
 import 'package:oasis/widgets/glassmorphic_fab.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
