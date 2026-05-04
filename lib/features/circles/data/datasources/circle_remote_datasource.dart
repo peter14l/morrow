@@ -168,6 +168,8 @@ class CircleRemoteDatasource {
     int offset = 0,
   }) async {
     try {
+      // ignore: avoid_print
+      print('>>> getCircleFeed START: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
       debugPrint('[CircleRemoteDatasource] getCircleFeed: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
       
       // Try RPC first
@@ -221,9 +223,14 @@ class CircleRemoteDatasource {
         debugPrint('[CircleRemoteDatasource] First post circle_id: ${posts.first['circle_id']}');
       }
       
+      // ignore: avoid_print
+      print('>>> getCircleFeed RESULT: ${posts.length} posts for circle $circleId');
+      
       return posts;
-    } catch (e) {
-      debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e');
+    } catch (e, stack) {
+      // ignore: avoid_print
+      print('>>> getCircleFeed ERROR: $e');
+      debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e, stack: $stack');
       return [];
     }
   }
