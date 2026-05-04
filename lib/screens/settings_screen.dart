@@ -729,6 +729,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           _buildSettingsTile(
             context,
+            icon: material.Icons.home_outlined,
+            title: 'Home Location',
+            subtitle: 'Set your home address for safe check-in',
+            iconColor: material.Colors.blue,
+            onTap: () => context.push('/settings/home-location'),
+          ),
+          _buildSettingsTile(
+            context,
             icon: material.Icons.download_outlined,
             title: 'Download Your Data',
             subtitle: 'Request a copy of your data',
