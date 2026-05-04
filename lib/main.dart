@@ -44,6 +44,7 @@ import 'package:oasis/widgets/mesh_gradient_background.dart';
 import 'package:oasis/widgets/splash_screen.dart';
 import 'package:oasis/widgets/global_wellness_wrapper.dart';
 import 'package:oasis/services/update_service.dart';
+import 'package:oasis/services/home_arrival_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
 // ---------------------------------------------------------------------------
@@ -111,6 +112,9 @@ class _LifecycleManagerState extends State<LifecycleManager>
         energyMeter.onResumed();
         wellness.onResumed();
         ripples.onResumed();
+        
+        // Check home arrival on app resume
+        _checkHomeArrival();
 
         final userId = auth.currentUser?.id;
         if (userId != null) {
@@ -119,6 +123,22 @@ class _LifecycleManagerState extends State<LifecycleManager>
         presence.resumeHeartbeat();
       });
     }
+  }
+  
+  void _checkHomeArrival() {
+    // Initialize and check home arrival
+    final homeArrivalService = HomeArrivalService();
+    homeArrivalService.initialize();
+    
+    // Set up callback for home arrival notification
+    homeArrivalService.onHomeArrived = () {
+      // TODO: Send notification to partner (Plan 15-03)
+      // For now, just log
+      debugPrintThrottled('Home arrival detected! Partner will be notified.');
+    };
+    
+    // Check current state
+    homeArrivalService.checkNow();
   }
 
   @override
