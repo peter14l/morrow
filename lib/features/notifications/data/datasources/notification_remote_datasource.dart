@@ -21,7 +21,7 @@ class NotificationRemoteDatasource {
           )
         ''')
         .eq('user_id', userId)
-        .neq('type', 'dm')
+        .not('type', 'in', '("dm", "call")')
         .order('created_at', ascending: false)
         .range(offset, offset + limit - 1);
 
@@ -53,7 +53,8 @@ class NotificationRemoteDatasource {
         .from(SupabaseConfig.notificationsTable)
         .update({'is_read': true})
         .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .not('type', 'in', '("dm", "call")');
   }
 
   Future<int> getUnreadCount(String userId) async {
@@ -62,7 +63,7 @@ class NotificationRemoteDatasource {
         .select('id')
         .eq('user_id', userId)
         .eq('is_read', false)
-        .neq('type', 'dm');
+        .not('type', 'in', '("dm", "call")');
 
     return response.length;
   }

@@ -17,7 +17,7 @@ class GlassmorphicFAB extends StatelessWidget {
     required this.onPressed,
     this.size = 48,
     this.blur = 10,
-    this.opacity = 0.2,
+    this.opacity = 0.4,
     this.color,
     this.tooltip,
   });
@@ -25,7 +25,7 @@ class GlassmorphicFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final baseColor = color ?? theme.colorScheme.surface;
+    final baseColor = color ?? theme.colorScheme.surfaceContainerHighest;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(size / 2),
@@ -40,7 +40,7 @@ class GlassmorphicFAB extends StatelessWidget {
               color: baseColor.withValues(alpha: opacity),
               shape: BoxShape.circle,
               border: Border.all(
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.1),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.15),
                 width: 1.5,
               ),
             ),
