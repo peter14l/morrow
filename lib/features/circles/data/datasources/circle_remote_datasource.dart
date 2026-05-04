@@ -182,6 +182,17 @@ class CircleRemoteDatasource {
       if (response == null || (response as List).isEmpty) {
         debugPrint('[CircleRemoteDatasource] RPC returned empty, trying direct query...');
         
+        // Debug: First check if ANY posts exist in the table for this user
+        final allUserPosts = await _supabase
+            .from('posts')
+            .select('id, circle_id, content')
+            .eq('user_id', userId);
+            
+        debugPrint('[CircleRemoteDatasource] All user posts count: ${(allUserPosts as List).length}');
+        if ((allUserPosts as List).isNotEmpty) {
+          debugPrint('[CircleRemoteDatasource] User post circle_ids: ${allUserPosts.map((p) => p['circle_id']).toList()}');
+        }
+        
         // Direct query as fallback - bypass RPC to avoid potential RPC issues
         // Use range() for pagination instead of limit/offset separately
         final start = offset;
@@ -193,6 +204,7 @@ class CircleRemoteDatasource {
             .order('created_at', ascending: false)
             .range(start, end);
             
+        debugPrint('[CircleRemoteDatasource] Direct query returned: ${(directResponse as List).length} posts');
         response = directResponse;
       }
 
