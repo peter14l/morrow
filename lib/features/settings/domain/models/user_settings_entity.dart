@@ -1,6 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 
+enum LiquidGlassMode {
+  disabled,
+  fake,
+  real,
+}
+
 class UserSettingsEntity extends Equatable {
   final bool dataSaver;
   final double fontSizeFactor;
@@ -12,6 +18,7 @@ class UserSettingsEntity extends Equatable {
   final String fontFamily;
   final FeedLayoutType feedLayout;
   final bool meshEnabled;
+  final LiquidGlassMode liquidGlassMode;
 
   const UserSettingsEntity({
     this.dataSaver = false,
@@ -24,6 +31,7 @@ class UserSettingsEntity extends Equatable {
     this.fontFamily = 'Inter',
     this.feedLayout = FeedLayoutType.classic,
     this.meshEnabled = true,
+    this.liquidGlassMode = LiquidGlassMode.disabled,
   });
 
   UserSettingsEntity copyWith({
@@ -37,6 +45,7 @@ class UserSettingsEntity extends Equatable {
     String? fontFamily,
     FeedLayoutType? feedLayout,
     bool? meshEnabled,
+    LiquidGlassMode? liquidGlassMode,
   }) {
     return UserSettingsEntity(
       dataSaver: dataSaver ?? this.dataSaver,
@@ -49,6 +58,7 @@ class UserSettingsEntity extends Equatable {
       fontFamily: fontFamily ?? this.fontFamily,
       feedLayout: feedLayout ?? this.feedLayout,
       meshEnabled: meshEnabled ?? this.meshEnabled,
+      liquidGlassMode: liquidGlassMode ?? this.liquidGlassMode,
     );
   }
 
@@ -64,5 +74,6 @@ class UserSettingsEntity extends Equatable {
     fontFamily,
     feedLayout,
     meshEnabled,
+    liquidGlassMode,
   ];
 }

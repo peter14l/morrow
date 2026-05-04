@@ -26,6 +26,7 @@ class UserSettingsProvider with ChangeNotifier {
   String get windowEffect => _settings.windowEffect;
   String get fontFamily => _settings.fontFamily;
   FeedLayoutType get feedLayout => _settings.feedLayout;
+  LiquidGlassMode get liquidGlassMode => _settings.liquidGlassMode;
 
   Future<void> loadSettings() async {
     final result = await _getSettingsUseCase();
@@ -109,5 +110,9 @@ class UserSettingsProvider with ChangeNotifier {
 
   Future<void> setFeedLayout(FeedLayoutType layout) async {
     await _updateAndSave(_settings.copyWith(feedLayout: layout));
+  }
+
+  Future<void> setLiquidGlassMode(LiquidGlassMode mode) async {
+    await _updateAndSave(_settings.copyWith(liquidGlassMode: mode));
   }
 }

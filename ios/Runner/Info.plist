@@ -86,5 +86,8 @@
 	<string>This app needs camera access for video calls and capturing photos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs microphone access for voice and video calls.</string>
+	<!-- Enable Impeller renderer for liquid glass effects -->
+	<key>FLTEnableImpeller</key>
+	<true/>
 </dict>
 </plist>

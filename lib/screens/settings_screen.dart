@@ -23,6 +23,7 @@ import 'package:oasis/features/messages/presentation/screens/encryption_setup_sc
 import 'package:oasis/screens/oasis_pro_screen.dart';
 import 'package:oasis/screens/moderation/moderation_screens.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
@@ -975,6 +976,62 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   }).toList(),
                 ),
         ),
+      // Liquid Glass Effect (cross-platform)
+      const SizedBox(height: 24),
+      _buildSectionHeader(context, 'Visual Effects'),
+      _buildSettingsGroup(context, index: 11, [
+        _buildSettingsTile(
+          context,
+          icon: material.Icons.auto_awesome_outlined,
+          title: 'Liquid Glass',
+          subtitle: _getLiquidGlassModeName(userSettingsProvider.liquidGlassMode),
+          iconColor: material.Colors.purple,
+          trailing: useFluent
+              ? fluent.ComboBox<LiquidGlassMode>(
+                  value: userSettingsProvider.liquidGlassMode,
+                  onChanged: (mode) => mode != null
+                      ? userSettingsProvider.setLiquidGlassMode(mode)
+                      : null,
+                  items: LiquidGlassMode.values
+                      .map(
+                        (mode) => fluent.ComboBoxItem(
+                          value: mode,
+                          child: fluent.Text(_getLiquidGlassModeName(mode)),
+                        ),
+                      )
+                      .toList(),
+                )
+              : material.DropdownButton<LiquidGlassMode>(
+                  value: userSettingsProvider.liquidGlassMode,
+                  dropdownColor: colorScheme.surfaceContainerHigh,
+                  underline: const SizedBox(),
+                  onChanged: (mode) {
+                    if (mode != null) {
+                      userSettingsProvider.setLiquidGlassMode(mode);
+                    }
+                  },
+                  items: LiquidGlassMode.values.map((mode) {
+                    return material.DropdownMenuItem(
+                      value: mode,
+                      child: material.Text(_getLiquidGlassModeName(mode)),
+                    );
+                  }).toList(),
+                ),
+        ),
+        if (userSettingsProvider.liquidGlassMode != LiquidGlassMode.disabled)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: material.Text(
+              userSettingsProvider.liquidGlassMode == LiquidGlassMode.real
+                  ? 'Real liquid glass may affect battery life on mobile devices.'
+                  : 'Fake glass uses less battery but has fewer visual effects.',
+              style: material.TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+      ]),
       if (kIsWeb == false && Platform.isWindows) ...[
         const SizedBox(height: 24),
         _buildSectionHeader(context, 'Windows Effects'),
@@ -1561,6 +1618,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const material.Color(0xFFC2185B);
       case ColorPalette.teal:
         return const material.Color(0xFF00796B);
+    }
+  }
+
+  String _getLiquidGlassModeName(LiquidGlassMode mode) {
+    switch (mode) {
+      case LiquidGlassMode.disabled:
+        return 'Disabled';
+      case LiquidGlassMode.fake:
+        return 'Fake (Low battery)';
+      case LiquidGlassMode.real:
+        return 'Real (Full effect)';
     }
   }
 }
