@@ -41,6 +41,7 @@ import 'package:oasis/services/subscription_service.dart';
 import 'package:oasis/services/iap_service.dart';
 import 'package:oasis/services/revenuecat_service.dart';
 import 'package:oasis/services/razorpay_service.dart';
+import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/vault_service.dart';
