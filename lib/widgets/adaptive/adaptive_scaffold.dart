@@ -72,21 +72,15 @@ class AdaptiveScaffold extends StatelessWidget {
     }
 
     // Material mobile/tablet layout
-    material.Widget? materialAppBar;
-    if (appBar != null) {
-      // If a custom appBar is provided, wrap it with liquid glass
-      if (liquidGlassMode != LiquidGlassMode.disabled) {
-        materialAppBar = _wrapAppBarWithLiquidGlass(appBar, liquidGlassMode);
-      } else {
-        materialAppBar = appBar;
-      }
-    } else if (title != null) {
-      // Create a new AppBar with liquid glass
+    material.PreferredSizeWidget? materialAppBar = appBar;
+
+    // Apply liquid glass to AppBar if enabled (and only if we have a title, not custom appBar)
+    if (liquidGlassMode != LiquidGlassMode.disabled && materialAppBar == null && title != null) {
       materialAppBar = _buildLiquidGlassAppBar(title, actions, liquidGlassMode);
     }
 
     return material.Scaffold(
-      appBar: materialAppBar as materialPreferredSizeWidget?,
+      appBar: materialAppBar,
       body: body,
       bottomNavigationBar: footer,
       floatingActionButton: floatingActionButton,
@@ -94,30 +88,10 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 
-  /// Wrap an existing appBar with liquid glass effect
-  material.Widget _wrapAppBarWithLiquidGlass(material.PreferredSizeWidget appBarWidget, LiquidGlassMode mode) {
-    final isDark = mode == LiquidGlassMode.real;
-    final blurAmount = mode == LiquidGlassMode.real ? 15.0 : 10.0;
-    
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark 
-                ? material.Colors.white.withValues(alpha: 0.1)
-                : material.Colors.white.withValues(alpha: 0.2),
-          ),
-          child: appBarWidget,
-        ),
-      ),
-    );
-  }
-
   /// Build a new AppBar with liquid glass effect
-  material.AppBar _buildLiquidGlassAppBar(Widget title, List<Widget>? actions, LiquidGlassMode mode) {
-    final isDark = mode == LiquidGlassMode.real;
-    final blurAmount = mode == LiquidGlassMode.real ? 15.0 : 10.0;
+  material.PreferredSizeWidget _buildLiquidGlassAppBar(Widget title, List<Widget>? actions, LiquidGlassMode mode) {
+    final isDarkMode = mode == LiquidGlassMode.real;
+    final blurAmount = isDarkMode ? 15.0 : 10.0;
     
     return material.AppBar(
       title: title,
@@ -133,7 +107,7 @@ class AdaptiveScaffold extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  isDark 
+                  isDarkMode 
                       ? material.Colors.white.withValues(alpha: 0.1)
                       : material.Colors.white.withValues(alpha: 0.25),
                   material.Colors.transparent,
