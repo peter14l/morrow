@@ -183,13 +183,15 @@ class CircleRemoteDatasource {
         debugPrint('[CircleRemoteDatasource] RPC returned empty, trying direct query...');
         
         // Direct query as fallback - bypass RPC to avoid potential RPC issues
+        // Use range() for pagination instead of limit/offset separately
+        final start = offset;
+        final end = offset + limit - 1;
         final directResponse = await _supabase
             .from('posts')
             .select('*, profiles:user_id(username, full_name, avatar_url, is_verified)')
             .eq('circle_id', circleId)
             .order('created_at', ascending: false)
-            .limit(limit)
-            .offset(offset);
+            .range(start, end);
             
         response = directResponse;
       }
