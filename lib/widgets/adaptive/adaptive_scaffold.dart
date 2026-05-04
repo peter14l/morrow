@@ -76,7 +76,7 @@ class AdaptiveScaffold extends StatelessWidget {
 
     // Apply liquid glass to AppBar if enabled (and only if we have a title, not custom appBar)
     if (liquidGlassMode != LiquidGlassMode.disabled && materialAppBar == null && title != null) {
-      materialAppBar = _buildLiquidGlassAppBar(title, actions, liquidGlassMode);
+      materialAppBar = _buildLiquidGlassAppBar(title!, actions, liquidGlassMode);
     }
 
     return material.Scaffold(
