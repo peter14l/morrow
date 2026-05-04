@@ -72,25 +72,21 @@ class AdaptiveScaffold extends StatelessWidget {
     }
 
     // Material mobile/tablet layout
-    material.AppBar? materialAppBar;
+    material.Widget? materialAppBar;
     if (appBar != null) {
-      materialAppBar = appBar;
+      // If a custom appBar is provided, wrap it with liquid glass
+      if (liquidGlassMode != LiquidGlassMode.disabled) {
+        materialAppBar = _wrapAppBarWithLiquidGlass(appBar, liquidGlassMode);
+      } else {
+        materialAppBar = appBar;
+      }
     } else if (title != null) {
-      materialAppBar = material.AppBar(
-        title: title,
-        actions: actions,
-        backgroundColor: material.Colors.transparent,
-        elevation: 0,
-      );
-    }
-
-    // Apply liquid glass to AppBar if enabled
-    if (liquidGlassMode != LiquidGlassMode.disabled && materialAppBar != null) {
-      materialAppBar = _applyLiquidGlassToAppBar(materialAppBar, liquidGlassMode);
+      // Create a new AppBar with liquid glass
+      materialAppBar = _buildLiquidGlassAppBar(title, actions, liquidGlassMode);
     }
 
     return material.Scaffold(
-      appBar: materialAppBar,
+      appBar: materialAppBar as materialPreferredSizeWidget?,
       body: body,
       bottomNavigationBar: footer,
       floatingActionButton: floatingActionButton,
@@ -98,43 +94,49 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 
-  material.AppBar _applyLiquidGlassToAppBar(material.AppBar appBar, LiquidGlassMode mode) {
-    final brightness = appBar.backgroundColor == material.Colors.transparent 
-        ? material.Brightness.dark 
-        : material.Brightness.light;
+  /// Wrap an existing appBar with liquid glass effect
+  material.Widget _wrapAppBarWithLiquidGlass(material.PreferredSizeWidget appBarWidget, LiquidGlassMode mode) {
+    final isDark = mode == LiquidGlassMode.real;
+    final blurAmount = mode == LiquidGlassMode.real ? 15.0 : 10.0;
     
-    if (mode == LiquidGlassMode.fake) {
-      return appBar.copyWith(
-        backgroundColor: material.Colors.transparent,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: Container(
-              color: brightness == material.Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.white.withValues(alpha: 0.2),
-            ),
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark 
+                ? material.Colors.white.withValues(alpha: 0.1)
+                : material.Colors.white.withValues(alpha: 0.2),
           ),
+          child: appBarWidget,
         ),
-      );
-    }
+      ),
+    );
+  }
+
+  /// Build a new AppBar with liquid glass effect
+  material.AppBar _buildLiquidGlassAppBar(Widget title, List<Widget>? actions, LiquidGlassMode mode) {
+    final isDark = mode == LiquidGlassMode.real;
+    final blurAmount = mode == LiquidGlassMode.real ? 15.0 : 10.0;
     
-    // Real mode - use enhanced blur
-    return appBar.copyWith(
+    return material.AppBar(
+      title: title,
+      actions: actions,
       backgroundColor: material.Colors.transparent,
+      elevation: 0,
       flexibleSpace: ClipRect(
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+          filter: ImageFilter.blur(sigmaX: blurAmount, sigmaY: blurAmount),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  brightness == material.Brightness.dark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.white.withValues(alpha: 0.25),
-                  Colors.transparent,
+                  isDark 
+                      ? material.Colors.white.withValues(alpha: 0.1)
+                      : material.Colors.white.withValues(alpha: 0.25),
+                  material.Colors.transparent,
                 ],
               ),
             ),
