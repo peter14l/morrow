@@ -45,6 +45,9 @@ import 'package:oasis/widgets/splash_screen.dart';
 import 'package:oasis/widgets/global_wellness_wrapper.dart';
 import 'package:oasis/services/update_service.dart';
 import 'package:oasis/services/home_arrival_service.dart';
+import 'package:oasis/services/home_checkin_service.dart';
+import 'package:oasis/features/couples/data/home_checkin_repository.dart';
+import 'package:oasis/widgets/verification_dialog.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 
 // ---------------------------------------------------------------------------
@@ -132,13 +135,71 @@ class _LifecycleManagerState extends State<LifecycleManager>
     
     // Set up callback for home arrival notification
     homeArrivalService.onHomeArrived = () {
-      // TODO: Send notification to partner (Plan 15-03)
-      // For now, just log
-      debugPrintThrottled('Home arrival detected! Partner will be notified.');
+      // Check if there's a pending verification to avoid duplicate dialogs
+      _handleHomeArrivalWithVerification();
     };
     
     // Check current state
     homeArrivalService.checkNow();
+  }
+  
+  void _handleHomeArrivalWithVerification() async {
+    // Get context safely
+    final context =mounted ? this.context : null;
+    if (context == null) return;
+    
+    try {
+      // Initialize services
+      final prefs = PrefsStorage();
+      final repository = HomeCheckinRepository();
+      final checkinService = HomeCheckinService(repository, prefs);
+      
+      // Check if there's already a pending verification
+      final hasPending = await checkinService.hasPendingVerification();
+      if (hasPending) {
+        debugPrintThrottled('Verification already pending, skipping dialog');
+        return;
+      }
+      
+      // Mark that user arrived and verification is needed
+      await checkinService.markHomeArrived();
+      
+      // Show verification dialog after a brief delay
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      if (!mounted) return;
+      
+      // Show verification dialog
+      await VerificationDialog.show(
+        context,
+        onConfirm: () async {
+          // User confirmed "Yes, I'm home"
+          await checkinService.checkIn();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('❤️ Your partner has been notified!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+          }
+        },
+        onDeny: () async {
+          // User said "No, not yet"
+          await checkinService.verifyCheckIn(wasAccurate: false);
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('⚠️ Your partner has been warned'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        },
+      );
+    } catch (e) {
+      debugPrintThrottled('Error in home arrival verification: $e');
+    }
   }
 
   @override
