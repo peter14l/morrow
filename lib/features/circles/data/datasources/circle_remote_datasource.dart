@@ -170,12 +170,29 @@ class CircleRemoteDatasource {
     try {
       debugPrint('[CircleRemoteDatasource] getCircleFeed: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
       
-      final response = await _supabase.rpc('get_circle_feed', params: {
+      // Try RPC first
+      var response = await _supabase.rpc('get_circle_feed', params: {
         'p_user_id': userId,
         'p_circle_id': circleId,
         'p_limit': limit,
         'p_offset': offset,
       });
+
+      // If RPC returns empty, fallback to direct query
+      if (response == null || (response as List).isEmpty) {
+        debugPrint('[CircleRemoteDatasource] RPC returned empty, trying direct query...');
+        
+        // Direct query as fallback - bypass RPC to avoid potential RPC issues
+        final directResponse = await _supabase
+            .from('posts')
+            .select('*, profiles:user_id(username, full_name, avatar_url, is_verified)')
+            .eq('circle_id', circleId)
+            .order('created_at', descending: true)
+            .limit(limit)
+            .offset(offset);
+            
+        response = directResponse;
+      }
 
       if (response == null) {
         debugPrint('[CircleRemoteDatasource] getCircleFeed: response is null');
