@@ -58,4 +58,39 @@ class HapticUtils {
   static Future<void> messageSent() async {
     await HapticFeedback.lightImpact();
   }
+
+  /// Heartbeat pulse pattern - 3 short pulses like a heartbeat (60 BPM feel)
+  ///
+  /// Used when user confirms "Yes, I reached home"
+  static Future<void> heartbeatPulse() async {
+    await HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 100));
+    await HapticFeedback.lightImpact();
+  }
+
+  /// Home arrived vibration - longer, celebratory pattern
+  ///
+  /// Escalating: light → medium → heavy → medium → light
+  static Future<void> homeArrivedVibration() async {
+    await HapticFeedback.lightImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.lightImpact();
+  }
+
+  /// Warning pulse - for "did not reach home" scenario
+  ///
+  /// Heavy impact × 2 with short delay
+  static Future<void> warningPulse() async {
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 150));
+    await HapticFeedback.heavyImpact();
+  }
 }
