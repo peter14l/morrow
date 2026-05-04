@@ -36,6 +36,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/profile/presentation/screens/account_management_screen.dart';
 import 'package:oasis/widgets/desktop_header.dart';
+import 'package:oasis/features/settings/presentation/screens/home_location_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
