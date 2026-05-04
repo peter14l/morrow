@@ -61,7 +61,8 @@ class NotificationRemoteDatasource {
         .from(SupabaseConfig.notificationsTable)
         .select('id')
         .eq('user_id', userId)
-        .eq('is_read', false);
+        .eq('is_read', false)
+        .neq('type', 'dm');
 
     return response.length;
   }
