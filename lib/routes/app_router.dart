@@ -84,6 +84,8 @@ import 'package:oasis/features/ripples/presentation/screens/create_ripple_screen
 import '../screens/oasis_pro_screen.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
+import 'package:oasis/widgets/glassmorphic_fab.dart';
+import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 
 import 'package:oasis/features/wellness/presentation/screens/wellness_center_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/changelog_screen.dart';
@@ -199,29 +201,29 @@ class _MainLayoutState extends State<MainLayout> {
       screenTimeService.setCurrentCategory('Feed');
       return 0;
     }
-    if (location.startsWith('/search')) {
-      screenTimeService.setCurrentCategory('Feed'); // Search is discovery
-      return 1;
-    }
     if (location.startsWith('/spaces') ||
         location.startsWith('/circles') ||
         location.startsWith('/communities')) {
       screenTimeService.setCurrentCategory('Communities');
-      return 2;
+      return 1;
     }
     if (location.startsWith('/messages')) {
       screenTimeService.setCurrentCategory('Messages');
-      return 3;
+      return 2;
+    }
+    if (location.startsWith('/search')) {
+      screenTimeService.setCurrentCategory('Feed'); // Search is discovery
+      return -1;
     }
     if (location.startsWith('/notifications')) {
       screenTimeService.setCurrentCategory(null);
-      return 4;
+      return -1;
     }
     if (location.startsWith('/profile')) {
       screenTimeService.setCurrentCategory('Profile');
-      return 5;
+      return -1;
     }
-    return 0;
+    return -1;
   }
 
   Widget _buildMainContentWithPanels({
@@ -622,13 +624,6 @@ class _MainLayoutState extends State<MainLayout> {
           selectedIcon: restrictedIcon(const Icon(FluentIcons.home_24_filled)),
           label: 'Feed',
         ),
-        NavigationDestinationM3E(
-          icon: restrictedIcon(const Icon(FluentIcons.search_24_regular)),
-          selectedIcon: restrictedIcon(
-            const Icon(FluentIcons.search_24_filled),
-          ),
-          label: 'Search',
-        ),
         const NavigationDestinationM3E(
           icon: Icon(FluentIcons.channel_24_regular),
           selectedIcon: Icon(FluentIcons.channel_24_filled),
@@ -640,22 +635,6 @@ class _MainLayoutState extends State<MainLayout> {
             child: Icon(FluentIcons.chat_24_filled),
           ),
           label: 'Messages',
-        ),
-        const NavigationDestinationM3E(
-          icon: Icon(FluentIcons.alert_24_regular),
-          selectedIcon: Icon(FluentIcons.alert_24_filled),
-          label: 'Alerts',
-        ),
-        NavigationDestinationM3E(
-          icon: GestureDetector(
-            onLongPress: () => AccountSwitcherSheet.show(context),
-            child: const Icon(FluentIcons.person_24_regular),
-          ),
-          selectedIcon: GestureDetector(
-            onLongPress: () => AccountSwitcherSheet.show(context),
-            child: const Icon(FluentIcons.person_24_filled),
-          ),
-          label: 'Profile',
         ),
       ],
     );
@@ -940,28 +919,12 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _onDestinationSelected(int index, {bool killSwitchActive = false}) {
-    // Block interaction with Feed (0) and Search (1) when kill-switch is active.
-    if (killSwitchActive && (index == 0 || index == 1)) return;
+    // Block interaction with Feed (0) when kill-switch is active.
+    if (killSwitchActive && index == 0) return;
 
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     if (isDesktop) {
-      if (index == 1) {
-        // Search
-        setState(() {
-          _activePanel = _activePanel == 'search' ? null : 'search';
-        });
-        return;
-      }
-      if (index == 4) {
-        // Notifications
-        setState(() {
-          _activePanel =
-              _activePanel == 'notifications' ? null : 'notifications';
-        });
-        return;
-      }
-
       // Close active panel if navigating to other destinations
       if (_activePanel != null) {
         setState(() {
@@ -976,19 +939,10 @@ class _MainLayoutState extends State<MainLayout> {
         context.go('/feed');
         break;
       case 1:
-        context.go('/search');
-        break;
-      case 2:
         context.go('/spaces');
         break;
-      case 3:
+      case 2:
         context.go('/messages');
-        break;
-      case 4:
-        context.go('/notifications');
-        break;
-      case 5:
-        context.go('/profile');
         break;
     }
   }

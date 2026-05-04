@@ -32,6 +32,9 @@ import 'package:oasis/features/feed/presentation/widgets/layouts/living_canvas_l
 
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 
+import 'package:oasis/widgets/glassmorphic_fab.dart';
+import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
+
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
 
@@ -687,8 +690,12 @@ class _FeedScreenState extends State<FeedScreen>
 
   Widget _buildMobileHeader(ColorScheme colorScheme, [bool isM3E = false]) {
     final settings = context.watch<UserSettingsProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
+    final profileProvider = context.watch<ProfileProvider>();
+    final unreadCount = notificationProvider.state.unreadCount;
+    final avatarUrl = profileProvider.currentProfile?.avatarUrl;
+
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
           icon: Icon(settings.feedLayout.icon, size: 24),
@@ -697,6 +704,42 @@ class _FeedScreenState extends State<FeedScreen>
         ),
         const Spacer(),
         _buildRipplesButton(colorScheme, isM3E),
+        const SizedBox(width: 12),
+        // Notifications FAB
+        Badge(
+          isLabelVisible: unreadCount > 0,
+          label: Text(
+            unreadCount.toString(),
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+          ),
+          child: GlassmorphicFAB(
+            size: 40,
+            onPressed: () => context.push('/notifications'),
+            child: Icon(
+              FluentIcons.alert_24_regular,
+              size: 20,
+              color: colorScheme.onSurface,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        // Profile FAB
+        GlassmorphicFAB(
+          size: 40,
+          onPressed: () => context.push('/profile'),
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
+            backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
+            child: avatarUrl == null 
+              ? Icon(
+                  FluentIcons.person_24_regular, 
+                  size: 20, 
+                  color: colorScheme.onPrimaryContainer,
+                ) 
+              : null,
+          ),
+        ),
       ],
     );
   }
