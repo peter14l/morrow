@@ -187,7 +187,7 @@ class CircleRemoteDatasource {
             .from('posts')
             .select('*, profiles:user_id(username, full_name, avatar_url, is_verified)')
             .eq('circle_id', circleId)
-            .order('created_at', descending: true)
+            .order('created_at', ascending: false)
             .limit(limit)
             .offset(offset);
             
