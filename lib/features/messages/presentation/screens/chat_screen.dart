@@ -44,6 +44,8 @@ import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart'
 import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
+import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
+import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
@@ -402,20 +404,53 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,
-      builder: (context) => GiphyPickerSheet(
-        onSelected: (url, isSticker) {
-          if (isSticker) {
-            _chatProvider.sendSticker(
-              url,
-              replyMessage: _chatProvider.state.replyMessage,
-            );
-          } else {
-            _chatProvider.sendGif(
-              url,
-              replyMessage: _chatProvider.state.replyMessage,
-            );
-          }
-        },
+      builder: (context) => _wrapWithLiquidGlass(
+        child: GiphyPickerSheet(
+          onSelected: (url, isSticker) {
+            if (isSticker) {
+              _chatProvider.sendSticker(
+                url,
+                replyMessage: _chatProvider.state.replyMessage,
+              );
+            } else {
+              _chatProvider.sendGif(
+                url,
+                replyMessage: _chatProvider.state.replyMessage,
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Wrap bottom sheet content with liquid glass effect
+  Widget _wrapWithLiquidGlass({required Widget child}) {
+    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
+    if (liquidGlassMode == LiquidGlassMode.disabled) {
+      return child;
+    }
+    
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+      child: BackdropFilter(
+        filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark 
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.white.withValues(alpha: 0.4),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.2),
+              width: 1,
+            ),
+          ),
+          child: child,
+        ),
       ),
     );
   }
@@ -522,40 +557,42 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         useRootNavigator: true,
-        builder: (context) => MessageOptionsSheet(
-          message: message,
-          isOwnMessage: isOwn,
-          onReply: () => _setReplyMessage(message),
-          onForward: () {},
-          onCopy: () {
-            Clipboard.setData(ClipboardData(text: message.content));
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Copied to clipboard',
-                    style: TextStyle(color: Colors.white),
+        builder: (context) => _wrapWithLiquidGlass(
+          child: MessageOptionsSheet(
+            message: message,
+            isOwnMessage: isOwn,
+            onReply: () => _setReplyMessage(message),
+            onForward: () {},
+            onCopy: () {
+              Clipboard.setData(ClipboardData(text: message.content));
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text(
+                      'Copied to clipboard',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                ),
-              );
-            }
-          },
-          onUnsend: () => _unsendMessage(message),
-          onReactionSelected: (emoji) async {
-            await _reactionsProvider.onReactionSelected(
-              message: message,
-              reaction: emoji,
-              userId: currentUserId ?? '',
-              username: AuthService().currentUser?.username ?? 'Unknown',
-              currentReactions: message.reactions,
-              onReactionsUpdated: (updatedReactions) {
-                _chatProvider.updateMessageReactions(
-                  message.id,
-                  updatedReactions,
                 );
-              },
-            );
-          },
+              }
+            },
+            onUnsend: () => _unsendMessage(message),
+            onReactionSelected: (emoji) async {
+              await _reactionsProvider.onReactionSelected(
+                message: message,
+                reaction: emoji,
+                userId: currentUserId ?? '',
+                username: AuthService().currentUser?.username ?? 'Unknown',
+                currentReactions: message.reactions,
+                onReactionsUpdated: (updatedReactions) {
+                  _chatProvider.updateMessageReactions(
+                    message.id,
+                    updatedReactions,
+                  );
+                },
+              );
+            },
+          ),
         ),
       );
     }
@@ -572,12 +609,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,
-      builder: (context) => AttachmentOptionsSheet(
-        onPhotoSelected: _pickImage,
-        onVideoSelected: _pickVideo,
-        onFileSelected: _pickFile,
-        onAudioSelected: _pickAudio,
-        onLocationSelected: _showLocationDurationOptions,
+      builder: (context) => _wrapWithLiquidGlass(
+        child: AttachmentOptionsSheet(
+          onPhotoSelected: _pickImage,
+          onVideoSelected: _pickVideo,
+          onFileSelected: _pickFile,
+          onAudioSelected: _pickAudio,
+          onLocationSelected: _showLocationDurationOptions,
+        ),
       ),
     );
   }
@@ -588,14 +627,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,
-      builder: (context) => LocationDurationSheet(
-        onDurationSelected: (duration) async {
-          try {
-            await _chatProvider.shareLiveLocation(duration);
-          } catch (e) {
-            _showError('Failed to share location: $e');
-          }
-        },
+      builder: (context) => _wrapWithLiquidGlass(
+        child: LocationDurationSheet(
+          onDurationSelected: (duration) async {
+            try {
+              await _chatProvider.shareLiveLocation(duration);
+            } catch (e) {
+              _showError('Failed to share location: $e');
+            }
+          },
+        ),
       ),
     );
   }
