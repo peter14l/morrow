@@ -176,24 +176,24 @@ class _LifecycleManagerState extends State<LifecycleManager>
           // User confirmed "Yes, I'm home"
           await checkinService.checkIn();
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('❤️ Your partner has been notified!'),
-                backgroundColor: Colors.green,
-              ),
-            );
+            material.ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('❤️ Your partner has been notified!'),
+              backgroundColor: Colors.green,
+            ),
+          );
           }
         },
         onDeny: () async {
           // User said "No, not yet"
           await checkinService.verifyCheckIn(wasAccurate: false);
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('⚠️ Your partner has been warned'),
-                backgroundColor: Colors.orange,
-              ),
-            );
+            material.ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('⚠️ Your partner has been warned'),
+              backgroundColor: Colors.orange,
+            ),
+          );
           }
         },
       );
