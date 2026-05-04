@@ -1,5 +1,5 @@
 -- =====================================================
--- OASIS - CIRCLE FEED IMPLEMENTATION (FIXED)
+-- OASIS - CIRCLE FEED IMPLEMENTATION (FIXED V2)
 -- =====================================================
 
 -- 1. ADD CIRCLE_ID TO POSTS
@@ -8,6 +8,7 @@ ALTER TABLE public.posts ADD COLUMN IF NOT EXISTS circle_id UUID REFERENCES publ
 -- 2. DROP EXISTING FUNCTIONS TO ALLOW RETURN TYPE CHANGES
 DROP FUNCTION IF EXISTS get_feed_posts(UUID, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS get_following_feed_posts(UUID, INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS get_circle_feed(UUID, UUID, INTEGER, INTEGER);
 
 -- 3. RECREATE FEED RPC TO EXCLUDE CIRCLE POSTS
 CREATE OR REPLACE FUNCTION get_feed_posts(
@@ -29,6 +30,7 @@ RETURNS TABLE (
     community_id UUID,
     community_name TEXT,
     mood TEXT,
+    hashtags TEXT[],
     thumbnail_url TEXT,
     dominant_color TEXT,
     likes_count INTEGER,
@@ -37,7 +39,8 @@ RETURNS TABLE (
     created_at TIMESTAMPTZ,
     is_liked BOOLEAN,
     is_bookmarked BOOLEAN,
-    circle_id UUID
+    circle_id UUID,
+    storage_provider TEXT
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -55,6 +58,7 @@ BEGIN
         p.community_id,
         c.name::TEXT as community_name,
         p.mood::TEXT,
+        COALESCE(p.hashtags, ARRAY[]::TEXT[]),
         p.thumbnail_url::TEXT,
         p.dominant_color::TEXT,
         p.likes_count,
@@ -63,7 +67,8 @@ BEGIN
         p.created_at,
         EXISTS(SELECT 1 FROM public.likes l WHERE l.post_id = p.id AND l.user_id = p_user_id) as is_liked,
         EXISTS(SELECT 1 FROM public.bookmarks b WHERE b.post_id = p.id AND b.user_id = p_user_id) as is_bookmarked,
-        p.circle_id
+        p.circle_id,
+        p.storage_provider
     FROM public.posts p
     INNER JOIN public.profiles pr ON p.user_id = pr.id
     LEFT JOIN public.communities c ON p.community_id = c.id
@@ -77,7 +82,7 @@ BEGIN
     LIMIT p_limit
     OFFSET p_offset;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 CREATE OR REPLACE FUNCTION get_following_feed_posts(
     p_user_id UUID,
@@ -98,6 +103,7 @@ RETURNS TABLE (
     community_id UUID,
     community_name TEXT,
     mood TEXT,
+    hashtags TEXT[],
     thumbnail_url TEXT,
     dominant_color TEXT,
     likes_count INTEGER,
@@ -106,7 +112,8 @@ RETURNS TABLE (
     created_at TIMESTAMPTZ,
     is_liked BOOLEAN,
     is_bookmarked BOOLEAN,
-    circle_id UUID
+    circle_id UUID,
+    storage_provider TEXT
 ) AS $$
 BEGIN
     RETURN QUERY
@@ -124,6 +131,7 @@ BEGIN
         p.community_id,
         c.name::TEXT as community_name,
         p.mood::TEXT,
+        COALESCE(p.hashtags, ARRAY[]::TEXT[]),
         p.thumbnail_url::TEXT,
         p.dominant_color::TEXT,
         p.likes_count,
@@ -132,7 +140,8 @@ BEGIN
         p.created_at,
         EXISTS(SELECT 1 FROM public.likes l WHERE l.post_id = p.id AND l.user_id = p_user_id) as is_liked,
         EXISTS(SELECT 1 FROM public.bookmarks b WHERE b.post_id = p.id AND b.user_id = p_user_id) as is_bookmarked,
-        p.circle_id
+        p.circle_id,
+        p.storage_provider
     FROM public.posts p
     INNER JOIN public.profiles pr ON p.user_id = pr.id
     LEFT JOIN public.communities c ON p.community_id = c.id
@@ -146,7 +155,7 @@ BEGIN
     LIMIT p_limit
     OFFSET p_offset;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 4. CREATE GET_CIRCLE_FEED RPC
 CREATE OR REPLACE FUNCTION get_circle_feed(
@@ -169,6 +178,7 @@ RETURNS TABLE (
     community_id UUID,
     community_name TEXT,
     mood TEXT,
+    hashtags TEXT[],
     thumbnail_url TEXT,
     dominant_color TEXT,
     likes_count INTEGER,
@@ -177,7 +187,8 @@ RETURNS TABLE (
     created_at TIMESTAMPTZ,
     is_liked BOOLEAN,
     is_bookmarked BOOLEAN,
-    circle_id UUID
+    circle_id UUID,
+    storage_provider TEXT
 ) AS $$
 BEGIN
     -- Check if user is a member of the circle
@@ -203,6 +214,7 @@ BEGIN
         p.community_id,
         c.name::TEXT as community_name,
         p.mood::TEXT,
+        COALESCE(p.hashtags, ARRAY[]::TEXT[]),
         p.thumbnail_url::TEXT,
         p.dominant_color::TEXT,
         p.likes_count,
@@ -211,7 +223,8 @@ BEGIN
         p.created_at,
         EXISTS(SELECT 1 FROM public.likes l WHERE l.post_id = p.id AND l.user_id = p_user_id) as is_liked,
         EXISTS(SELECT 1 FROM public.bookmarks b WHERE b.post_id = p.id AND b.user_id = p_user_id) as is_bookmarked,
-        p.circle_id
+        p.circle_id,
+        p.storage_provider
     FROM public.posts p
     INNER JOIN public.profiles pr ON p.user_id = pr.id
     LEFT JOIN public.communities c ON p.community_id = c.id
@@ -220,7 +233,7 @@ BEGIN
     LIMIT p_limit
     OFFSET p_offset;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 5. UPDATE RLS POLICIES FOR POSTS
 DROP POLICY IF EXISTS "Posts are viewable by everyone or circle members" ON public.posts;

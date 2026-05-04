@@ -34,12 +34,16 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
       final currentUserId = AuthService().currentUser?.id;
       if (currentUserId != null && mounted) {
         final provider = context.read<CircleProvider>();
+        debugPrint('[CircleDetailScreen] Initializing circle ${widget.circleId} for user $currentUserId');
         await provider.setActiveCircle(widget.circleId, currentUserId);
         if (mounted) {
           await provider.loadCircleFeed(widget.circleId, currentUserId, refresh: true);
+          debugPrint('[CircleDetailScreen] Feed loaded: ${provider.circleFeed.length} posts');
         }
       }
     });
+
+    _scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
@@ -62,6 +66,7 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
     final currentUserId = AuthService().currentUser?.id;
     if (currentUserId == null) return;
 
+    debugPrint('[CircleDetailScreen] Opening CreatePostScreen for circle ${widget.circleId}');
     await Navigator.push<bool>(
       context,
       MaterialPageRoute(
@@ -71,16 +76,13 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
       ),
     );
 
-    // The post is already added to the local state by CircleProvider.createCirclePost
-    // No need to refresh here as it causes a race condition with DB visibility lag.
+    debugPrint('[CircleDetailScreen] Returned from CreatePostScreen. Local feed count: ${context.read<CircleProvider>().circleFeed.length}');
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final isM3E = themeProvider.isM3EEnabled;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -163,7 +165,7 @@ class _FeedTab extends StatelessWidget {
         return RefreshIndicator(
           onRefresh: () async {
             final currentUserId = AuthService().currentUser?.id;
-            if (currentUserId != null) {
+            if (currentUserId != null && provider.activeCircle != null) {
               await provider.loadCircleFeed(provider.activeCircle!.id, currentUserId, refresh: true);
             }
           },

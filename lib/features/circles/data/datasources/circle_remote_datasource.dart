@@ -175,7 +175,14 @@ class CircleRemoteDatasource {
         'p_offset': offset,
       });
 
-      return (response as List).cast<Map<String, dynamic>>();
+      if (response == null) {
+        debugPrint('[CircleRemoteDatasource] getCircleFeed: response is null');
+        return [];
+      }
+
+      final List<Map<String, dynamic>> posts = (response as List).cast<Map<String, dynamic>>();
+      debugPrint('[CircleRemoteDatasource] getCircleFeed: returned ${posts.length} posts for circle $circleId');
+      return posts;
     } catch (e) {
       debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e');
       return [];
@@ -208,6 +215,7 @@ class CircleRemoteDatasource {
         'mood': mood,
         'hashtags': hashtags,
         'is_spoiler': isSpoiler,
+        'storage_provider': 'supabase',
         'created_at': now,
         'updated_at': now,
       };
@@ -262,6 +270,10 @@ class CircleRemoteDatasource {
         postMap['user_avatar'] = profile['avatar_url'] ?? '';
         postMap['is_verified'] = profile['is_verified'] ?? false;
       }
+      
+      // Ensure circle_id is preserved in the map (select * should include it)
+      postMap['circle_id'] = postMap['circle_id'] ?? circleId;
+      postMap['storage_provider'] = postMap['storage_provider'] ?? 'supabase';
 
       return postMap;
     } catch (e) {
