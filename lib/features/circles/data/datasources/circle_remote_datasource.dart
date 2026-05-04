@@ -175,7 +175,7 @@ class CircleRemoteDatasource {
       // Try RPC first
       var response = await _supabase.rpc('get_circle_feed', params: {
         'p_user_id': userId,
-        'p_circle_id': circleId,
+        'in_circle_id': circleId,  // Fixed: renamed parameter in SQL
         'p_limit': limit,
         'p_offset': offset,
       });

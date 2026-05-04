@@ -1,3 +1,0 @@
-{"dsn":"https://356d298b7887a400a196e23847931238@o4509384326774784.ingest.us.sentry.io/4510527783501824"}
-{"type":"session","length":250}
-{"init":true,"sid":"7ac20516-252d-4f08-9cf2-67e659a2f7cf","status":"crashed","did":"59f49bac-aa81-40ab-8dba-4595ad9075fb","errors":1,"started":"2026-05-03T09:38:11.456702Z","duration":33.040878,"attrs":{"release":"oasis@1.1.1","environment":"debug"}}

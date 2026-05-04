@@ -1,5 +1,22 @@
 # Oasis Project Roadmap
 
+## Phase 15: Home Safe Check-in
+
+**Goal:** Implement home safe check-in with local location storage, geofence auto-detection, partner notifications, verification overlay, and custom haptic patterns.
+
+**Status:** 📋 Planned
+**Plans:** 3 plans
+
+### Plans:
+- [ ] 15-01-PLAN.md — Local storage infrastructure & HomeLocation model (TDD)
+- [ ] 15-02-PLAN.md — Geofence detection & Settings UI
+- [ ] 15-03-PLAN.md — Notifications, verification & haptics
+
+**Requirements:**
+[HOMESAFE-01, HOMESAFE-02, HOMESAFE-03, HOMESAFE-04, HOMESAFE-05, HOMESAFE-06]
+
+---
+
 ## Phase 1: Codebase Cleanup
 **Goal:** Remove unused legacy .dart files after migrating active dependencies.
 **Status:** ✅ Completed
@@ -136,4 +153,20 @@ Plans:
 
 **Requirements:**
 [STORAGE-01, STORAGE-02, STORAGE-03]
+
+## Phase 14: Couples Connection
+
+**Goal:** Implement couples intimacy and connection features including Bubble Setup (shared spaces), Wrapped Whispers (secret messages), Favor Coupons (IOUs), Pulse/Heartbeat Sync, Flicker (thinking of you), Shared Breath (co-regulation), Mood Glow (emotional presence), Time Capsules, Dream Maps, Memory Layering, Weather themes, Parallel Stream (ambient presence), and Living Garden (relationship growth metaphor).
+
+**Status:** ✅ Planned
+**Plans:** 4 plans
+
+### Plans:
+- [ ] 14-01-PLAN.md — Bubble Setup + Wrapped Whispers + Favor Coupons (The Core)
+- [ ] 14-02-PLAN.md — Pulse + Flicker + Shared Breath + Mood Glow (The Senses)
+- [ ] 14-03-PLAN.md — Time Capsules + Dream Maps + Memory Layering (The History)
+- [ ] 14-04-PLAN.md — Weather + Parallel Stream + Living Garden (The Environment)
+
+**Requirements:**
+[COUPLE-01, COUPLE-02, COUPLE-03, COUPLE-04]
 
