@@ -706,6 +706,17 @@ class _FeedScreenState extends State<FeedScreen>
         const Spacer(),
         _buildRipplesButton(colorScheme, isM3E),
         const SizedBox(width: 12),
+        // Search FAB
+        GlassmorphicFAB(
+          size: 40,
+          onPressed: () => context.push('/search'),
+          child: Icon(
+            FluentIcons.search_24_regular,
+            size: 20,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(width: 12),
         // Notifications FAB
         Badge(
           isLabelVisible: unreadCount > 0,
