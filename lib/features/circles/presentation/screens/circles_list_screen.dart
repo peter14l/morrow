@@ -52,6 +52,7 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final circles = context.watch<CircleProvider>();
+    final profile = context.watch<ProfileProvider>();
     final isDesktop = MediaQuery.of(context).size.width >= 1000;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;

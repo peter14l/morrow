@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 
 class CircleListCard extends StatefulWidget {
   final CircleEntity circle;
-  final VoidCallback widget.onTap;
+  final VoidCallback onTap;
   final VoidCallback? onDelete;
   final String? currentUserId;
   final bool isDesktop;
@@ -15,7 +15,7 @@ class CircleListCard extends StatefulWidget {
   const CircleListCard({
     super.key,
     required this.circle,
-    required this.widget.onTap,
+    required this.onTap,
     this.onDelete,
     this.currentUserId,
     this.isDesktop = false,
@@ -59,7 +59,7 @@ class _CircleListCardState extends State<CircleListCard> {
     // Desktop layout: card with vertical stack
     if (widget.isDesktop) {
       return GestureDetector(
-        widget.onTap: widget.widget.onTap,
+        onTap: widget.onTap,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(isM3E ? 28 : 20),
@@ -93,7 +93,7 @@ class _CircleListCardState extends State<CircleListCard> {
                     ),
                     alignment: Alignment.center,
                     child: Text(
-                      circle.emoji,
+                      widget.circle.emoji,
                       style: const TextStyle(fontSize: 36),
                     ),
                   ),
@@ -101,7 +101,7 @@ class _CircleListCardState extends State<CircleListCard> {
                 const Spacer(),
                 // Circle name
                 Text(
-                  circle.name,
+                  widget.circle.name,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
                     letterSpacing: isM3E ? -0.5 : 0,
@@ -120,7 +120,7 @@ class _CircleListCardState extends State<CircleListCard> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      '${circle.memberIds.length} member${circle.memberIds.length == 1 ? '' : 's'}',
+                      '${widget.circle.memberIds.length} member${widget.circle.memberIds.length == 1 ? '' : 's'}',
                       style: theme.textTheme.labelSmall?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
                           alpha: 0.5,
@@ -138,7 +138,7 @@ class _CircleListCardState extends State<CircleListCard> {
 
     // Mobile layout: horizontal row (original)
     return GestureDetector(
-      widget.onTap: widget.onTap,
+      onTap: widget.onTap,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isM3E ? 28 : 20),
@@ -169,7 +169,7 @@ class _CircleListCardState extends State<CircleListCard> {
                   color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 ),
                 alignment: Alignment.center,
-                child: Text(circle.emoji, style: const TextStyle(fontSize: 28)),
+                child: Text(widget.circle.emoji, style: const TextStyle(fontSize: 28)),
               ),
 
               const SizedBox(width: 14),
@@ -180,7 +180,7 @@ class _CircleListCardState extends State<CircleListCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      circle.name,
+                      widget.circle.name,
                       style: theme.textTheme.titleSmall?.copyWith(
                         fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
                         letterSpacing: isM3E ? -0.5 : 0,
@@ -198,7 +198,7 @@ class _CircleListCardState extends State<CircleListCard> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${circle.memberIds.length} member${circle.memberIds.length == 1 ? '' : 's'}',
+                          '${widget.circle.memberIds.length} member${widget.circle.memberIds.length == 1 ? '' : 's'}',
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(
                               alpha: 0.5,
@@ -212,7 +212,7 @@ class _CircleListCardState extends State<CircleListCard> {
               ),
 
               // Delete button (only for the owner)
-              if (onDelete != null && currentUserId != null && circle.createdBy == currentUserId)
+              if (widget.onDelete != null && widget.currentUserId != null && widget.circle.createdBy == widget.currentUserId)
                 IconButton(
                   icon: const Icon(
                     FluentIcons.delete_24_regular,
