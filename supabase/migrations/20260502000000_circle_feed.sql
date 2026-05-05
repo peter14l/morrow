@@ -42,6 +42,7 @@ RETURNS TABLE (
     circle_id UUID,
     storage_provider TEXT
 ) AS $$
+#variable_conflict use_column
 BEGIN
     RETURN QUERY
     SELECT 
@@ -115,6 +116,7 @@ RETURNS TABLE (
     circle_id UUID,
     storage_provider TEXT
 ) AS $$
+#variable_conflict use_column
 BEGIN
     RETURN QUERY
     SELECT 
@@ -191,13 +193,14 @@ RETURNS TABLE (
     circle_id UUID,
     storage_provider TEXT
 ) AS $$
+#variable_conflict use_column
 DECLARE
     v_circle_id UUID := in_circle_id;
 BEGIN
     -- Check if user is a member of the circle
     IF NOT EXISTS (
-        SELECT 1 FROM public.circle_members 
-        WHERE circle_id = v_circle_id AND user_id = p_user_id
+        SELECT 1 FROM public.circle_members cm
+        WHERE cm.circle_id = v_circle_id AND cm.user_id = p_user_id
     ) THEN
         RETURN;
     END IF;
@@ -242,18 +245,18 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 DROP POLICY IF EXISTS "Posts are viewable by everyone or circle members" ON public.posts;
 CREATE POLICY "Posts are viewable by everyone or circle members" ON public.posts
 FOR SELECT USING (
-    (circle_id IS NULL AND (
+    (posts.circle_id IS NULL AND (
         EXISTS (
             SELECT 1 FROM public.profiles pr
             WHERE pr.id = posts.user_id AND pr.is_private = FALSE
         ) OR 
-        user_id = auth.uid() OR 
+        posts.user_id = auth.uid() OR 
         EXISTS (
             SELECT 1 FROM public.follows f 
             WHERE f.follower_id = auth.uid() AND f.following_id = posts.user_id
         )
     )) OR
-    (circle_id IS NOT NULL AND EXISTS (
+    (posts.circle_id IS NOT NULL AND EXISTS (
         SELECT 1 FROM public.circle_members cm
         WHERE cm.circle_id = posts.circle_id AND cm.user_id = auth.uid()
     ))
@@ -262,9 +265,9 @@ FOR SELECT USING (
 DROP POLICY IF EXISTS "Users can only post to circles they are members of" ON public.posts;
 CREATE POLICY "Users can only post to circles they are members of" ON public.posts
 FOR INSERT WITH CHECK (
-    (circle_id IS NULL) OR
-    (circle_id IS NOT NULL AND EXISTS (
+    (posts.circle_id IS NULL) OR
+    (posts.circle_id IS NOT NULL AND EXISTS (
         SELECT 1 FROM public.circle_members cm
-        WHERE cm.circle_id = circle_id AND cm.user_id = auth.uid()
+        WHERE cm.circle_id = posts.circle_id AND cm.user_id = auth.uid()
     ))
 );

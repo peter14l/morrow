@@ -1608,6 +1608,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return 'Rose';
       case ColorPalette.teal:
         return 'Teal';
+      case ColorPalette.aurora:
+        return 'Aurora (Pro)';
+      case ColorPalette.wildfire:
+        return 'Wildfire (Pro)';
+      case ColorPalette.neonDreams:
+        return 'Neon Dreams (Pro)';
+      case ColorPalette.oceanDepths:
+        return 'Ocean Depths (Pro)';
     }
   }
 
@@ -1627,6 +1635,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return const material.Color(0xFFC2185B);
       case ColorPalette.teal:
         return const material.Color(0xFF00796B);
+      case ColorPalette.aurora:
+        return const material.Color(0xFF00D9FF);
+      case ColorPalette.wildfire:
+        return const material.Color(0xFFFF6B35);
+      case ColorPalette.neonDreams:
+        return const material.Color(0xFFB967FF);
+      case ColorPalette.oceanDepths:
+        return const material.Color(0xFF0066FF);
     }
   }
 

@@ -382,6 +382,16 @@ class _OasisProScreenState extends State<OasisProScreen> {
                       'Power Features',
                       '2GB+ file uploads and media downloads.',
                     ),
+                    _buildFeatureItem(
+                      FluentIcons.color_24_regular,
+                      'Vibrant Themes',
+                      'Exclusive aurora, wildfire, neon dreams, and ocean depths color palettes.',
+                    ),
+                    _buildFeatureItem(
+                      FluentIcons.cloud_24_regular,
+                      'Unlimited Media Storage',
+                      'Keep your photos and videos forever. No 30-day limits.',
+                    ),
                     const SizedBox(height: 40),
 
                     ..._plans.map((plan) => _buildPricingCard(plan)),

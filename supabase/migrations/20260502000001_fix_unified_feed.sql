@@ -28,6 +28,7 @@ RETURNS TABLE (
     is_liked BOOLEAN,
     is_bookmarked BOOLEAN
 ) AS $$
+#variable_conflict use_column
 BEGIN
     RETURN QUERY
     SELECT 

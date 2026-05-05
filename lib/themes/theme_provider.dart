@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/services/subscription_service.dart';
 
 // Predefined color palette options
 enum ColorPalette {
@@ -13,6 +14,11 @@ enum ColorPalette {
   lavender, // Purple
   rose, // Pink
   teal, // Teal
+  // Pro-only vibrant palettes
+  aurora, // Vibrant gradient cyan-pink (Pro only)
+  wildfire, // Vibrant orange-yellow (Pro only)
+  neonDreams, // Vibrant purple-magenta (Pro only)
+  oceanDepths, // Deep vibrant blue (Pro only)
 }
 
 class ThemeProvider with ChangeNotifier {
@@ -110,7 +116,26 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Check if a palette is Pro-only
+  bool _isProPalette(ColorPalette palette) {
+    return palette == ColorPalette.aurora ||
+        palette == ColorPalette.wildfire ||
+        palette == ColorPalette.neonDreams ||
+        palette == ColorPalette.oceanDepths;
+  }
+
+  /// Check if user can use a palette (Pro-only for vibrant themes)
+  bool canUsePalette(ColorPalette palette) {
+    if (!_isProPalette(palette)) return true;
+    return SubscriptionService().isPro;
+  }
+
   Future<void> setColorPalette(ColorPalette palette) async {
+    // Enforce Pro-only for vibrant palettes
+    if (_isProPalette(palette) && !SubscriptionService().isPro) {
+      debugPrint('[ThemeProvider] Pro palette requires Oasis Pro subscription');
+      return;
+    }
     _colorPalette = palette;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_colorPaletteKey, palette.index);
@@ -143,6 +168,15 @@ class ThemeProvider with ChangeNotifier {
         return const Color(0xFFC2185B); // Pink
       case ColorPalette.teal:
         return const Color(0xFF00796B); // Teal
+      // Pro-only vibrant palettes
+      case ColorPalette.aurora:
+        return const Color(0xFF00D9FF); // Vibrant cyan-pink
+      case ColorPalette.wildfire:
+        return const Color(0xFFFF6B35); // Vibrant orange-yellow
+      case ColorPalette.neonDreams:
+        return const Color(0xFFB967FF); // Vibrant purple-magenta
+      case ColorPalette.oceanDepths:
+        return const Color(0xFF0066FF); // Deep vibrant blue
     }
   }
 

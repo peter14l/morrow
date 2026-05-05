@@ -98,5 +98,38 @@ All features from COUPLES_CONNECTION_PLAN.md are locked decisions to implement.
 
 ---
 
+## Phase 14 Decision: SKIPPED
+
+**Decision Date:** 2026-05-05
+**Decision:** Do not implement Couples features as currently specified.
+
+### Rationale
+
+| Issue | Explanation |
+|-------|--------------|
+| **Unclear Value** | Features like Pulse, Flicker, Mood Glow sound cool but unclear if users will actually use them daily |
+| **Clutter Risk** | Adding 20 experimental features on top of existing app complexity creates bloat |
+| **No User Research** | Features were spec'd without validating user demand |
+| **Competing Priorities** | Revenue (Pro tier) and bug fixes take priority over new features |
+
+### Features That Were Considered But Skipped
+
+- Bubble Setup (the core space)
+- Wrapped Whispers (message reveal)
+- Favor Coupons (digital IOUs)
+- Pulse, Flicker, Shared Breath, Mood Glow
+- Time Capsules, Dream Maps, Memory Layering
+- Living Garden, Relationship Weather
+
+### What To Do Instead
+
+1. Fix calling bugs (audio issues)
+2. Implement Pro tier (media retention, themes, no ads)
+3. Implement House Ads
+4. Keep app focused and stable
+
+---
+
 *Phase: 14-couples-connection*
 *Context gathered: 2026-05-04 via feature specification*
+*Decision updated: 2026-05-05 - SKIPPED*

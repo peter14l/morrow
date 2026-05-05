@@ -145,28 +145,40 @@ Plans:
 
 **Goal:** Implement Backblaze R2 for Feeds/Ripples and Cloudflare R2 for Chat attachments with client-side caching (WhatsApp-style), user-specific isolation, and E2EE for all media.
 
-**Status:** âš’ï¸ Planning
-**Plans:**
-- [ ] 13-01-PLAN.md â€” R2 Infrastructure & S3 Client Setup
-- [ ] 13-02-PLAN.md â€” Feed & Ripples Migration to Backblaze R2
-- [ ] 13-03-PLAN.md â€” Secure Chat Media & Cloudflare R2 (WhatsApp-style)
+**Status:** ✅ Implemented (infrastructure complete)
+**Notes:** R2 storage exists in lib/services/s3_storage_service.dart and lib/core/config/r2_config.dart. Media upload uses E2EE encryption. 2GB limit for free users already implemented via subscription service.
 
-**Requirements:**
-[STORAGE-01, STORAGE-02, STORAGE-03]
+**Plans:** None (infrastructure complete)
 
 ## Phase 14: Couples Connection
 
 **Goal:** Implement couples intimacy and connection features including Bubble Setup (shared spaces), Wrapped Whispers (secret messages), Favor Coupons (IOUs), Pulse/Heartbeat Sync, Flicker (thinking of you), Shared Breath (co-regulation), Mood Glow (emotional presence), Time Capsules, Dream Maps, Memory Layering, Weather themes, Parallel Stream (ambient presence), and Living Garden (relationship growth metaphor).
 
-**Status:** ✅ Planned
-**Plans:** 4 plans
+**Status:** ❌ Skipped (2026-05-05)
+**Reason:** Feature bloat - unclear value, adds clutter, better to focus on stability and revenue.
 
-### Plans:
-- [ ] 14-01-PLAN.md — Bubble Setup + Wrapped Whispers + Favor Coupons (The Core)
-- [ ] 14-02-PLAN.md — Pulse + Flicker + Shared Breath + Mood Glow (The Senses)
-- [ ] 14-03-PLAN.md — Time Capsules + Dream Maps + Memory Layering (The History)
-- [ ] 14-04-PLAN.md — Weather + Parallel Stream + Living Garden (The Environment)
+**Plans:** None (not implementing)
 
-**Requirements:**
-[COUPLE-01, COUPLE-02, COUPLE-03, COUPLE-04]
+---
+
+## Phase 16: Pro Tier & Monetization
+
+**Goal:** Implement Pro subscription tier with exclusive features and House Ads for free tier revenue.
+
+**Status:** 📋 Planned
+**Plans:** To be determined
+
+### Features:
+- Pro tier ($5/month) with:
+  - Unlimited media storage (vs 30-day retention for free)
+  - Vibrant color schemes (exclusive themes)
+  - Custom icons
+  - Higher video call quality (720p+)
+  - No House Ads
+- House Ads (internal, no third-party data collection)
+- Media retention policy enforcement (30 days for free users)
+
+### Requirements:
+- Revenue sustainability
+- Privacy-preserving ads
 
