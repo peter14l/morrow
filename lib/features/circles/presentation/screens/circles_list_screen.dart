@@ -30,6 +30,23 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
     }
   }
 
+  Future<void> _deleteCircle(BuildContext context, String circleId) async {
+    try {
+      await context.read<CircleProvider>().deleteCircle(circleId);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Circle deleted')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error deleting circle: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -129,6 +146,8 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
                         'circle_detail',
                         pathParameters: {'circleId': circle.id},
                       ),
+                      onDelete: () => _deleteCircle(context, circle.id),
+                      currentUserId: profile.currentProfile?.id,
                     );
                   },
                 ),
@@ -148,6 +167,8 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
                           'circle_detail',
                           pathParameters: {'circleId': circle.id},
                         ),
+                        onDelete: () => _deleteCircle(context, circle.id),
+                        currentUserId: profile.currentProfile?.id,
                       ),
                     );
                   },

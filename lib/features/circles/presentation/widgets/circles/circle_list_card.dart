@@ -1,22 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/circles/domain/models/circles_models.dart';
-
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart'; // For ThemeProvider
 import 'package:provider/provider.dart';
 
-class CircleListCard extends StatelessWidget {
+class CircleListCard extends StatefulWidget {
   final CircleEntity circle;
-  final VoidCallback onTap;
+  final VoidCallback widget.onTap;
+  final VoidCallback? onDelete;
+  final String? currentUserId;
   final bool isDesktop;
 
   const CircleListCard({
     super.key,
     required this.circle,
-    required this.onTap,
+    required this.widget.onTap,
+    this.onDelete,
+    this.currentUserId,
     this.isDesktop = false,
   });
+
+  @override
+  State<CircleListCard> createState() => _CircleListCardState();
+}
+
+class _CircleListCardState extends State<CircleListCard> {
+  Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete Circle'),
+        content: Text('Are you sure you want to delete "${widget.circle.name}"? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && widget.onDelete != null) {
+      widget.onDelete!();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +57,9 @@ class CircleListCard extends StatelessWidget {
     final isM3E = themeProvider.isM3EEnabled;
 
     // Desktop layout: card with vertical stack
-    if (isDesktop) {
+    if (widget.isDesktop) {
       return GestureDetector(
-        onTap: onTap,
+        widget.onTap: widget.widget.onTap,
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(isM3E ? 28 : 20),
@@ -106,7 +138,7 @@ class CircleListCard extends StatelessWidget {
 
     // Mobile layout: horizontal row (original)
     return GestureDetector(
-      onTap: onTap,
+      widget.onTap: widget.onTap,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(isM3E ? 28 : 20),
@@ -179,11 +211,23 @@ class CircleListCard extends StatelessWidget {
                 ),
               ),
 
-              Icon(
-                FluentIcons.chevron_right_24_regular,
-                size: 18,
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-              ),
+              // Delete button (only for the owner)
+              if (onDelete != null && currentUserId != null && circle.createdBy == currentUserId)
+                IconButton(
+                  icon: const Icon(
+                    FluentIcons.delete_24_regular,
+                    size: 18,
+                    color: Colors.red,
+                  ),
+                  onPressed: () => _showDeleteConfirmation(context),
+                  tooltip: 'Delete Circle',
+                )
+              else
+                Icon(
+                  FluentIcons.chevron_right_24_regular,
+                  size: 18,
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+                ),
             ],
           ),
         ),

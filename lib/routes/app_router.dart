@@ -1624,6 +1624,15 @@ class AppRouter {
               ),
         ),
         GoRoute(
+          path: '/settings/home-location',
+          name: 'home_location',
+          pageBuilder:
+              (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const HomeLocationScreen(),
+              ),
+        ),
+        GoRoute(
           path: '/settings/about',
           name: 'about',
           pageBuilder:
