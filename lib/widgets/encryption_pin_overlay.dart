@@ -213,7 +213,7 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                           size: 64,
                           color: theme.colorScheme.primary,
                         ),
-                      ).animate().scale(duration: 400.ms, curve: Curves.backOut),
+                      ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
                       
                       const SizedBox(height: 32),
                       

@@ -827,7 +827,7 @@ class ChatProvider with ChangeNotifier {
         );
       } else if (videoFile != null) {
         uploadResult = await _chatMediaService.uploadAndEncryptMedia(
-          videoFile.path,
+          filePath: videoFile.path,
           type: 'videos',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
           recipientUserIds: state.participantIds,
@@ -848,7 +848,7 @@ class ChatProvider with ChangeNotifier {
         }
       } else if (audioFile != null) {
         uploadResult = await _chatMediaService.uploadAndEncryptMedia(
-          audioFile.path,
+          filePath: audioFile.path,
           type: 'recordings',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
           recipientUserIds: state.participantIds,
