@@ -19,7 +19,7 @@ class ProfileRemoteDatasource {
       final response =
           await _supabase
               .from(SupabaseConfig.profilesTable)
-              .select()
+              .select('id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color')
               .eq('id', userId)
               .single();
 
@@ -35,7 +35,7 @@ class ProfileRemoteDatasource {
       final response =
           await _supabase
               .from(SupabaseConfig.profilesTable)
-              .select()
+              .select('id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color')
               .eq('username', username)
               .single();
 
@@ -279,7 +279,7 @@ class ProfileRemoteDatasource {
           .from(SupabaseConfig.followsTable)
           .select('''
             follower_id,
-            ${SupabaseConfig.profilesTable}:follower_id (*)
+            ${SupabaseConfig.profilesTable}:follower_id (id, username, full_name, avatar_url, is_verified)
           ''')
           .eq('following_id', userId)
           .order('created_at', ascending: false)
@@ -342,7 +342,7 @@ class ProfileRemoteDatasource {
     try {
       final response = await _supabase
           .from(SupabaseConfig.profilesTable)
-          .select()
+          .select('id, username, full_name, avatar_url, is_verified')
           .or('username.ilike.%$query%,full_name.ilike.%$query%')
           .limit(limit);
 

@@ -257,14 +257,14 @@ class AuthService with ChangeNotifier {
   Future<void> _ensureProfileExists(User user) async {
     var profile = await _supabase
         .from(SupabaseConfig.profilesTable)
-        .select()
+        .select('id, username, avatar_url, is_verified, is_pro')
         .eq('id', user.id)
         .maybeSingle();
 
     if (profile == null && user.email != null) {
       profile = await _supabase
           .from(SupabaseConfig.profilesTable)
-          .select()
+          .select('id, username, avatar_url, is_verified, is_pro')
           .eq('email', user.email!)
           .maybeSingle();
 
@@ -315,7 +315,7 @@ class AuthService with ChangeNotifier {
 
     final profile = await _supabase
         .from(SupabaseConfig.profilesTable)
-        .select()
+        .select('id, username, avatar_url, is_verified, is_pro')
         .eq('id', user.id)
         .maybeSingle();
 
