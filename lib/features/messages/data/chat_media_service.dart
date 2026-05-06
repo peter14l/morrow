@@ -75,8 +75,7 @@ class ChatMediaService {
   }
 
   /// Uploads media to Cloudflare R2 with E2EE and local caching.
-  Future<({String url, String iv, Map<String, String> encryptedKeys})>
-      uploadAndEncryptMedia({
+  Future<MediaUploadResult> uploadAndEncryptMedia({
     required String filePath,
     required String type, // 'images', 'videos', 'documents', 'recordings'
     required List<String> recipientPublicKeysPem,

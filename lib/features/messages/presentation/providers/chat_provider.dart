@@ -1544,10 +1544,11 @@ class ChatProvider with ChangeNotifier {
       if (senderPublicKey != null)
         mediaRecipientPublicKeys.add(senderPublicKey);
 
-      final uploadResult = await _chatMediaService.uploadChatMediaSecure(
-        audioPath,
+      final uploadResult = await _chatMediaService.uploadAndEncryptMedia(
+        filePath: audioPath,
         type: 'recordings',
         recipientPublicKeysPem: mediaRecipientPublicKeys,
+        recipientUserIds: state.participantIds,
         recipientUserId: recipientId,
         onProgress: (progress) {
           _updateMessageProgress(optimisticMessage.id, progress);

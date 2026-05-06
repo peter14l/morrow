@@ -146,7 +146,7 @@ class AccountSwitcherSheet extends StatelessWidget {
                             ? null
                             : () async {
                               Navigator.pop(context);
-                              await authProvider.switchAccount(account.userId);
+                              await authService.switchAccount(context, account.userId);
                             },
                   );
                 },
@@ -199,9 +199,9 @@ class AccountSwitcherSheet extends StatelessWidget {
   }
 
   Widget _buildFluentSwitcher(BuildContext context) {
-    final authProvider = context.watch<AuthProvider>();
-    final currentUserId = authProvider.currentAccount?.userId;
-    final accounts = authProvider.registeredAccounts;
+    final authService = context.watch<AuthService>();
+    final currentUserId = authService.currentUser?.id;
+    final accounts = authService.registeredAccounts;
     final theme = fluent.FluentTheme.of(context);
 
     return Column(
@@ -229,7 +229,7 @@ class AccountSwitcherSheet extends StatelessWidget {
                     ? null
                     : () async {
                         Navigator.pop(context);
-                        await authProvider.switchAccount(account.userId);
+                        await authService.switchAccount(context, account.userId);
                       },
                 builder: (context, states) {
                   return Container(

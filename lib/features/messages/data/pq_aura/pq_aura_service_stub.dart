@@ -52,9 +52,33 @@ class PQAuraService {
     return null;
   }
 
-  /// Encrypt a message for multiple recipients (group chat)
-  Future<Map<String, dynamic>?> encryptGroupMessage(
+  /// Encrypt a media key using the PQ session
+  Future<Map<String, String>?> encryptMediaKey(
+    String recipientId,
+    Uint8List mediaKey,
+  ) async {
+    return null;
+  }
+
+  /// Encrypt a media key for multiple recipients (group media)
+  Future<Map<String, String>?> encryptGroupMediaKey(
     List<String> recipientIds,
+    Uint8List mediaKey,
+  ) async {
+    return null;
+  }
+
+  /// Decrypt a media key
+  Future<Uint8List?> decryptMediaKey(
+    String senderId,
+    Map<String, dynamic> encryptionData,
+  ) async {
+    return null;
+  }
+
+  /// Encrypt a message for multiple recipients (group chat)
+  Future<Map<String, String>?> encryptGroupMessage(
+    List<String> participantIds,
     String plaintext,
   ) async {
     return null;

@@ -444,6 +444,19 @@ class _MainLayoutState extends State<MainLayout> {
                   ],
                 ),
                 
+                // Encryption PIN Overlay (Full Screen)
+                if (_encryptionStatus == EncryptionStatus.needsRestore ||
+                    _encryptionStatus == EncryptionStatus.needsSetup ||
+                    _encryptionStatus == EncryptionStatus.needsSecurityUpgrade)
+                  Positioned.fill(
+                    child: EncryptionPinOverlay(
+                      status: _encryptionStatus!,
+                      onComplete: () {
+                        _checkEncryption(); // Re-check status to clear overlay
+                      },
+                    ),
+                  ),
+                
                 // Privacy Blur Overlay
                 if (_isPrivacyBlurActive)
                   Positioned.fill(
