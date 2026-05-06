@@ -29,7 +29,9 @@ class KeyManagementService {
   static String publicKeyKey(String uid) => 'rsa_public_key_$uid';
 
   /// Derives a 32-byte key from the User ID for legacy seamless backup encryption.
-  /// 🚩 VULNERABLE: Only for backward compatibility.
+  /// 🚩 CRITICAL VULNERABILITY: This method is deprecated and should NOT be used for new users.
+  /// It is kept ONLY for one-time migration to PIN-based (v2) security.
+  @Deprecated('Vulnerable to userId harvesting. Use deriveSecureBackupKey instead.')
   encrypt.Key deriveLegacyBackupKey(String userId) {
     final bytes = utf8.encode(userId);
     final digest = sha256.convert(bytes);

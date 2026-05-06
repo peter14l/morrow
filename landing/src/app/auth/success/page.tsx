@@ -1,19 +1,11 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function AuthSuccessPage() {
-  useEffect(() => {
-    // Attempt to automatically open the app on mobile devices
-    const timer = setTimeout(() => {
-      window.location.href = "oasis://";
-    }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <main className="min-h-screen bg-oasis-deep flex items-center justify-center p-6 relative overflow-hidden">
       {/* Background Glow */}
@@ -32,34 +24,27 @@ export default function AuthSuccessPage() {
         </div>
 
         <h1 className="font-cormorant text-4xl italic text-oasis-sand mb-4 leading-tight">
-          Verification Successful
+          Verification Successful!
         </h1>
 
         <p className="font-geist text-oasis-mist mb-10 leading-relaxed text-lg">
-          Your email has been verified. You're now ready to join the Oasis community.
+          Your email has been successfully verified. You&apos;re now ready to step into the Oasis.
         </p>
 
         <div className="space-y-4">
-          <div className="p-4 bg-oasis-moss/40 border border-oasis-sage/20 rounded-2xl">
-            <p className="font-space-mono text-xs uppercase tracking-widest text-oasis-glow mb-2">Next Step</p>
-            <p className="font-geist text-sm text-oasis-mist">
-              Return to the Oasis app on your device and sign in.
+          <div className="p-6 bg-oasis-moss/40 border border-oasis-sage/20 rounded-2xl">
+            <p className="font-space-mono text-xs uppercase tracking-widest text-oasis-glow mb-2">What&apos;s Next?</p>
+            <p className="font-geist text-sm text-oasis-mist leading-relaxed">
+              Head back to our website, download the app for your device, and sign in with your credentials.
             </p>
           </div>
 
-          <a
-            href="oasis://"
-            className="flex items-center justify-center gap-2 w-full py-4 bg-oasis-glow text-oasis-deep rounded-full font-space-mono font-bold hover:shadow-[0_0_30px_rgba(127,255,212,0.4)] transition-all"
-          >
-            Open App to Sign In
-            <ArrowRight size={18} />
-          </a>
-
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 w-full py-3 border border-oasis-glow/30 text-oasis-mist rounded-full font-space-mono text-sm hover:bg-oasis-glow/5 transition-all mt-4"
+            className="flex items-center justify-center gap-2 w-full py-4 bg-oasis-glow text-oasis-deep rounded-full font-space-mono font-bold hover:shadow-[0_0_30px_rgba(127,255,212,0.4)] transition-all"
           >
             Go to Website
+            <ArrowRight size={18} />
           </Link>
         </div>
       </motion.div>

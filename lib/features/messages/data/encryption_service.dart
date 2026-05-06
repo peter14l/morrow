@@ -149,7 +149,7 @@ class EncryptionService {
         }
       }
 
-      // 3. Server Check & Auto-Restore (When local keys are MISSING)
+      // 3. Server Check & Force Upgrade (When local keys are MISSING)
       if (response != null) {
         // Check if they have v2 (requires PIN to restore)
         if (response['encrypted_private_key_v2'] != null) {
@@ -158,16 +158,14 @@ class EncryptionService {
           return EncryptionStatus.needsRestore; // UI must prompt for PIN
         }
 
-        // Check if they only have v1 (Legacy auto-restore)
+        // 🚩 SECURITY ENFORCEMENT: Disable seamless legacy auto-restore.
+        // Even if they have v1 keys on the server, we force them to perform a fresh
+        // PIN-based setup to eliminate the vulnerable backup.
         if (response['encrypted_private_key'] != null) {
-          final restored = await _restoreLegacyKeys(response);
-          if (restored) {
-            _isInitialized = true;
-            _isInitializing = false;
-            _lastStatus = EncryptionStatus.needsSecurityUpgrade;
-            // Return a special status so the UI knows to ask them to upgrade
-            return EncryptionStatus.needsSecurityUpgrade;
-          }
+          debugPrint('[Encryption] Legacy v1 backup detected. Blocking auto-restore for security.');
+          _isInitializing = false;
+          _lastStatus = EncryptionStatus.needsSetup;
+          return EncryptionStatus.needsSetup; 
         }
       }
 
@@ -683,12 +681,14 @@ class EncryptionService {
   }
 
   /// Encrypts a media file for E2EE storage.
-  /// 
+  /// 🚩 SECURITY UPGRADE: Now prioritizes PQ-Aura and requires recipient identifiers.
+  ///
   /// Returns a map with 'encryptedBytes' and 'encryptionData' (iv, encryptedKeys).
   Future<Map<String, dynamic>> encryptMediaFile({
     required File file,
     required List<String> recipientPublicKeysPem,
-    String? recipientUserId,
+    List<String>? recipientUserIds,
+    String? recipientUserId, // Kept for backward compatibility
   }) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null || !_isInitialized) {
@@ -704,7 +704,7 @@ class EncryptionService {
     final encrypted = encrypter.encryptBytes(bytes, iv: iv);
     final encryptedBytes = Uint8List.fromList(encrypted.bytes);
 
-    // Encrypt the AES key for each recipient (RSA)
+    // 1. RSA Fallback (still needed for users who haven't established PQ sessions)
     final encryptedKeys = <String, String>{};
     final myPublicKey = await _secureStorage.read(
       key: KeyManagementService.publicKeyKey(userId),
@@ -726,15 +726,27 @@ class EncryptionService {
       }
     }
 
-    // NEW: Also encrypt with PQ-Aura if recipient user ID is available
-    if (recipientUserId != null && PQAuraService.instance.isReady) {
+    // 2. PQ-Aura (Primary/Advanced Security)
+    final ids = recipientUserIds ?? (recipientUserId != null ? [recipientUserId] : []);
+    
+    if (ids.isNotEmpty && PQAuraService.instance.isReady) {
       try {
-        final pqaEncryptedKey = await PQAuraService.instance.encryptMediaKey(
-          recipientUserId,
-          Uint8List.fromList(aesKey.bytes),
-        );
-        if (pqaEncryptedKey != null) {
-          encryptedKeys.addAll(pqaEncryptedKey);
+        Map<String, String>? pqaResult;
+        
+        if (ids.length == 1) {
+          pqaResult = await PQAuraService.instance.encryptMediaKey(
+            ids.first,
+            Uint8List.fromList(aesKey.bytes),
+          );
+        } else {
+          pqaResult = await PQAuraService.instance.encryptGroupMediaKey(
+            ids,
+            Uint8List.fromList(aesKey.bytes),
+          );
+        }
+
+        if (pqaResult != null) {
+          encryptedKeys.addAll(pqaResult);
         }
       } catch (e) {
         debugPrint('[EncryptionService] PQ-Aura media key encryption failed: $e');

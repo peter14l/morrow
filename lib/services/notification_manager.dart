@@ -18,6 +18,7 @@ import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/services/sqlite_init.dart';
 
 /// Represents a message in a notification group history
 class NotificationMessage {
@@ -39,10 +40,7 @@ void notificationTapBackground(NotificationResponse response) async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize database factory for desktop background processes
-  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
-    sqfliteFfiInit();
-    databaseFactory = databaseFactoryFfi;
-  }
+  initSqlite();
 
   try {
     // 1. Initialize Supabase
@@ -338,7 +336,7 @@ class NotificationManager {
           'display notification "$body" with title "$title"',
         ]);
       }
-    } else if (Platform.isLinux) {
+    } else if (!kIsWeb && Platform.isLinux) {
       try {
         await Process.run('notify-send', [title, body]);
       } catch (e) {

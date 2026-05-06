@@ -1,39 +1,85 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check } from "lucide-react";
+import { Check, Globe, ShieldAlert } from "lucide-react";
 
-const plans = [
-  {
-    name: "Free",
-    price: "₹0",
-    features: [
-      "Basic Time Capsules",
-      "Public Circles",
-      "End-to-end encryption",
-      "Mindful feed access",
-    ],
-    cta: "Join Waitlist",
-    highlight: false,
-  },
-  {
-    name: "Pro",
-    price: "₹199",
-    features: [
-      "Extended Time Capsules",
-      "Private & Hidden Circles",
-      "Enhanced Wellness Insights",
-      "Priority Support",
-      "No Data Retention",
-      "Custom UI Themes",
-    ],
-    cta: "Go Deeper",
-    highlight: true,
-  },
-];
+// PPP mapping (Expanded for major regions)
+const PPP_PRICES: Record<string, { price: string; symbol: string }> = {
+  IN: { price: "199", symbol: "₹" },
+  US: { price: "9.99", symbol: "$" },
+  GB: { price: "7.99", symbol: "£" },
+  EU: { price: "8.99", symbol: "€" },
+  DE: { price: "8.99", symbol: "€" },
+  FR: { price: "8.99", symbol: "€" },
+  CA: { price: "12.99", symbol: "CA$" },
+  AU: { price: "14.99", symbol: "A$" },
+  BR: { price: "29.90", symbol: "R$" },
+  NG: { price: "2500", symbol: "₦" },
+  PK: { price: "850", symbol: "₨" },
+  BD: { price: "750", symbol: "৳" },
+  // Default fallback
+  DEFAULT: { price: "9.99", symbol: "$" },
+};
 
 export default function Pricing() {
+  const [geoData, setGeoData] = useState<{ country: string; isVpn: boolean } | null>(null);
+  const [pricing, setPricing] = useState<{ price: string; symbol: string } | null>(null);
+
+  useEffect(() => {
+    async function fetchGeo() {
+      try {
+        const res = await fetch("/api/geo");
+        const data = await res.json();
+        setGeoData(data);
+
+        // If VPN detected, force default pricing
+        if (data.isVpn) {
+          setPricing(PPP_PRICES.DEFAULT);
+        } else {
+          const countryPricing = PPP_PRICES[data.country] || PPP_PRICES.DEFAULT;
+          setPricing(countryPricing);
+        }
+      } catch (error) {
+        console.error("Failed to fetch geo data", error);
+        setPricing(PPP_PRICES.DEFAULT);
+      }
+    }
+    fetchGeo();
+  }, []);
+
+  // Use India as fallback for immediate display if you prefer, or a placeholder
+  const activePricing = pricing || PPP_PRICES.DEFAULT;
+
+  const plans = [
+    {
+      name: "Free",
+      price: `${activePricing.symbol}0`,
+      features: [
+        "Basic Time Capsules",
+        "Public Circles",
+        "End-to-end encryption",
+        "Mindful feed access",
+      ],
+      cta: "Join Waitlist",
+      highlight: false,
+    },
+    {
+      name: "Pro",
+      price: `${activePricing.symbol}${activePricing.price}`,
+      features: [
+        "Extended Time Capsules",
+        "Private & Hidden Circles",
+        "Enhanced Wellness Insights",
+        "Priority Support",
+        "No Data Retention",
+        "Custom UI Themes",
+      ],
+      cta: "Upgrade to Pro",
+      highlight: true,
+    },
+  ];
+
   return (
     <section id="pricing" className="py-24 px-6 bg-oasis-deep relative overflow-hidden">
       <div className="max-w-5xl mx-auto">
@@ -44,9 +90,33 @@ export default function Pricing() {
             viewport={{ once: true }}
             className="font-dm-serif text-4xl md:text-5xl text-oasis-sand mb-4"
           >
-            Go deeper with Oasis Pro
+            Upgrade to Oasis Pro
           </motion.h2>
           <p className="font-geist text-oasis-mist">Choose the level of presence that works for you.</p>
+          
+          {geoData && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-oasis-glow/10 border border-oasis-glow/20 rounded-full"
+            >
+              {geoData.isVpn ? (
+                <>
+                  <ShieldAlert size={14} className="text-red-400" />
+                  <span className="font-space-mono text-[10px] text-red-400 uppercase tracking-widest font-bold">
+                    VPN Detected - Standard Pricing Applied
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Globe size={14} className="text-oasis-glow" />
+                  <span className="font-space-mono text-[10px] text-oasis-glow uppercase tracking-widest">
+                    Local pricing for {geoData.country} applied
+                  </span>
+                </>
+              )}
+            </motion.div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
@@ -59,7 +129,7 @@ export default function Pricing() {
               transition={{ delay: i * 0.2 }}
               className={`p-10 rounded-[3rem] glass flex flex-col justify-between transition-all duration-500 hover:scale-102 ${
                 plan.highlight 
-                  ? "border-oasis-glow/40 shadow-[0_0_80px_rgba(127,255,212,0.1)] scale-105 z-10" 
+                  ? "border-oasis-glow/40 shadow-[0_0_80px_rgba(93,201,168,0.15)] scale-105 z-10" 
                   : "border-oasis-sage/20 opacity-90"
               }`}
             >
@@ -90,7 +160,7 @@ export default function Pricing() {
               <button
                 className={`w-full py-4 rounded-full font-space-mono transition-all duration-300 ${
                   plan.highlight
-                    ? "bg-oasis-glow text-oasis-deep hover:shadow-[0_0_30px_rgba(127,255,212,0.3)]"
+                    ? "bg-oasis-glow text-oasis-deep hover:shadow-[0_0_30px_rgba(93,201,168,0.3)]"
                     : "border border-oasis-mist/30 text-oasis-white hover:bg-white/5"
                 }`}
               >

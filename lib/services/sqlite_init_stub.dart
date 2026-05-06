@@ -1,0 +1,3 @@
+void initSqlite() {}
+
+void initSqliteOverride() {}

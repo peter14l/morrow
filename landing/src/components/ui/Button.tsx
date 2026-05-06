@@ -19,7 +19,7 @@ export function Button({
   ...props 
 }: ButtonProps) {
   const variants = {
-    primary: "bg-oasis-glow text-oasis-deep hover:shadow-[0_0_30px_rgba(127,255,212,0.4)]",
+    primary: "bg-oasis-glow text-oasis-deep hover:shadow-[0_0_30px_rgba(93,201,168,0.3)]",
     outline: "border border-oasis-glow text-oasis-glow hover:bg-oasis-glow hover:text-oasis-deep",
     ghost: "border border-oasis-mist/30 text-oasis-white hover:bg-white/5",
   };

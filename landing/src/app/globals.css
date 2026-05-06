@@ -3,14 +3,14 @@
 @source "../**/*.{js,ts,jsx,tsx,mdx}";
 
 @theme {
-  --color-oasis-deep: #0D1F1A;
-  --color-oasis-moss: #1E3A2F;
-  --color-oasis-sage: #3D6B55;
-  --color-oasis-mist: #A8C5B5;
-  --color-oasis-glow: #7FFFD4;
-  --color-oasis-sand: #E8D9C0;
-  --color-oasis-white: #F5F5F0;
-  --color-oasis-dim: rgba(13, 31, 26, 0.6);
+  --color-oasis-deep: #0B1814;
+  --color-oasis-moss: #152B23;
+  --color-oasis-sage: #2D5241;
+  --color-oasis-mist: #9CB6A9;
+  --color-oasis-glow: #5DC9A8;
+  --color-oasis-sand: #E3D1B4;
+  --color-oasis-white: #F0F0EB;
+  --color-oasis-dim: rgba(11, 24, 20, 0.6);
   
   --font-cormorant: var(--font-cormorant-garamond);
   --font-dm-serif: var(--font-dm-serif-display);
@@ -20,26 +20,40 @@
 
 @layer base {
   :root {
-    --background: #0D1F1A;
-    --foreground: #F5F5F0;
+    --background: #0B1814;
+    --foreground: #F0F0EB;
   }
   
   body {
-    background-color: #0D1F1A;
-    color: #F5F5F0;
+    background-color: #0B1814;
+    color: #F0F0EB;
     font-family: var(--font-geist-sans), sans-serif;
+    position: relative;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 9999;
   }
 }
 
 @layer utilities {
   .glass {
-    background: rgba(13, 31, 26, 0.6);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(127, 255, 212, 0.1);
+    background: rgba(21, 43, 35, 0.4);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(93, 201, 168, 0.08);
   }
 
   .mesh-gradient-bg {
-    background: radial-gradient(circle at 50% 50%, #1E3A2F 0%, #0D1F1A 100%);
+    background: radial-gradient(circle at 0% 0%, #152B23 0%, #0B1814 100%);
     background-size: 200% 200%;
     animation: mesh-gradient 15s ease infinite;
   }

@@ -16,9 +16,7 @@ import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:oasis/routes/app_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:sqlite3/open.dart';
-import 'dart:ffi';
+import 'package:oasis/services/sqlite_init.dart';
 
 import 'package:oasis/firebase_options.dart';
 import 'package:oasis/core/config/app_config.dart';
@@ -199,10 +197,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // to ensure the user only sees readable content.
   try {
     // Initialize database factory for desktop background processes
-    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
+    initSqlite();
 
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -346,11 +341,7 @@ class AppInitializer {
   /// Returns all pre-instantiated providers so main.dart can wire them up.
   static Future<InitializedServices> initCore() async {
     // Initialize database factory for desktop
-    if (!kIsWeb && (Platform.isWindows || Platform.isMacOS)) {
-      _initSqliteOverride();
-      sqfliteFfiInit();
-      databaseFactory = databaseFactoryFfi;
-    }
+    initSqlite();
 
     // Android-specific WebView initialization
     if (Platform.isAndroid) {
@@ -432,7 +423,7 @@ class AppInitializer {
     }
 
     // Windows enhancements
-    if (Platform.isWindows) {
+    if (!kIsWeb && Platform.isWindows) {
       unawaited(DesktopWindowService.instance.initialize().then((_) async {
         await DesktopWindowService.instance.enableCloseToTray();
         await DesktopWindowService.instance.setWindowEffect(
@@ -700,17 +691,7 @@ class AppInitializer {
 
   /// Windows-specific: Explicitly load sqlite3.dll for release builds.
   static void _initSqliteOverride() {
-    if (Platform.isWindows) {
-      open.overrideFor(OperatingSystem.windows, () {
-        try {
-          // In release builds, the DLL is usually in the same folder as the .exe
-          return DynamicLibrary.open('sqlite3.dll');
-        } catch (e) {
-          debugPrint('Sqlite3 override failed: $e');
-          // Fallback to process lookup
-          return DynamicLibrary.process();
-        }
-      });
-    }
+    initSqliteOverride();
   }
 }
+

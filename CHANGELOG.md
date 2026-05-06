@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.8.0] - 2026-05-05
+
+### Added
+- **Post-Quantum Encryption (PQ-DR)** - Integrated `PQ-DR` as a git submodule, providing a Rust-based Post-Quantum encryption layer (Aura).
+- **Native Binary Bundling** - Implemented native library bundling for all platforms (Android `.so`, iOS `.a`, macOS `.dylib`, Windows `.dll`).
+- **Geofencing System** - Introduced `HomeLocationService` and `GeofenceMonitorService` to detect user arrival at designated home locations using Haversine distance logic (100m radius).
+- **Cross-Platform Release Automation** - Overhauled GitHub Actions to support automated release builds for Android (AAB/APK), iOS (IPA), macOS (App), and Windows (MSIX).
+- **Remote Version Management** - Added `versions.json` infrastructure to track latest releases, release notes, and download URLs across all platforms.
+- **Location Unit Testing** - Added comprehensive test suites for `HomeLocation` models, distance calculations, and geofence state transitions.
+
+### Fixed
+- **Push Notification Authentication (V4)** - Resolved critical authentication failures in Supabase Edge Functions by implementing a dual-header strategy (`Authorization` + `X-Oasis-Key`) to bypass gateway JWT size limitations.
+- **CI/CD Reliability** - Fixed submodule checkout issues and added automated Rust toolchain setup in release workflows.
+- **Windows SQLite Support** - Integrated `sqlite3_flutter_libs` to ensure local database stability on Windows builds.
+
+### Changed
+- **Encryption Service Refactor** - Updated `EncryptionService` and `SignalService` to handle user-specific media encryption keys and historical message decryption.
+- **Auth Service Interface** - Extended `AuthService.signOut` with context-aware support to ensure proper UI cleanup on termination.
+
 ## [4.7.2] - 2026-04-21
 
 ### Fixed

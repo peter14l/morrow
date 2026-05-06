@@ -14,19 +14,20 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden mesh-gradient-bg pt-20 px-6">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-oasis-glow/5 rounded-full blur-[120px]" /> 
+    <section className="relative min-h-[90vh] flex items-center overflow-hidden mesh-gradient-bg pt-32 px-6">
+      {/* Background Glows */}
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-oasis-glow/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" /> 
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-oasis-glow/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/4" /> 
 
-      <div className="max-w-3xl mx-auto w-full relative z-10 text-center">
+      <div className="max-w-7xl mx-auto w-full relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Text Content */}
-        <div className="flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-start text-left space-y-10">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            <h1 className="font-cormorant text-6xl md:text-8xl italic text-oasis-sand leading-tight">
+            <h1 className="font-cormorant text-7xl md:text-9xl italic text-oasis-sand leading-[0.9] tracking-tight">
               Be social.<br />
               Be present.<br />
               Be protected.
@@ -34,31 +35,54 @@ export default function Hero() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-            className="font-geist text-lg md:text-xl text-oasis-mist max-w-lg"
+            className="font-geist text-xl md:text-2xl text-oasis-mist max-w-lg leading-relaxed opacity-90"
           >
             Oasis is a social platform built around your wellbeing, not your attention span.
           </motion.p>
-
-          {/* Launch Countdown */}
-          <LaunchCountdown />
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col sm:flex-row gap-6 items-start"
           >
             <button
               onClick={scrollToDownload}
-              className="px-8 py-4 bg-oasis-glow text-oasis-deep rounded-full font-space-mono font-bold hover:shadow-[0_0_30px_rgba(127,255,212,0.4)] transition-all flex items-center gap-3 justify-center"
+              className="px-10 py-5 bg-oasis-glow text-oasis-deep rounded-full font-space-mono font-bold hover:shadow-[0_0_40px_rgba(93,201,168,0.3)] transition-all flex items-center gap-3 justify-center group"
             >
               Get Early Access
+              <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.5 }}>→</motion.span>
             </button>
+            
+            <div className="flex flex-col items-start pt-2">
+              <span className="font-space-mono text-[10px] uppercase tracking-widest text-oasis-glow mb-1">Coming soon to</span>
+              <span className="font-geist text-sm text-oasis-white/60">Windows & macOS</span>
+            </div>
           </motion.div>
         </div>
+
+        {/* Visual Element */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="hidden lg:flex justify-center relative"
+        >
+          <div className="relative w-[500px] h-[500px]">
+            {/* Abstract Organic Shape */}
+            <div className="absolute inset-0 bg-oasis-glow/10 rounded-[40%_60%_70%_30%/_40%_50%_60%_50%] animate-float border border-oasis-glow/20 backdrop-blur-3xl overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-br from-oasis-glow/20 to-transparent" />
+            </div>
+            
+            {/* Launch Countdown Overlay */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+              <LaunchCountdown />
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Scroll Indicator */}
@@ -66,10 +90,10 @@ export default function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-10 right-12 flex flex-col items-end gap-2"
       >
         <span className="font-space-mono text-[10px] uppercase tracking-widest text-oasis-mist/50">Scroll to explore</span>
-        <div className="animate-bounce">
+        <div className="animate-bounce mr-4">
           <ChevronDown className="text-oasis-glow" size={20} />
         </div>
       </motion.div>

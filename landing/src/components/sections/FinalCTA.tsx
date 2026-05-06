@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Loader2, Check, AlertCircle } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { joinBetaTester, joinWaitlist, getBetaTesterCount, getMaxBetaTesters } from "@/app/actions/beta";
+import { supabase } from "@/lib/supabase";
 
 // Downloads Launch date: April 30, 2026 at 11:11 AM IST
 const DOWNLOADS_LAUNCH_DATE = new Date("2026-04-30T11:11:00+05:30").getTime();
@@ -71,6 +72,15 @@ export default function FinalCTA() {
   const [isDownloadsUnlocked, setIsDownloadsUnlocked] = useState(false);
 
   useEffect(() => {
+    // Check for existing session
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsSignedIn(true);
+      }
+    };
+    checkSession();
+
     // Get initial beta count
     async function fetchBetaCount() {
       const [count, max] = await Promise.all([
@@ -235,15 +245,77 @@ export default function FinalCTA() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="mt-8 p-6 bg-oasis-glow/10 border border-oasis-glow/30 rounded-2xl"
+            className="mt-8 p-8 bg-oasis-glow/10 border border-oasis-glow/30 rounded-3xl"
           >
-            <Check className="w-12 h-12 text-oasis-glow mx-auto mb-4" />
-            <h3 className="font-cormorant text-2xl italic text-oasis-sand mb-2">
-              You're In!
+            <Check className="w-16 h-16 text-oasis-glow mx-auto mb-6" />
+            <h3 className="font-cormorant text-4xl italic text-oasis-sand mb-4">
+              You&apos;re In!
             </h3>
-            <p className="font-geist text-oasis-mist">
-              Welcome to the beta. We're excited to have you!
+            <p className="font-geist text-xl text-oasis-mist mb-6">
+              Welcome to the beta. We&apos;re excited to have you!
             </p>
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-oasis-glow/20 border border-oasis-glow/30 rounded-full mb-12">
+              <AlertCircle size={18} className="text-oasis-glow" />
+              <p className="font-space-mono text-sm text-oasis-glow uppercase tracking-wider font-bold">
+                Check your spam folder for verification mail
+              </p>
+            </div>
+
+            {/* Platform Download Buttons - Inside signed in state */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center border-t border-oasis-glow/10 pt-10 mt-4">
+              {isDownloadsUnlocked ? (
+                <button onClick={handleDownloadMSIX} className="flex items-center gap-3 px-6 py-3 bg-oasis-glow text-oasis-deep rounded-full font-geist font-bold hover:shadow-[0_0_20px_rgba(127,255,212,0.3)] transition-all cursor-pointer">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                    <rect x="3" y="3" width="8" height="8" rx="1" />
+                    <rect x="13" y="3" width="8" height="8" rx="1" />
+                    <rect x="3" y="13" width="8" height="8" rx="1" />
+                    <rect x="13" y="13" width="8" height="8" rx="1" />
+                  </svg>
+                  <span>Download for Windows</span>
+                </button>
+              ) : (
+                <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                    <rect x="3" y="3" width="8" height="8" rx="1" />
+                    <rect x="13" y="3" width="8" height="8" rx="1" />
+                    <rect x="3" y="13" width="8" height="8" rx="1" />
+                    <rect x="13" y="13" width="8" height="8" rx="1" />
+                  </svg>
+                  <span>Windows</span>
+                  <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
+                </button>
+              )}
+
+              <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
+                <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.02.39-2.15 1.05-3.11z"/>
+                </svg>
+                <span>macOS</span>
+                <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
+              </button>
+
+              {isDownloadsUnlocked ? (
+                <button onClick={handleDownloadAPK} className="flex items-center gap-3 px-6 py-3 bg-oasis-glow text-oasis-deep rounded-full font-geist font-bold hover:shadow-[0_0_20px_rgba(127,255,212,0.3)] transition-all cursor-pointer">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                    <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
+                  </svg>
+                  <span>Download APK</span>
+                </button>
+              ) : (
+                <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
+                  <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
+                    <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
+                  </svg>
+                  <span>Download APK</span>
+                  <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
+                </button>
+              )}
+            </div>
+            {!isDownloadsUnlocked && (
+              <p className="font-space-mono text-xs text-oasis-glow/60 mt-6">
+                Downloads will unlock at 11:11 AM IST on April 30
+              </p>
+            )}
           </motion.div>
         )}
 
@@ -278,68 +350,6 @@ export default function FinalCTA() {
             </form>
           </motion.div>
         )}
-
-        {/* Platform Download Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="mt-16 flex flex-col sm:flex-row gap-4 items-center justify-center"
-        >
-          {isDownloadsUnlocked ? (
-            <button onClick={handleDownloadMSIX} className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/40 border border-oasis-sage/30 rounded-full font-geist text-oasis-mist hover:border-oasis-glow/30 transition-all cursor-pointer">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                <rect x="3" y="3" width="8" height="8" rx="1" />
-                <rect x="13" y="3" width="8" height="8" rx="1" />
-                <rect x="3" y="13" width="8" height="8" rx="1" />
-                <rect x="13" y="13" width="8" height="8" rx="1" />
-              </svg>
-              <span>Download for Windows</span>
-            </button>
-          ) : (
-            <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                <rect x="3" y="3" width="8" height="8" rx="1" />
-                <rect x="13" y="3" width="8" height="8" rx="1" />
-                <rect x="3" y="13" width="8" height="8" rx="1" />
-                <rect x="13" y="13" width="8" height="8" rx="1" />
-              </svg>
-              <span>Windows</span>
-              <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
-            </button>
-          )}
-
-          <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
-            <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.02.39-2.15 1.05-3.11z"/>
-            </svg>
-            <span>macOS</span>
-            <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
-          </button>
-
-          {isDownloadsUnlocked ? (
-            <button onClick={handleDownloadAPK} className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/40 border border-oasis-sage/30 rounded-full font-geist text-oasis-mist hover:border-oasis-glow/30 transition-all cursor-pointer">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
-              </svg>
-              <span>Download APK</span>
-            </button>
-          ) : (
-            <button disabled className="flex items-center gap-3 px-6 py-3 bg-oasis-moss/20 border border-oasis-sage/10 rounded-full font-geist text-oasis-mist/30 cursor-not-allowed opacity-50">
-              <svg viewBox="0 0 24 24" className="w-5 h-5" fill="currentColor">
-                <path d="M12 2c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm9 7h-6v13h-2v-6h-2v6H9V9H3V7h18v2z"/>
-              </svg>
-              <span>Download APK</span>
-              <span className="px-2 py-0.5 bg-oasis-mist/10 text-oasis-mist/40 text-xs font-space-mono rounded">Coming Soon</span>
-            </button>
-          )}
-          {!isDownloadsUnlocked && (
-            <p className="font-space-mono text-xs text-oasis-mist/50 mt-2">
-              Downloads will unlock at 11:11 AM IST on April 30
-            </p>
-          )}
-        </motion.div>
       </motion.div>
 
       {/* Auth Modal */}

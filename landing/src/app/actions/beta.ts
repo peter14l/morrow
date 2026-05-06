@@ -16,6 +16,50 @@ export interface BetaSignupResult {
 
 export async function joinBetaTester(userEmail: string): Promise<BetaSignupResult> {
   try {
+    // Check if email already registered - Check this FIRST so existing users can sign in even if beta is full
+    const { data: existing } = await supabase
+      .from('beta_testers')
+      .select('email, status')
+      .eq('email', userEmail)
+      .single();
+
+    if (existing) {
+      if (existing.status === 'active') {
+        return { 
+          success: true, 
+          message: 'Welcome back! You are already a beta tester.', 
+          isBetaFull: false 
+        };
+      } else {
+        // Reactivate if was previously waitlisted - But only if not full!
+        const maxTesters = await getMaxBetaTesters();
+        const { count } = await supabase
+          .from('beta_testers')
+          .select('*', { count: 'exact', head: true });
+        
+        if ((count || 0) >= maxTesters) {
+          return { 
+            success: false, 
+            message: 'Sorry we are filled up now. We\'ll notify you when we expand.', 
+            isBetaFull: true 
+          };
+        }
+
+        await supabase
+          .from('beta_testers')
+          .update({ status: 'active', updated_at: new Date().toISOString() })
+          .eq('email', userEmail);
+        
+        await sendConfirmationEmail(userEmail);
+        
+        return { 
+          success: true, 
+          message: 'You\'re in! Welcome to the beta.',
+          isBetaFull: false 
+        };
+      }
+    }
+
     const maxTesters = await getMaxBetaTesters();
     
     // Check current beta tester count
@@ -42,38 +86,6 @@ export async function joinBetaTester(userEmail: string): Promise<BetaSignupResul
       };
     }
 
-    // Check if email already registered
-    const { data: existing } = await supabase
-      .from('beta_testers')
-      .select('email, status')
-      .eq('email', userEmail)
-      .single();
-
-    if (existing) {
-      if (existing.status === 'active') {
-        return { 
-          success: true, 
-          message: 'Welcome back! You\'re already a beta tester.', 
-          isBetaFull: false 
-        };
-      } else {
-        // Reactivate if was previously waitlisted
-        await supabase
-          .from('beta_testers')
-          .update({ status: 'active', updated_at: new Date().toISOString() })
-          .eq('email', userEmail);
-        
-        await sendConfirmationEmail(userEmail);
-        
-        return { 
-          success: true, 
-          message: 'You\'re in! Welcome to the beta.',
- 
-          isBetaFull: false 
-        };
-      }
-    }
-
     // Add new beta tester
     const { error: insertError } = await supabase
       .from('beta_testers')
@@ -98,7 +110,6 @@ export async function joinBetaTester(userEmail: string): Promise<BetaSignupResul
     return { 
       success: true, 
       message: 'You\'re in! Welcome to the beta.',
- 
       isBetaFull: false 
     };
 
@@ -123,8 +134,8 @@ export async function joinWaitlist(userEmail: string): Promise<BetaSignupResult>
 
     if (existing) {
       return { 
-        success: true, 
-        message: 'You\'re already on the waitlist! We\'ll notify you when we expand.', 
+        success: false, 
+        message: 'An account already exists with this email on our waitlist. We\'ll notify you when we expand.', 
         isBetaFull: true 
       };
     }
@@ -150,8 +161,7 @@ export async function joinWaitlist(userEmail: string): Promise<BetaSignupResult>
 
     return { 
       success: true, 
-      message: 'You\'ve been added to the waitlist! We\'ll notify you when we expand.',
- 
+      message: 'You\'ve been added to the waitlist! Please check your spam folder for the verification mail.',
       isBetaFull: true 
     };
 

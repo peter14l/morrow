@@ -75,10 +75,12 @@ class ChatMediaService {
   }
 
   /// Uploads media to Cloudflare R2 with E2EE and local caching.
-  Future<MediaUploadResult> uploadChatMediaSecure(
-    String filePath, {
+  Future<({String url, String iv, Map<String, String> encryptedKeys})>
+      uploadAndEncryptMedia({
+    required String filePath,
     required String type, // 'images', 'videos', 'documents', 'recordings'
     required List<String> recipientPublicKeysPem,
+    List<String>? recipientUserIds,
     String? recipientUserId,
     Function(double)? onProgress,
   }) async {
@@ -103,9 +105,9 @@ class ChatMediaService {
       final encryptionResult = await _encryptionService.encryptMediaFile(
         file: file,
         recipientPublicKeysPem: recipientPublicKeysPem,
+        recipientUserIds: recipientUserIds,
         recipientUserId: recipientUserId,
       );
-
       final Uint8List encryptedBytes = encryptionResult['encryptedBytes'];
       final String iv = encryptionResult['iv'];
       final Map<String, String> encryptedKeys = encryptionResult['encryptedKeys'];
