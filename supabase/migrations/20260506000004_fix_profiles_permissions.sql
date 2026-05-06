@@ -14,9 +14,7 @@ GRANT SELECT (
     encrypted_private_key_recovery,
     key_salt,
     fcm_token,
-    whisper_mode,
     encrypted_signal_identity,
-    identity_key,
     data_saver,
     font_size_factor,
     high_contrast,
@@ -32,12 +30,8 @@ GRANT SELECT (
     last_seen,
     is_online,
     level,
-    display_name,
     focus_mode_enabled,
-    focus_mode_schedule,
-    ripples_lockout_multiplier,
-    ripples_last_session_end,
-    ripples_remaining_duration_ms
+    focus_mode_schedule
 ) ON TABLE public.profiles TO authenticated;
 
 -- Also grant public_key to anon so users can encrypt messages for recipients before logging in (if needed)
