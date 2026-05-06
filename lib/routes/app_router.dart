@@ -36,6 +36,7 @@ import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/widgets/security_upgrade_banner.dart';
 import 'package:oasis/widgets/security_pin_sheet.dart';
+import 'package:oasis/widgets/encryption_pin_overlay.dart';
 import 'package:oasis/features/calling/presentation/screens/calling_screen.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';

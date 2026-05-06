@@ -12,34 +12,18 @@ class PQAuraService {
     return _instance!;
   }
 
-  /// Initialize the PQ-Aura service
-  Future<bool> init() async {
-    return false; // Not supported on web
-  }
-
   bool get isReady => false;
 
-  /// Check if we have a session with a specific user
-  bool hasSession(String remoteUserId) {
+  Future<void> init() async {}
+
+  bool hasSession(String remoteUserId) => false;
+
+  /// Get or create a PQ-Aura session
+  Future<bool> getOrCreateSession(String remoteUserId) async {
     return false;
   }
 
-  /// Get or create a session with a remote user
-  Future<bool?> getOrCreateSession(String remoteUserId) async {
-    return false;
-  }
-
-  /// Initialize a session with a remote user (initiator - Alice)
-  Future<bool> initSessionAlice(String remoteUserId) async {
-    return false;
-  }
-
-  /// Initialize a session as Bob (responder) using an initial message
-  Future<bool> initSessionBob(String senderId, Uint8List header, Uint8List payload) async {
-    return false;
-  }
-
-  /// Load an existing session from storage
+  /// Load a session from storage
   Future<bool> loadSession(String remoteUserId) async {
     return false;
   }
@@ -93,46 +77,18 @@ class PQAuraService {
     return null;
   }
 
-  /// Encrypt a media key
-  Future<Map<String, String>?> encryptMediaKey(
-    String recipientId,
-    Uint8List mediaKey,
-  ) async {
-    return null;
-  }
-
-  /// Encrypt a media key for multiple recipients (group media)
-  Future<Map<String, String>?> encryptGroupMediaKey(
-    List<String> recipientIds,
-    Uint8List mediaKey,
-  ) async {
-    return null;
-  }
-
-  /// Decrypt a media key
-  Future<Uint8List?> decryptMediaKey(
-    String senderId,
-    Map<String, dynamic> encryptionData,
-  ) async {
-    return null;
-  }
-
   /// Close and clean up a session
-  Future<void> closeSession(String remoteUserId) async {}
+  void closeSession(String remoteUserId) {}
 
-  /// Clear all data (logout)
-  Future<void> clearAllData() async {}
+  /// Delete a session and its keys
+  Future<void> deleteSession(String remoteUserId) async {}
 }
 
-/// Encrypted message structure
 class PQAuraEncryptedMessage {
   final Uint8List header;
   final Uint8List payload;
 
-  PQAuraEncryptedMessage({
-    required this.header,
-    required this.payload,
-  });
+  PQAuraEncryptedMessage({required this.header, required this.payload});
 
   Map<String, dynamic> toJson() => {
         'header': '',

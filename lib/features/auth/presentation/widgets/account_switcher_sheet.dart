@@ -6,6 +6,7 @@ import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
+import 'package:oasis/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 
 class AccountSwitcherSheet extends StatelessWidget {
@@ -24,9 +25,9 @@ class AccountSwitcherSheet extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isM3E = themeProvider.isM3EEnabled;
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
-    final authProvider = context.watch<AuthProvider>();
-    final currentUserId = authProvider.currentAccount?.userId;
-    final accounts = authProvider.registeredAccounts;
+    final authService = context.watch<AuthService>();
+    final currentUserId = authService.currentUser?.id;
+    final accounts = authService.registeredAccounts;
 
     final sheetContent = Container(
       padding: const EdgeInsets.symmetric(vertical: 20),

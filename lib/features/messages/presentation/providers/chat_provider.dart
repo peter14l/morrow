@@ -817,37 +817,41 @@ class ChatProvider with ChangeNotifier {
       };
 
       if (imageFile != null) {
-        uploadResult = await _chatMediaService.uploadChatMediaSecure(
-          imageFile.path,
+        uploadResult = await _chatMediaService.uploadAndEncryptMedia(
+          filePath: imageFile.path,
           type: 'images',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserIds: state.participantIds,
           recipientUserId: recipientId,
           onProgress: onProgress,
         );
       } else if (videoFile != null) {
-        uploadResult = await _chatMediaService.uploadChatMediaSecure(
+        uploadResult = await _chatMediaService.uploadAndEncryptMedia(
           videoFile.path,
           type: 'videos',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserIds: state.participantIds,
           recipientUserId: recipientId,
           onProgress: onProgress,
         );
       } else if (docFile != null) {
         if (docFile.path != null) {
-          uploadResult = await _chatMediaService.uploadChatMediaSecure(
-            docFile.path!,
+          uploadResult = await _chatMediaService.uploadAndEncryptMedia(
+            filePath: docFile.path!,
             type: 'documents',
             recipientPublicKeysPem: mediaRecipientPublicKeys,
+            recipientUserIds: state.participantIds,
             recipientUserId: recipientId,
             onProgress: onProgress,
           );
           finalMimeType = docFile.extension;
         }
       } else if (audioFile != null) {
-        uploadResult = await _chatMediaService.uploadChatMediaSecure(
+        uploadResult = await _chatMediaService.uploadAndEncryptMedia(
           audioFile.path,
           type: 'recordings',
           recipientPublicKeysPem: mediaRecipientPublicKeys,
+          recipientUserIds: state.participantIds,
           recipientUserId: recipientId,
           onProgress: onProgress,
         );
@@ -1621,3 +1625,5 @@ class ChatProvider with ChangeNotifier {
     }
   }
 }
+
+

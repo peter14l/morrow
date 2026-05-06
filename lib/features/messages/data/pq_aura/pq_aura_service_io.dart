@@ -407,6 +407,35 @@ class PQAuraService {
     }
   }
 
+  /// Encrypt a media key for multiple recipients (group media)
+  Future<Map<String, String>?> encryptGroupMediaKey(
+    List<String> recipientIds,
+    Uint8List mediaKey,
+  ) async {
+    try {
+      final Map<String, String> encryptedKeys = {};
+      final String currentUserId = _supabase.auth.currentUser?.id ?? '';
+
+      for (final recipientId in recipientIds) {
+        if (recipientId == currentUserId) continue;
+
+        final result = await encryptMediaKey(recipientId, mediaKey);
+        if (result != null) {
+          encryptedKeys['pqa_header_$recipientId'] = result['pq_header']!;
+          encryptedKeys['pqa_payload_$recipientId'] = result['pq_payload']!;
+        }
+      }
+
+      if (encryptedKeys.isEmpty) return null;
+      
+      encryptedKeys['protocol'] = 'pq_aura_group';
+      return encryptedKeys;
+    } catch (e) {
+      debugPrint('[PQAura] Group media key encryption error: $e');
+      return null;
+    }
+  }
+
   /// Decrypt a media key
   Future<Uint8List?> decryptMediaKey(
     String senderId,

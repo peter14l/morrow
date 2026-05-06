@@ -224,8 +224,8 @@ class _FeedTab extends StatelessWidget {
                         await provider.deletePost(post.id, currentUserId);
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            ScaffoldSnackBar(content: Text('Post deleted')),
-                          );
+                                                      SnackBar(content: Text('Post deleted')),
+                                                    );
                         }
                      } catch (e) {
                         if (context.mounted) {
