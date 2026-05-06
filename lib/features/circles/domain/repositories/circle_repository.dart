@@ -43,6 +43,8 @@ abstract class CircleRepository {
     Map<String, dynamic>? poll,
   });
 
+  Future<void> deletePost(String postId, String userId);
+
   Future<CommitmentEntity> createCommitment({
     required String circleId,
     required String createdBy,

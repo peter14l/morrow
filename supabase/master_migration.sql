@@ -1038,12 +1038,32 @@ ALTER TABLE public.typing_indicators REPLICA IDENTITY FULL;
 -- =====================================================
 
 -- PROFILES POLICIES
+-- 1. FIX PROFILES RECURSION
+-- Create a SECURITY DEFINER function to check pro status without triggering RLS
+CREATE OR REPLACE FUNCTION public.check_is_pro_status(profile_id uuid)
+RETURNS boolean LANGUAGE sql SECURITY DEFINER SET search_path = public AS $$
+  SELECT is_pro FROM public.profiles WHERE id = profile_id;
+$$;
+
+DROP POLICY IF EXISTS "Users can update own profile except pro status" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Users can update own encryption keys" ON public.profiles;
+
+CREATE POLICY "Users can update their own profile"
+ON public.profiles FOR UPDATE
+USING (auth.uid() = id)
+WITH CHECK (
+    auth.uid() = id 
+    AND (
+        -- Protect is_pro status from being changed by the user
+        is_pro = public.check_is_pro_status(id)
+    )
+);
+
 CREATE POLICY "Authenticated users can view all profiles" ON public.profiles FOR SELECT TO authenticated USING (true);
 CREATE POLICY "Users can insert their own profile" ON public.profiles FOR INSERT WITH CHECK ((SELECT auth.uid()) = id);
-CREATE POLICY "Users can update their own profile" ON public.profiles FOR UPDATE USING ((SELECT auth.uid()) = id);
 CREATE POLICY "Users can delete their own profile" ON public.profiles FOR DELETE USING ((SELECT auth.uid()) = id);
 CREATE POLICY "Users can read public keys" ON public.profiles FOR SELECT USING (true);
-CREATE POLICY "Users can update own encryption keys" ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
 -- POSTS POLICIES
 CREATE POLICY "Users can view posts" ON public.posts FOR SELECT
@@ -1232,11 +1252,12 @@ CREATE POLICY "Users can delete their own items" ON public.canvas_items FOR DELE
 CREATE POLICY "Users can view circles they are members of" ON public.circles FOR SELECT USING (EXISTS (SELECT 1 FROM public.circle_members WHERE circle_id = circles.id AND user_id = auth.uid()));
 CREATE POLICY "Users can view circles they created" ON public.circles FOR SELECT USING (auth.uid() = created_by);
 CREATE POLICY "Users can create circles" ON public.circles FOR INSERT WITH CHECK (auth.uid() = created_by);
+CREATE POLICY "Creators can delete their own circles" ON public.circles FOR DELETE USING (auth.uid() = created_by);
 
 -- CIRCLE MEMBERS POLICIES
 CREATE POLICY "Users can view circle members of their circles" ON public.circle_members FOR SELECT USING (public.is_circle_member(circle_id));
 CREATE POLICY "Circle creator can add members, users can join circles" ON public.circle_members FOR INSERT WITH CHECK (user_id = (SELECT auth.uid()) OR EXISTS (SELECT 1 FROM public.circles WHERE id = circle_id AND created_by = (SELECT auth.uid())));
-CREATE POLICY "Users can leave circles" ON public.circle_members FOR DELETE USING (user_id = auth.uid());
+CREATE POLICY "Users can leave circles" ON public.circle_members FOR DELETE USING (user_id = auth.uid() OR EXISTS (SELECT 1 FROM public.circles WHERE id = circle_id AND created_by = auth.uid()));
 
 -- COMMITMENTS POLICIES
 CREATE POLICY "Users can view commitments in their circles" ON public.commitments FOR SELECT USING (EXISTS (SELECT 1 FROM public.circle_members WHERE circle_id = commitments.circle_id AND user_id = auth.uid()));
@@ -1422,7 +1443,7 @@ BEGIN
     WHERE id = NEW.comment_id;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- DECREMENT COMMENT LIKES COUNT
 CREATE OR REPLACE FUNCTION decrement_comment_likes_count()
@@ -1433,7 +1454,7 @@ BEGIN
     WHERE id = OLD.comment_id;
     RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- INCREMENT FOLLOW COUNTS
 CREATE OR REPLACE FUNCTION increment_follow_counts()
@@ -1449,7 +1470,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- DECREMENT FOLLOW COUNTS
 CREATE OR REPLACE FUNCTION decrement_follow_counts()
@@ -1465,7 +1486,7 @@ BEGIN
     
     RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- INCREMENT USER POSTS COUNT
 CREATE OR REPLACE FUNCTION increment_user_posts_count()
@@ -1483,7 +1504,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- DECREMENT USER POSTS COUNT
 CREATE OR REPLACE FUNCTION decrement_user_posts_count()
@@ -1501,7 +1522,7 @@ BEGIN
     
     RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- INCREMENT COMMUNITY MEMBERS COUNT
 CREATE OR REPLACE FUNCTION increment_community_members_count()
@@ -1513,7 +1534,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- DECREMENT COMMUNITY MEMBERS COUNT
 CREATE OR REPLACE FUNCTION decrement_community_members_count()
@@ -1525,7 +1546,7 @@ BEGIN
     
     RETURN OLD;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- CREATE LIKE NOTIFICATION
 CREATE OR REPLACE FUNCTION public.create_like_notification()

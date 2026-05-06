@@ -257,6 +257,36 @@ class CircleProvider with ChangeNotifier {
     }
   }
 
+  Future<void> deletePost(String postId, String userId) async {
+    final index = _state.circleFeed.indexWhere((p) => p.id == postId);
+    if (index == -1) return;
+
+    final post = _state.circleFeed[index];
+    if (post.userId != userId) {
+      throw Exception('Not authorized to delete this post');
+    }
+
+    // Update local state immediately for responsiveness
+    final newList = List<Post>.from(_state.circleFeed);
+    newList.removeAt(index);
+    _state = _state.copyWith(circleFeed: newList);
+    notifyListeners();
+
+    try {
+      // Use the repository to delete the post from Supabase
+      // Note: We need to make sure the repository/datasource supports this.
+      // Assuming we can use the same deletePost logic.
+      // If CircleRepository doesn't have it, we might need to inject PostRepository
+      // but for now, let's assume we add it to CircleRepository or call it directly.
+      await _repository.deletePost(postId, userId);
+    } catch (e) {
+      debugPrint('[CircleProvider] deletePost error: $e');
+      // Rollback on failure
+      loadCircleFeed(post.circleId!, userId, refresh: true);
+      rethrow;
+    }
+  }
+
   void clearError() {
     _state = _state.copyWith(error: null);
     notifyListeners();

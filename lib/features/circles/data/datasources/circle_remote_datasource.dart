@@ -161,6 +161,39 @@ class CircleRemoteDatasource {
     }
   }
 
+  Future<void> deletePost(String postId, String userId) async {
+    try {
+      final post =
+          await _supabase
+              .from('posts')
+              .select('user_id, image_url')
+              .eq('id', postId)
+              .single();
+
+      if (post['user_id'] != userId) {
+        throw Exception('Not authorized to delete this post');
+      }
+
+      // Delete image from storage if exists
+      final imageUrl = post['image_url'] as String?;
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        try {
+          final fileName = imageUrl.split('/').last;
+          await _supabase.storage.from('post-images').remove([
+            '$userId/$fileName',
+          ]);
+        } catch (e) {
+          debugPrint('[CircleRemoteDatasource] Delete image error: $e');
+        }
+      }
+
+      await _supabase.from('posts').delete().eq('id', postId);
+    } catch (e) {
+      debugPrint('[CircleRemoteDatasource] deletePost error: $e');
+      rethrow;
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getCircleFeed({
     required String circleId,
     required String userId,

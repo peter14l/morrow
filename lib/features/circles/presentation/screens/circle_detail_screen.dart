@@ -217,8 +217,24 @@ class _FeedTab extends StatelessWidget {
                     ),
                   );
                 },
-                onDelete: () {
-                   // Implement delete if needed
+                onDelete: () async {
+                   final currentUserId = AuthService().currentUser?.id;
+                   if (currentUserId != null) {
+                     try {
+                        await provider.deletePost(post.id, currentUserId);
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const ScaffoldSnackBar(content: Text('Post deleted')),
+                          );
+                        }
+                     } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Error deleting post: $e')),
+                          );
+                        }
+                     }
+                   }
                 },
               );
             },

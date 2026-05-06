@@ -95,6 +95,12 @@ class CircleRepositoryImpl implements CircleRepository {
   }
 
   @override
+  Future<void> deletePost(String postId, String userId) async {
+    // We can delegate this to the CircleRemoteDatasource
+    await _remoteDatasource.deletePost(postId, userId);
+  }
+
+  @override
   Future<List<CommitmentEntity>> getCommitments({
     required String circleId,
     DateTime? date,
