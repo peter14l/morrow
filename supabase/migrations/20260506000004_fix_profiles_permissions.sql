@@ -27,8 +27,6 @@ GRANT SELECT (
     feed_layout,
     banner_url,
     banner_color,
-    last_seen,
-    is_online,
     level,
     focus_mode_enabled,
     focus_mode_schedule
