@@ -83,7 +83,7 @@ class HomeCheckinRepository {
       // Get partner info
       final partnerProfile = await client
           .from('profiles')
-          .select('id, fcm_token, display_name')
+          .select('id, fcm_token, full_name')
           .eq('id', partnerId)
           .maybeSingle();
 
@@ -93,7 +93,7 @@ class HomeCheckinRepository {
       }
 
       final partnerFcm = partnerProfile['fcm_token'] as String?;
-      final partnerName = partnerProfile['display_name'] as String? ?? 'Partner';
+      final partnerName = partnerProfile['full_name'] as String? ?? 'Partner';
 
       // Send via Supabase RPC or FCM directly
       if (partnerFcm != null && partnerFcm.isNotEmpty) {
@@ -140,7 +140,7 @@ class HomeCheckinRepository {
 
       final partnerProfile = await client
           .from('profiles')
-          .select('id, fcm_token, display_name')
+          .select('id, fcm_token, full_name')
           .eq('id', partnerId)
           .maybeSingle();
 

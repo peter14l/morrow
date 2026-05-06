@@ -312,7 +312,7 @@ class ProfileRemoteDatasource {
           .from(SupabaseConfig.followsTable)
           .select('''
             following_id,
-            ${SupabaseConfig.profilesTable}:following_id (*)
+            ${SupabaseConfig.profilesTable}:following_id (id, username, full_name, avatar_url, is_verified)
           ''')
           .eq('follower_id', userId)
           .order('created_at', ascending: false)
