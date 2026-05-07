@@ -521,6 +521,7 @@ const LockoutOverlay(pageName: 'Feed'),
           ),
         ],
       ),
+      ),
     );
   }
 

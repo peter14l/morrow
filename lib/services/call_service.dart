@@ -45,6 +45,8 @@ class CallService extends ChangeNotifier {
   final _uuid = const Uuid();
   final AudioPlayer _audioPlayer;
   bool _isPlayingRingtone = false;
+  
+  static const MethodChannel _callChannel = MethodChannel('oasis/call');
 
   CallService({
     SupabaseClient? supabase,
@@ -52,7 +54,37 @@ class CallService extends ChangeNotifier {
     AudioPlayer? audioPlayer,
   })  : _supabase = supabase ?? SupabaseService().client,
         _signal = signalService ?? SignalService(),
-        _audioPlayer = audioPlayer ?? AudioPlayer();
+        _audioPlayer = audioPlayer ?? AudioPlayer() {
+    _callChannel.setMethodCallHandler(_handleNativeCall);
+    // Check if the app was launched by accepting a call natively (Cold Start)
+    checkInitialCall();
+  }
+
+  Future<void> checkInitialCall() async {
+    try {
+      final String? pendingCallId = await _callChannel.invokeMethod('getPendingCall');
+      if (pendingCallId != null) {
+        debugPrint('[CallService] Detected initial pending call: $pendingCallId');
+        setAnswering(pendingCallId);
+        _safeNotifyListeners();
+      }
+    } catch (e) {
+      debugPrint('[CallService] Error checking initial call: $e');
+    }
+  }
+
+  Future<void> _handleNativeCall(MethodCall call) async {
+    switch (call.method) {
+      case 'onCallAccepted':
+        final String? callId = call.arguments['callId'];
+        if (callId != null) {
+          debugPrint('[CallService] Call accepted natively: $callId');
+          setAnswering(callId);
+          _safeNotifyListeners();
+        }
+        break;
+    }
+  }
 
   // Multi-peer management
   final Map<String, RTCPeerConnection> _peerConnections = {};

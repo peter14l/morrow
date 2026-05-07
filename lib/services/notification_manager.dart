@@ -65,7 +65,9 @@ class NotificationManager {
   bool _isPaused = false;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  int _notificationId = 1000; // Start at 1000 to avoid conflicts with system IDs
+  int _notificationId = 1000;
+  
+  static const MethodChannel _nativeNotificationChannel = MethodChannel('oasis/notification_tap');
 
   // Track active message groups (last 5 messages per conversation)
   final Map<String, List<NotificationMessage>> _activeMessageGroups = {};
@@ -80,7 +82,26 @@ class NotificationManager {
     return _instance!;
   }
 
-  NotificationManager._();
+  NotificationManager._() {
+    _nativeNotificationChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onNotificationTap') {
+        _handleNotificationTap(call.arguments as String?);
+      }
+    });
+    _checkInitialNotification();
+  }
+
+  Future<void> _checkInitialNotification() async {
+    try {
+      final String? payload = await _nativeNotificationChannel.invokeMethod('getPendingNotificationPayload');
+      if (payload != null) {
+        debugPrint('[NotificationManager] Detected initial notification tap: $payload');
+        _handleNotificationTap(payload);
+      }
+    } catch (e) {
+      debugPrint('[NotificationManager] Error checking initial notification: $e');
+    }
+  }
 
   /// Clear a specific message group when conversation is opened/read
   void clearGroup(String conversationId) {

@@ -186,78 +186,19 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     return;
   }
 
-  // 3. Prepare initial notification data
-  final String title = message.data['title'] ?? message.notification?.title ?? 'New Notification';
-  final String body = message.data['body'] ?? message.notification?.body ?? '';
-  final String? payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
-  final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
+  // Note: Standard message notifications are now handled NATIVELY by the OS
+  // via OasisMessagingService.kt (Android) and NotificationServiceExtension (iOS).
+  // We only handle Desktop/Web here, or fallback if native isn't available.
 
-  // 4. DEEP INITIALIZATION & DECRYPTION (Background Path)
-  // We initialize services and attempt decryption before showing the notification
-  // to ensure the user only sees readable content.
-  try {
-    // Initialize database factory for desktop background processes
-    initSqlite();
-
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-
-    await PrefsStorage.init();
-    await SupabaseService.initialize();
-
-    // 1. Requirement (a): Only show if logged in.
-    final accounts = await SessionRegistryService().getAllAccounts();
-    if (accounts.isEmpty) {
-      debugPrint('[BackgroundFCM] Suppressing notification: No accounts logged in.');
-      return;
-    }
-
-    if (receiverId != null && !accounts.any((a) => a.userId == receiverId)) {
-      debugPrint('[BackgroundFCM] Suppressing notification: Recipient $receiverId is not a logged-in account.');
-      return;
-    }
-
-    // Ensure session is restored before decryption
-    await SupabaseService().waitForSession(timeoutMs: 1500);
-
-    // Attempt decryption using the correct receiver's keys
-    String finalBody = body.isNotEmpty ? body : 'New Message';
-    try {
-      final decryptedBody = await NotificationDecryptionService().decryptMessage(
-        message.data,
-        targetUserId: receiverId,
-      );
-      if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
-        finalBody = decryptedBody;
-      }
-    } catch (e) {
-      debugPrint('Decryption failed: $e');
-    }
-
-    // Hide ciphertext if it still hasn't been decrypted or if decryption failed
-    if (finalBody.length > 60 && !finalBody.contains(' ') && !finalBody.contains('🔒')) {
-      finalBody = 'New Message'; 
-    }
-
-    // 5. SHOW NOTIFICATION (Single call with final content)
-    await NotificationManager.instance.showNotification(
-      title: title,
-      body: finalBody,
-      payload: payload,
-      senderAvatar: message.data['sender_avatar'],
-      messageType: messageType,
-    );
-  } catch (e) {
-    debugPrint('Background processing path failed: $e');
+  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
+    final String title = message.data['title'] ?? message.notification?.title ?? 'New Notification';
+    final String body = message.data['body'] ?? message.notification?.body ?? 'New Message';
+    final String? payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
     
-    // Ultimate fallback for any catastrophic failure
-    String fallbackBody = body.isNotEmpty ? body : 'New Message';
-    if (fallbackBody.length > 60 && !fallbackBody.contains(' ')) fallbackBody = 'New Message';
-
+    // Simplified display for desktop (decryption on desktop can be added later)
     await NotificationManager.instance.showNotification(
       title: title,
-      body: fallbackBody,
+      body: body,
       payload: payload,
       senderAvatar: message.data['sender_avatar'],
       messageType: messageType,

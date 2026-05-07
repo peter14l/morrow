@@ -79,9 +79,11 @@
 		<string>remote-notification</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location to share your live location in chat.</string>
+	<string>Oasis uses your location to notify you when you arrive at home and for sharing your live location in chat.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Oasis uses your background location to automatically notify you when you arrive home, even if the app is closed.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location to share your live location continuously in the background.</string>
+	<string>Oasis uses your background location to automatically notify you when you arrive home, even if the app is closed.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs camera access for video calls and capturing photos.</string>
 	<key>NSMicrophoneUsageDescription</key>

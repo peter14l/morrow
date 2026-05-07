@@ -1055,3 +1055,148 @@ void _showErrorScreen(
     ),
   );
 }
+
+// ---------------------------------------------------------------------------
+// callingMain: Lightweight entry point for incoming calls
+// ---------------------------------------------------------------------------
+
+@pragma('vm:entry-point')
+void callingMain() async {
+  material.WidgetsFlutterBinding.ensureInitialized();
+  
+  // Try to load env but don't block
+  await AppInitializer.loadEnv();
+  
+  // Minimal services for calling
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    material.debugPrint('Firebase init failed in callingMain: $e');
+  }
+
+  // We fetch intent data using a dedicated method channel we defined in OasisCallActivity
+  const channel = material.MethodChannel('oasis/call_intent');
+  
+  String callerName = "Unknown";
+  String callId = "";
+  String callerAvatar = "";
+  
+  try {
+    final data = await channel.invokeMapMethod<String, dynamic>('getIncomingCallData');
+    if (data != null) {
+      callerName = data['callerName'] ?? "Unknown";
+      callId = data['callId'] ?? "";
+      callerAvatar = data['callerAvatar'] ?? "";
+    }
+  } catch (e) {
+    material.debugPrint('Failed to get intent data: $e');
+  }
+
+  runApp(
+    material.MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme, // Oasis is dark mode by default
+      home: material.Scaffold(
+        backgroundColor: const material.Color(0xFF080A0E),
+        body: material.Stack(
+          children: [
+            // Mesh background
+            const MeshGradientBackground(),
+            
+            // UI
+            material.SafeArea(
+              child: material.Center(
+                child: material.Column(
+                  mainAxisAlignment: material.MainAxisAlignment.center,
+                  children: [
+                    if (callerAvatar.isNotEmpty)
+                      material.CircleAvatar(
+                        radius: 60,
+                        backgroundImage: material.NetworkImage(callerAvatar),
+                      )
+                    else
+                      const material.CircleAvatar(
+                        radius: 60,
+                        backgroundColor: material.Color(0xFF1A1D24),
+                        child: material.Icon(material.Icons.person, size: 60, color: material.Colors.white54),
+                      ),
+                      
+                    const material.SizedBox(height: 32),
+                    
+                    material.Text(
+                      callerName,
+                      style: const material.TextStyle(
+                        color: material.Colors.white,
+                        fontSize: 32,
+                        fontWeight: material.FontWeight.bold,
+                      ),
+                    ),
+                    
+                    const material.SizedBox(height: 8),
+                    
+                    material.Text(
+                      'Oasis Audio Call',
+                      style: material.TextStyle(
+                        color: material.Colors.white.withValues(alpha: 0.7),
+                        fontSize: 16,
+                      ),
+                    ),
+                    
+                    const material.Spacer(),
+                    
+                    // Buttons
+                    material.Padding(
+                      padding: const material.EdgeInsets.symmetric(horizontal: 48.0, vertical: 64.0),
+                      child: material.Row(
+                        mainAxisAlignment: material.MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Decline
+                          material.Column(
+                            children: [
+                              material.FloatingActionButton(
+                                heroTag: 'decline_btn',
+                                onPressed: () async {
+                                  await channel.invokeMethod('finishCallActivity');
+                                },
+                                backgroundColor: material.Colors.redAccent,
+                                child: const material.Icon(material.Icons.call_end, color: material.Colors.white),
+                              ),
+                              const material.SizedBox(height: 12),
+                              const material.Text('Decline', style: material.TextStyle(color: material.Colors.white)),
+                            ],
+                          ),
+                          
+                          // Accept
+                          material.Column(
+                            children: [
+                              material.FloatingActionButton(
+                                heroTag: 'accept_btn',
+                                onPressed: () async {
+                                  // Signal native to accept the call and launch the main app
+                                  await channel.invokeMethod('acceptCall', {
+                                    'callId': callId,
+                                    'callerName': callerName,
+                                  });
+                                },
+                                backgroundColor: material.Colors.greenAccent,
+                                child: const material.Icon(material.Icons.call, color: material.Colors.white),
+                              ),
+                              const material.SizedBox(height: 12),
+                              const material.Text('Accept', style: material.TextStyle(color: material.Colors.white)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}

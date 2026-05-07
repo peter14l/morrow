@@ -24,7 +24,10 @@ class PQAuraStore {
 
   PQAuraStore._() : _secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock,
+      groupId: 'group.com.oasis.app',
+    ),
   );
 
   static PQAuraStore get instance {

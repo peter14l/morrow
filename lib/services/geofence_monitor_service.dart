@@ -1,13 +1,14 @@
 import 'dart:async';
-import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:oasis/services/home_location_service.dart';
 
-/// Service for monitoring geofence around user's home location.
+/// Service for monitoring geofence around user's home location using native OS APIs.
 ///
-/// Uses foreground-only location monitoring (background monitoring in Plan 15-03 if needed).
-/// Privacy: Only monitors when app is active, home location stored locally only.
+/// Native implementation (Plan 15-03) provides high reliability and low battery usage.
 class GeofenceMonitorService {
+  static const MethodChannel _channel = MethodChannel('oasis/geofence');
   final HomeLocationService _homeLocationService;
   
   /// Radius in meters for geofence detection (default: 100m)
@@ -15,15 +16,37 @@ class GeofenceMonitorService {
   
   /// Callback invoked when user arrives home (enters geofence)
   void Function()? onHomeArrived;
+
+  /// Callback invoked when user leaves home (exits geofence)
+  void Function()? onHomeLeft;
   
-  Timer? _monitoringTimer;
-  bool? _wasAtHome = null; // null = unknown, false = known not at home, true = at home
   bool _isMonitoring = false;
   
   GeofenceMonitorService(
     this._homeLocationService, {
     this.radius = 100,
-  });
+  }) {
+    _channel.setMethodCallHandler(_handleMethodCall);
+  }
+
+  Future<void> _handleMethodCall(MethodCall call) async {
+    switch (call.method) {
+      case 'onEnterRegion':
+        final String id = call.arguments['id'];
+        if (id == 'home_geofence') {
+          debugPrint('[Geofence] User entered home region');
+          onHomeArrived?.call();
+        }
+        break;
+      case 'onExitRegion':
+        final String id = call.arguments['id'];
+        if (id == 'home_geofence') {
+          debugPrint('[Geofence] User left home region');
+          onHomeLeft?.call();
+        }
+        break;
+    }
+  }
   
   /// Current monitoring state
   bool get isMonitoring => _isMonitoring;
@@ -31,107 +54,48 @@ class GeofenceMonitorService {
   /// Get the geofence radius in meters
   int get radiusMeters => radius;
   
-  /// Check if a given location is within the geofence of the home location.
-  ///
-  /// Returns true if within [radius] meters of home.
-  /// Returns false if home is not set or location is outside radius.
-  Future<bool> isWithinGeofence(double currentLat, double currentLon) async {
-    final homeLocation = await _homeLocationService.getHomeLocation();
-    if (homeLocation == null) return false;
-    
-    final distanceKm = _calculateDistance(
-      currentLat, currentLon,
-      homeLocation.latitude, homeLocation.longitude,
-    );
-    final distanceMeters = distanceKm * 1000;
-    
-    return distanceMeters <= radius;
-  }
-  
-  /// Start monitoring location for home arrival.
-  ///
-  /// Returns true if monitoring started successfully.
-  /// Returns false if home location is not set.
+  /// Start monitoring location for home arrival using native OS Geofencing.
   Future<bool> startMonitoring() async {
     final homeLocation = await _homeLocationService.getHomeLocation();
-    if (homeLocation == null) return false;
-    
-    // Check initial state - is user already at home?
-    try {
-      final position = await Geolocator.getCurrentPosition();
-      
-      _wasAtHome = await isWithinGeofence(position.latitude, position.longitude);
-    } catch (e) {
-      // If we can't get location, leave state as unknown (null)
-      // Don't assume anything - we'll detect transitions when we get a fix
+    if (homeLocation == null) {
+      debugPrint('[Geofence] Cannot start: Home location not set');
+      return false;
     }
     
-    // Start periodic monitoring (every 30 seconds)
-    _monitoringTimer?.cancel();
-    _monitoringTimer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) => _checkLocation(),
-    );
-    
-    _isMonitoring = true;
-    return true;
+    try {
+      // 1. Check/Request Permissions
+      final permission = await checkAndRequestPermission();
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        debugPrint('[Geofence] Cannot start: Permission denied');
+        return false;
+      }
+
+      // 2. Add native geofence
+      await _channel.invokeMethod('addGeofence', {
+        'id': 'home_geofence',
+        'lat': homeLocation.latitude,
+        'lon': homeLocation.longitude,
+        'radius': radius.toDouble(),
+      });
+      
+      _isMonitoring = true;
+      debugPrint('[Geofence] Native monitoring started for (${homeLocation.latitude}, ${homeLocation.longitude})');
+      return true;
+    } catch (e) {
+      debugPrint('[Geofence] Error starting native monitoring: $e');
+      return false;
+    }
   }
   
   /// Stop monitoring location.
   Future<void> stopMonitoring() async {
-    _monitoringTimer?.cancel();
-    _monitoringTimer = null;
-    _isMonitoring = false;
-    _wasAtHome = false;
-  }
-  
-  /// Check current location and notify if home arrival detected.
-  ///
-  /// This can be called externally (e.g., on app resume) or from periodic monitoring.
-  Future<void> checkAndNotifyHomeArrival(double currentLat, double currentLon) async {
-    final isNowAtHome = await isWithinGeofence(currentLat, currentLon);
-    
-    if (isNowAtHome) {
-      // Trigger if:
-      // 1. We came from known "not at home" state (_wasAtHome = false), OR
-      // 2. We have no initial state (_wasAtHome = null) - first detection
-      // Don't trigger if already at home (_wasAtHome = true)
-      if (_wasAtHome != true) {
-        _wasAtHome = true;
-        onHomeArrived?.call();
-      }
-    } else {
-      // Not at home
-      _wasAtHome = false;
-    }
-  }
-  
-  Future<void> _checkLocation() async {
-    if (!_isMonitoring) return;
-    
     try {
-      final position = await Geolocator.getCurrentPosition();
-      
-      await checkAndNotifyHomeArrival(position.latitude, position.longitude);
+      await _channel.invokeMethod('removeGeofence', {'id': 'home_geofence'});
+      _isMonitoring = false;
+      debugPrint('[Geofence] Native monitoring stopped');
     } catch (e) {
-      // Silently handle location errors - monitoring continues
+      debugPrint('[Geofence] Error stopping native monitoring: $e');
     }
-  }
-  
-  /// Calculate distance between two points using Haversine formula.
-  /// Returns distance in kilometers.
-  double _calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-    const double earthRadius = 6371; // km
-    
-    final dLat = (lat2 - lat1) * (math.pi / 180);
-    final dLon = (lon2 - lon1) * (math.pi / 180);
-    
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(lat1 * (math.pi / 180)) * math.cos(lat2 * (math.pi / 180)) *
-        math.sin(dLon / 2) * math.sin(dLon / 2);
-    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
-    
-    return earthRadius * c;
   }
   
   /// Check if location services are enabled.
@@ -140,16 +104,22 @@ class GeofenceMonitorService {
   }
   
   /// Check and request location permission.
+  /// Note: Native geofencing often requires background permission on Android 10+.
   Future<LocationPermission> checkAndRequestPermission() async {
     var permission = await Geolocator.checkPermission();
-    
+
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
-    
+
+    // For background geofencing, we MUST have LocationPermission.always on Android 10+ and iOS
+    if (permission == LocationPermission.whileInUse) {
+      debugPrint('[Geofence] Requesting background location permission...');
+      permission = await Geolocator.requestPermission();
+    }
+
     return permission;
-  }
-  
+  }  
   /// Get current position (requires permission).
   Future<Position?> getCurrentPosition() async {
     try {
@@ -161,6 +131,6 @@ class GeofenceMonitorService {
   
   /// Dispose of resources.
   void dispose() {
-    stopMonitoring();
+    _channel.setMethodCallHandler(null);
   }
 }
