@@ -53,6 +53,7 @@ import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dar
 import 'package:oasis/features/capsules/presentation/providers/capsule_provider.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/features/circles/data/repositories/circle_repository_impl.dart';
+import 'package:oasis/features/ripples/data/repositories/ripple_repository_impl.dart';
 import 'package:oasis/providers/community_provider.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';

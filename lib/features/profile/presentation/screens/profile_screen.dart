@@ -38,6 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   late TabController _tabController;
   List<Post> _userPosts = [];
   final List<Post> _savedPosts = [];
+  final List<RippleEntity> _savedRipples = [];
   bool _isLoadingPosts = false;
   final ScrollController _scrollController = ScrollController();
   int _pivotIndex = 0;

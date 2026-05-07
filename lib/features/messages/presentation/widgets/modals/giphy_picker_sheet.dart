@@ -7,6 +7,7 @@ import 'package:oasis/features/messages/core/chat_api_config.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class GiphyPickerSheet extends StatefulWidget {
   final Function(String url, bool isSticker) onSelected;
