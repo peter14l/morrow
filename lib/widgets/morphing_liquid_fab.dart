@@ -238,8 +238,6 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
     // Use superellipse shape for organic liquid feel
     final shape = LiquidRoundedSuperellipse(
       borderRadius: morphRadius,
-      // Add subtle exponent variation for more organic morphing
-      exponent: 2.0 + morphAmount2 * 0.3,
     );
 
     return Container(
@@ -269,9 +267,6 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
           glassColor: baseColor.withValues(alpha: 0.4),
           lightIntensity: 1.4,
           saturation: 1.2,
-          // Enable specular highlights for light refraction
-          specularIntensity: 0.8,
-          specularAngle: 0.3,
         ),
         shape: shape,
         child: SizedBox(
@@ -546,10 +541,8 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
           glassColor: baseColor.withValues(alpha: 0.4),
           lightIntensity: 1.4,
           saturation: 1.2,
-          specularIntensity: 0.8,
-          specularAngle: 0.3,
         ),
-        shape: LiquidRoundedSuperellipse(borderRadius: morphRadius, exponent: 2.0 + morphAmount * 0.2),
+        shape: LiquidRoundedSuperellipse(borderRadius: morphRadius),
         child: Center(
           child: AnimatedRotation(
             turns: _isExpanded ? 0.125 : 0,

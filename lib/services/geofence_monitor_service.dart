@@ -128,6 +128,21 @@ class GeofenceMonitorService {
       return null;
     }
   }
+
+  /// Check if a location is within the home geofence.
+  Future<bool> isWithinGeofence(double lat, double lon) async {
+    final homeLocation = await _homeLocationService.getHomeLocation();
+    if (homeLocation == null) return false;
+
+    final distance = Geolocator.distanceBetween(
+      lat,
+      lon,
+      homeLocation.latitude,
+      homeLocation.longitude
+    );
+
+    return distance <= radius;
+  }
   
   /// Dispose of resources.
   void dispose() {
