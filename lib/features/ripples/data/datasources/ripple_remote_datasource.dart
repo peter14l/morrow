@@ -115,10 +115,17 @@ class RippleRemoteDatasource {
 
   /// Likes a ripple.
   Future<void> likeRipple(String rippleId, String userId) async {
-    await _supabase.from(SupabaseConfig.rippleLikesTable).upsert({
-      'ripple_id': rippleId,
-      'user_id': userId,
-    });
+    try {
+      await _supabase.from(SupabaseConfig.rippleLikesTable).insert({
+        'ripple_id': rippleId,
+        'user_id': userId,
+      });
+    } catch (e) {
+      // Ignore if already liked (conflict)
+      if (!e.toString().contains('duplicate key')) {
+        rethrow;
+      }
+    }
   }
 
   /// Removes like from a ripple.
@@ -131,10 +138,17 @@ class RippleRemoteDatasource {
 
   /// Saves a ripple.
   Future<void> saveRipple(String rippleId, String userId) async {
-    await _supabase.from(SupabaseConfig.rippleSavesTable).upsert({
-      'ripple_id': rippleId,
-      'user_id': userId,
-    });
+    try {
+      await _supabase.from(SupabaseConfig.rippleSavesTable).insert({
+        'ripple_id': rippleId,
+        'user_id': userId,
+      });
+    } catch (e) {
+      // Ignore if already saved (conflict)
+      if (!e.toString().contains('duplicate key')) {
+        rethrow;
+      }
+    }
   }
 
   /// Removes a ripple from saved.
@@ -214,5 +228,51 @@ class RippleRemoteDatasource {
     ripple.remove(SupabaseConfig.rippleSavesTable);
 
     return RippleEntity.fromJson(ripple);
+  }
+
+  /// Gets saved ripples for a specific user.
+  Future<List<RippleEntity>> getSavedRipples(String userId) async {
+    final response = await _supabase
+        .from(SupabaseConfig.rippleSavesTable)
+        .select('''
+          ripple_id,
+          ${SupabaseConfig.ripplesTable} (
+            *,
+            ${SupabaseConfig.profilesTable}:user_id (
+              username,
+              avatar_url,
+              is_private
+            ),
+            ${SupabaseConfig.rippleLikesTable}!left (
+              user_id
+            ),
+            ${SupabaseConfig.rippleSavesTable}!left (
+              user_id
+            )
+          )
+        ''')
+        .eq('user_id', userId);
+
+    final List<dynamic> data = response as List<dynamic>;
+    final ripplesData = <Map<String, dynamic>>[];
+
+    for (var item in data) {
+      if (item[SupabaseConfig.ripplesTable] != null) {
+        final ripple = Map<String, dynamic>.from(item[SupabaseConfig.ripplesTable]);
+        
+        // Process likes/saves for the ripple
+        final likes = ripple[SupabaseConfig.rippleLikesTable] as List<dynamic>?;
+        ripple['is_liked'] = likes != null && likes.any((l) => l['user_id'] == userId);
+        ripple.remove(SupabaseConfig.rippleLikesTable);
+
+        final saves = ripple[SupabaseConfig.rippleSavesTable] as List<dynamic>?;
+        ripple['is_saved'] = saves != null && saves.any((s) => s['user_id'] == userId);
+        ripple.remove(SupabaseConfig.rippleSavesTable);
+
+        ripplesData.add(ripple);
+      }
+    }
+
+    return ripplesData.map((json) => RippleEntity.fromJson(json)).toList();
   }
 }

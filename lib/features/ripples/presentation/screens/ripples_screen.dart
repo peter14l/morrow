@@ -974,10 +974,10 @@ class _RipplesScreenState extends State<RipplesScreen>
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(
                     12,
-                    60,
+                    40,
                     12,
-                    140,
-                  ), // Adjusted padding to make card bigger while keeping space for bottom pill
+                    110,
+                  ), // Enlarged card by reducing top and bottom padding
                   child: Container(
                     decoration: BoxDecoration(
                       color: disableTransparency
@@ -1505,6 +1505,11 @@ class _ComingUpItemState extends State<_ComingUpItem> {
           ),
         ),
       ),
+    );
+  }
+}
+
+),
     );
   }
 }

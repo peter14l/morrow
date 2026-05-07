@@ -5,12 +5,15 @@ import 'package:oasis/features/profile/presentation/providers/profile_state.dart
 import 'package:oasis/features/feed/domain/repositories/post_repository.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
+import 'package:oasis/features/ripples/domain/models/ripple_entity.dart';
+import 'package:oasis/features/ripples/domain/repositories/ripple_repository.dart';
 
 export 'package:oasis/features/profile/presentation/providers/profile_state.dart';
 
 class ProfileProvider with ChangeNotifier {
   final ProfileRepository _profileRepository;
   final PostRepository _postRepository;
+  final RippleRepository _rippleRepository;
   final MessagingService _messagingService = MessagingService();
 
   ProfileState _state = const ProfileState();
@@ -28,8 +31,10 @@ class ProfileProvider with ChangeNotifier {
   ProfileProvider({
     required ProfileRepository profileRepository,
     required PostRepository postRepository,
+    required RippleRepository rippleRepository,
   }) : _profileRepository = profileRepository,
-       _postRepository = postRepository;
+       _postRepository = postRepository,
+       _rippleRepository = rippleRepository;
 
   Future<void> loadCurrentProfile(String userId) async {
     _state = _state.copyWith(isLoading: true, error: null);
@@ -291,6 +296,15 @@ class ProfileProvider with ChangeNotifier {
       return await _postRepository.getBookmarkedPosts(userId: userId);
     } catch (e) {
       debugPrint('[ProfileProvider] Error fetching saved posts: $e');
+      return [];
+    }
+  }
+
+  Future<List<RippleEntity>> loadSavedRipples(String userId) async {
+    try {
+      return await _rippleRepository.getSavedRipples(userId);
+    } catch (e) {
+      debugPrint('[ProfileProvider] Error fetching saved ripples: $e');
       return [];
     }
   }

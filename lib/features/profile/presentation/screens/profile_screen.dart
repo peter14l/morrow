@@ -4,6 +4,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/profile/domain/models/user_profile_entity.dart';
 import 'package:oasis/services/auth_service.dart';
@@ -98,9 +99,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           final savedPosts = await context
               .read<ProfileProvider>()
               .loadSavedPosts(targetId);
+          final savedRipples = await context
+              .read<ProfileProvider>()
+              .loadSavedRipples(targetId);
           setState(() {
             _savedPosts.clear();
             _savedPosts.addAll(savedPosts);
+            _savedRipples.clear();
+            _savedRipples.addAll(savedRipples);
           });
         }
       }
@@ -310,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       else
                         _pivotIndex == 0
                             ? _buildFluentPostsGrid(_userPosts, userId, themeProvider.isM3EEnabled)
-                            : _buildFluentPostsGrid(_savedPosts, userId, themeProvider.isM3EEnabled),
+                            : _buildFluentMixedGrid(_savedPosts, _savedRipples, userId, themeProvider.isM3EEnabled),
                     ],
                   ),
                 ],
@@ -319,6 +325,155 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFluentMixedGrid(
+    List<Post> posts,
+    List<RippleEntity> ripples,
+    String? userId,
+    bool isM3E,
+  ) {
+    final List<Map<String, dynamic>> items = [
+      ...posts.map((p) => {'type': 'post', 'data': p}),
+      ...ripples.map((r) => {'type': 'ripple', 'data': r}),
+    ];
+
+    if (_isLoadingPosts) {
+      return const Center(child: fluent.ProgressRing());
+    }
+
+    if (items.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              fluent.FluentIcons.photo_collection,
+              size: 48,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No saved items',
+              style: fluent.FluentTheme.of(context).typography.body,
+            ),
+          ],
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+        childAspectRatio: 1.0,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        final type = item['type'];
+        final dynamic data = item['data'];
+        final borderRadius = isM3E
+            ? BorderRadius.circular(16)
+            : BorderRadius.circular(8);
+
+        if (type == 'post') {
+          final post = data as Post;
+          return fluent.HoverButton(
+            onPressed: () => context.push('/post/${post.id}'),
+            builder: (context, states) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                transform:
+                    states.contains(WidgetState.hovered)
+                        ? (Matrix4.identity()..scale(1.02))
+                        : Matrix4.identity(),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  borderRadius: borderRadius,
+                  border:
+                      states.contains(WidgetState.hovered)
+                          ? Border.all(
+                            color: fluent.FluentTheme.of(context).accentColor,
+                            width: 2,
+                          )
+                          : null,
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child:
+                      post.imageUrl != null
+                          ? CachedNetworkImage(
+                            imageUrl: post.imageUrl!,
+                            fit: BoxFit.cover,
+                          )
+                          : const Center(
+                            child: Icon(
+                              fluent.FluentIcons.text_document,
+                              size: 20,
+                            ),
+                          ),
+                ),
+              );
+            },
+          );
+        } else {
+          final ripple = data as RippleEntity;
+          return fluent.HoverButton(
+            onPressed:
+                () => context.push(
+                  '/ripples',
+                  extra: {'initialRippleId': ripple.id},
+                ),
+            builder: (context, states) {
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                transform:
+                    states.contains(WidgetState.hovered)
+                        ? (Matrix4.identity()..scale(1.02))
+                        : Matrix4.identity(),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  borderRadius: borderRadius,
+                  border:
+                      states.contains(WidgetState.hovered)
+                          ? Border.all(
+                            color: fluent.FluentTheme.of(context).accentColor,
+                            width: 2,
+                          )
+                          : null,
+                ),
+                child: ClipRRect(
+                  borderRadius: borderRadius,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      CachedNetworkImage(
+                        imageUrl: ripple.thumbnailUrl ?? '',
+                        fit: BoxFit.cover,
+                        errorWidget:
+                            (context, url, error) =>
+                                Container(color: Colors.grey.shade900),
+                      ),
+                      const Center(
+                        child: Icon(
+                          fluent.FluentIcons.play,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        }
+      },
     );
   }
 
@@ -450,6 +605,38 @@ class _ProfileScreenState extends State<ProfileScreen>
                   style: fluent.FluentTheme.of(context).typography.body,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              // Location and Website
+              if ((profile.location != null && profile.location!.isNotEmpty) ||
+                  (profile.website != null && profile.website!.isNotEmpty)) ...[
+                Row(
+                  children: [
+                    if (profile.location != null && profile.location!.isNotEmpty) ...[
+                      const Icon(fluent.FluentIcons.location_dot, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        profile.location!,
+                        style: fluent.FluentTheme.of(context).typography.caption,
+                      ),
+                      const SizedBox(width: 16),
+                    ],
+                    if (profile.website != null && profile.website!.isNotEmpty) ...[
+                      const Icon(fluent.FluentIcons.link, size: 12),
+                      const SizedBox(width: 4),
+                      fluent.HyperlinkButton(
+                        child: Text(profile.website!),
+                        onPressed: () async {
+                          final uri = Uri.tryParse(profile.website!);
+                          if (uri != null && await canLaunchUrl(uri)) {
+                            await launchUrl(uri);
+                          }
+                        },
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 16),
               ],
@@ -820,15 +1007,32 @@ class _ProfileScreenState extends State<ProfileScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDesktopAvatar(profile, colorScheme, isM3E),
-                      const SizedBox(height: 32),
-                      _buildDesktopInfoSection(
-                        profile,
-                        theme,
-                        colorScheme,
-                        profileProvider,
-                        userId,
-                        isM3E,
+                      // Profile Card Container
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: theme.brightness == Brightness.dark
+                              ? colorScheme.surfaceContainerLow.withValues(alpha: 0.5)
+                              : colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(isM3E ? 32 : 16),
+                          border: Border.all(
+                            color: colorScheme.onSurface.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            _buildDesktopAvatar(profile, colorScheme, isM3E),
+                            const SizedBox(height: 32),
+                            _buildDesktopInfoSection(
+                              profile,
+                              theme,
+                              colorScheme,
+                              profileProvider,
+                              userId,
+                              isM3E,
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 40),
                       _buildDesktopInfoCard(
@@ -1006,13 +1210,46 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
         ),
         const SizedBox(height: 8),
-        if (profile.bio != null)
-          Text(
-            profile.bio!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
+        if (profile.bio != null && profile.bio!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Text(
+              profile.bio!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface.withValues(alpha: 0.7),
+                height: 1.4,
+              ),
             ),
           ),
+        
+        // Location and Website
+        if (profile.location != null && profile.location!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildProfileDetailItem(
+              Icons.location_on_outlined,
+              profile.location!,
+              colorScheme,
+              theme,
+            ),
+          ),
+        if (profile.website != null && profile.website!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: _buildProfileDetailItem(
+              Icons.link,
+              profile.website!,
+              colorScheme,
+              theme,
+              onTap: () async {
+                final uri = Uri.tryParse(profile.website!);
+                if (uri != null && await canLaunchUrl(uri)) {
+                  await launchUrl(uri);
+                }
+              },
+            ),
+          ),
+        
         const SizedBox(height: 16),
         WellnessBadge(xp: profile.safeXp),
       ],
@@ -1345,122 +1582,226 @@ class _ProfileScreenState extends State<ProfileScreen>
     ColorScheme colorScheme,
     bool isM3E,
   ) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Stack(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(3),
-                  decoration: BoxDecoration(
-                    shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-                    borderRadius: isM3E ? BorderRadius.circular(24) : null,
-                    gradient: LinearGradient(
-                      colors: [colorScheme.primary, colorScheme.tertiary],
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colorScheme.surfaceContainerLow.withValues(alpha: 0.5)
+            : colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(isM3E ? 32 : 16),
+        border: Border.all(
+          color: colorScheme.onSurface.withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+                      borderRadius: isM3E ? BorderRadius.circular(24) : null,
+                      gradient: LinearGradient(
+                        colors: [colorScheme.primary, colorScheme.tertiary],
+                      ),
                     ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: isM3E
-                        ? BorderRadius.circular(21)
-                        : BorderRadius.circular(45),
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      color: colorScheme.surface,
-                      child:
-                          profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
-                          ? CachedNetworkImage(
-                              imageUrl: profile.avatarUrl!,
-                              fit: BoxFit.cover,
-                            )
-                          : Center(
-                              child: Text(
-                                profile.username[0].toUpperCase(),
-                                style: const TextStyle(fontSize: 24),
+                    child: ClipRRect(
+                      borderRadius: isM3E
+                          ? BorderRadius.circular(21)
+                          : BorderRadius.circular(45),
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        color: colorScheme.surface,
+                        child:
+                            profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: profile.avatarUrl!,
+                                fit: BoxFit.cover,
+                              )
+                            : Center(
+                                child: Text(
+                                  profile.username[0].toUpperCase(),
+                                  style: const TextStyle(fontSize: 24),
+                                ),
                               ),
-                            ),
+                      ),
                     ),
                   ),
-                ),
-                if (profile.isPro)
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        borderRadius: BorderRadius.circular(isM3E ? 8 : 12),
-                        border: Border.all(color: colorScheme.surface, width: 2),
-                      ),
-                      child: const Text(
-                        'PRO',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                  if (profile.isPro)
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary,
+                          borderRadius: BorderRadius.circular(isM3E ? 8 : 12),
+                          border: Border.all(color: colorScheme.surface, width: 2),
+                        ),
+                        child: const Text(
+                          'PRO',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    profile.fullName ?? profile.username,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -0.5,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(
-                    '@${profile.username}',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  WellnessBadge(xp: profile.safeXp),
                 ],
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      profile.fullName ?? profile.username,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '@${profile.username}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    WellnessBadge(xp: profile.safeXp),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          
+          if (profile.bio != null && profile.bio!.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text(
+              profile.bio!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                height: 1.5,
+                color: colorScheme.onSurface.withValues(alpha: 0.9),
               ),
             ),
           ],
-        ),
-        if (isOwnProfile) ...[
-          const SizedBox(height: 40),
-          // Wellness Dashboard Dial
-          Consumer<ScreenTimeService>(
-            builder: (context, screenTime, _) {
-              return FutureBuilder<Duration>(
-                future: screenTime.getTodayTotalUsage(),
-                builder: (context, snapshot) {
-                  final usage = snapshot.data ?? Duration.zero;
-                  final settings = context.read<UserSettingsProvider>();
-                  final dailyLimit = settings.dailyLimitMinutes > 0 ? settings.dailyLimitMinutes : 60;
-                  final progress = (usage.inMinutes / dailyLimit).clamp(0.0, 1.0);
-                  
-                  return SessionDial(
-                    progress: progress,
-                    label: '${usage.inMinutes}m',
-                    subLabel: 'TODAY\'S FLOW',
-                  );
-                },
-              );
-            },
+          
+          if ((profile.location != null && profile.location!.isNotEmpty) ||
+              (profile.website != null && profile.website!.isNotEmpty)) ...[
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                if (profile.location != null && profile.location!.isNotEmpty)
+                  _buildProfileDetailItem(
+                    Icons.location_on_outlined,
+                    profile.location!,
+                    colorScheme,
+                    theme,
+                  ),
+                if (profile.website != null && profile.website!.isNotEmpty)
+                  _buildProfileDetailItem(
+                    Icons.link,
+                    profile.website!,
+                    colorScheme,
+                    theme,
+                    onTap: () async {
+                      final uri = Uri.tryParse(profile.website!);
+                      if (uri != null && await canLaunchUrl(uri)) {
+                        await launchUrl(uri);
+                      }
+                    },
+                  ),
+              ],
+            ),
+          ],
+
+          if (isOwnProfile) ...[
+            const SizedBox(height: 32),
+            const Divider(height: 1),
+            const SizedBox(height: 32),
+            // Wellness Dashboard Dial
+            Consumer<ScreenTimeService>(
+              builder: (context, screenTime, _) {
+                return FutureBuilder<Duration>(
+                  future: screenTime.getTodayTotalUsage(),
+                  builder: (context, snapshot) {
+                    final usage = snapshot.data ?? Duration.zero;
+                    final settings = context.read<UserSettingsProvider>();
+                    final dailyLimit = settings.dailyLimitMinutes > 0 ? settings.dailyLimitMinutes : 60;
+                    final progress = (usage.inMinutes / dailyLimit).clamp(0.0, 1.0);
+                    
+                    return Center(
+                      child: SessionDial(
+                        progress: progress,
+                        label: '${usage.inMinutes}m',
+                        subLabel: 'TODAY\'S FLOW',
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildProfileDetailItem(
+    IconData icon,
+    String text,
+    ColorScheme colorScheme,
+    ThemeData theme, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            size: 16,
+            color: colorScheme.primary.withValues(alpha: 0.7),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              text,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: onTap != null 
+                  ? colorScheme.primary 
+                  : colorScheme.onSurface.withValues(alpha: 0.6),
+                fontWeight: onTap != null ? FontWeight.bold : FontWeight.w500,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
-      ],
+      ),
     );
   }
 
@@ -1664,9 +2005,147 @@ class _ProfileScreenState extends State<ProfileScreen>
       slivers: [
         SliverPadding(
           padding: EdgeInsets.all(isDesktop ? 20 : 2),
-          sliver: _buildPostsGrid(_savedPosts, userId, isDesktop, isM3E),
+          sliver: _buildMixedGrid(
+            _savedPosts,
+            _savedRipples,
+            userId,
+            isDesktop,
+            isM3E,
+          ),
         ),
       ],
+    );
+  }
+
+  Widget _buildMixedGrid(
+    List<Post> posts,
+    List<RippleEntity> ripples,
+    String? userId,
+    bool isDesktop,
+    bool isM3E,
+  ) {
+    final List<Map<String, dynamic>> items = [
+      ...posts.map((p) => {'type': 'post', 'data': p}),
+      ...ripples.map((r) => {'type': 'ripple', 'data': r}),
+    ];
+
+    if (_isLoadingPosts) {
+      return const SliverFillRemaining(
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (items.isEmpty) {
+      return SliverFillRemaining(
+        hasScrollBody: false,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.grid_off_rounded,
+                size: 48,
+                color: Colors.grey.withValues(alpha: 0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'No saved items',
+                style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SliverGrid(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: isDesktop ? 4 : 3,
+        crossAxisSpacing: isDesktop ? 12 : 2,
+        mainAxisSpacing: isDesktop ? 12 : 2,
+        childAspectRatio: 1.0,
+      ),
+      delegate: SliverChildBuilderDelegate((context, index) {
+        final item = items[index];
+        final type = item['type'];
+        final dynamic data = item['data'];
+        final borderRadius = isM3E
+            ? BorderRadius.circular(16)
+            : (isDesktop ? BorderRadius.circular(12) : BorderRadius.zero);
+
+        if (type == 'post') {
+          final post = data as Post;
+          return GestureDetector(
+            onTap: () => context.push('/post/${post.id}'),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.05),
+                borderRadius: borderRadius,
+              ),
+              child: ClipRRect(
+                borderRadius: borderRadius,
+                child:
+                    post.imageUrl != null
+                        ? Hero(
+                          tag: 'post_${post.id}',
+                          child: CachedNetworkImage(
+                            imageUrl: post.imageUrl!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                        : const Center(child: Icon(Icons.text_fields, size: 20)),
+              ),
+            ),
+          );
+        } else {
+          final ripple = data as RippleEntity;
+          return GestureDetector(
+            onTap: () => context.push('/ripples', extra: {'initialRippleId': ripple.id}),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.05),
+                borderRadius: borderRadius,
+              ),
+              child: ClipRRect(
+                borderRadius: borderRadius,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    CachedNetworkImage(
+                      imageUrl: ripple.thumbnailUrl ?? '',
+                      fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Container(color: Colors.grey.shade900),
+                    ),
+                    const Center(
+                      child: Icon(
+                        Icons.play_circle_outline_rounded,
+                        color: Colors.white,
+                        size: 32,
+                      ),
+                    ),
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black38,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: const Icon(
+                          Icons.waves_rounded,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+      }, childCount: items.length),
     );
   }
 

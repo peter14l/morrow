@@ -121,4 +121,9 @@ class RippleRepositoryImpl implements RippleRepository {
   Future<RippleEntity?> getRippleById(String rippleId) async {
     return _remoteDatasource.getRippleById(rippleId);
   }
+
+  @override
+  Future<List<RippleEntity>> getSavedRipples(String userId) async {
+    return _remoteDatasource.getSavedRipples(userId);
+  }
 }

@@ -539,6 +539,7 @@ class AppInitializer {
           create: (_) => ProfileProvider(
             profileRepository: ProfileRepositoryImpl(),
             postRepository: PostRepositoryImpl(),
+            rippleRepository: RippleRepositoryImpl(),
           ),
         ),
         ChangeNotifierProvider(create: (_) => CommunityProvider()),

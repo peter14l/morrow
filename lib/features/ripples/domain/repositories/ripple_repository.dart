@@ -49,4 +49,7 @@ abstract class RippleRepository {
 
   /// Gets a single ripple by ID.
   Future<RippleEntity?> getRippleById(String rippleId);
+
+  /// Fetches saved ripples for a specific user.
+  Future<List<RippleEntity>> getSavedRipples(String userId);
 }
