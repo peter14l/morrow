@@ -408,7 +408,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         context: context,
         apiKey: apiKey,
         tabColor: Theme.of(context).colorScheme.primary,
-        debounceInterval: 500,
       );
 
       if (gif != null && gif.images?.original?.url != null) {
@@ -1247,6 +1246,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         ),
                       ),
                   ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+                 ],
                 ),
               ),
             ),
