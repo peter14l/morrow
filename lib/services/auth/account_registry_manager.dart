@@ -33,26 +33,41 @@ class AccountRegistryManager with ChangeNotifier {
       userId: user.id,
       email: user.email ?? '',
       username: metadata['username'] ?? user.email?.split('@')[0] ?? 'user',
-      fullName: metadata['full_name'],
-      avatarUrl: metadata['avatar_url'],
+      fullName: metadata['full_name'] as String?,
+      avatarUrl: metadata['avatar_url'] as String?,
       session: session,
       lastUsed: DateTime.now(),
     );
 
-    await _registry.saveAccount(account);
-    await loadRegistry();
+    debugPrint('[AccountRegistryManager] Syncing account ${account.username} (${account.userId}) to registry');
+    try {
+      await _registry.saveAccount(account);
+      debugPrint('[AccountRegistryManager] Account saved. Reloading registry...');
+      await loadRegistry();
+    } catch (e) {
+      debugPrint('[AccountRegistryManager] ERROR syncing account: $e');
+    }
   }
 
   Future<void> removeAccount(String userId) async {
-    await _registry.removeAccount(userId);
-    await loadRegistry();
+    debugPrint('[AccountRegistryManager] Removing account: $userId');
+    try {
+      await _registry.removeAccount(userId);
+      await loadRegistry();
+    } catch (e) {
+      debugPrint('[AccountRegistryManager] ERROR removing account: $e');
+    }
   }
 
   Future<void> markAsUsed(String userId) async {
-    await _registry.markAsUsed(userId);
-    await loadRegistry();
+    debugPrint('[AccountRegistryManager] Marking account as used: $userId');
+    try {
+      await _registry.markAsUsed(userId);
+      await loadRegistry();
+    } catch (e) {
+      debugPrint('[AccountRegistryManager] ERROR marking as used: $e');
+    }
   }
-
   RegisteredAccount getAccount(String userId) {
     return _registeredAccounts.firstWhere((a) => a.userId == userId);
   }

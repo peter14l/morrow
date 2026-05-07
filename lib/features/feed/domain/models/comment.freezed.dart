@@ -219,16 +219,16 @@ return $default(_that.id,_that.postId,_that.userId,_that.parentCommentId,_that.u
 @JsonSerializable()
 
 class _Comment extends Comment {
-  const _Comment({required this.id, @JsonKey(name: 'post_id') required this.postId, @JsonKey(name: 'user_id') required this.userId, @JsonKey(name: 'parent_comment_id') this.parentCommentId, required this.username, @JsonKey(name: 'user_avatar') required this.userAvatar, required this.content, @JsonKey(name: 'likes_count') this.likes = 0, @JsonKey(name: 'replies_count') this.repliesCount = 0, @JsonKey(name: 'is_liked') this.isLiked = false, @JsonKey(name: 'created_at') required this.timestamp}): super._();
+  const _Comment({this.id = '', @JsonKey(name: 'post_id') this.postId = '', @JsonKey(name: 'user_id') this.userId = '', @JsonKey(name: 'parent_comment_id') this.parentCommentId, this.username = 'user', @JsonKey(name: 'user_avatar') this.userAvatar = '', this.content = '', @JsonKey(name: 'likes_count') this.likes = 0, @JsonKey(name: 'replies_count') this.repliesCount = 0, @JsonKey(name: 'is_liked') this.isLiked = false, @JsonKey(name: 'created_at') required this.timestamp}): super._();
   factory _Comment.fromJson(Map<String, dynamic> json) => _$CommentFromJson(json);
 
-@override final  String id;
+@override@JsonKey() final  String id;
 @override@JsonKey(name: 'post_id') final  String postId;
 @override@JsonKey(name: 'user_id') final  String userId;
 @override@JsonKey(name: 'parent_comment_id') final  String? parentCommentId;
-@override final  String username;
+@override@JsonKey() final  String username;
 @override@JsonKey(name: 'user_avatar') final  String userAvatar;
-@override final  String content;
+@override@JsonKey() final  String content;
 @override@JsonKey(name: 'likes_count') final  int likes;
 @override@JsonKey(name: 'replies_count') final  int repliesCount;
 @override@JsonKey(name: 'is_liked') final  bool isLiked;

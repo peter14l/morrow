@@ -37,6 +37,7 @@ class AuthService with ChangeNotifier {
 
   StreamSubscription<AuthState>? _authStateSubscription;
   bool _isSwitchingAccount = false;
+  bool _isAddingAccount = false;
   String? _lastUserId;
 
   List<RegisteredAccount> get registeredAccounts => _accountRegistry.registeredAccounts;
@@ -45,11 +46,23 @@ class AuthService with ChangeNotifier {
     return _instance;
   }
 
+  /// Call this before starting an "Add Account" flow to prevent 
+  /// the auth state listener from interfering with the registry.
+  void setAddingAccount(bool value) {
+    debugPrint('[AuthService] setAddingAccount: $value');
+    _isAddingAccount = value;
+  }
+
   AuthService._internal() {
     _providersDelegate = AuthProvidersDelegate(_supabase);
 
+    // Initial registry load
+    _accountRegistry.loadRegistry();
+
     // Listen to auth state changes
-    _authStateSubscription = _supabase.auth.onAuthStateChange.listen((data) {
+    _authStateSubscription = _supabase.auth.onAuthStateChange.listen((data) async {
+      debugPrint('[AuthService] Auth state change: ${data.event}');
+      
       if (_isSwitchingAccount) {
         debugPrint('[AuthService] Skipping registry sync: switch in progress');
         return;
@@ -59,12 +72,27 @@ class AuthService with ChangeNotifier {
       
       if (session != null) {
         _lastUserId = session.user.id;
-        _accountRegistry.syncCurrentSessionToRegistry(session);
+        debugPrint('[AuthService] Active session found for user: ${session.user.id}. Syncing...');
+        
+        // Reset adding account flag if we found a session
+        if (_isAddingAccount) {
+          debugPrint('[AuthService] Resetting _isAddingAccount to false');
+          _isAddingAccount = false;
+        }
+        
+        // Sync to registry
+        await _accountRegistry.syncCurrentSessionToRegistry(session);
+        
         // Sync RevenueCat
         if (RevenueCatService().isInitialized) {
           RevenueCatService().identify(session.user.id);
         }
+        
+        // Update services that depend on the active user
+        _notificationService.updateFcmToken(session.user.id);
+        _encryptionProvisioner.provisionEncryptionKeys();
       } else {
+        debugPrint('[AuthService] No active session (logged out or transitioning)');
         _lastUserId = null;
         // Log out of RevenueCat if no session
         if (RevenueCatService().isInitialized) {
@@ -74,7 +102,10 @@ class AuthService with ChangeNotifier {
       notifyListeners();
     });
 
-    _accountRegistry.addListener(notifyListeners);
+    _accountRegistry.addListener(() {
+      debugPrint('[AuthService] Registry updated. Count: ${_accountRegistry.registeredAccounts.length}');
+      notifyListeners();
+    });
   }
 
   /// Switch to a different logged-in account

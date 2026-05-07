@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -73,68 +74,124 @@ class SessionRegistryService {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   static const String _registryKey = 'oasis_account_registry';
 
+  // Synchronization lock to prevent race conditions during read/write
+  Future<void> _lock = Future.value();
+
+  Future<T> _synchronized<T>(Future<T> Function() computation) async {
+    final previousLock = _lock;
+    final completer = Completer<void>();
+    _lock = completer.future;
+
+    try {
+      await previousLock;
+      return await computation();
+    } finally {
+      completer.complete();
+    }
+  }
+
   /// Get all registered accounts
   Future<List<RegisteredAccount>> getAllAccounts() async {
-    try {
-      debugPrint('[SessionRegistry] Reading registry from storage...');
-      final data = await _storage.read(key: _registryKey);
-      
-      if (data == null) {
-        debugPrint('[SessionRegistry] No registry data found');
+    return _synchronized(() async {
+      try {
+        debugPrint('[SessionRegistry] Reading registry from storage...');
+        final data = await _storage.read(key: _registryKey);
+        
+        if (data == null) {
+          debugPrint('[SessionRegistry] No registry data found');
+          return [];
+        }
+
+        // Guard against corrupted files (e.g. file filled with zeros/nulls)
+        if (data.trim().isEmpty || data.runes.every((r) => r == 0) || data.runes.every((r) => r == 48)) {
+          debugPrint('[SessionRegistry] Detected corrupted data (zeros or empty), ignoring.');
+          return [];
+        }
+
+        final List<dynamic> decoded = jsonDecode(data);
+        debugPrint('[SessionRegistry] Decoding ${decoded.length} accounts');
+        
+        final List<RegisteredAccount> accounts = [];
+        for (var i = 0; i < decoded.length; i++) {
+          try {
+            final item = decoded[i];
+            if (item is Map<String, dynamic>) {
+              accounts.add(RegisteredAccount.fromJson(item));
+            }
+          } catch (e) {
+            debugPrint('[SessionRegistry] ERROR parsing account at index $i: $e');
+            // We skip this one but keep others
+          }
+        }
+        
+        debugPrint('[SessionRegistry] Successfully loaded ${accounts.length} accounts');
+        return accounts;
+      } catch (e) {
+        debugPrint('[SessionRegistry] CRITICAL ERROR reading/parsing registry: $e');
         return [];
       }
-
-      debugPrint('[SessionRegistry] Raw data length: ${data.length}');
-      
-      // Guard against corrupted files (e.g. file filled with zeros/nulls)
-      if (data.isEmpty || data.runes.every((r) => r == 0) || data.runes.every((r) => r == 48)) {
-        debugPrint('[SessionRegistry] Detected corrupted data (zeros), ignoring.');
-        return [];
-      }
-
-      final List<dynamic> decoded = jsonDecode(data);
-      debugPrint('[SessionRegistry] Decoded ${decoded.length} accounts');
-      return decoded.map((item) => RegisteredAccount.fromJson(item)).toList();
-    } catch (e) {
-      debugPrint('[SessionRegistry] ERROR parsing registry: $e');
-      return [];
-    }
+    });
   }
 
   /// Add or update an account in the registry
   Future<void> saveAccount(RegisteredAccount account) async {
-    final accounts = await getAllAccounts();
-    final index = accounts.indexWhere((a) => a.userId == account.userId);
+    await _synchronized(() async {
+      final accounts = await _getAllAccountsNoLock();
+      final index = accounts.indexWhere((a) => a.userId == account.userId);
 
-    if (index >= 0) {
-      accounts[index] = account;
-    } else {
-      accounts.add(account);
-    }
+      if (index >= 0) {
+        accounts[index] = account;
+      } else {
+        accounts.add(account);
+      }
 
-    await _persist(accounts);
+      await _persist(accounts);
+    });
   }
 
   /// Remove an account from the registry
   Future<void> removeAccount(String userId) async {
-    final accounts = await getAllAccounts();
-    accounts.removeWhere((a) => a.userId == userId);
-    await _persist(accounts);
+    await _synchronized(() async {
+      final accounts = await _getAllAccountsNoLock();
+      accounts.removeWhere((a) => a.userId == userId);
+      await _persist(accounts);
+    });
   }
 
   /// Update just the last used timestamp for an account
   Future<void> markAsUsed(String userId) async {
-    final accounts = await getAllAccounts();
-    final index = accounts.indexWhere((a) => a.userId == userId);
-    if (index >= 0) {
-      accounts[index] = accounts[index].copyWith(lastUsed: DateTime.now());
-      await _persist(accounts);
-    }
+    await _synchronized(() async {
+      final accounts = await _getAllAccountsNoLock();
+      final index = accounts.indexWhere((a) => a.userId == userId);
+      if (index >= 0) {
+        accounts[index] = accounts[index].copyWith(lastUsed: DateTime.now());
+        await _persist(accounts);
+      }
+    });
   }
 
   /// Clear the entire registry
   Future<void> clearAll() async {
-    await _storage.delete(key: _registryKey);
+    await _synchronized(() async {
+      await _storage.delete(key: _registryKey);
+    });
+  }
+
+  Future<List<RegisteredAccount>> _getAllAccountsNoLock() async {
+    try {
+      final data = await _storage.read(key: _registryKey);
+      if (data == null) return [];
+      
+      if (data.isEmpty || data.runes.every((r) => r == 0) || data.runes.every((r) => r == 48)) {
+        return [];
+      }
+
+      final List<dynamic> decoded = jsonDecode(data);
+      return decoded.map((item) => RegisteredAccount.fromJson(item)).toList();
+    } catch (e) {
+      debugPrint('[SessionRegistry] ERROR in _getAllAccountsNoLock: $e');
+      return [];
+    }
   }
 
   Future<void> _persist(List<RegisteredAccount> accounts) async {

@@ -29,6 +29,8 @@ class AccountSwitcherSheet extends StatelessWidget {
     final currentUserId = authService.currentUser?.id;
     final accounts = authService.registeredAccounts;
 
+    debugPrint('[AccountSwitcherSheet] Building with ${accounts.length} accounts. Current User: $currentUserId');
+
     final sheetContent = Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
@@ -176,6 +178,7 @@ class AccountSwitcherSheet extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
+                authService.setAddingAccount(true);
                 authService.resetProviders(context);
                 context.push('/login?add_account=true');
               },
@@ -304,6 +307,7 @@ class AccountSwitcherSheet extends StatelessWidget {
         fluent.HoverButton(
           onPressed: () {
             Navigator.pop(context);
+            authService.setAddingAccount(true);
             authService.resetProviders(context);
             context.push('/login?add_account=true');
           },

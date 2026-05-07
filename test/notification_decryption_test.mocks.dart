@@ -224,14 +224,15 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
   _i6.Future<String?> decryptMessage(
     String? encryptedContentBase64,
     Map<String, dynamic>? encryptedKeys,
-    String? ivBase64,
-  ) =>
+    String? ivBase64, {
+    String? userId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#decryptMessage, [
-              encryptedContentBase64,
-              encryptedKeys,
-              ivBase64,
-            ]),
+            Invocation.method(
+              #decryptMessage,
+              [encryptedContentBase64, encryptedKeys, ivBase64],
+              {#userId: userId},
+            ),
             returnValue: _i6.Future<String?>.value(),
           )
           as _i6.Future<String?>);
@@ -240,12 +241,14 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
   _i6.Future<Map<String, dynamic>> encryptMediaFile({
     required _i9.File? file,
     required List<String>? recipientPublicKeysPem,
+    List<String>? recipientUserIds,
     String? recipientUserId,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#encryptMediaFile, [], {
               #file: file,
               #recipientPublicKeysPem: recipientPublicKeysPem,
+              #recipientUserIds: recipientUserIds,
               #recipientUserId: recipientUserId,
             }),
             returnValue: _i6.Future<Map<String, dynamic>>.value(
@@ -324,26 +327,33 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
           as bool);
 
   @override
-  _i6.Future<bool> init() =>
+  _i6.Future<bool> init({String? userId}) =>
       (super.noSuchMethod(
-            Invocation.method(#init, []),
+            Invocation.method(#init, [], {#userId: userId}),
             returnValue: _i6.Future<bool>.value(false),
           )
           as _i6.Future<bool>);
 
   @override
-  _i6.Future<void> clearData() =>
+  _i6.Future<void> clearData({String? userId}) =>
       (super.noSuchMethod(
-            Invocation.method(#clearData, []),
+            Invocation.method(#clearData, [], {#userId: userId}),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
 
   @override
-  _i6.Future<void> forceRefreshBundle(String? remoteUserId) =>
+  _i6.Future<void> forceRefreshBundle(
+    String? remoteUserId, {
+    String? localUserId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#forceRefreshBundle, [remoteUserId]),
+            Invocation.method(
+              #forceRefreshBundle,
+              [remoteUserId],
+              {#localUserId: localUserId},
+            ),
             returnValue: _i6.Future<void>.value(),
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
@@ -353,13 +363,14 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
   _i6.Future<_i4.CiphertextMessage> encryptMessage(
     String? recipientId,
     String? plaintext, {
+    String? localUserId,
     int? deviceId = 1,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #encryptMessage,
               [recipientId, plaintext],
-              {#deviceId: deviceId},
+              {#localUserId: localUserId, #deviceId: deviceId},
             ),
             returnValue: _i6.Future<_i4.CiphertextMessage>.value(
               _FakeCiphertextMessage_2(
@@ -367,7 +378,7 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
                 Invocation.method(
                   #encryptMessage,
                   [recipientId, plaintext],
-                  {#deviceId: deviceId},
+                  {#localUserId: localUserId, #deviceId: deviceId},
                 ),
               ),
             ),
@@ -379,6 +390,7 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
     String? senderId,
     String? base64Ciphertext,
     int? type, {
+    String? localUserId,
     int? deviceId = 1,
     bool? isHistorical = false,
   }) =>
@@ -386,7 +398,11 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
             Invocation.method(
               #decryptMessage,
               [senderId, base64Ciphertext, type],
-              {#deviceId: deviceId, #isHistorical: isHistorical},
+              {
+                #localUserId: localUserId,
+                #deviceId: deviceId,
+                #isHistorical: isHistorical,
+              },
             ),
             returnValue: _i6.Future<String>.value(
               _i11.dummyValue<String>(
@@ -394,7 +410,11 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
                 Invocation.method(
                   #decryptMessage,
                   [senderId, base64Ciphertext, type],
-                  {#deviceId: deviceId, #isHistorical: isHistorical},
+                  {
+                    #localUserId: localUserId,
+                    #deviceId: deviceId,
+                    #isHistorical: isHistorical,
+                  },
                 ),
               ),
             ),
@@ -439,6 +459,12 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
+
+  @override
+  void resetProviders(_i15.BuildContext? context) => super.noSuchMethod(
+    Invocation.method(#resetProviders, [context]),
+    returnValueForMissingStub: null,
+  );
 
   @override
   _i6.Future<void> removeAccount(_i15.BuildContext? context, String? userId) =>

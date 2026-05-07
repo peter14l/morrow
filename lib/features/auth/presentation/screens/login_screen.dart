@@ -5,6 +5,7 @@ import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dart';
 import 'package:oasis/widgets/app_button.dart';
 import 'package:oasis/core/config/app_config.dart';
+import 'package:oasis/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
@@ -308,7 +309,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: GestureDetector(
                           onTap: () async {
                             try {
-                              await authProvider.switchAccount(account.userId);
+                              final authService = context.read<AuthService>();
+                              await authService.switchAccount(context, account.userId);
                               if (mounted) {
                                 context.go('/feed');
                               }

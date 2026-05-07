@@ -226,12 +226,12 @@ return $default(_that.id,_that.username,_that.email,_that.displayName,_that.phot
 @JsonSerializable()
 
 class _AppUser extends AppUser {
-  const _AppUser({required this.id, required this.username, required this.email, this.displayName, this.photoUrl, this.bio, this.location, this.website, this.joinedDate, this.followersCount = 0, this.followingCount = 0, this.postsCount = 0, this.isVerified = false, this.isPrivate = false, this.bannerUrl, this.bannerColor, this.isPro = false, final  Map<String, dynamic>? userMetadata}): _userMetadata = userMetadata,super._();
+  const _AppUser({this.id = '', this.username = 'user', this.email = '', this.displayName, this.photoUrl, this.bio, this.location, this.website, this.joinedDate, this.followersCount = 0, this.followingCount = 0, this.postsCount = 0, this.isVerified = false, this.isPrivate = false, this.bannerUrl, this.bannerColor, this.isPro = false, final  Map<String, dynamic>? userMetadata}): _userMetadata = userMetadata,super._();
   factory _AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
 
-@override final  String id;
-@override final  String username;
-@override final  String email;
+@override@JsonKey() final  String id;
+@override@JsonKey() final  String username;
+@override@JsonKey() final  String email;
 @override final  String? displayName;
 @override final  String? photoUrl;
 @override final  String? bio;

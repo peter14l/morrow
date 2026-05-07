@@ -1051,26 +1051,33 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
           as bool);
 
   @override
-  _i12.Future<bool> init() =>
+  _i12.Future<bool> init({String? userId}) =>
       (super.noSuchMethod(
-            Invocation.method(#init, []),
+            Invocation.method(#init, [], {#userId: userId}),
             returnValue: _i12.Future<bool>.value(false),
           )
           as _i12.Future<bool>);
 
   @override
-  _i12.Future<void> clearData() =>
+  _i12.Future<void> clearData({String? userId}) =>
       (super.noSuchMethod(
-            Invocation.method(#clearData, []),
+            Invocation.method(#clearData, [], {#userId: userId}),
             returnValue: _i12.Future<void>.value(),
             returnValueForMissingStub: _i12.Future<void>.value(),
           )
           as _i12.Future<void>);
 
   @override
-  _i12.Future<void> forceRefreshBundle(String? remoteUserId) =>
+  _i12.Future<void> forceRefreshBundle(
+    String? remoteUserId, {
+    String? localUserId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#forceRefreshBundle, [remoteUserId]),
+            Invocation.method(
+              #forceRefreshBundle,
+              [remoteUserId],
+              {#localUserId: localUserId},
+            ),
             returnValue: _i12.Future<void>.value(),
             returnValueForMissingStub: _i12.Future<void>.value(),
           )
@@ -1080,13 +1087,14 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
   _i12.Future<_i10.CiphertextMessage> encryptMessage(
     String? recipientId,
     String? plaintext, {
+    String? localUserId,
     int? deviceId = 1,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
               #encryptMessage,
               [recipientId, plaintext],
-              {#deviceId: deviceId},
+              {#localUserId: localUserId, #deviceId: deviceId},
             ),
             returnValue: _i12.Future<_i10.CiphertextMessage>.value(
               _FakeCiphertextMessage_16(
@@ -1094,7 +1102,7 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
                 Invocation.method(
                   #encryptMessage,
                   [recipientId, plaintext],
-                  {#deviceId: deviceId},
+                  {#localUserId: localUserId, #deviceId: deviceId},
                 ),
               ),
             ),
@@ -1106,6 +1114,7 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
     String? senderId,
     String? base64Ciphertext,
     int? type, {
+    String? localUserId,
     int? deviceId = 1,
     bool? isHistorical = false,
   }) =>
@@ -1113,7 +1122,11 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
             Invocation.method(
               #decryptMessage,
               [senderId, base64Ciphertext, type],
-              {#deviceId: deviceId, #isHistorical: isHistorical},
+              {
+                #localUserId: localUserId,
+                #deviceId: deviceId,
+                #isHistorical: isHistorical,
+              },
             ),
             returnValue: _i12.Future<String>.value(
               _i13.dummyValue<String>(
@@ -1121,7 +1134,11 @@ class MockSignalService extends _i1.Mock implements _i21.SignalService {
                 Invocation.method(
                   #decryptMessage,
                   [senderId, base64Ciphertext, type],
-                  {#deviceId: deviceId, #isHistorical: isHistorical},
+                  {
+                    #localUserId: localUserId,
+                    #deviceId: deviceId,
+                    #isHistorical: isHistorical,
+                  },
                 ),
               ),
             ),

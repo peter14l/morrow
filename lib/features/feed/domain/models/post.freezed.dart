@@ -234,12 +234,12 @@ return $default(_that.id,_that.userId,_that.username,_that.userAvatar,_that.cont
 @JsonSerializable()
 
 class _Post extends Post {
-  const _Post({required this.id, @JsonKey(name: 'userId') required this.userId, required this.username, @JsonKey(name: 'userAvatar') required this.userAvatar, this.content, @JsonKey(name: 'image_url') this.imageUrl, @JsonKey(name: 'thumbnail_url') this.thumbnailUrl, @JsonKey(name: 'dominant_color') this.dominantColor, @JsonKey(name: 'media_urls') final  List<String> mediaUrls = const [], @JsonKey(name: 'media_types') final  List<String> mediaTypes = const [], final  List<String> hashtags = const [], @JsonKey(name: 'is_spoiler') this.isSpoiler = false, @JsonKey(name: 'community_id') this.communityId, @JsonKey(name: 'community_name') this.communityName, @JsonKey(name: 'circle_id') this.circleId, required this.timestamp, this.likes = 0, this.comments = 0, this.shares = 0, @JsonKey(name: 'isLiked') this.isLiked = false, @JsonKey(name: 'isBookmarked') this.isBookmarked = false, @JsonKey(name: 'isAd') this.isAd = false, @JsonKey(name: 'isVerified') this.isVerified = false, @JsonKey(name: 'storage_provider') this.storageProvider, this.mood, this.poll}): _mediaUrls = mediaUrls,_mediaTypes = mediaTypes,_hashtags = hashtags,super._();
+  const _Post({this.id = '', @JsonKey(name: 'userId') this.userId = '', this.username = 'user', @JsonKey(name: 'userAvatar') this.userAvatar = '', this.content, @JsonKey(name: 'image_url') this.imageUrl, @JsonKey(name: 'thumbnail_url') this.thumbnailUrl, @JsonKey(name: 'dominant_color') this.dominantColor, @JsonKey(name: 'media_urls') final  List<String> mediaUrls = const [], @JsonKey(name: 'media_types') final  List<String> mediaTypes = const [], final  List<String> hashtags = const [], @JsonKey(name: 'is_spoiler') this.isSpoiler = false, @JsonKey(name: 'community_id') this.communityId, @JsonKey(name: 'community_name') this.communityName, @JsonKey(name: 'circle_id') this.circleId, required this.timestamp, this.likes = 0, this.comments = 0, this.shares = 0, @JsonKey(name: 'isLiked') this.isLiked = false, @JsonKey(name: 'isBookmarked') this.isBookmarked = false, @JsonKey(name: 'isAd') this.isAd = false, @JsonKey(name: 'isVerified') this.isVerified = false, @JsonKey(name: 'storage_provider') this.storageProvider, this.mood, this.poll}): _mediaUrls = mediaUrls,_mediaTypes = mediaTypes,_hashtags = hashtags,super._();
   factory _Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
 
-@override final  String id;
+@override@JsonKey() final  String id;
 @override@JsonKey(name: 'userId') final  String userId;
-@override final  String username;
+@override@JsonKey() final  String username;
 @override@JsonKey(name: 'userAvatar') final  String userAvatar;
 @override final  String? content;
 @override@JsonKey(name: 'image_url') final  String? imageUrl;

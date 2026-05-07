@@ -7,13 +7,13 @@ part of 'comment.dart';
 // **************************************************************************
 
 _Comment _$CommentFromJson(Map<String, dynamic> json) => _Comment(
-  id: json['id'] as String,
-  postId: json['post_id'] as String,
-  userId: json['user_id'] as String,
+  id: json['id'] as String? ?? '',
+  postId: json['post_id'] as String? ?? '',
+  userId: json['user_id'] as String? ?? '',
   parentCommentId: json['parent_comment_id'] as String?,
-  username: json['username'] as String,
-  userAvatar: json['user_avatar'] as String,
-  content: json['content'] as String,
+  username: json['username'] as String? ?? 'user',
+  userAvatar: json['user_avatar'] as String? ?? '',
+  content: json['content'] as String? ?? '',
   likes: (json['likes_count'] as num?)?.toInt() ?? 0,
   repliesCount: (json['replies_count'] as num?)?.toInt() ?? 0,
   isLiked: json['is_liked'] as bool? ?? false,
