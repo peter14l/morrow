@@ -331,18 +331,14 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
               color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               child: Stack(
                 children: [
-                  Image.network(
-                    media.thumbnailUrl,
+                  CachedNetworkImage(
+                    imageUrl: media.thumbnailUrl,
                     fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return AspectRatio(
+                    placeholder: (context, url) {
+                      return const AspectRatio(
                         aspectRatio: 1.0,
                         child: Center(
                           child: CircularProgressIndicator(
-                            value: progress.expectedTotalBytes != null
-                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-                                : null,
                             strokeWidth: 2,
                           ),
                         ),

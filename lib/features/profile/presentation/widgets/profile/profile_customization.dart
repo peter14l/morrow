@@ -189,10 +189,10 @@ class _AnimatedProfileBannerState extends State<AnimatedProfileBanner>
         children: [
           // Background image
           if (widget.imageUrl != null)
-            Image.network(
-              widget.imageUrl!,
+            CachedNetworkImage(
+              imageUrl: widget.imageUrl!,
               fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => _buildDefaultBanner(),
+              errorWidget: (_, __, ___) => _buildDefaultBanner(),
             )
           else
             _buildDefaultBanner(),

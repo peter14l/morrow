@@ -1035,8 +1035,8 @@ class _RipplesScreenState extends State<RipplesScreen>
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
-            child: Image.network(
-              ripples[index]['thumbnail_url'] ?? '',
+            child: CachedNetworkImage(
+              imageUrl: ripples[index]['thumbnail_url'] ?? '',
               fit: BoxFit.cover,
             ),
           ),
@@ -1504,6 +1504,17 @@ class _ComingUpItemState extends State<_ComingUpItem> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+),
+    );
+  }
+}
+
+,
       ),
     );
   }

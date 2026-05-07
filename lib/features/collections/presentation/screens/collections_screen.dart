@@ -195,7 +195,7 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                                 .take(4)
                                 .map(
                                   (url) =>
-                                      Image.network(url, fit: BoxFit.cover),
+                                      CachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
                                 )
                                 .toList(),
                       )
@@ -246,6 +246,13 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
           ],
         ),
       ),

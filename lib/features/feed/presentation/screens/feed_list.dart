@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class FeedList extends StatelessWidget {
   final String type;
@@ -124,8 +125,8 @@ class PostCard extends StatelessWidget {
 
           // Post image
           if (post['postImage'] != null)
-            Image.network(
-              post['postImage'],
+            CachedNetworkImage(
+              imageUrl: post['postImage'],
               height: 200,
               width: double.infinity,
               fit: BoxFit.cover,
@@ -184,6 +185,11 @@ class PostCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         minimumSize: Size.zero,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+    );
+  }
+}
+pTargetSize.shrinkWrap,
       ),
     );
   }
