@@ -44,7 +44,8 @@ class OasisMessagingService : FirebaseMessagingService() {
         } else {
             showNotification(
                 data["title"] ?: "New Notification",
-                data["body"] ?: ""
+                data["body"] ?: "",
+                data
             )
         }
     }
@@ -129,7 +130,7 @@ class OasisMessagingService : FirebaseMessagingService() {
             statePtr = PqAuraNative.loadAtomic(sessionFile.absolutePath, encryptionKey)
             if (statePtr == 0L) {
                 Log.e(TAG, "Failed to load ratchet state")
-                showNotification(data["title"] ?: "New Message", "🔒 Encrypted message")
+                showNotification(data["title"] ?: "New Message", "🔒 Encrypted message", data)
                 return
             }
 
@@ -146,15 +147,16 @@ class OasisMessagingService : FirebaseMessagingService() {
                 
                 showNotification(
                     data["title"] ?: "New Message",
-                    String(plaintext, StandardCharsets.UTF_8)
+                    String(plaintext, StandardCharsets.UTF_8),
+                    data
                 )
             } else {
-                showNotification(data["title"] ?: "New Message", "🔒 Decryption failed")
+                showNotification(data["title"] ?: "New Message", "🔒 Decryption failed", data)
             }
 
         } catch (e: Exception) {
             Log.e(TAG, "Native decryption error", e)
-            showNotification(data["title"] ?: "New Message", "🔒 Encrypted message")
+            showNotification(data["title"] ?: "New Message", "🔒 Encrypted message", data)
         } finally {
             if (statePtr != 0L) {
                 PqAuraNative.freeState(statePtr)
@@ -162,7 +164,7 @@ class OasisMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(title: String, body: String) {
+    private fun showNotification(title: String, body: String, data: Map<String, String>) {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
