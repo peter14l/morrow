@@ -22,6 +22,7 @@ import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/features/wellness/presentation/widgets/session_dial.dart';
 import 'package:oasis/services/screen_time_service.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/features/ripples/domain/models/ripple_entity.dart';
 
 class ProfileScreen extends StatefulWidget {
   final String? userId;
