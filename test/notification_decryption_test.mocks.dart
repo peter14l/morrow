@@ -452,6 +452,12 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as bool);
 
   @override
+  void setAddingAccount(bool? value) => super.noSuchMethod(
+    Invocation.method(#setAddingAccount, [value]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
   _i6.Future<void> switchAccount(_i15.BuildContext? context, String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#switchAccount, [context, userId]),

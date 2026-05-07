@@ -43,6 +43,7 @@ import 'package:oasis/features/messages/presentation/widgets/modals/message_opti
 import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart';
 import 'package:giphy_get/giphy_get.dart';
 import 'package:oasis/features/messages/core/chat_api_config.dart';
+import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
