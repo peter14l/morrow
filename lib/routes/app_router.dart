@@ -1178,9 +1178,10 @@ class AppRouter {
             GoRoute(
               path: '/search',
               name: 'search',
+              parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const NoTransitionPage(child: SearchScreen()),
+                      const MaterialPage(child: SearchScreen()),
             ),
 
             // Communities Screen
@@ -1328,18 +1329,20 @@ class AppRouter {
             GoRoute(
               path: '/notifications',
               name: 'notifications',
+              parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const NoTransitionPage(child: NotificationsScreen()),
+                      const MaterialPage(child: NotificationsScreen()),
             ),
 
             // Profile Screen
             GoRoute(
               path: '/profile',
               name: 'profile',
+              parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const NoTransitionPage(child: ProfileScreen()),
+                      const MaterialPage(child: ProfileScreen()),
             ),
           ],
         ),

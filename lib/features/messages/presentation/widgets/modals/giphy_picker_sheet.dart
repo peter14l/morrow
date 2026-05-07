@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:giphy_get/giphy_get.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:oasis/features/messages/data/services/giphy_service.dart';
 import 'package:oasis/features/messages/data/services/klipy_service.dart';
 import 'package:oasis/features/messages/core/chat_api_config.dart';
+import 'package:oasis/core/utils/responsive_layout.dart';
+import 'package:oasis/core/utils/haptic_utils.dart';
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 class GiphyPickerSheet extends StatefulWidget {
   final Function(String url, bool isSticker) onSelected;
@@ -12,357 +17,390 @@ class GiphyPickerSheet extends StatefulWidget {
   State<GiphyPickerSheet> createState() => _GiphyPickerSheetState();
 }
 
-class _GiphyPickerSheetState extends State<GiphyPickerSheet>
-    with SingleTickerProviderStateMixin {
-  late TabController? _tabController;
+class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
+  final GiphyService _giphyService = GiphyService();
   final KlipyService _klipyService = KlipyService();
   final TextEditingController _searchController = TextEditingController();
-  List<KlipyMedia> _klipyResults = [];
-  bool _isLoadingKlipy = false;
-  String? _klipyError; // Error message to display
+  final ScrollController _scrollController = ScrollController();
 
-  bool get _hasGiphy => ChatApiConfig.giphyApiKey.isNotEmpty;
-  bool get _hasKlipy => ChatApiConfig.klipyApiKey.isNotEmpty;
-
-  int get _tabCount {
-    int count = 0;
-    if (_hasGiphy) count++;
-    if (_hasKlipy) count++;
-    return count;
-  }
+  bool _isStickers = false;
+  String _selectedCategory = 'Trending';
+  List<GiphyMedia> _results = [];
+  List<String> _categories = [];
+  bool _isLoading = false;
+  String? _error;
+  
+  Timer? _searchDebounce;
 
   @override
   void initState() {
     super.initState();
-    final count = _tabCount;
-    if (count > 1) {
-      _tabController = TabController(length: count, vsync: this);
-    } else {
-      _tabController = null;
-    }
-
-    if (_hasKlipy) {
-      _loadTrendingKlipy();
-    }
+    _loadInitialData();
   }
 
   @override
   void dispose() {
-    _tabController?.dispose();
+    _searchDebounce?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
-  Future<void> _loadTrendingKlipy() async {
-    if (ChatApiConfig.klipyApiKey.isEmpty) return;
+  Future<void> _loadInitialData() async {
+    setState(() => _isLoading = true);
+    
+    // Load categories
+    final catResult = await _giphyService.getCategories(isSticker: _isStickers);
+    if (catResult.isSuccess) {
+      _categories = catResult.data ?? [];
+    }
 
-    setState(() {
-      _isLoadingKlipy = true;
-      _klipyError = null;
-    });
-
-    final result = await _klipyService.getTrending();
-    setState(() {
-      if (result.isSuccess) {
-        _klipyResults = result.data ?? [];
-        _klipyError = null;
-      } else {
-        _klipyResults = [];
-        _klipyError = result.error;
-      }
-      _isLoadingKlipy = false;
-    });
+    // Load trending or search results
+    await _fetchData();
   }
 
-  Future<void> _searchKlipy(String query) async {
-    if (ChatApiConfig.klipyApiKey.isEmpty) return;
-    if (query.isEmpty) {
-      _loadTrendingKlipy();
-      return;
-    }
+  Future<void> _fetchData() async {
+    if (!mounted) return;
     setState(() {
-      _isLoadingKlipy = true;
-      _klipyError = null;
+      _isLoading = true;
+      _error = null;
     });
 
-    final result = await _klipyService.search(query);
+    final query = _searchController.text.trim();
+    GiphyResult<List<GiphyMedia>> result;
+
+    if (query.isNotEmpty) {
+      result = await _giphyService.search(query, isSticker: _isStickers);
+    } else if (_selectedCategory != 'Trending') {
+      result = await _giphyService.search(_selectedCategory, isSticker: _isStickers);
+    } else {
+      result = await _giphyService.getTrending(isSticker: _isStickers);
+    }
+
     if (!mounted) return;
     setState(() {
       if (result.isSuccess) {
-        _klipyResults = result.data ?? [];
-        _klipyError = null;
+        _results = result.data ?? [];
       } else {
-        _klipyResults = [];
-        _klipyError = result.error;
+        _error = result.error;
       }
-      _isLoadingKlipy = false;
+      _isLoading = false;
     });
+  }
+
+  void _onSearchChanged(String query) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      _fetchData();
+    });
+  }
+
+  void _toggleType(bool isStickers) {
+    if (_isStickers == isStickers) return;
+    HapticUtils.lightImpact();
+    setState(() {
+      _isStickers = isStickers;
+      _results = [];
+    });
+    _fetchData();
+  }
+
+  void _selectCategory(String category) {
+    if (_selectedCategory == category) return;
+    HapticUtils.selectionClick();
+    setState(() {
+      _selectedCategory = category;
+      _searchController.clear();
+      _results = [];
+    });
+    _fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final count = _tabCount;
+    final colorScheme = theme.colorScheme;
+    final isDesktop = ResponsiveLayout.isDesktop(context);
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.7,
+      height: MediaQuery.of(context).size.height * (isDesktop ? 0.8 : 0.75),
+      constraints: const BoxConstraints(maxWidth: 800),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        color: theme.brightness == Brightness.dark 
+            ? colorScheme.surface.withValues(alpha: 0.8)
+            : colorScheme.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
         children: [
-          if (count > 1)
-            TabBar(
-              controller: _tabController,
-              tabs: const [Tab(text: 'Giphy'), Tab(text: 'Klipy')],
+          // Drag Handle
+          const SizedBox(height: 12),
+          Container(
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: colorScheme.onSurface.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(2),
             ),
-          Expanded(child: _buildBody(count)),
+          ),
+          
+          // Header & Toggle
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Row(
+              children: [
+                Text(
+                  _isStickers ? 'Stickers' : 'GIFs',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                const Spacer(),
+                _buildToggle(),
+              ],
+            ),
+          ),
+
+          // Thin Minimal Search Bar
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(22),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                ),
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _onSearchChanged,
+                style: const TextStyle(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Search Giphy...',
+                  hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+                  prefixIcon: Icon(FluentIcons.search_20_regular, size: 18, color: colorScheme.onSurfaceVariant),
+                  suffixIcon: _searchController.text.isNotEmpty 
+                      ? IconButton(
+                          icon: const Icon(Icons.close_rounded, size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            _fetchData();
+                          },
+                        ) 
+                      : null,
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 11),
+                ),
+              ),
+            ),
+          ),
+
+          // Category Chips
+          const SizedBox(height: 8),
+          _buildCategoryChips(),
+
+          // Results Grid
+          Expanded(
+            child: _buildResults(),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildBody(int count) {
-    if (count == 0) {
-      return _buildUnavailableMessage();
-    }
+  Widget _buildToggle() {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
-    if (count == 1) {
-      return _hasGiphy ? _buildGiphyTab() : _buildKlipyTab();
-    }
-
-    return TabBarView(
-      controller: _tabController,
-      children: [_buildGiphyTab(), _buildKlipyTab()],
+    return Container(
+      height: 36,
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ToggleItem(
+            label: 'GIFs',
+            isSelected: !_isStickers,
+            onTap: () => _toggleType(false),
+          ),
+          _ToggleItem(
+            label: 'Stickers',
+            isSelected: _isStickers,
+            onTap: () => _toggleType(true),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildUnavailableMessage() {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
+  Widget _buildCategoryChips() {
+    return SizedBox(
+      height: 40,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _categories.length,
+        itemBuilder: (context, index) {
+          final category = _categories[index];
+          final isSelected = _selectedCategory == category;
+          
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: ChoiceChip(
+              label: Text(category),
+              selected: isSelected,
+              onSelected: (_) => _selectCategory(category),
+              showCheckmark: false,
+              labelStyle: TextStyle(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                color: isSelected ? Colors.white : null,
+              ),
+              selectedColor: Theme.of(context).colorScheme.primary,
+              backgroundColor: Colors.transparent,
+              side: BorderSide(
+                color: isSelected 
+                    ? Colors.transparent 
+                    : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildResults() {
+    if (_isLoading && _results.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.vpn_key_off_outlined,
-              size: 48,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
             const SizedBox(height: 16),
-            Text('Services Unavailable', style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(
-              'Please configure Giphy or Klipy API keys in your .env file to enable GIF and Sticker features.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            Text(_error!),
+            TextButton(onPressed: _fetchData, child: const Text('Retry')),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  Widget _buildGiphyTab() {
-    final theme = Theme.of(context);
-    final apiKey = ChatApiConfig.giphyApiKey;
-
-    if (apiKey.isEmpty) {
+    if (_results.isEmpty) {
       return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.vpn_key_off_outlined,
-                size: 48,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Giphy Service Unavailable',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Please configure your Giphy API key in the .env file to enable this feature.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(FluentIcons.emoji_sad_24_regular, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+            const SizedBox(height: 16),
+            const Text('No results found'),
+          ],
         ),
       );
     }
 
-    return Center(
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.search),
-        onPressed: () async {
-          try {
-            GiphyGif? gif = await GiphyGet.getGif(
-              context: context,
-              apiKey: apiKey,
-              lang: GiphyLanguage.english,
-            );
-            if (gif != null && gif.images?.original?.url != null) {
-              widget.onSelected(
-                gif.images!.original!.url!,
-                gif.type == 'sticker',
-              );
-            }
-          } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text('Giphy error: $e')));
-            }
-          }
-        },
-        label: const Text('Search Giphy'),
-      ),
-    );
-  }
-
-  Widget _buildKlipyTab() {
-    final theme = Theme.of(context);
-    final apiKey = ChatApiConfig.klipyApiKey;
-
-    if (apiKey.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.vpn_key_off_outlined,
-                size: 48,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Klipy Service Unavailable',
-                style: theme.textTheme.titleMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Please configure your Klipy API key in the .env file to enable this feature.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search Klipy...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: IconButton(
-                icon: const Icon(Icons.clear),
-                onPressed: () {
-                  _searchController.clear();
-                  _loadTrendingKlipy();
-                },
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onSubmitted: _searchKlipy,
-          ),
-        ),
-        Expanded(
-          child:
-              _isLoadingKlipy
-                  ? const Center(child: CircularProgressIndicator())
-                  : _klipyError != null
-                  ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 48,
-                            color: theme.colorScheme.error,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Klipy Error',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.error,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _klipyError!,
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodySmall,
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadTrendingKlipy,
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  : _klipyResults.isEmpty
-                  ? Center(
-                    child: Text(
-                      'No results found',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  )
-                  : GridView.builder(
-                    padding: const EdgeInsets.all(8),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                        ),
-                    itemCount: _klipyResults.length,
-                    itemBuilder: (context, index) {
-                      final media = _klipyResults[index];
-                      return GestureDetector(
-                        onTap: () => widget.onSelected(media.url, false),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            media.thumbnailUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder:
-                                (context, error, stackTrace) => const Center(
-                                  child: Icon(Icons.broken_image),
-                                ),
+    return MasonryGridView.count(
+      controller: _scrollController,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      crossAxisCount: ResponsiveLayout.isDesktop(context) ? 4 : 2,
+      mainAxisSpacing: 12,
+      crossAxisSpacing: 12,
+      itemCount: _results.length,
+      itemBuilder: (context, index) {
+        final media = _results[index];
+        return GestureDetector(
+          onTap: () {
+            HapticUtils.lightImpact();
+            widget.onSelected(media.url, _isStickers);
+            Navigator.pop(context);
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              child: Stack(
+                children: [
+                  Image.network(
+                    media.thumbnailUrl,
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return AspectRatio(
+                        aspectRatio: 1.0,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            value: progress.expectedTotalBytes != null
+                                ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
+                                : null,
+                            strokeWidth: 2,
                           ),
                         ),
                       );
                     },
                   ),
-        ),
-      ],
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
+
+class _ToggleItem extends StatelessWidget {
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _ToggleItem({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? colorScheme.primary : Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: isSelected ? [
+            BoxShadow(
+              color: colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            )
+          ] : null,
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : colorScheme.onSurfaceVariant,
+            fontSize: 13,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
