@@ -33,6 +33,7 @@ import 'package:oasis/features/feed/presentation/widgets/layouts/living_canvas_l
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 
 import 'package:oasis/widgets/glassmorphic_fab.dart';
+import 'package:oasis/widgets/morphing_liquid_fab.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
@@ -486,10 +487,39 @@ class _FeedScreenState extends State<FeedScreen>
                 ),
               ),
             ),
-          const LockoutOverlay(pageName: 'Feed'),
+const LockoutOverlay(pageName: 'Feed'),
           if (_showWellbeingNudge) _buildWellbeingNudge(),
+          // Liquid FAB Cluster - spills out into 3 action FABs
+          Positioned(
+            right: isDesktop ? 24 : 16,
+            bottom: isDesktop ? 24 : 16 + MediaQuery.of(context).padding.bottom,
+            child: LiquidFABCluster(
+              options: [
+                LiquidFABOption(
+                  icon: Icons.calendar_month_rounded,
+                  label: 'Time Capsule',
+                  color: theme.colorScheme.tertiary,
+                  onTap: () => context.push('/create-capsule'),
+                ),
+                LiquidFABOption(
+                  icon: Icons.edit_rounded,
+                  label: 'Post',
+                  color: colorScheme.primary,
+                  onTap: () => context.push('/create-post'),
+                ),
+                LiquidFABOption(
+                  icon: Icons.waves_rounded,
+                  label: 'Ripple',
+                  color: colorScheme.secondary,
+                  onTap: () => _handleRipplesTap(context),
+                ),
+              ],
+              mainFABSize: 56,
+              childFABSize: 48,
+              mainGlowColor: colorScheme.primary,
+            ),
+          ),
         ],
-      ),
       ),
     );
   }
