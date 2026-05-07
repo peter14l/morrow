@@ -176,6 +176,7 @@ class AccountSwitcherSheet extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.pop(context);
+                authService.resetProviders(context);
                 context.push('/login?add_account=true');
               },
             ),
@@ -303,6 +304,7 @@ class AccountSwitcherSheet extends StatelessWidget {
         fluent.HoverButton(
           onPressed: () {
             Navigator.pop(context);
+            authService.resetProviders(context);
             context.push('/login?add_account=true');
           },
           builder: (context, states) {

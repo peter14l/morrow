@@ -36,6 +36,7 @@ class AuthService with ChangeNotifier {
 
   StreamSubscription<AuthState>? _authStateSubscription;
   bool _isSwitchingAccount = false;
+  String? _lastUserId;
 
   List<RegisteredAccount> get registeredAccounts => _accountRegistry.registeredAccounts;
 
@@ -56,12 +57,14 @@ class AuthService with ChangeNotifier {
       final Session? session = data.session;
       
       if (session != null) {
+        _lastUserId = session.user.id;
         _accountRegistry.syncCurrentSessionToRegistry(session);
         // Sync RevenueCat
         if (RevenueCatService().isInitialized) {
           RevenueCatService().identify(session.user.id);
         }
       } else {
+        _lastUserId = null;
         // Log out of RevenueCat if no session
         if (RevenueCatService().isInitialized) {
           RevenueCatService().logout();
@@ -86,7 +89,7 @@ class AuthService with ChangeNotifier {
 
     try {
       _isSwitchingAccount = true;
-      _resetAllProviders(context);
+      resetProviders(context);
       
       // CRITICAL: Reset encryption services before switching session
       EncryptionService().reset();
@@ -112,13 +115,18 @@ class AuthService with ChangeNotifier {
     }
   }
 
-  void _resetAllProviders(BuildContext context) {
+  void resetProviders(BuildContext context) {
     context.read<ConversationProvider>().clear();
     context.read<ProfileProvider>().clear();
     context.read<CircleProvider>().clear();
     context.read<CanvasProvider>().clear();
     context.read<NotificationProvider>().clear();
     context.read<CommunityProvider>().clear();
+    
+    // Also reset feed if available
+    try {
+      context.read<FeedProvider>().clear();
+    } catch (_) {}
   }
 
   /// Remove an account from the registry (Logout specific account)

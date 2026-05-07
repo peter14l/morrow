@@ -56,6 +56,17 @@ class AuthRemoteDatasource {
       debugPrint(
         '[AuthRemoteDatasource] Starting sign in with resolved email: $email',
       );
+
+      // CRITICAL FIX: If we are already logged in (adding an account),
+      // we MUST sign out locally before signing in with a new user.
+      // This ensures Supabase client starts from a clean state.
+      if (_supabase.auth.currentSession != null) {
+        debugPrint(
+          '[AuthRemoteDatasource] Existing session found. Signing out locally first.',
+        );
+        await _supabase.auth.signOut(scope: SignOutScope.local);
+      }
+
       final response = await _supabase.auth.signInWithPassword(
         email: email,
         password: credentials.password,
@@ -89,6 +100,15 @@ class AuthRemoteDatasource {
     String? fullName,
   }) async {
     try {
+      // CRITICAL FIX: If we are already logged in (adding an account),
+      // we MUST sign out locally before signing up a new user.
+      if (_supabase.auth.currentSession != null) {
+        debugPrint(
+          '[AuthRemoteDatasource] Existing session found. Signing out locally first.',
+        );
+        await _supabase.auth.signOut(scope: SignOutScope.local);
+      }
+
       final response = await _supabase.auth.signUp(
         email: email,
         password: password,
@@ -145,6 +165,15 @@ class AuthRemoteDatasource {
         throw Exception('No ID token returned from Google');
       }
 
+      // CRITICAL FIX: If we are already logged in (adding an account),
+      // we MUST sign out locally before signing in with a new user.
+      if (_supabase.auth.currentSession != null) {
+        debugPrint(
+          '[AuthRemoteDatasource] Existing session found. Signing out locally first.',
+        );
+        await _supabase.auth.signOut(scope: SignOutScope.local);
+      }
+
       await _supabase.auth.signInWithIdToken(
         provider: OAuthProvider.google,
         idToken: idToken,
@@ -161,6 +190,15 @@ class AuthRemoteDatasource {
 
   Future<void> signInWithApple() async {
     try {
+      // CRITICAL FIX: If we are already logged in (adding an account),
+      // we MUST sign out locally before signing in with a new user.
+      if (_supabase.auth.currentSession != null) {
+        debugPrint(
+          '[AuthRemoteDatasource] Existing session found. Signing out locally first.',
+        );
+        await _supabase.auth.signOut(scope: SignOutScope.local);
+      }
+
       await _supabase.auth.signInWithOAuth(OAuthProvider.apple);
     } on AuthException catch (e) {
       debugPrint('[AuthRemoteDatasource] Apple sign in error: ${e.message}');

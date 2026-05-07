@@ -11,6 +11,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource _remoteDatasource;
   final SessionLocalDatasource _localDatasource;
   final NotificationService _notificationService = NotificationService();
+  final EncryptionProvisioner _encryptionProvisioner = EncryptionProvisioner();
 
   AuthRepositoryImpl({
     AuthRemoteDatasource? remoteDatasource,
@@ -28,6 +29,9 @@ class AuthRepositoryImpl implements AuthRepository {
     
     // Update FCM token
     _notificationService.updateFcmToken(account.userId);
+    
+    // Provision encryption keys
+    await _encryptionProvisioner.provisionEncryptionKeys();
     
     debugPrint('[AuthRepositoryImpl] Account saved locally');
     return account;
@@ -52,6 +56,9 @@ class AuthRepositoryImpl implements AuthRepository {
     // Update FCM token
     _notificationService.updateFcmToken(account.userId);
     
+    // Provision encryption keys
+    await _encryptionProvisioner.provisionEncryptionKeys();
+    
     return account;
   }
 
@@ -61,6 +68,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
       _notificationService.updateFcmToken(user.id);
+      await _encryptionProvisioner.provisionEncryptionKeys();
     }
   }
 
@@ -70,6 +78,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = Supabase.instance.client.auth.currentUser;
     if (user != null) {
       _notificationService.updateFcmToken(user.id);
+      await _encryptionProvisioner.provisionEncryptionKeys();
     }
   }
 

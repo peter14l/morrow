@@ -39,6 +39,15 @@ class AuthProvidersDelegate {
     String email,
     String password,
   ) async {
+    // CRITICAL FIX: If we are already logged in (adding an account),
+    // we MUST sign out locally before signing in with a new user.
+    if (_supabase.auth.currentSession != null) {
+      debugPrint(
+        '[AuthProvidersDelegate] Existing session found. Signing out locally first.',
+      );
+      await _supabase.auth.signOut(scope: SignOutScope.local);
+    }
+
     return await _supabase.auth.signInWithPassword(
       email: email,
       password: password,
