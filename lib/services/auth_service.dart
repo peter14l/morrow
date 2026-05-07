@@ -22,6 +22,7 @@ import 'package:oasis/features/circles/presentation/providers/circle_provider.da
 import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:oasis/providers/community_provider.dart';
+import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/services/revenuecat_service.dart';
 
 class AuthService with ChangeNotifier {

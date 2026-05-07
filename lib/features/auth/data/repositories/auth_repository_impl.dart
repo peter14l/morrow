@@ -6,6 +6,7 @@ import 'package:oasis/features/auth/data/datasources/auth_remote_datasource.dart
 import 'package:oasis/features/auth/data/datasources/session_local_datasource.dart';
 import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/notification_service.dart';
+import 'package:oasis/services/auth/encryption_provisioner.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource _remoteDatasource;
