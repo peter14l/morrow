@@ -216,8 +216,9 @@ class AuthProvider with ChangeNotifier {
           currentAccount: account,
           isAuthenticated: true,
         );
-        await _loadAccounts();
       }
+      // Always load registered accounts from the registry
+      await _loadAccounts();
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
       debugPrint('[AuthProvider] Restore session error: $e');

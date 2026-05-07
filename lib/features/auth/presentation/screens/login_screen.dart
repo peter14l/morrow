@@ -271,6 +271,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final authProvider = context.watch<AuthProvider>();
+    final accounts = authProvider.registeredAccounts;
     
     return AuthLayoutWrapper(
       wrapInScroll: true,
@@ -283,6 +285,79 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (accounts.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                Text(
+                  'Your Accounts',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white70,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 100,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: accounts.length,
+                    itemBuilder: (context, index) {
+                      final account = accounts[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: GestureDetector(
+                          onTap: () async {
+                            try {
+                              await authProvider.switchAccount(account.userId);
+                              if (mounted) {
+                                context.go('/feed');
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Failed to switch: $e')),
+                                );
+                              }
+                            }
+                          },
+                          child: Column(
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage: (account.avatarUrl ?? '').isNotEmpty
+                                    ? NetworkImage(account.avatarUrl!)
+                                    : null,
+                                child: (account.avatarUrl ?? '').isEmpty
+                                    ? Text(account.username[0].toUpperCase())
+                                    : null,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                account.username,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Row(
+                  children: [
+                    Expanded(child: Divider(color: Colors.white24)),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16),
+                      child: Text('OR', style: TextStyle(color: Colors.white24, fontSize: 10)),
+                    ),
+                    Expanded(child: Divider(color: Colors.white24)),
+                  ],
+                ),
+              ],
               const SizedBox(height: 16.0),
               Text(
                 'Welcome Back',
