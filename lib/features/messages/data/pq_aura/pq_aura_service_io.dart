@@ -126,6 +126,12 @@ class PQAuraService {
 
       if (initialMsg == null) return false;
 
+      // Prevent memory leak: free existing pending handshake if it exists
+      final oldHandshake = _pendingHandshakes.remove(remoteUserId);
+      if (oldHandshake != null) {
+        _bridge.freeInitialMessage(oldHandshake.nativePtr);
+      }
+
       await _store.saveSessionAtomic(remoteUserId, initialMsg.statePtr);
 
       _activeSessions[remoteUserId] = initialMsg.statePtr;
@@ -533,6 +539,12 @@ class PQAuraService {
       _bridge.freeState(state);
     }
     _activeSessions.clear();
+
+    for (final initialMsg in _pendingHandshakes.values) {
+      _bridge.freeInitialMessage(initialMsg.nativePtr);
+    }
+    _pendingHandshakes.clear();
+
     await _store.clearAll();
     _isInitialized = false;
   }

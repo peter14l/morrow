@@ -35,13 +35,15 @@ class RegisteredAccount {
 
   factory RegisteredAccount.fromJson(Map<String, dynamic> json) =>
       RegisteredAccount(
-        userId: json['userId'],
-        email: json['email'],
-        username: json['username'],
-        fullName: json['fullName'],
-        avatarUrl: json['avatarUrl'],
-        session: Session.fromJson(json['session'])!,
-        lastUsed: DateTime.parse(json['lastUsed']),
+        userId: json['userId'] as String? ?? '',
+        email: json['email'] as String? ?? '',
+        username: json['username'] as String? ?? 'user',
+        fullName: json['fullName'] as String?,
+        avatarUrl: json['avatar_url'] as String? ?? json['avatarUrl'] as String?,
+        session: Session.fromJson(json['session'] ?? {})!,
+        lastUsed: json['lastUsed'] != null 
+            ? DateTime.parse(json['lastUsed'] as String)
+            : DateTime.now(),
       );
 
   RegisteredAccount copyWith({

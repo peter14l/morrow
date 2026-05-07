@@ -7,10 +7,10 @@ part 'post.g.dart';
 @freezed
 abstract class Post with _$Post {
   const factory Post({
-    required String id,
-    @JsonKey(name: 'userId') required String userId,
-    required String username,
-    @JsonKey(name: 'userAvatar') required String userAvatar,
+    @Default('') String id,
+    @JsonKey(name: 'userId') @Default('') String userId,
+    @Default('user') String username,
+    @JsonKey(name: 'userAvatar') @Default('') String userAvatar,
     String? content,
     @JsonKey(name: 'image_url') String? imageUrl,
     @JsonKey(name: 'thumbnail_url') String? thumbnailUrl,

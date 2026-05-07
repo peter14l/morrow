@@ -64,9 +64,9 @@ class UserProfileEntity {
 
   factory UserProfileEntity.fromJson(Map<String, dynamic> json) {
     return UserProfileEntity(
-      id: json['id'] as String,
-      username: json['username'] as String,
-      email: json['email'] as String,
+      id: json['id'] as String? ?? '',
+      username: json['username'] as String? ?? 'user',
+      email: json['email'] as String? ?? '',
       fullName: json['full_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,
       bio: json['bio'] as String?,
