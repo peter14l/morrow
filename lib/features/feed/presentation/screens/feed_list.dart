@@ -189,8 +189,3 @@ class PostCard extends StatelessWidget {
     );
   }
 }
-pTargetSize.shrinkWrap,
-      ),
-    );
-  }
-}

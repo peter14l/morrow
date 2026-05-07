@@ -1509,19 +1509,3 @@ class _ComingUpItemState extends State<_ComingUpItem> {
   }
 }
 
-),
-    );
-  }
-}
-
-,
-      ),
-    );
-  }
-}
-
-),
-    );
-  }
-}
-
