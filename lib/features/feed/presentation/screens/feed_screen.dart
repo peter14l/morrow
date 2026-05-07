@@ -710,7 +710,7 @@ const LockoutOverlay(pageName: 'Feed'),
         // Search FAB
         GlassmorphicFAB(
           size: 40,
-          onPressed: () => context.push('/search'),
+          onPressed: () => context.pushNamed('search'),
           child: Icon(
             FluentIcons.search_24_regular,
             size: 20,
@@ -727,7 +727,7 @@ const LockoutOverlay(pageName: 'Feed'),
           ),
           child: GlassmorphicFAB(
             size: 40,
-            onPressed: () => context.push('/notifications'),
+            onPressed: () => context.pushNamed('notifications'),
             child: Icon(
               FluentIcons.alert_24_regular,
               size: 20,
@@ -739,18 +739,18 @@ const LockoutOverlay(pageName: 'Feed'),
         // Profile FAB
         GlassmorphicFAB(
           size: 40,
-          onPressed: () => context.push('/profile'),
+          onPressed: () => context.pushNamed('profile'),
           child: CircleAvatar(
             radius: 18,
             backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
             backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
-            child: avatarUrl == null 
-              ? Icon(
-                  FluentIcons.person_24_regular, 
-                  size: 20, 
+            child: avatarUrl == null
+                ? Icon(
+                  FluentIcons.person_24_regular,
+                  size: 20,
                   color: colorScheme.onPrimaryContainer,
-                ) 
-              : null,
+                )
+                : null,
           ),
         ),
       ],

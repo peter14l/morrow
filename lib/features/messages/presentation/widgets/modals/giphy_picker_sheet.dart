@@ -11,8 +11,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class GiphyPickerSheet extends StatefulWidget {
   final Function(String url, bool isSticker) onSelected;
+  final bool useKlipy;
 
-  const GiphyPickerSheet({super.key, required this.onSelected});
+  const GiphyPickerSheet({
+    super.key,
+    required this.onSelected,
+    this.useKlipy = false,
+  });
 
   @override
   State<GiphyPickerSheet> createState() => _GiphyPickerSheetState();
@@ -26,12 +31,14 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   bool _isStickers = false;
   String _selectedCategory = 'Trending';
-  List<GiphyMedia> _results = [];
+  List<dynamic> _results = [];
   List<String> _categories = [];
   bool _isLoading = false;
   String? _error;
   
   Timer? _searchDebounce;
+
+  bool get _isUsingKlipy => widget.useKlipy || ChatApiConfig.giphyApiKey.isEmpty;
 
   @override
   void initState() {
@@ -50,7 +57,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
     
-    // Load categories
+    // Load categories (Giphy only for now, or standard list)
     final catResult = await _giphyService.getCategories(isSticker: _isStickers);
     if (catResult.isSuccess) {
       _categories = catResult.data ?? [];
@@ -68,25 +75,44 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
     });
 
     final query = _searchController.text.trim();
-    GiphyResult<List<GiphyMedia>> result;
-
-    if (query.isNotEmpty) {
-      result = await _giphyService.search(query, isSticker: _isStickers);
-    } else if (_selectedCategory != 'Trending') {
-      result = await _giphyService.search(_selectedCategory, isSticker: _isStickers);
-    } else {
-      result = await _giphyService.getTrending(isSticker: _isStickers);
-    }
-
-    if (!mounted) return;
-    setState(() {
-      if (result.isSuccess) {
-        _results = result.data ?? [];
+    
+    if (_isUsingKlipy) {
+      KlipyResult<List<KlipyMedia>> result;
+      if (query.isNotEmpty) {
+        result = await _klipyService.search(query);
       } else {
-        _error = result.error;
+        result = await _klipyService.getTrending();
       }
-      _isLoading = false;
-    });
+
+      if (!mounted) return;
+      setState(() {
+        if (result.isSuccess) {
+          _results = result.data ?? [];
+        } else {
+          _error = result.error;
+        }
+        _isLoading = false;
+      });
+    } else {
+      GiphyResult<List<GiphyMedia>> result;
+      if (query.isNotEmpty) {
+        result = await _giphyService.search(query, isSticker: _isStickers);
+      } else if (_selectedCategory != 'Trending') {
+        result = await _giphyService.search(_selectedCategory, isSticker: _isStickers);
+      } else {
+        result = await _giphyService.getTrending(isSticker: _isStickers);
+      }
+
+      if (!mounted) return;
+      setState(() {
+        if (result.isSuccess) {
+          _results = result.data ?? [];
+        } else {
+          _error = result.error;
+        }
+        _isLoading = false;
+      });
+    }
   }
 
   void _onSearchChanged(String query) {
@@ -98,6 +124,8 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   void _toggleType(bool isStickers) {
     if (_isStickers == isStickers) return;
+    if (_isUsingKlipy) return; // Klipy doesn't support stickers in current service impl
+    
     HapticUtils.lightImpact();
     setState(() {
       _isStickers = isStickers;
@@ -151,14 +179,14 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
             child: Row(
               children: [
                 Text(
-                  _isStickers ? 'Stickers' : 'GIFs',
+                  _isUsingKlipy ? 'Klipy' : (_isStickers ? 'Stickers' : 'GIFs'),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     letterSpacing: -0.5,
                   ),
                 ),
                 const Spacer(),
-                _buildToggle(),
+                if (!_isUsingKlipy) _buildToggle(),
               ],
             ),
           ),
@@ -180,7 +208,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
                 onChanged: _onSearchChanged,
                 style: const TextStyle(fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: 'Search Giphy...',
+                  hintText: _isUsingKlipy ? 'Search Klipy...' : 'Search Giphy...',
                   hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
                   prefixIcon: Icon(FluentIcons.search_20_regular, size: 18, color: colorScheme.onSurfaceVariant),
                   suffixIcon: _searchController.text.isNotEmpty 

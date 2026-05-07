@@ -41,7 +41,8 @@ import 'package:oasis/features/messages/presentation/widgets/modals/attachment_o
 import 'package:oasis/features/messages/presentation/widgets/modals/message_options_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/message_options_menu.dart';
 import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart';
-import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
+import 'package:giphy_get/giphy_get.dart';
+import 'package:oasis/features/messages/core/chat_api_config.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
@@ -398,30 +399,58 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   // Message Actions
   // =========================================================================
 
-  void _showGiphyPicker() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      useRootNavigator: true,
-      builder: (context) => _wrapWithLiquidGlass(
-        child: GiphyPickerSheet(
-          onSelected: (url, isSticker) {
-            if (isSticker) {
-              _chatProvider.sendSticker(
-                url,
-                replyMessage: _chatProvider.state.replyMessage,
-              );
-            } else {
-              _chatProvider.sendGif(
-                url,
-                replyMessage: _chatProvider.state.replyMessage,
-              );
-            }
-          },
+  void _showGiphyPicker() async {
+    final apiKey = ChatApiConfig.giphyApiKey;
+
+    if (apiKey.isNotEmpty) {
+      // Use GiphyGet SDK if API key is available
+      final gif = await GiphyGet.getGif(
+        context: context,
+        apiKey: apiKey,
+        tabColor: Theme.of(context).colorScheme.primary,
+        debounceInterval: 500,
+      );
+
+      if (gif != null && gif.images?.original?.url != null) {
+        final isSticker = gif.type == 'sticker';
+        if (isSticker) {
+          _chatProvider.sendSticker(
+            gif.images!.original!.url!,
+            replyMessage: _chatProvider.state.replyMessage,
+          );
+        } else {
+          _chatProvider.sendGif(
+            gif.images!.original!.url!,
+            replyMessage: _chatProvider.state.replyMessage,
+          );
+        }
+      }
+    } else {
+      // Fallback to custom picker (Klipy) if Giphy key is missing
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        useRootNavigator: true,
+        builder: (context) => _wrapWithLiquidGlass(
+          child: GiphyPickerSheet(
+            onSelected: (url, isSticker) {
+              if (isSticker) {
+                _chatProvider.sendSticker(
+                  url,
+                  replyMessage: _chatProvider.state.replyMessage,
+                );
+              } else {
+                _chatProvider.sendGif(
+                  url,
+                  replyMessage: _chatProvider.state.replyMessage,
+                );
+              }
+            },
+          ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   /// Wrap bottom sheet content with liquid glass effect

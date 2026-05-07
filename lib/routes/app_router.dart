@@ -198,33 +198,49 @@ class _MainLayoutState extends State<MainLayout> {
   int _getCurrentIndex() {
     final location = GoRouterState.of(context).uri.path;
     final screenTimeService = context.read<ScreenTimeService>();
+    final isDesktop = ResponsiveLayout.isDesktop(context);
 
     if (location.startsWith('/feed')) {
       screenTimeService.setCurrentCategory('Feed');
       return 0;
     }
-    if (location.startsWith('/spaces') ||
-        location.startsWith('/circles') ||
-        location.startsWith('/communities')) {
-      screenTimeService.setCurrentCategory('Communities');
-      return 1;
+
+    if (isDesktop) {
+      if (location.startsWith('/search')) {
+        screenTimeService.setCurrentCategory('Feed');
+        return 1;
+      }
+      if (location.startsWith('/spaces') ||
+          location.startsWith('/circles') ||
+          location.startsWith('/communities')) {
+        screenTimeService.setCurrentCategory('Communities');
+        return 2;
+      }
+      if (location.startsWith('/messages')) {
+        screenTimeService.setCurrentCategory('Messages');
+        return 3;
+      }
+      if (location.startsWith('/notifications')) {
+        screenTimeService.setCurrentCategory(null);
+        return 4;
+      }
+      if (location.startsWith('/profile')) {
+        screenTimeService.setCurrentCategory('Profile');
+        return 5;
+      }
+    } else {
+      if (location.startsWith('/spaces') ||
+          location.startsWith('/circles') ||
+          location.startsWith('/communities')) {
+        screenTimeService.setCurrentCategory('Communities');
+        return 1;
+      }
+      if (location.startsWith('/messages')) {
+        screenTimeService.setCurrentCategory('Messages');
+        return 2;
+      }
     }
-    if (location.startsWith('/messages')) {
-      screenTimeService.setCurrentCategory('Messages');
-      return 2;
-    }
-    if (location.startsWith('/search')) {
-      screenTimeService.setCurrentCategory('Feed'); // Search is discovery
-      return -1;
-    }
-    if (location.startsWith('/notifications')) {
-      screenTimeService.setCurrentCategory(null);
-      return -1;
-    }
-    if (location.startsWith('/profile')) {
-      screenTimeService.setCurrentCategory('Profile');
-      return -1;
-    }
+
     return -1;
   }
 
@@ -940,25 +956,49 @@ class _MainLayoutState extends State<MainLayout> {
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     if (isDesktop) {
-      // Close active panel if navigating to other destinations
-      if (_activePanel != null) {
-        setState(() {
-          _activePanel = null;
-        });
+      // Desktop indices: 0:Feed, 1:Search, 2:Spaces, 3:Messages, 4:Notifications, 5:Profile
+      switch (index) {
+        case 0:
+          if (_activePanel != null) setState(() => _activePanel = null);
+          context.go('/feed');
+          break;
+        case 1:
+          setState(() {
+            _activePanel = _activePanel == 'search' ? null : 'search';
+          });
+          break;
+        case 2:
+          if (_activePanel != null) setState(() => _activePanel = null);
+          context.go('/spaces');
+          break;
+        case 3:
+          if (_activePanel != null) setState(() => _activePanel = null);
+          context.go('/messages');
+          break;
+        case 4:
+          setState(() {
+            _activePanel =
+                _activePanel == 'notifications' ? null : 'notifications';
+          });
+          break;
+        case 5:
+          if (_activePanel != null) setState(() => _activePanel = null);
+          context.go('/profile');
+          break;
       }
-    }
-
-    // Normal navigation for non-panel items or non-desktop
-    switch (index) {
-      case 0:
-        context.go('/feed');
-        break;
-      case 1:
-        context.go('/spaces');
-        break;
-      case 2:
-        context.go('/messages');
-        break;
+    } else {
+      // Mobile indices: 0:Feed, 1:Spaces, 2:Messages
+      switch (index) {
+        case 0:
+          context.go('/feed');
+          break;
+        case 1:
+          context.go('/spaces');
+          break;
+        case 2:
+          context.go('/messages');
+          break;
+      }
     }
   }
 
