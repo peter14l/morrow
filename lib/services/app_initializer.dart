@@ -181,6 +181,29 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         subtitle: 'Missed call',
       ),
       extra: message.data,
+      android: const AndroidParams(
+        isCustomNotification: true,
+        isShowLogo: false,
+        ringtonePath: 'system_ringtone_default',
+        backgroundColor: '#09121C',
+        actionColor: '#4CAF50',
+        incomingCallNotificationChannelName: 'Incoming Call',
+        missedCallNotificationChannelName: 'Missed Call',
+      ),
+      ios: const IOSParams(
+        iconName: 'CallKitLogo',
+        handleType: 'generic',
+        supportsVideo: true,
+        maximumCallGroups: 2,
+        maximumCallsPerCallGroup: 1,
+        audioSessionMode: 'default',
+        audioSessionActive: true,
+        supportsDTMF: true,
+        supportsHolding: true,
+        supportsGrouping: false,
+        supportsUngrouping: false,
+        ringtonePath: 'system_ringtone_default',
+      ),
     );
 
     await FlutterCallkitIncoming.showCallkitIncoming(params);
@@ -310,6 +333,9 @@ class AppInitializer {
             final callId = data['call_id'];
             final senderId = data['actor_id'];
             if (callId != null) {
+              // Ensure CallService knows we are answering
+              CallService.instance.setAnswering(callId);
+              
               Future.delayed(const Duration(milliseconds: 500), () {
                 AppRouter.router.pushNamed(
                   'active_call',
@@ -330,6 +356,10 @@ class AppInitializer {
                 .eq('id', callId);
             }
             break;
+          case Event.actionCallEnded:
+             // If call was ended from native UI (e.g. Android notification)
+             CallService.instance.endCall();
+             break;
           default:
             break;
         }

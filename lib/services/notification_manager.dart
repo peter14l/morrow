@@ -542,6 +542,14 @@ class NotificationManager {
       return;
     }
 
+    if (response.actionId == 'end_call') {
+      debugPrint('[NotificationManager] End call action triggered from notification');
+      // Use the global instance to end the call
+      CallService.instance.endCall();
+      dismissActiveCallNotification();
+      return;
+    }
+
     if (response.actionId == 'reply_action') {
       final content = response.input;
       if (content != null && content.isNotEmpty) {
@@ -771,6 +779,16 @@ class NotificationManager {
           options: {DarwinNotificationCategoryOption.customDismissAction},
         ),
         DarwinNotificationCategory(
+          'ACTIVE_CALL_CATEGORY',
+          actions: [
+            DarwinNotificationAction.plain(
+              'end_call',
+              'End Call',
+              options: {DarwinNotificationActionOption.destructive},
+            ),
+          ],
+        ),
+        DarwinNotificationCategory(
           'DM_CATEGORY',
           actions: [
             DarwinNotificationAction.text(
@@ -882,6 +900,61 @@ class NotificationManager {
     );
   }
 
+  /// Show a persistent "Call in Progress" notification with an "End Call" button.
+  Future<void> showActiveCallNotification({
+    required String callId,
+    required String participantName,
+  }) async {
+    if (!_isInitialized) return;
+
+    const androidDetails = AndroidNotificationDetails(
+      'oasis_active_call_channel',
+      'Active Calls',
+      channelDescription: 'Notification for calls in progress',
+      importance: Importance.low,
+      priority: Priority.low,
+      ongoing: true,
+      autoCancel: false,
+      showWhen: true,
+      usesChronometer: true,
+      category: AndroidNotificationCategory.call,
+      actions: [
+        AndroidNotificationAction(
+          'end_call',
+          'End Call',
+          showsUserInterface: true,
+          cancelNotification: true,
+        ),
+      ],
+    );
+
+    const darwinDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: false,
+      presentBadge: false,
+      categoryIdentifier: 'ACTIVE_CALL_CATEGORY',
+    );
+
+    await _localNotificationsPlugin.show(
+      _activeCallNotificationId,
+      '📞 Call in Progress',
+      'With $participantName',
+      const NotificationDetails(
+        android: androidDetails,
+        iOS: darwinDetails,
+        macOS: darwinDetails,
+      ),
+      payload: jsonEncode({'type': 'active_call', 'call_id': callId}),
+    );
+  }
+
+  /// Cancel the active call notification.
+  Future<void> dismissActiveCallNotification() async {
+    await _localNotificationsPlugin.cancel(_activeCallNotificationId);
+  }
+
+  static const int _activeCallNotificationId = 9998;
+
   /// Cancel the persistent incoming-call notification.
   Future<void> dismissCallNotification() async {
     await _localNotificationsPlugin.cancel(_callNotificationId);
@@ -899,26 +972,11 @@ class NotificationManager {
     try {
       final token = await messaging.getToken();
       if (token != null) {
-        final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId != null) {
-          await Supabase.instance.client
-              .from('profiles')
-              .update({'fcm_token': token})
-              .eq('id', userId);
-        }
+        await _syncTokenToBackend(token);
       }
       messaging.onTokenRefresh.listen((newToken) async {
-        final userId = Supabase.instance.client.auth.currentUser?.id;
-        if (userId != null) {
-          try {
-            await Supabase.instance.client
-                .from('profiles')
-                .update({'fcm_token': newToken})
-                .eq('id', userId);
-          } catch (e) {
-            debugPrint('Error updating refreshed FCM token: $e');
-          }
-        }
+        debugPrint('[NotificationManager] FCM Token refreshed');
+        await _syncTokenToBackend(newToken);
       });
     } catch (e) {
       debugPrint('Failed to retrieve or save FCM token: $e');
@@ -1104,6 +1162,22 @@ class NotificationManager {
       return settings.authorizationStatus == AuthorizationStatus.authorized;
     }
     return false;
+  }
+
+  Future<void> _syncTokenToBackend(String token) async {
+    final client = Supabase.instance.client;
+    final userId = client.auth.currentUser?.id;
+    if (userId == null) return;
+
+    try {
+      await client
+          .from('profiles')
+          .update({'fcm_token': token})
+          .eq('id', userId);
+      debugPrint('[NotificationManager] FCM Token synced to backend for $userId');
+    } catch (e) {
+      debugPrint('[NotificationManager] Error syncing FCM token: $e');
+    }
   }
 }
 

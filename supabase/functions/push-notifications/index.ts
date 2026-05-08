@@ -276,6 +276,21 @@ serve(async (req) => {
 
     const fcmResult = await fcmResponse.json();
     console.log("FCM Response:", fcmResult);
+
+    // Handle UNREGISTERED error by clearing the dead token from DB
+    if (fcmResult.error && fcmResult.error.details) {
+      const isUnregistered = fcmResult.error.details.some(
+        (d: any) => d.errorCode === 'UNREGISTERED'
+      );
+      if (isUnregistered) {
+        console.log(`Cleaning up dead token for user: ${record.user_id}`);
+        await supabase
+          .from('profiles')
+          .update({ fcm_token: null })
+          .eq('id', record.user_id);
+      }
+    }
+
     return new Response(JSON.stringify(fcmResult), { status: 200 });
 
   } catch (error: any) {

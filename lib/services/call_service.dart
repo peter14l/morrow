@@ -41,6 +41,9 @@ class DisabledCallService extends CallService {
 }
 
 class CallService extends ChangeNotifier {
+  static CallService? _instance;
+  static CallService get instance => _instance ?? DisabledCallService();
+
   final SupabaseClient _supabase;
   final SignalService _signal;
   final _uuid = const Uuid();
@@ -56,6 +59,7 @@ class CallService extends ChangeNotifier {
   })  : _supabase = supabase ?? SupabaseService().client,
         _signal = signalService ?? SignalService(),
         _audioPlayer = audioPlayer ?? AudioPlayer() {
+    _instance = this;
     _callChannel.setMethodCallHandler(_handleNativeCall);
     _configureAudioPlayer();
     // Check if the app was launched by accepting a call natively (Cold Start)
@@ -559,6 +563,17 @@ class CallService extends ChangeNotifier {
               final oldCall = _currentCall;
               _currentCall = updatedCall;
 
+              if (updatedCall.status == CallStatus.active && oldCall?.status == CallStatus.ringing) {
+                // Call just became active
+                debugPrint('[CallService] Call became active, showing notification');
+                final remoteUserId = updatedCall.callerId == userId ? updatedCall.receiverId : updatedCall.callerId;
+                // We don't have the username here easily, but we can try fetching it or just show "Call in Progress"
+                NotificationManager.instance.showActiveCallNotification(
+                  callId: updatedCall.id,
+                  participantName: 'Remote User', // Placeholder or fetch if needed
+                );
+              }
+
               if (updatedCall.status == CallStatus.ended || 
                   updatedCall.status == CallStatus.declined ||
                   updatedCall.status == CallStatus.missed) {
@@ -785,6 +800,9 @@ class CallService extends ChangeNotifier {
     _signalingChannel?.unsubscribe();
     _signalingChannel = null;
     _isSignalingSubscribed = false;
+    
+    // Dismiss the active call notification if any
+    NotificationManager.instance.dismissActiveCallNotification();
     
     if (!kIsWeb && Platform.isAndroid) {
       try {
