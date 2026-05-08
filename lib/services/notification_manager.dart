@@ -16,6 +16,7 @@ import 'package:oasis/services/notification_decryption_service.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/auth_service.dart';
+import 'package:oasis/services/call_service.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';

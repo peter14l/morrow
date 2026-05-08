@@ -13,6 +13,8 @@ import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/notification_params.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 import 'package:oasis/routes/app_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
