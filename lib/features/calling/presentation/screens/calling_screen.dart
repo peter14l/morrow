@@ -400,6 +400,7 @@ class CallControlBar extends StatelessWidget {
     final hasActiveCall = context.select<CallProvider, bool>((p) => p.hasActiveCall);
     final isMuted = context.select<CallProvider, bool>((p) => p.isMuted);
     final isVideoOn = context.select<CallProvider, bool>((p) => p.isVideoOn);
+    final isSpeakerphoneOn = context.select<CallProvider, bool>((p) => p.isSpeakerphoneOn);
     final isSharing = context.select<CallProvider, bool>((p) => p.isScreenSharing);
 
     if (isIncoming && !hasIncomingCall && !hasActiveCall) {
@@ -412,7 +413,7 @@ class CallControlBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: hasIncomingCall && !hasActiveCall
             ? _buildIncomingControls(context, provider)
-            : _buildActiveControls(context, provider, isMuted, isVideoOn, isSharing),
+            : _buildActiveControls(context, provider, isMuted, isVideoOn, isSpeakerphoneOn, isSharing),
       ),
     );
   }
@@ -449,16 +450,20 @@ class CallControlBar extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveControls(BuildContext context, CallProvider provider, bool isMuted, bool isVideoOn, bool isSharing) {
+  Widget _buildActiveControls(BuildContext context, CallProvider provider, bool isMuted, bool isVideoOn, bool isSpeakerphoneOn, bool isSharing) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _ControlButton(
           onPressed: provider.toggleMute,
           icon: isMuted ? Icons.mic_off : Icons.mic,
           color: isMuted ? Colors.red : Colors.white24,
         ),
-        const SizedBox(width: 20),
+        _ControlButton(
+          onPressed: provider.toggleSpeakerphone,
+          icon: isSpeakerphoneOn ? Icons.volume_up : Icons.volume_down,
+          color: isSpeakerphoneOn ? Colors.blue : Colors.white24,
+        ),
         _ControlButton(
           onPressed: () {
             provider.toggleMinimize(value: true);
@@ -467,19 +472,16 @@ class CallControlBar extends StatelessWidget {
           icon: Icons.close_fullscreen_rounded,
           color: Colors.white24,
         ),
-        const SizedBox(width: 20),
         _ControlButton(
           onPressed: provider.toggleVideo,
           icon: isVideoOn ? Icons.videocam : Icons.videocam_off,
           color: isVideoOn ? Colors.white24 : Colors.red,
         ),
-        const SizedBox(width: 20),
         _ControlButton(
           onPressed: provider.toggleScreenShare,
           icon: isSharing ? Icons.screen_share : Icons.stop_screen_share,
           color: isSharing ? Colors.green : Colors.white24,
         ),
-        const SizedBox(width: 20),
         _ControlButton(
           onPressed: provider.endCall,
           icon: Icons.call_end,

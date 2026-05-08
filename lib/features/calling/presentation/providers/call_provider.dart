@@ -24,6 +24,7 @@ class CallState {
   final String? error;
   final bool isMuted;
   final bool isVideoOn;
+  final bool isSpeakerphoneOn;
   final bool isScreenSharing;
   final bool isMinimized;
   final String? remoteScreenShareUserId;
@@ -40,6 +41,7 @@ class CallState {
     this.error,
     this.isMuted = false,
     this.isVideoOn = true,
+    this.isSpeakerphoneOn = false,
     this.isScreenSharing = false,
     this.isMinimized = false,
     this.remoteScreenShareUserId,
@@ -64,6 +66,7 @@ class CallState {
     bool clearError = false,
     bool? isMuted,
     bool? isVideoOn,
+    bool? isSpeakerphoneOn,
     bool? isScreenSharing,
     bool? isMinimized,
     String? remoteScreenShareUserId,
@@ -81,6 +84,7 @@ class CallState {
       error: clearError ? null : (error ?? this.error),
       isMuted: isMuted ?? this.isMuted,
       isVideoOn: isVideoOn ?? this.isVideoOn,
+      isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
       isScreenSharing: isScreenSharing ?? this.isScreenSharing,
       isMinimized: isMinimized ?? this.isMinimized,
       remoteScreenShareUserId: clearRemoteScreenShare ? null : (remoteScreenShareUserId ?? this.remoteScreenShareUserId),
@@ -129,6 +133,7 @@ class CallProvider extends ChangeNotifier {
       localRenderer: _callService.localRenderer,
       isMuted: _callService.isMuted,
       isVideoOn: _callService.isVideoOn,
+      isSpeakerphoneOn: _callService.isSpeakerphoneOn,
       isScreenSharing: _callService.isScreenSharing,
       incomingCall: _callService.incomingCall,
       remoteScreenShareUserId: _callService.remoteScreenShareUserId,
@@ -143,6 +148,7 @@ class CallProvider extends ChangeNotifier {
         newState.remoteStreams.length != _state.remoteStreams.length ||
         newState.isMuted != _state.isMuted ||
         newState.isVideoOn != _state.isVideoOn ||
+        newState.isSpeakerphoneOn != _state.isSpeakerphoneOn ||
         newState.isScreenSharing != _state.isScreenSharing ||
         newState.remoteScreenShareUserId != _state.remoteScreenShareUserId ||
         newState.remoteRenderers.length != _state.remoteRenderers.length) {
@@ -177,6 +183,7 @@ class CallProvider extends ChangeNotifier {
   Map<String, MediaStream> get remoteStreams => _state.remoteStreams;
   bool get isMuted => _state.isMuted;
   bool get isVideoOn => _state.isVideoOn;
+  bool get isSpeakerphoneOn => _state.isSpeakerphoneOn;
   bool get isScreenSharing => _state.isScreenSharing;
 
   Future<void> initialize({
@@ -377,6 +384,11 @@ class CallProvider extends ChangeNotifier {
   /// Toggle video
   Future<void> toggleVideo() async {
     await _callService.toggleVideo();
+  }
+
+  /// Toggle speakerphone
+  void toggleSpeakerphone() {
+    _callService.toggleSpeakerphone();
   }
 
   /// Toggle minimized state (PiP)

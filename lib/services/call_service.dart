@@ -90,6 +90,7 @@ class CallService extends ChangeNotifier {
   // Multi-peer management
   final Map<String, RTCPeerConnection> _peerConnections = {};
   final Map<String, List<Map<String, dynamic>>> _candidateQueue = {};
+  final Map<String, List<Map<String, dynamic>>> _outgoingCandidateQueue = {};
   final Map<String, MediaStream> _remoteStreams = {};
   final Map<String, RTCVideoRenderer> _remoteRenderers = {};
   final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
@@ -106,6 +107,7 @@ class CallService extends ChangeNotifier {
 
   bool _isMuted = false;
   bool _isVideoOn = true;
+  bool _isSpeakerphoneOn = false;
 
   MediaStream? get localStream => _localStream;
   Map<String, MediaStream> get remoteStreams => _remoteStreams;
@@ -114,6 +116,9 @@ class CallService extends ChangeNotifier {
   CallEntity? get currentCall => _currentCall;
   CallEntity? get incomingCall => _incomingCall;
   String? get currentCallId => _currentCallId;
+  bool get isMuted => _isMuted;
+  bool get isVideoOn => _isVideoOn;
+  bool get isSpeakerphoneOn => _isSpeakerphoneOn;
 
   void setAnswering(String callId) {
     _currentCallId = callId;
@@ -135,8 +140,6 @@ class CallService extends ChangeNotifier {
   bool _isScreenSharing = false;
   String? _remoteScreenShareUserId;
 
-  bool get isMuted => _isMuted;
-  bool get isVideoOn => _isVideoOn;
   bool get isScreenSharing => _isScreenSharing;
   String? get remoteScreenShareUserId => _remoteScreenShareUserId;
 
@@ -145,9 +148,6 @@ class CallService extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    // Ensure notifyListeners is always called on the UI/Platform thread.
-    // Future.microtask may still run on a background thread if scheduled from one.
-    // Using Future() ensures it goes to the main event loop.
     Future(() {
       if (hasListeners) notifyListeners();
     });
@@ -166,7 +166,7 @@ class CallService extends ChangeNotifier {
     }
 
     final Map<String, dynamic> constraints = {
-      'audio': true, // Simplified constraints for better compatibility
+      'audio': true,
       'video': isVideo ? {
         'facingMode': 'user',
         'width': {'ideal': 1280},
@@ -183,17 +183,15 @@ class CallService extends ChangeNotifier {
     final oldStream = _localStream;
     _localStream = await navigator.mediaDevices.getUserMedia(constraints);
     
-    // Explicitly enable audio tracks and log status
     for (var track in _localStream!.getAudioTracks()) {
       track.enabled = true;
-      debugPrint('[CallService] Local audio track: id=${track.id}, enabled=${track.enabled}, kind=${track.kind}');
     }
 
     _localRenderer.srcObject = _localStream;
     _isVideoOn = isVideo;
     _isMuted = false;
+    _isSpeakerphoneOn = isVideo;
 
-    // If we have active peer connections, update their tracks
     if (_peerConnections.isNotEmpty) {
       for (var pc in _peerConnections.values) {
         final senders = await pc.getSenders();
@@ -217,11 +215,11 @@ class CallService extends ChangeNotifier {
       }
     }
 
-    await _configureAudioSession(isVideo);
+    await _configureAudioSession(_isSpeakerphoneOn, isVideo);
     _safeNotifyListeners();
   }
 
-  Future<void> _configureAudioSession(bool isVideo) async {
+  Future<void> _configureAudioSession(bool speakerOn, bool isVideo) async {
     if (kIsWeb) return;
     try {
       if (Platform.isIOS || Platform.isAndroid) {
@@ -230,7 +228,7 @@ class CallService extends ChangeNotifier {
           avAudioSessionCategory: session_pkg.AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions:
               session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
-              session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker,
+              (speakerOn ? session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker : session_pkg.AVAudioSessionCategoryOptions.none),
           avAudioSessionMode: isVideo ? session_pkg.AVAudioSessionMode.videoChat : session_pkg.AVAudioSessionMode.voiceChat,
           avAudioSessionRouteSharingPolicy:
               session_pkg.AVAudioSessionRouteSharingPolicy.defaultPolicy,
@@ -242,10 +240,7 @@ class CallService extends ChangeNotifier {
           androidAudioFocusGainType: session_pkg.AndroidAudioFocusGainType.gainTransient,
         ));
         await session.setActive(true);
-
-        // This hint still helps some Android versions, but the AudioSession
-        // configuration above ensures Bluetooth/Headset priority.
-        await Helper.setSpeakerphoneOn(isVideo);
+        await Helper.setSpeakerphoneOn(speakerOn);
       }
     } catch (e) {
       debugPrint('[CallService] Error configuring audio session: $e');
@@ -256,7 +251,6 @@ class CallService extends ChangeNotifier {
     debugPrint('[CallService] Creating peer connection for $remoteUserId');
     final pc = await createPeerConnection(_configuration);
     
-    // Add local tracks to peer connection
     if (_localStream != null) {
       for (var track in _localStream!.getTracks()) {
         await pc.addTrack(track, _localStream!);
@@ -264,22 +258,24 @@ class CallService extends ChangeNotifier {
     }
 
     pc.onIceCandidate = (candidate) {
-      // Jump to main event loop to avoid threading issues on Windows
       Future(() {
-        _sendSignaling(remoteUserId, {
+        final data = {
           'type': 'candidate',
           'candidate': candidate.candidate,
           'sdpMid': candidate.sdpMid,
           'sdpMLineIndex': candidate.sdpMLineIndex,
-        });
+        };
+        
+        if (_signalingChannel == null) {
+          _outgoingCandidateQueue[remoteUserId] ??= [];
+          _outgoingCandidateQueue[remoteUserId]!.add(data);
+        } else {
+          _sendSignaling(remoteUserId, data);
+        }
       });
     };
 
     pc.onTrack = (event) {
-      debugPrint('[CallService] onTrack: ${event.track.kind} from $remoteUserId');
-      
-      // Use Future() instead of Future.microtask to guarantee we escape the background thread 
-      // where this callback might have been triggered from the native side.
       Future(() async {
         try {
           if (event.track.kind == 'audio') {
@@ -290,7 +286,6 @@ class CallService extends ChangeNotifier {
           if (event.streams.isNotEmpty) {
             stream = event.streams[0];
           } else {
-            // Fallback for some legacy WebRTC implementations
             _remoteStreams[remoteUserId] ??= await createLocalMediaStream('remote_$remoteUserId');
             await _remoteStreams[remoteUserId]!.addTrack(event.track);
             stream = _remoteStreams[remoteUserId]!;
@@ -316,7 +311,6 @@ class CallService extends ChangeNotifier {
     };
 
     pc.onRenegotiationNeeded = () {
-      debugPrint('[CallService] onRenegotiationNeeded for $remoteUserId');
       Future(() async {
         if (pc.signalingState != RTCSignalingState.RTCSignalingStateStable) return;
 
@@ -335,7 +329,6 @@ class CallService extends ChangeNotifier {
     };
 
     pc.onConnectionState = (state) {
-      debugPrint('[CallService] Connection state for $remoteUserId: $state');
       Future(() {
         if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
@@ -417,10 +410,7 @@ class CallService extends ChangeNotifier {
     final answer = await pc.createAnswer();
     await pc.setLocalDescription(answer);
     await _applyBitrateConstraints(pc);
-    
-    // IMPORTANT: Flush any queued candidates that arrived while ringing
     await _flushCandidateQueue(remoteUserId, pc);
-    
     return {'type': 'answer', 'sdp': answer.sdp, 'sdp_type': answer.type};
   }
 
@@ -430,7 +420,6 @@ class CallService extends ChangeNotifier {
     _subscribeToCall(call.id);
     _subscribeToSignaling(call.id);
     
-    // Also try to flush candidates here if PC already exists
     final user = _supabase.auth.currentUser;
     if (user != null) {
       final remoteUserId = call.callerId == user.id ? call.receiverId : call.callerId;
@@ -454,7 +443,6 @@ class CallService extends ChangeNotifier {
         .stream(primaryKey: ['id'])
         .eq('id', callId)
         .listen((data) {
-          // Wrap in Future to escape stream listener thread
           Future(() async {
             if (data.isNotEmpty) {
               final updatedCall = CallEntity.fromJson(data.first);
@@ -494,7 +482,6 @@ class CallService extends ChangeNotifier {
       final senderId = payload['sender_id'];
       final recipientId = payload['recipient_id'];
       if (recipientId == userId && senderId != userId) {
-        // Ensure we handle signaling data on the main event loop
         Future(() async {
           try {
             final decryptedData = await _decryptData(senderId, payload);
@@ -505,10 +492,27 @@ class CallService extends ChangeNotifier {
         });
       }
     }).subscribe((status, [error]) {
+      if (status == RealtimeSubscribeStatus.subscribed) {
+        final remoteUserId = _currentCall?.callerId == userId ? _currentCall?.receiverId : _currentCall?.callerId;
+        if (remoteUserId != null) {
+          _flushOutgoingCandidateQueue(remoteUserId);
+        }
+      }
       if (status == RealtimeSubscribeStatus.channelError) {
         debugPrint('[CallService] Signaling subscription error: $error');
       }
     });
+  }
+
+  Future<void> _flushOutgoingCandidateQueue(String remoteUserId) async {
+    final candidates = _outgoingCandidateQueue[remoteUserId];
+    if (candidates != null && _signalingChannel != null) {
+      debugPrint('[CallService] Flushing ${candidates.length} outgoing candidates for $remoteUserId');
+      for (var candidate in candidates) {
+        await _sendSignaling(remoteUserId, candidate);
+      }
+      _outgoingCandidateQueue.remove(remoteUserId);
+    }
   }
 
   Future<void> toggleScreenShare() async {
@@ -665,6 +669,7 @@ class CallService extends ChangeNotifier {
     _currentCall = null;
     _incomingCall = null;
     _candidateQueue.clear();
+    _outgoingCandidateQueue.clear();
     _isScreenSharing = false;
     _remoteScreenShareUserId = null;
     _safeNotifyListeners();
@@ -744,7 +749,13 @@ class CallService extends ChangeNotifier {
       _isVideoOn = !_isVideoOn;
       for (var track in _localStream!.getVideoTracks()) track.enabled = _isVideoOn;
     }
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) await _configureAudioSession(_isVideoOn);
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) await _configureAudioSession(_isSpeakerphoneOn, _isVideoOn);
+    _safeNotifyListeners();
+  }
+
+  void toggleSpeakerphone() {
+    _isSpeakerphoneOn = !_isSpeakerphoneOn;
+    _configureAudioSession(_isSpeakerphoneOn, _isVideoOn);
     _safeNotifyListeners();
   }
 
