@@ -257,8 +257,10 @@ class PQAuraBridge {
       debugPrint('[PQAuraBridge] Native library loaded successfully');
       return true;
     } catch (e) {
-      debugPrint('[PQAuraBridge] CRITICAL: Error loading library: $e');
-      debugPrint('[PQAuraBridge] Ensure you have built the Rust library in the PQ-DR folder.');
+      if (kDebugMode) {
+        debugPrint('[PQAuraBridge] Note: Native library not loaded: $e');
+        debugPrint('[PQAuraBridge] Post-quantum features will be disabled. This is normal if you haven\'t built the Rust library locally.');
+      }
       return false;
     }
   }

@@ -57,8 +57,27 @@ class CallService extends ChangeNotifier {
         _signal = signalService ?? SignalService(),
         _audioPlayer = audioPlayer ?? AudioPlayer() {
     _callChannel.setMethodCallHandler(_handleNativeCall);
+    _configureAudioPlayer();
     // Check if the app was launched by accepting a call natively (Cold Start)
     checkInitialCall();
+  }
+
+  void _configureAudioPlayer() {
+    if (kIsWeb) return;
+    _audioPlayer.setAudioContext(AudioContext(
+      android: const AudioContextAndroid(
+        usageType: AndroidUsageType.notificationRingtone,
+        contentType: AndroidContentType.sonification,
+        audioFocus: AndroidAudioFocus.none, // Focus is managed by audio_session/WebRTC
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.playAndRecord,
+        options: {
+          AVAudioSessionOptions.allowBluetooth,
+          AVAudioSessionOptions.defaultToSpeaker,
+        },
+      ),
+    ));
   }
 
   Future<void> checkInitialCall() async {
@@ -168,80 +187,93 @@ class CallService extends ChangeNotifier {
 
   Future<void> initLocalStream(bool isVideo) async {
     _recordStep('initLocalStream(video: $isVideo)');
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      final micStatus = await Permission.microphone.request();
-      if (micStatus != PermissionStatus.granted) {
-        _recordStep('Microphone permission denied');
-        throw Exception('Microphone permission denied');
-      }
-
-      if (isVideo) {
-        final camStatus = await Permission.camera.request();
-        if (camStatus != PermissionStatus.granted) {
-          _recordStep('Camera permission denied');
-          throw Exception('Camera permission denied');
+    try {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        final micStatus = await Permission.microphone.request();
+        if (micStatus != PermissionStatus.granted) {
+          _recordStep('Microphone permission denied');
+          throw Exception('Microphone permission denied');
         }
-      }
-    }
 
-    final Map<String, dynamic> constraints = {
-      'audio': true,
-      'video': isVideo ? {
-        'facingMode': 'user',
-        'width': {'ideal': 1280},
-        'height': {'ideal': 720},
-        'frameRate': {'ideal': 30},
-      } : false,
-    };
-
-    if (!_localRendererInitialized) {
-      await _localRenderer.initialize();
-      _localRendererInitialized = true;
-    }
-
-    final oldStream = _localStream;
-    _recordStep('Requesting getUserMedia');
-    _localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    _recordStep('Local stream obtained: ${_localStream?.id}');
-    
-    for (var track in _localStream!.getAudioTracks()) {
-      _recordStep('Enabling local audio track: ${track.id}');
-      track.enabled = true;
-    }
-
-    _localRenderer.srcObject = _localStream;
-    _isVideoOn = isVideo;
-    _isMuted = false;
-    _isSpeakerphoneOn = isVideo;
-
-    if (_peerConnections.isNotEmpty) {
-      _recordStep('Updating tracks in existing connections');
-      for (var pc in _peerConnections.values) {
-        final senders = await pc.getSenders();
-        for (var track in _localStream!.getTracks()) {
-          final sender = senders.cast<RTCRtpSender?>().firstWhere(
-            (s) => s?.track?.kind == track.kind,
-            orElse: () => null,
-          );
-          if (sender != null) {
-            _recordStep('Replacing ${track.kind} track');
-            await sender.replaceTrack(track);
-          } else {
-            _recordStep('Adding ${track.kind} track');
-            await pc.addTrack(track, _localStream!);
+        if (isVideo) {
+          final camStatus = await Permission.camera.request();
+          if (camStatus != PermissionStatus.granted) {
+            _recordStep('Camera permission denied');
+            throw Exception('Camera permission denied');
           }
         }
       }
-    }
 
-    if (oldStream != null) {
-      for (var track in oldStream.getTracks()) {
-        track.stop();
+      // Pre-configure and activate audio session BEFORE getting user media
+      // This prevents race conditions where WebRTC tries to grab the hardware 
+      // while the OS still thinks we are in a normal audio mode.
+      await _configureAudioSession(isVideo, isVideo);
+
+      final Map<String, dynamic> constraints = {
+        'audio': {
+          'echoCancellation': true,
+          'noiseSuppression': true,
+          'autoGainControl': true,
+        },
+        'video': isVideo ? {
+          'facingMode': 'user',
+          'width': {'ideal': 1280},
+          'height': {'ideal': 720},
+          'frameRate': {'ideal': 30},
+        } : false,
+      };
+
+      if (!_localRendererInitialized) {
+        await _localRenderer.initialize();
+        _localRendererInitialized = true;
       }
-    }
 
-    await _configureAudioSession(_isSpeakerphoneOn, isVideo);
-    _safeNotifyListeners();
+      final oldStream = _localStream;
+      _recordStep('Requesting getUserMedia');
+      _localStream = await navigator.mediaDevices.getUserMedia(constraints);
+      _recordStep('Local stream obtained: ${_localStream?.id}');
+      
+      for (var track in _localStream!.getAudioTracks()) {
+        _recordStep('Enabling local audio track: ${track.id}');
+        track.enabled = true;
+      }
+
+      _localRenderer.srcObject = _localStream;
+      _isVideoOn = isVideo;
+      _isMuted = false;
+      _isSpeakerphoneOn = isVideo;
+
+      if (_peerConnections.isNotEmpty) {
+        _recordStep('Updating tracks in existing connections');
+        for (var pc in _peerConnections.values) {
+          final senders = await pc.getSenders();
+          for (var track in _localStream!.getTracks()) {
+            final sender = senders.cast<RTCRtpSender?>().firstWhere(
+              (s) => s?.track?.kind == track.kind,
+              orElse: () => null,
+            );
+            if (sender != null) {
+              _recordStep('Replacing ${track.kind} track');
+              await sender.replaceTrack(track);
+            } else {
+              _recordStep('Adding ${track.kind} track');
+              await pc.addTrack(track, _localStream!);
+            }
+          }
+        }
+      }
+
+      if (oldStream != null) {
+        for (var track in oldStream.getTracks()) {
+          track.stop();
+        }
+      }
+
+      _safeNotifyListeners();
+    } catch (e) {
+      _recordStep('Error in initLocalStream: $e');
+      rethrow;
+    }
   }
 
   Future<void> _configureAudioSession(bool speakerOn, bool isVideo) async {
@@ -745,8 +777,9 @@ class CallService extends ChangeNotifier {
     _safeNotifyListeners();
   }
 
-  void _cleanup() {
-    _stopRingtone();
+  Future<void> _cleanup() async {
+    debugPrint('[CallService] Cleaning up call resources');
+    await _stopRingtone();
     _callSubscription?.cancel();
     _callSubscription = null;
     _signalingChannel?.unsubscribe();
@@ -756,21 +789,40 @@ class CallService extends ChangeNotifier {
     if (!kIsWeb && Platform.isAndroid) {
       try {
         final helper = Helper as dynamic;
-        if (helper.stopForegroundService != null) helper.stopForegroundService();
-      } catch (_) {}
+        if (helper.stopForegroundService != null) await helper.stopForegroundService();
+      } catch (e) {
+        debugPrint('[CallService] Error stopping foreground service: $e');
+      }
     }
     
-    _localStream?.getTracks().forEach((track) => track.stop());
+    _localStream?.getTracks().forEach((track) {
+      track.enabled = false;
+      track.stop();
+    });
     _localStream = null;
+    
     if (_localRendererInitialized) {
       _localRenderer.srcObject = null;
     }
-    for (var pc in _peerConnections.values) pc.close();
+    
+    for (var pc in _peerConnections.values) {
+      await pc.close();
+    }
     _peerConnections.clear();
-    for (var stream in _remoteStreams.values) stream.getTracks().forEach((track) => track.stop());
+    
+    for (var stream in _remoteStreams.values) {
+      for (var track in stream.getTracks()) {
+        track.enabled = false;
+        track.stop();
+      }
+    }
     _remoteStreams.clear();
-    for (var renderer in _remoteRenderers.values) renderer.dispose();
+    
+    for (var renderer in _remoteRenderers.values) {
+      await renderer.dispose();
+    }
     _remoteRenderers.clear();
+    
     _currentCallId = null;
     _currentCall = null;
     _incomingCall = null;
@@ -778,6 +830,18 @@ class CallService extends ChangeNotifier {
     _outgoingCandidateQueue.clear();
     _isScreenSharing = false;
     _remoteScreenShareUserId = null;
+
+    // Explicitly deactivate audio session to return hardware to normal mode
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      try {
+        final session = await session_pkg.AudioSession.instance;
+        await session.setActive(false);
+        debugPrint('[CallService] Audio session deactivated');
+      } catch (e) {
+        debugPrint('[CallService] Error deactivating audio session: $e');
+      }
+    }
+    
     _safeNotifyListeners();
   }
 
@@ -866,17 +930,31 @@ class CallService extends ChangeNotifier {
   }
 
   Future<void> _playRingtone() async {
+    if (kIsWeb) return;
     if (_isPlayingRingtone) return;
+    
+    debugPrint('[CallService] Starting ringtone playback');
     _isPlayingRingtone = true;
     try {
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
+      // Ensure the player is stopped before playing to reset internal state
+      await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('audio/standardringtone.mp3'));
-    } catch (_) { _isPlayingRingtone = false; }
+    } catch (e) {
+      debugPrint('[CallService] Error playing ringtone: $e');
+      _isPlayingRingtone = false; 
+    }
   }
 
   Future<void> _stopRingtone() async {
+    if (kIsWeb) return;
+    debugPrint('[CallService] Stopping ringtone playback');
     _isPlayingRingtone = false;
-    await _audioPlayer.stop();
+    try {
+      await _audioPlayer.stop();
+    } catch (e) {
+      debugPrint('[CallService] Error stopping ringtone: $e');
+    }
     DesktopCallNotifier.instance.dismissIncomingCall();
   }
 

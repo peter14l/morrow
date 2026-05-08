@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart' as material;
@@ -1115,7 +1116,7 @@ void callingMain() async {
                       if (callerAvatar.isNotEmpty)
                         material.CircleAvatar(
                           radius: 60,
-                          backgroundImage: material.NetworkImage(callerAvatar),
+                          backgroundImage: CachedNetworkImageProvider(callerAvatar),
                         )
                       else
                         const material.CircleAvatar(

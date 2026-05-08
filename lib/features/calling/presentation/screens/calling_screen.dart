@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
@@ -668,8 +669,12 @@ class _PulsatingParticipantState extends State<PulsatingParticipant> with Single
           child: CircleAvatar(
             radius: widget.size / 2,
             backgroundColor: Colors.grey[800],
-            backgroundImage: _profile?.avatarUrl != null ? NetworkImage(_profile!.avatarUrl!) : null,
-            child: _profile?.avatarUrl == null ? Icon(Icons.person, size: widget.size / 2, color: Colors.white54) : null,
+            backgroundImage: _profile?.avatarUrl != null 
+                ? CachedNetworkImageProvider(_profile!.avatarUrl!) 
+                : null,
+            child: _profile?.avatarUrl == null 
+                ? Icon(Icons.person, size: widget.size / 2, color: Colors.white54) 
+                : null,
           ),
         ),
       ),

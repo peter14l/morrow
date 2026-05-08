@@ -40,8 +40,9 @@ void main() {
     when(mockAudioTrack.enabled).thenReturn(false);
   });
 
-  test('CallService should initialize with injected mocks', () {
-    expect(callService, isNotNull);
+  test('CallService should configure AudioPlayer context on init', () {
+    // Initialization already happened in setUp
+    verify(mockAudioPlayer.setAudioContext(any)).called(1);
   });
 
   test('Track enablement logic check', () {
