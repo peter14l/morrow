@@ -129,6 +129,12 @@
 -keep class com.yalantis.ucrop.view.** { *; }
 -keep class com.yalantis.ucrop.util.** { *; }
 
+# WebRTC Proguard Rules
+-keep class org.webrtc.** { *; }
+-keep class com.cloudwebrtc.** { *; }
+-dontwarn org.webrtc.**
+-dontwarn com.cloudwebrtc.**
+
 # Razorpay Proguard Rules
 -keepattributes *Annotation*
 -dontwarn com.razorpay.**
