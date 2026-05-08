@@ -1214,19 +1214,6 @@ class AppRouter {
                       const NoTransitionPage(child: FeedScreen()),
             ),
 
-            // Search Screen
-            GoRoute(
-              path: '/search',
-              name: 'search',
-              parentNavigatorKey: rootNavigatorKey,
-              pageBuilder:
-                  (context, state) =>
-                      const MaterialPage(
-                        fullscreenDialog: true,
-                        child: SearchScreen(),
-                      ),
-            ),
-
             // Communities Screen
             GoRoute(
               path: '/spaces',
@@ -1234,57 +1221,6 @@ class AppRouter {
               pageBuilder:
                   (context, state) =>
                       const NoTransitionPage(child: SpacesScreen()),
-              routes: [
-                GoRoute(
-                  path: 'circles/create',
-                  name: 'create_circle',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder:
-                      (context, state) => const MaterialPage(
-                        fullscreenDialog: true,
-                        child: CreateCircleScreen(),
-                      ),
-                ),
-                GoRoute(
-                  path: 'canvas/create',
-                  name: 'create_canvas',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder:
-                      (context, state) => const MaterialPage(
-                        fullscreenDialog: true,
-                        child: CreateCanvasScreen(),
-                      ),
-                ),
-                GoRoute(
-                  path: 'circles/:circleId',
-                  name: 'circle_detail',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    final id = state.pathParameters['circleId']!;
-                    return CircleDetailScreen(circleId: id);
-                  },
-                  routes: [
-                    GoRoute(
-                      path: 'add-commitment',
-                      name: 'create_commitment',
-                      parentNavigatorKey: rootNavigatorKey,
-                      builder: (context, state) {
-                        final id = state.pathParameters['circleId']!;
-                        return CreateCommitmentScreen(circleId: id);
-                      },
-                    ),
-                  ],
-                ),
-                GoRoute(
-                  path: 'canvas/:canvasId',
-                  name: 'canvas_detail',
-                  parentNavigatorKey: rootNavigatorKey,
-                  builder: (context, state) {
-                    final id = state.pathParameters['canvasId']!;
-                    return TimelineCanvasScreen(canvasId: id);
-                  },
-                ),
-              ],
             ),
 
             // Direct Messages Screen
@@ -1300,100 +1236,176 @@ class AppRouter {
                   ),
                 );
               },
-              routes: [
-                GoRoute(
-                  path: 'new-group',
-                  name: 'new_group',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder: (context, state) => const MaterialPage(
-                    fullscreenDialog: true,
-                    child: GroupMemberSelectionScreen(),
-                  ),
-                ),
-                GoRoute(
-                  path: 'add-members',
-                  name: 'add_members',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder: (context, state) {
-                    final extra = state.extra as Map<String, dynamic>?;
-                    return MaterialPage(
-                      fullscreenDialog: true,
-                      child: GroupMemberSelectionScreen(
-                        isAddingMembers: true,
-                        existingParticipantIds: extra?['participantIds'] ?? [],
-                      ),
-                    );
-                  },
-                ),
-                GoRoute(
-                  path: ':conversationId',
-                  name: 'chat_nested',
-                  parentNavigatorKey: rootNavigatorKey,
-                  pageBuilder: (context, state) {
-                    final conversationId =
-                        state.pathParameters['conversationId']!;
-                    final extra = state.extra as Map<String, dynamic>?;
-
-                    final isDesktop = ResponsiveLayout.isDesktop(context);
-
-                    if (isDesktop) {
-                      // On Desktop, navigate to messages with the conversation selected
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (context.mounted) {
-                          context.go(
-                            '/messages',
-                            extra: {
-                              'initialConversationId': conversationId,
-                              ...?extra,
-                            },
-                          );
-                        }
-                      });
-                      return const NoTransitionPage(
-                        child: messages.DirectMessagesScreen(),
-                      );
-                    } else {
-                      // On Mobile, push the dedicated ChatScreen with full height (no navbar)
-                      return MaterialPage(
-                        child: ChatScreen(
-                          conversationId: conversationId,
-                          otherUserName: extra?['otherUserName'],
-                          otherUserAvatar: extra?['otherUserAvatar'],
-                          otherUserId: extra?['otherUserId'],
-                        ),
-                      );
-                    }
-                  },
-                ),
-              ],
-            ),
-
-            // Notifications Screen
-            GoRoute(
-              path: '/notifications',
-              name: 'notifications',
-              parentNavigatorKey: rootNavigatorKey,
-              pageBuilder:
-                  (context, state) =>
-                      const MaterialPage(
-                        fullscreenDialog: true,
-                        child: NotificationsScreen(),
-                      ),
-            ),
-
-            // Profile Screen
-            GoRoute(
-              path: '/profile',
-              name: 'profile',
-              parentNavigatorKey: rootNavigatorKey,
-              pageBuilder:
-                  (context, state) =>
-                      const MaterialPage(
-                        fullscreenDialog: true,
-                        child: ProfileScreen(),
-                      ),
             ),
           ],
+        ),
+
+        // Full Screen Screens (Outside Shell)
+        
+        // Search Screen
+        GoRoute(
+          path: '/search',
+          name: 'search',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder:
+              (context, state) =>
+                  const MaterialPage(
+                    fullscreenDialog: true,
+                    child: SearchScreen(),
+                  ),
+        ),
+
+        // Notifications Screen
+        GoRoute(
+          path: '/notifications',
+          name: 'notifications',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder:
+              (context, state) =>
+                  const MaterialPage(
+                    fullscreenDialog: true,
+                    child: NotificationsScreen(),
+                  ),
+        ),
+
+        // Profile Screen
+        GoRoute(
+          path: '/profile',
+          name: 'profile',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder:
+              (context, state) =>
+                  const MaterialPage(
+                    fullscreenDialog: true,
+                    child: ProfileScreen(),
+                  ),
+        ),
+
+        // Circle Creation
+        GoRoute(
+          path: '/spaces/circles/create',
+          name: 'create_circle',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder:
+              (context, state) => const MaterialPage(
+                fullscreenDialog: true,
+                child: CreateCircleScreen(),
+              ),
+        ),
+
+        // Canvas Creation
+        GoRoute(
+          path: '/spaces/canvas/create',
+          name: 'create_canvas',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder:
+              (context, state) => const MaterialPage(
+                fullscreenDialog: true,
+                child: CreateCanvasScreen(),
+              ),
+        ),
+
+        // Circle Detail
+        GoRoute(
+          path: '/spaces/circles/:circleId',
+          name: 'circle_detail',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final id = state.pathParameters['circleId']!;
+            return CircleDetailScreen(circleId: id);
+          },
+          routes: [
+            GoRoute(
+              path: 'add-commitment',
+              name: 'create_commitment',
+              parentNavigatorKey: rootNavigatorKey,
+              builder: (context, state) {
+                final id = state.pathParameters['circleId']!;
+                return CreateCommitmentScreen(circleId: id);
+              },
+            ),
+          ],
+        ),
+
+        // Canvas Detail
+        GoRoute(
+          path: '/spaces/canvas/:canvasId',
+          name: 'canvas_detail',
+          parentNavigatorKey: rootNavigatorKey,
+          builder: (context, state) {
+            final id = state.pathParameters['canvasId']!;
+            return TimelineCanvasScreen(canvasId: id);
+          },
+        ),
+
+        // New Message Group
+        GoRoute(
+          path: '/messages/new-group',
+          name: 'new_group',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) => const MaterialPage(
+            fullscreenDialog: true,
+            child: GroupMemberSelectionScreen(),
+          ),
+        ),
+
+        // Add Group Members
+        GoRoute(
+          path: '/messages/add-members',
+          name: 'add_members',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            return MaterialPage(
+              fullscreenDialog: true,
+              child: GroupMemberSelectionScreen(
+                isAddingMembers: true,
+                existingParticipantIds: extra?['participantIds'] ?? [],
+              ),
+            );
+          },
+        ),
+
+        // Nested Chat (Mobile Full Screen)
+        GoRoute(
+          path: '/messages/:conversationId',
+          name: 'chat_nested',
+          parentNavigatorKey: rootNavigatorKey,
+          pageBuilder: (context, state) {
+            final conversationId =
+                state.pathParameters['conversationId']!;
+            final extra = state.extra as Map<String, dynamic>?;
+
+            final isDesktop = ResponsiveLayout.isDesktop(context);
+
+            if (isDesktop) {
+              // On Desktop, navigate to messages with the conversation selected
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (context.mounted) {
+                  context.go(
+                    '/messages',
+                    extra: {
+                      'initialConversationId': conversationId,
+                      ...?extra,
+                    },
+                  );
+                }
+              });
+              return const NoTransitionPage(
+                child: messages.DirectMessagesScreen(),
+              );
+            } else {
+              // On Mobile, push the dedicated ChatScreen with full height (no navbar)
+              return MaterialPage(
+                child: ChatScreen(
+                  conversationId: conversationId,
+                  otherUserName: extra?['otherUserName'],
+                  otherUserAvatar: extra?['otherUserAvatar'],
+                  otherUserId: extra?['otherUserId'],
+                ),
+              );
+            }
+          },
         ),
 
         // Ripples Screen (Full screen, no bottom nav)
