@@ -1221,7 +1221,10 @@ class AppRouter {
               parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const MaterialPage(child: SearchScreen()),
+                      const MaterialPage(
+                        fullscreenDialog: true,
+                        child: SearchScreen(),
+                      ),
             ),
 
             // Communities Screen
@@ -1372,7 +1375,10 @@ class AppRouter {
               parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const MaterialPage(child: NotificationsScreen()),
+                      const MaterialPage(
+                        fullscreenDialog: true,
+                        child: NotificationsScreen(),
+                      ),
             ),
 
             // Profile Screen
@@ -1382,7 +1388,10 @@ class AppRouter {
               parentNavigatorKey: rootNavigatorKey,
               pageBuilder:
                   (context, state) =>
-                      const MaterialPage(child: ProfileScreen()),
+                      const MaterialPage(
+                        fullscreenDialog: true,
+                        child: ProfileScreen(),
+                      ),
             ),
           ],
         ),

@@ -80,6 +80,8 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
       KlipyResult<List<KlipyMedia>> result;
       if (query.isNotEmpty) {
         result = await _klipyService.search(query);
+      } else if (_selectedCategory != 'Trending') {
+        result = await _klipyService.search(_selectedCategory);
       } else {
         result = await _klipyService.getTrending();
       }

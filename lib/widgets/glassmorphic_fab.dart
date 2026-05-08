@@ -33,25 +33,36 @@ class GlassmorphicFAB extends StatelessWidget {
     final settings = context.watch<UserSettingsProvider>();
     final liquidGlassMode = settings.liquidGlassMode;
     
+    Widget fab;
     // Use liquid glass if enabled (real or fake)
     if (liquidGlassMode != LiquidGlassMode.disabled) {
-      return _buildLiquidGlassFAB(context, liquidGlassMode);
+      fab = _buildLiquidGlassFAB(context, liquidGlassMode);
+    } else {
+      // Fall back to original backdrop filter implementation
+      fab = _buildBackdropFilterFAB(context);
     }
-    
-    // Fall back to original backdrop filter implementation
-    return _buildBackdropFilterFAB(context);
+
+    if (tooltip != null) {
+      return Tooltip(
+        message: tooltip!,
+        child: fab,
+      );
+    }
+
+    return fab;
   }
 
   Widget _buildBackdropFilterFAB(BuildContext context) {
     final theme = Theme.of(context);
     final baseColor = color ?? theme.colorScheme.surfaceContainerHighest;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(size / 2),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: GestureDetector(
-          onTap: onPressed,
+    return GestureDetector(
+      onTap: onPressed,
+      behavior: HitTestBehavior.opaque,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size / 2),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
           child: Container(
             width: size,
             height: size,
@@ -79,12 +90,13 @@ class GlassmorphicFAB extends StatelessWidget {
 
     if (mode == LiquidGlassMode.fake) {
       // Fake glass - backdrop filter
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(size / 2),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: GestureDetector(
-            onTap: onPressed,
+      return GestureDetector(
+        onTap: onPressed,
+        behavior: HitTestBehavior.opaque,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size / 2),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
             child: Container(
               width: size,
               height: size,
@@ -107,6 +119,7 @@ class GlassmorphicFAB extends StatelessWidget {
     // Note: For best results, this should be inside a LiquidGlassLayer with background content
     return GestureDetector(
       onTap: onPressed,
+      behavior: HitTestBehavior.opaque,
       child: LiquidGlass.withOwnLayer(
         settings: LiquidGlassSettings(
           thickness: 10,
