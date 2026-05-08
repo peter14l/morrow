@@ -104,6 +104,7 @@ class CallService extends ChangeNotifier {
   StreamSubscription? _callSubscription;
   StreamSubscription? _incomingCallSubscription;
   RealtimeChannel? _signalingChannel;
+  bool _isSignalingSubscribed = false;
 
   bool _isMuted = false;
   bool _isVideoOn = true;
@@ -166,7 +167,11 @@ class CallService extends ChangeNotifier {
     }
 
     final Map<String, dynamic> constraints = {
-      'audio': true,
+      'audio': {
+        'echoCancellation': true,
+        'noiseSuppression': true,
+        'autoGainControl': true,
+      },
       'video': isVideo ? {
         'facingMode': 'user',
         'width': {'ideal': 1280},
@@ -266,16 +271,19 @@ class CallService extends ChangeNotifier {
           'sdpMLineIndex': candidate.sdpMLineIndex,
         };
         
-        if (_signalingChannel == null) {
+        if (!_isSignalingSubscribed) {
+          debugPrint('[CallService] Buffering outgoing candidate for $remoteUserId (Not subscribed)');
           _outgoingCandidateQueue[remoteUserId] ??= [];
           _outgoingCandidateQueue[remoteUserId]!.add(data);
         } else {
+          debugPrint('[CallService] Sending outgoing candidate for $remoteUserId');
           _sendSignaling(remoteUserId, data);
         }
       });
     };
 
     pc.onTrack = (event) {
+      debugPrint('[CallService] onTrack: ${event.track.kind} received from $remoteUserId');
       Future(() async {
         try {
           if (event.track.kind == 'audio') {
@@ -311,6 +319,7 @@ class CallService extends ChangeNotifier {
     };
 
     pc.onRenegotiationNeeded = () {
+      debugPrint('[CallService] onRenegotiationNeeded for $remoteUserId');
       Future(() async {
         if (pc.signalingState != RTCSignalingState.RTCSignalingStateStable) return;
 
@@ -329,6 +338,7 @@ class CallService extends ChangeNotifier {
     };
 
     pc.onConnectionState = (state) {
+      debugPrint('[CallService] Connection state for $remoteUserId changed to: $state');
       Future(() {
         if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
@@ -336,6 +346,14 @@ class CallService extends ChangeNotifier {
           _removePeer(remoteUserId);
         }
       });
+    };
+
+    pc.onIceConnectionState = (state) {
+      debugPrint('[CallService] ICE Connection state for $remoteUserId changed to: $state');
+    };
+
+    pc.onSignalingState = (state) {
+      debugPrint('[CallService] Signaling state for $remoteUserId changed to: $state');
     };
 
     _peerConnections[remoteUserId] = pc;
@@ -415,6 +433,7 @@ class CallService extends ChangeNotifier {
   }
 
   Future<void> startSignaling(CallEntity call) async {
+    debugPrint('[CallService] Starting signaling for call: ${call.id}');
     _currentCallId = call.id;
     _currentCall = call;
     _subscribeToCall(call.id);
@@ -426,6 +445,11 @@ class CallService extends ChangeNotifier {
       final pc = _peerConnections[remoteUserId];
       if (pc != null) {
         await _flushCandidateQueue(remoteUserId, pc);
+      }
+      
+      // Safety flush for outgoing candidates if already subscribed
+      if (_isSignalingSubscribed) {
+        await _flushOutgoingCandidateQueue(remoteUserId);
       }
     }
     
@@ -452,6 +476,7 @@ class CallService extends ChangeNotifier {
               if (updatedCall.status == CallStatus.ended || 
                   updatedCall.status == CallStatus.declined ||
                   updatedCall.status == CallStatus.missed) {
+                debugPrint('[CallService] Call status updated to ${updatedCall.status}, cleaning up');
                 _cleanup();
                 return;
               }
@@ -461,6 +486,7 @@ class CallService extends ChangeNotifier {
                   oldCall?.status == CallStatus.ringing &&
                   updatedCall.answer != null) {
                 try {
+                  debugPrint('[CallService] Call accepted, processing answer');
                   await _handleSignalingData(updatedCall.receiverId, updatedCall.answer!);
                 } catch (e) {
                   debugPrint('[CallService] Error processing answer: $e');
@@ -477,6 +503,7 @@ class CallService extends ChangeNotifier {
     if (user == null) return;
     final userId = user.id;
 
+    _isSignalingSubscribed = false;
     _signalingChannel = _supabase.channel('call_$callId');
     _signalingChannel!.onBroadcast(event: 'signaling', callback: (payload) {
       final senderId = payload['sender_id'];
@@ -485,6 +512,7 @@ class CallService extends ChangeNotifier {
         Future(() async {
           try {
             final decryptedData = await _decryptData(senderId, payload);
+            debugPrint('[CallService] Received signaling event: ${decryptedData['type']} from $senderId');
             await _handleSignalingData(senderId, decryptedData);
           } catch (e) {
             debugPrint('[CallService] Signaling processing error: $e');
@@ -492,7 +520,9 @@ class CallService extends ChangeNotifier {
         });
       }
     }).subscribe((status, [error]) {
+      debugPrint('[CallService] Signaling channel status: $status');
       if (status == RealtimeSubscribeStatus.subscribed) {
+        _isSignalingSubscribed = true;
         final remoteUserId = _currentCall?.callerId == userId ? _currentCall?.receiverId : _currentCall?.callerId;
         if (remoteUserId != null) {
           _flushOutgoingCandidateQueue(remoteUserId);
@@ -506,7 +536,7 @@ class CallService extends ChangeNotifier {
 
   Future<void> _flushOutgoingCandidateQueue(String remoteUserId) async {
     final candidates = _outgoingCandidateQueue[remoteUserId];
-    if (candidates != null && _signalingChannel != null) {
+    if (candidates != null && _isSignalingSubscribed) {
       debugPrint('[CallService] Flushing ${candidates.length} outgoing candidates for $remoteUserId');
       for (var candidate in candidates) {
         await _sendSignaling(remoteUserId, candidate);
@@ -581,6 +611,7 @@ class CallService extends ChangeNotifier {
       try {
         if (type == 'offer') {
           if (pc != null) {
+            debugPrint('[CallService] Handling remote offer from $senderId');
             await pc.setRemoteDescription(RTCSessionDescription(data['sdp'], data['sdp_type']));
             final answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
@@ -589,14 +620,17 @@ class CallService extends ChangeNotifier {
         } else if (type == 'answer') {
           if (pc != null && (pc.signalingState == RTCSignalingState.RTCSignalingStateHaveLocalOffer || 
                              pc.signalingState == RTCSignalingState.RTCSignalingStateStable)) {
+            debugPrint('[CallService] Handling remote answer from $senderId');
             await pc.setRemoteDescription(RTCSessionDescription(data['sdp'], data['sdp_type']));
             await _applyBitrateConstraints(pc);
             await _flushCandidateQueue(senderId, pc);
           }
         } else if (type == 'candidate') {
           if (pc != null) {
+            debugPrint('[CallService] Handling remote candidate from $senderId');
             await pc.addCandidate(RTCIceCandidate(data['candidate'], data['sdpMid'], data['sdpMLineIndex']));
           } else {
+            debugPrint('[CallService] Buffering incoming candidate from $senderId (Peer connection not ready)');
             _candidateQueue[senderId] ??= [];
             _candidateQueue[senderId]!.add(data);
           }
@@ -610,7 +644,7 @@ class CallService extends ChangeNotifier {
           _safeNotifyListeners();
         }
       } catch (e) {
-        debugPrint('[CallService] Error handling signaling: $e');
+        debugPrint('[CallService] Error handling signaling data ($type): $e');
       }
     });
   }
@@ -623,6 +657,7 @@ class CallService extends ChangeNotifier {
   Future<void> _flushCandidateQueue(String senderId, RTCPeerConnection pc) async {
     final candidates = _candidateQueue[senderId];
     if (candidates != null) {
+      debugPrint('[CallService] Flushing ${candidates.length} buffered incoming candidates for $senderId');
       for (var candidate in candidates) {
         await pc.addCandidate(RTCIceCandidate(candidate['candidate'], candidate['sdpMid'], candidate['sdpMLineIndex']));
       }
@@ -646,6 +681,7 @@ class CallService extends ChangeNotifier {
     _callSubscription = null;
     _signalingChannel?.unsubscribe();
     _signalingChannel = null;
+    _isSignalingSubscribed = false;
     
     if (!kIsWeb && Platform.isAndroid) {
       try {
