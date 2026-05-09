@@ -375,7 +375,7 @@ class ChatProvider with ChangeNotifier {
       }).toList();
 
       setState((s) => s.copyWith(messages: filtered, isLoading: false));
-      scrollToBottom(force: true);
+      scrollToBottom(force: !silent);
       loadSmartReplies();
       await settingsProvider.saveMessagesToCache(filtered);
     } catch (e) {
