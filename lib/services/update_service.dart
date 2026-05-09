@@ -490,3 +490,9 @@ class UpdateDialog extends StatelessWidget {
     );
   }
 }
+red
+          ? MainAxisAlignment.end
+          : MainAxisAlignment.spaceBetween,
+    );
+  }
+}

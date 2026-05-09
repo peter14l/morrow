@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.5",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.1.apk",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
+    "latestVersion": "1.1.6",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.6.apk",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T12:00:00Z"
+    "releaseDate": "2026-05-09T14:00:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.5",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.1.msix",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
+    "latestVersion": "1.1.6",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.6.msix",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T12:00:00Z"
+    "releaseDate": "2026-05-09T14:00:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.5",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.1.dmg",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
+    "latestVersion": "1.1.6",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.6.dmg",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T12:00:00Z"
+    "releaseDate": "2026-05-09T14:00:00Z"
   }
 }
