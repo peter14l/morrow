@@ -626,36 +626,20 @@ class AppInitializer {
           create: (context) {
             CallService? callService;
             try {
-               callService = context.read<CallService>();
+              callService = context.read<CallService>();
             } catch (e) {
-               debugPrint('CallService not found during CallProvider creation: $e');
-               callService = DisabledCallService();
+              debugPrint('CallService not found during CallProvider creation: $e');
+              callService = DisabledCallService();
             }
-            final provider = CallProvider(callService);
-            
-            if (AppConfig.enableCalls && callService is! DisabledCallService) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                // Check if context is still valid (using a closure-safe way)
-                final repo = CallRepositoryImpl();
-                provider.initialize(
-                  initiateCall: InitiateCall(repo),
-                  acceptCall: AcceptCall(repo),
-                  endCall: EndCall(repo),
-                  getActiveCalls: GetActiveCalls(repo),
-                );
-              });
-            } else {
-              // Mark as initialized but don't start any listeners
-              // Use a private microtask to not block create()
-              Future.microtask(() {
-                try {
-                  if (context.mounted) {
-                    provider.clearError(); // Just to trigger a notify if needed
-                  }
-                } catch (_) {}
-              });
-            }
-            return provider;
+
+            final repo = CallRepositoryImpl();
+            return CallProvider(
+              callService: callService,
+              initiateCall: InitiateCall(repo),
+              acceptCall: AcceptCall(repo),
+              endCall: EndCall(repo),
+              getActiveCalls: GetActiveCalls(repo),
+            );
           },
           update: (context, service, provider) => provider!,
         ),

@@ -95,17 +95,27 @@ class CallState {
 /// Provider for call state management
 class CallProvider extends ChangeNotifier {
   final CallService _callService;
-  late InitiateCall _initiateCall;
-  late AcceptCall _acceptCall;
-  late EndCall _endCall;
-  late GetActiveCalls _getActiveCalls;
+  final InitiateCall _initiateCall;
+  final AcceptCall _acceptCall;
+  final EndCall _endCall;
+  final GetActiveCalls _getActiveCalls;
   bool _isInitialized = false;
   bool _isEnding = false;
   Timer? _ringingTimer;
 
   CallState _state = CallState.initial();
 
-  CallProvider(this._callService) {
+  CallProvider({
+    required CallService callService,
+    required InitiateCall initiateCall,
+    required AcceptCall acceptCall,
+    required EndCall endCall,
+    required GetActiveCalls getActiveCalls,
+  })  : _callService = callService,
+        _initiateCall = initiateCall,
+        _acceptCall = acceptCall,
+        _endCall = endCall,
+        _getActiveCalls = getActiveCalls {
     _callService.addListener(_onCallServiceUpdate);
     
     // Listen to auth state changes to automatically start/stop listener
@@ -115,11 +125,12 @@ class CallProvider extends ChangeNotifier {
         if (_isInitialized) {
           _startListenerWithRetry();
         }
-      } else {
-        // User logged out
-        _callService.endCall();
       }
     });
+
+    // Start incoming call listener immediately as dependencies are now injected via constructor
+    _startListenerWithRetry();
+    _isInitialized = true;
   }
 
   void _onCallServiceUpdate() {
@@ -187,28 +198,7 @@ class CallProvider extends ChangeNotifier {
   bool get isSpeakerphoneOn => _state.isSpeakerphoneOn;
   bool get isScreenSharing => _state.isScreenSharing;
 
-  Future<void> initialize({
-    required InitiateCall initiateCall,
-    required AcceptCall acceptCall,
-    required EndCall endCall,
-    required GetActiveCalls getActiveCalls,
-  }) async {
-    if (_isInitialized) return;
 
-    _initiateCall = initiateCall;
-    _acceptCall = acceptCall;
-    _endCall = endCall;
-    _getActiveCalls = getActiveCalls;
-    _state = _state.copyWith(isLoading: false);
-    
-    // Start incoming call listener with basic error handling to prevent 
-    // startup blocking if Realtime has a temporary hiccup.
-    _startListenerWithRetry();
-    
-    _isInitialized = true;
-    _isEnding = false;
-    notifyListeners();
-  }
 
   Future<void> _startListenerWithRetry({int attempt = 0}) async {
     try {
