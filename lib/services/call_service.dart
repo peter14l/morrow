@@ -136,6 +136,8 @@ class CallService extends ChangeNotifier {
   String? _currentCallId;
   CallEntity? _currentCall;
   CallEntity? _incomingCall;
+  String? _lastEndedCallId;
+  DateTime? _lastEndedTimestamp;
   
   StreamSubscription? _callSubscription;
   StreamSubscription? _incomingCallSubscription;
@@ -180,13 +182,38 @@ class CallService extends ChangeNotifier {
   bool get isScreenSharing => _isScreenSharing;
   String? get remoteScreenShareUserId => _remoteScreenShareUserId;
 
+  bool _isNotifying = false;
+  int _notificationCount = 0;
+
   void _safeNotifyListeners() {
     if (kIsWeb) {
       notifyListeners();
       return;
     }
+    
+    _notificationCount++;
+    if (_notificationCount > 100) {
+      debugPrint('[CallService] WARNING: Extremely high notification frequency detected! Possible loop.');
+    }
+
+    if (_isNotifying) {
+      debugPrint('[CallService] Skipping notify: Already in a notification cycle');
+      return;
+    }
+
     Future(() {
-      if (hasListeners) notifyListeners();
+      if (hasListeners) {
+        try {
+          _isNotifying = true;
+          notifyListeners();
+        } finally {
+          _isNotifying = false;
+          // Reset count after some time or when idle
+          Future.delayed(const Duration(seconds: 1), () {
+            _notificationCount = 0;
+          });
+        }
+      }
     });
   }
 
@@ -298,10 +325,27 @@ class CallService extends ChangeNotifier {
 
       if (Platform.isIOS || Platform.isAndroid) {
         final session = await session_pkg.AudioSession.instance;
+        
+        // Check for connected Bluetooth/Headset devices to avoid overriding them
+        final devices = await session.getDevices();
+        final hasHeadset = devices.any((d) => 
+          d.type == session_pkg.AudioDeviceType.bluetoothA2dp ||
+          d.type == session_pkg.AudioDeviceType.bluetoothLe ||
+          d.type == session_pkg.AudioDeviceType.bluetoothSco ||
+          d.type == session_pkg.AudioDeviceType.wiredHeadset ||
+          d.type == session_pkg.AudioDeviceType.wiredHeadphones ||
+          d.type == session_pkg.AudioDeviceType.usbHeadset
+        );
+
+        debugPrint('[CallService] Audio devices detected: ${devices.map((d) => d.name).join(', ')}');
+        debugPrint('[CallService] Headset/Bluetooth detected: $hasHeadset');
+
         await session.configure(session_pkg.AudioSessionConfiguration(
           avAudioSessionCategory: session_pkg.AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions:
               session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
+              session_pkg.AVAudioSessionCategoryOptions.allowBluetoothA2DP |
+              session_pkg.AVAudioSessionCategoryOptions.allowAirPlay |
               (speakerOn ? session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker : session_pkg.AVAudioSessionCategoryOptions.none),
           avAudioSessionMode: isVideo ? session_pkg.AVAudioSessionMode.videoChat : session_pkg.AVAudioSessionMode.voiceChat,
           avAudioSessionRouteSharingPolicy:
@@ -315,8 +359,17 @@ class CallService extends ChangeNotifier {
         ));
         await session.setActive(true);
         debugPrint('[CallService] Audio session activated');
-        await Helper.setSpeakerphoneOn(speakerOn);
-        debugPrint('[CallService] Speakerphone set to: $speakerOn');
+        
+        // Small delay to ensure OS has switched routing before we command speakerphone
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        // ONLY force speakerphone if the user explicitly wants it (speakerOn) 
+        // AND we don't have a headset/bluetooth device that should take precedence.
+        // If a headset is connected, we should NOT call setSpeakerphoneOn(true) as it forces output to built-in speaker.
+        final shouldForceSpeaker = speakerOn && !hasHeadset;
+        
+        await Helper.setSpeakerphoneOn(shouldForceSpeaker);
+        debugPrint('[CallService] Speakerphone forced to: $shouldForceSpeaker (Requested: $speakerOn, Headset connected: $hasHeadset)');
       }
     } catch (e) {
       debugPrint('[CallService] Error configuring audio session: $e');
@@ -359,51 +412,59 @@ class CallService extends ChangeNotifier {
       });
     };
 
-    pc.onTrack = (event) {
-      _recordStep('onTrack: ${event.track.kind} from $remoteUserId');
-      Future(() async {
-        try {
-          if (event.track.kind == 'audio') {
-            _recordStep('Enabling remote audio track: ${event.track.id}');
-            event.track.enabled = true;
-          }
+  final Set<String> _initializingRenderers = {};
 
-          // Use the provided stream if available, otherwise aggregate
-          MediaStream stream;
-          if (event.streams.isNotEmpty) {
-            stream = event.streams[0];
-          } else {
-            _recordStep('No stream in onTrack, using/creating aggregate stream');
-            _remoteStreams[remoteUserId] ??= await createLocalMediaStream('remote_$remoteUserId');
-            final aggregate = _remoteStreams[remoteUserId]!;
-            if (!aggregate.getTracks().any((t) => t.id == event.track.id)) {
-              await aggregate.addTrack(event.track);
-            }
-            stream = aggregate;
-          }
-          _remoteStreams[remoteUserId] = stream;
+  pc.onTrack = (event) {
+    _recordStep('onTrack: ${event.track.kind} from $remoteUserId');
+    Future(() async {
+      try {
+        if (event.track.kind == 'audio') {
+          _recordStep('Enabling remote audio track: ${event.track.id}');
+          event.track.enabled = true;
+        }
 
-          // IMPORTANT: Always initialize a renderer for remote participants, even for audio-only calls.
-          // This ensures the stream is "attached" to a media consumer which triggers audio playback on some platforms (like Windows).
-          _recordStep('Initializing/updating remote renderer for ${event.track.kind} from $remoteUserId');
-          if (!_remoteRenderers.containsKey(remoteUserId)) {
+        // Use the provided stream if available, otherwise aggregate
+        MediaStream stream;
+        if (event.streams.isNotEmpty) {
+          stream = event.streams[0];
+        } else {
+          _recordStep('No stream in onTrack, using/creating aggregate stream');
+          _remoteStreams[remoteUserId] ??= await createLocalMediaStream('remote_$remoteUserId');
+          final aggregate = _remoteStreams[remoteUserId]!;
+          if (!aggregate.getTracks().any((t) => t.id == event.track.id)) {
+            await aggregate.addTrack(event.track);
+          }
+          stream = aggregate;
+        }
+        _remoteStreams[remoteUserId] = stream;
+
+        // IMPORTANT: Always initialize a renderer for remote participants, even for audio-only calls.
+        // This ensures the stream is "attached" to a media consumer which triggers audio playback on some platforms (like Windows).
+        _recordStep('Initializing/updating remote renderer for ${event.track.kind} from $remoteUserId');
+        
+        if (!_remoteRenderers.containsKey(remoteUserId) && !_initializingRenderers.contains(remoteUserId)) {
+          _initializingRenderers.add(remoteUserId);
+          try {
             final renderer = RTCVideoRenderer();
             await renderer.initialize();
             renderer.srcObject = stream;
             _remoteRenderers[remoteUserId] = renderer;
-          } else {
-            // Update the source object if it's not already set correctly or if it's a new track in the aggregate
-            if (_remoteRenderers[remoteUserId]!.srcObject?.id != stream.id) {
-              _remoteRenderers[remoteUserId]!.srcObject = stream;
-            }
+          } finally {
+            _initializingRenderers.remove(remoteUserId);
           }
-          
-          _safeNotifyListeners();
-        } catch (e) {
-          _recordStep('Error in onTrack: $e');
+        } else if (_remoteRenderers.containsKey(remoteUserId)) {
+          // Update the source object if it's not already set correctly or if it's a new track in the aggregate
+          if (_remoteRenderers[remoteUserId]!.srcObject?.id != stream.id) {
+            _remoteRenderers[remoteUserId]!.srcObject = stream;
+          }
         }
-      });
-    };
+        
+        _safeNotifyListeners();
+      } catch (e) {
+        _recordStep('Error in onTrack: $e');
+      }
+    });
+  };
 
     pc.onRenegotiationNeeded = () {
       debugPrint('[CallService] onRenegotiationNeeded for $remoteUserId');
@@ -827,6 +888,12 @@ class CallService extends ChangeNotifier {
 
   Future<void> _cleanup() async {
     debugPrint('[CallService] Cleaning up call resources');
+    
+    if (_currentCallId != null) {
+      _lastEndedCallId = _currentCallId;
+      _lastEndedTimestamp = DateTime.now();
+    }
+
     await _stopRingtone();
     _callSubscription?.cancel();
     _callSubscription = null;
@@ -910,7 +977,13 @@ class CallService extends ChangeNotifier {
         final ringingCalls = data.where((json) => json['status'] == CallStatus.ringing.name.toLowerCase()).toList();
         if (ringingCalls.isNotEmpty) {
           final call = CallEntity.fromJson(ringingCalls.first);
-          if (_currentCallId == null && _incomingCall?.id != call.id) {
+          
+          // Check if this is the call we just ended (within 5 seconds) to prevent re-ringing flicker
+          final isRecentlyEnded = _lastEndedCallId == call.id && 
+                                 _lastEndedTimestamp != null && 
+                                 DateTime.now().difference(_lastEndedTimestamp!).inSeconds < 5;
+
+          if (_currentCallId == null && _incomingCall?.id != call.id && !isRecentlyEnded) {
             _incomingCall = call;
             _playRingtone();
             DesktopCallNotifier.instance.handleIncomingCall(callId: call.id, callerName: 'Incoming Call', senderId: call.callerId);

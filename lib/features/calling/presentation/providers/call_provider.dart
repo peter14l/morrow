@@ -133,48 +133,56 @@ class CallProvider extends ChangeNotifier {
     _isInitialized = true;
   }
 
+  bool _isProcessingUpdate = false;
+
   void _onCallServiceUpdate() {
-    if (_isEnding) return;
+    if (_isEnding || _isProcessingUpdate) return;
 
-    final newState = _state.copyWith(
-      activeCall: _callService.currentCall,
-      localStream: _callService.localStream,
-      remoteStreams: Map.from(_callService.remoteStreams),
-      remoteRenderers: Map.from(_callService.remoteRenderers),
-      localRenderer: _callService.localRenderer,
-      isMuted: _callService.isMuted,
-      isVideoOn: _callService.isVideoOn,
-      isSpeakerphoneOn: _callService.isSpeakerphoneOn,
-      isScreenSharing: _callService.isScreenSharing,
-      incomingCall: _callService.incomingCall,
-      remoteScreenShareUserId: _callService.remoteScreenShareUserId,
-      clearRemoteScreenShare: _callService.remoteScreenShareUserId == null,
-      clearIncomingCall: _callService.incomingCall == null,
-      clearActiveCall: _callService.currentCallId == null,
-    );
+    try {
+      _isProcessingUpdate = true;
+      final newState = _state.copyWith(
+        activeCall: _callService.currentCall,
+        localStream: _callService.localStream,
+        remoteStreams: Map.from(_callService.remoteStreams),
+        remoteRenderers: Map.from(_callService.remoteRenderers),
+        localRenderer: _callService.localRenderer,
+        isMuted: _callService.isMuted,
+        isVideoOn: _callService.isVideoOn,
+        isSpeakerphoneOn: _callService.isSpeakerphoneOn,
+        isScreenSharing: _callService.isScreenSharing,
+        incomingCall: _callService.incomingCall,
+        remoteScreenShareUserId: _callService.remoteScreenShareUserId,
+        clearRemoteScreenShare: _callService.remoteScreenShareUserId == null,
+        clearIncomingCall: _callService.incomingCall == null,
+        clearActiveCall: _callService.currentCallId == null,
+      );
 
-    if (newState.activeCall != _state.activeCall ||
-        newState.incomingCall != _state.incomingCall ||
-        newState.localStream != _state.localStream ||
-        newState.remoteStreams.length != _state.remoteStreams.length ||
-        newState.isMuted != _state.isMuted ||
-        newState.isVideoOn != _state.isVideoOn ||
-        newState.isSpeakerphoneOn != _state.isSpeakerphoneOn ||
-        newState.isScreenSharing != _state.isScreenSharing ||
-        newState.remoteScreenShareUserId != _state.remoteScreenShareUserId ||
-        newState.remoteRenderers.length != _state.remoteRenderers.length) {
-      
-      // If call status changed to active, stop ringing timer
-      if (newState.activeCall?.status == CallStatus.active && 
-          _state.activeCall?.status == CallStatus.ringing) {
-        _ringingTimer?.cancel();
-        _callService.stopRingtone();
+      final hasChanges = newState.activeCall != _state.activeCall ||
+          newState.incomingCall != _state.incomingCall ||
+          newState.localStream != _state.localStream ||
+          !mapEquals(newState.remoteStreams, _state.remoteStreams) ||
+          !mapEquals(newState.remoteRenderers, _state.remoteRenderers) ||
+          newState.isMuted != _state.isMuted ||
+          newState.isVideoOn != _state.isVideoOn ||
+          newState.isSpeakerphoneOn != _state.isSpeakerphoneOn ||
+          newState.isScreenSharing != _state.isScreenSharing ||
+          newState.remoteScreenShareUserId != _state.remoteScreenShareUserId;
+
+      if (hasChanges) {
+        // If call status changed to active, stop ringing timer
+        if (newState.activeCall?.status == CallStatus.active && 
+            _state.activeCall?.status == CallStatus.ringing) {
+          _ringingTimer?.cancel();
+          _callService.stopRingtone();
+        }
+
+        _state = newState;
+        notifyListeners();
+      } else {
+        _state = newState;
       }
-
-      _state = newState;
-      notifyListeners();
-    } else {
-      _state = newState;
+    } finally {
+      _isProcessingUpdate = false;
     }
   }
 
@@ -289,14 +297,14 @@ class CallProvider extends ChangeNotifier {
       // 1. Stop local ringtone
       await _callService.stopRingtone();
 
-      // 2. Start signaling early to allow ICE candidates to be sent as they are gathered
-      debugPrint('[CallProvider] Starting signaling early for call ${call.id}');
-      await _callService.startSignaling(call);
-
-      // 3. Initialize local stream
+      // 2. Initialize local stream FIRST so tracks are ready when we start signaling
       debugPrint('[CallProvider] Initializing local stream for incoming ${call.type.name} call');
       await _callService.initLocalStream(call.type == CallType.video);
       
+      // 3. Start signaling early to allow ICE candidates to be sent as they are gathered
+      debugPrint('[CallProvider] Starting signaling for call ${call.id}');
+      await _callService.startSignaling(call);
+
       // 4. Create WebRTC answer
       debugPrint('[CallProvider] Creating WebRTC answer for ${call.callerId}');
       final answer = await _callService.createAnswer(call.callerId, call.offer!);
@@ -309,8 +317,6 @@ class CallProvider extends ChangeNotifier {
         answer: answer,
       );
       
-      // Note: Signaling was already started early
-      
       _state = _state.copyWith(
         isLoading: false, 
         activeCall: acceptedCall, 
@@ -322,8 +328,9 @@ class CallProvider extends ChangeNotifier {
       _state = _state.copyWith(isLoading: false, error: 'Failed to accept call: ${e.toString()}');
       notifyListeners();
       
-      // If it fails after stopping ringtone, we should cleanup to be safe
-      _callService.stopRingtone();
+      // If it fails, we should cleanup to be safe
+      await _callService.stopRingtone();
+      await _callService.endCall();
     }
   }
 

@@ -102,6 +102,33 @@ class CallEntity {
     );
   }
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is CallEntity &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          conversationId == other.conversationId &&
+          callerId == other.callerId &&
+          receiverId == other.receiverId &&
+          status == other.status &&
+          type == other.type &&
+          startedAt == other.startedAt &&
+          endedAt == other.endedAt &&
+          createdAt == other.createdAt;
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      conversationId.hashCode ^
+      callerId.hashCode ^
+      receiverId.hashCode ^
+      status.hashCode ^
+      type.hashCode ^
+      startedAt.hashCode ^
+      endedAt.hashCode ^
+      createdAt.hashCode;
+
   bool get isActive => status == CallStatus.active;
   bool get isVoiceCall => type == CallType.voice;
   bool get isVideoCall => type == CallType.video;

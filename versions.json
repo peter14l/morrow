@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.4",
+    "latestVersion": "1.1.5",
     "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.1.apk",
-    "releaseNotes": "• Major overhaul of Circles to a feed-centric system.\n• Added private Circle feeds and author-curated member selection.\n• Enhanced privacy controls for shared content.",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
     "isRequired": false,
-    "releaseDate": "2026-05-01T12:00:00Z"
+    "releaseDate": "2026-05-09T12:00:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.4",
+    "latestVersion": "1.1.5",
     "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.1.msix",
-    "releaseNotes": "• Major overhaul of Circles to a feed-centric system.\n• Added private Circle feeds and author-curated member selection.\n• Enhanced privacy controls for shared content.",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
     "isRequired": false,
-    "releaseDate": "2026-05-01T12:00:00Z"
+    "releaseDate": "2026-05-09T12:00:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.4",
+    "latestVersion": "1.1.5",
     "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.1.dmg",
-    "releaseNotes": "• Major overhaul of Circles to a feed-centric system.\n• Added private Circle feeds and author-curated member selection.\n• Enhanced privacy controls for shared content.",
+    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.",
     "isRequired": false,
-    "releaseDate": "2026-05-01T12:00:00Z"
+    "releaseDate": "2026-05-09T12:00:00Z"
   }
 }
