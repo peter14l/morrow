@@ -1,3 +1,5 @@
+import 'package:oasis/features/profile/domain/models/user_profile_entity.dart';
+
 enum CommitmentStatus { open, closed }
 
 enum MemberIntent { inTrying, out, pending }
@@ -165,6 +167,7 @@ class CircleEntity {
   final DateTime createdAt;
   final int streakCount;
   final List<String> memberIds;
+  final List<UserProfileEntity> members;
 
   const CircleEntity({
     required this.id,
@@ -174,9 +177,19 @@ class CircleEntity {
     required this.createdAt,
     this.streakCount = 0,
     required this.memberIds,
+    this.members = const [],
   });
 
   factory CircleEntity.fromJson(Map<String, dynamic> json) {
+    final memberIds = (json['member_ids'] as List<dynamic>?)
+              ?.map((e) => e as String)
+              .toList() ??
+          [];
+    
+    final members = (json['members'] as List<dynamic>?)
+              ?.map((e) => UserProfileEntity.fromJson(e as Map<String, dynamic>))
+              .toList() ?? [];
+
     return CircleEntity(
       id: json['id'] as String,
       name: json['name'] as String? ?? 'My Circle',
@@ -184,11 +197,8 @@ class CircleEntity {
       createdBy: json['created_by'] as String,
       createdAt: DateTime.parse(json['created_at'] as String),
       streakCount: json['streak_count'] as int? ?? 0,
-      memberIds:
-          (json['member_ids'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [],
+      memberIds: memberIds,
+      members: members,
     );
   }
 
@@ -201,6 +211,7 @@ class CircleEntity {
       'created_at': createdAt.toIso8601String(),
       'streak_count': streakCount,
       'member_ids': memberIds,
+      'members': members.map((e) => e.toJson()).toList(),
     };
   }
 
@@ -212,6 +223,7 @@ class CircleEntity {
     DateTime? createdAt,
     int? streakCount,
     List<String>? memberIds,
+    List<UserProfileEntity>? members,
   }) {
     return CircleEntity(
       id: id ?? this.id,
@@ -221,6 +233,7 @@ class CircleEntity {
       createdAt: createdAt ?? this.createdAt,
       streakCount: streakCount ?? this.streakCount,
       memberIds: memberIds ?? this.memberIds,
+      members: members ?? this.members,
     );
   }
 

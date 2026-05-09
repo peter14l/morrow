@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/services/notification_manager.dart';
@@ -292,8 +293,22 @@ class UpdateService extends ChangeNotifier {
 
       // 3. Install based on platform
       if (Platform.isAndroid) {
+        _addLog('Checking installation permissions...');
+        try {
+          if (await Permission.requestInstallPackages.isDenied) {
+            _addLog('Requesting installation permission...');
+            await Permission.requestInstallPackages.request();
+          }
+        } catch (e) {
+          _addLog('Permission check failed: $e');
+        }
+
         _addLog('Opening APK for installation...');
-        final result = await OpenFilex.open(updatePath);
+        // Explicitly set MIME type for APKs to trigger the package installer
+        final result = await OpenFilex.open(
+          updatePath,
+          type: 'application/vnd.android.package-archive',
+        );
         
         if (result.type == ResultType.done) {
           _addLog('Please complete the installation using the system prompt.');

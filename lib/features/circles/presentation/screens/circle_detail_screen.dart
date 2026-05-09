@@ -255,10 +255,31 @@ class _MembersTab extends StatelessWidget {
         final circle = provider.activeCircle;
         if (circle == null) return const SizedBox.shrink();
 
+        // If members list is empty but we have member IDs, we might still be loading profiles
+        // or the data wasn't joined.
+        final hasProfiles = circle.members.isNotEmpty;
+        final count = hasProfiles ? circle.members.length : circle.memberIds.length;
+
         return ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: circle.memberIds.length,
+          itemCount: count,
           itemBuilder: (context, index) {
+            if (hasProfiles) {
+              final member = circle.members[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
+                      ? NetworkImage(member.avatarUrl!)
+                      : null,
+                  child: (member.avatarUrl == null || member.avatarUrl!.isEmpty)
+                      ? const Icon(FluentIcons.person_24_regular)
+                      : null,
+                ),
+                title: Text(member.displayName),
+                subtitle: Text(member.id == circle.createdBy ? 'Author' : 'Member'),
+              );
+            }
+
             final memberId = circle.memberIds[index];
             return ListTile(
               leading: const CircleAvatar(child: Icon(FluentIcons.person_24_regular)),

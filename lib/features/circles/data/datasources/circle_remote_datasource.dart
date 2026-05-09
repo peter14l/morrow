@@ -13,17 +13,21 @@ class CircleRemoteDatasource {
     try {
       final response = await _supabase
           .from('circle_members')
-          .select('circle_id, circles(*, circle_members(user_id))')
+          .select('circle_id, circles(*, circle_members(user_id, profiles:user_id(*)))')
           .eq('user_id', userId)
           .order('created_at', referencedTable: 'circles', ascending: false);
 
       return (response as List).map<Map<String, dynamic>>((row) {
-        final circle = row['circles'] as Map<String, dynamic>;
+        final circle = Map<String, dynamic>.from(row['circles'] as Map<String, dynamic>);
         final memberRows =
             (circle['circle_members'] as List?)?.cast<Map<String, dynamic>>() ??
             [];
         circle['member_ids'] =
             memberRows.map((m) => m['user_id'] as String).toList();
+        circle['members'] = memberRows
+            .map((m) => m['profiles'])
+            .where((p) => p != null)
+            .toList();
         return circle;
       }).toList();
     } catch (e) {
@@ -37,7 +41,7 @@ class CircleRemoteDatasource {
       final response =
           await _supabase
               .from('circles')
-              .select('*, circle_members(user_id)')
+              .select('*, circle_members(user_id, profiles:user_id(*))')
               .eq('id', circleId)
               .single();
 
@@ -48,6 +52,10 @@ class CircleRemoteDatasource {
           [];
       circleMap['member_ids'] =
           memberRows.map((m) => m['user_id'] as String).toList();
+      circleMap['members'] = memberRows
+          .map((m) => m['profiles'])
+          .where((p) => p != null)
+          .toList();
 
       return circleMap;
     } catch (e) {
