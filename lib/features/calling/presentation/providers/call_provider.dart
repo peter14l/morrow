@@ -299,15 +299,19 @@ class CallProvider extends ChangeNotifier {
       // 1. Stop local ringtone
       await _callService.stopRingtone();
 
-      // 2. Initialize local stream
+      // 2. Start signaling early to allow ICE candidates to be sent as they are gathered
+      debugPrint('[CallProvider] Starting signaling early for call ${call.id}');
+      await _callService.startSignaling(call);
+
+      // 3. Initialize local stream
       debugPrint('[CallProvider] Initializing local stream for incoming ${call.type.name} call');
       await _callService.initLocalStream(call.type == CallType.video);
       
-      // 3. Create WebRTC answer
+      // 4. Create WebRTC answer
       debugPrint('[CallProvider] Creating WebRTC answer for ${call.callerId}');
       final answer = await _callService.createAnswer(call.callerId, call.offer!);
 
-      // 4. Update DB with answer
+      // 5. Update DB with answer
       debugPrint('[CallProvider] Updating call status to active in database');
       final acceptedCall = await _acceptCall.call(
         callId: call.id, 
@@ -315,9 +319,7 @@ class CallProvider extends ChangeNotifier {
         answer: answer,
       );
       
-      // 5. Start signaling
-      debugPrint('[CallProvider] Starting signaling for call ${call.id}');
-      await _callService.startSignaling(acceptedCall);
+      // Note: Signaling was already started early
       
       _state = _state.copyWith(
         isLoading: false, 

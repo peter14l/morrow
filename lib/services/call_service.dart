@@ -344,9 +344,14 @@ class CallService extends ChangeNotifier {
         };
         
         if (!_isSignalingSubscribed) {
-          _recordStep('Buffering outgoing ICE for $remoteUserId');
+          _recordStep('Buffering outgoing ICE for $remoteUserId (not yet subscribed)');
           _outgoingCandidateQueue[remoteUserId] ??= [];
           _outgoingCandidateQueue[remoteUserId]!.add(data);
+          
+          // Optimization: Try sending immediately if channel is created, even if not fully acked
+          if (_signalingChannel != null) {
+            _sendSignaling(remoteUserId, data);
+          }
         } else {
           _recordStep('Sending ICE candidate to $remoteUserId');
           _sendSignaling(remoteUserId, data);
@@ -634,7 +639,7 @@ class CallService extends ChangeNotifier {
         });
       }
     }).subscribe((status, [error]) {
-      debugPrint('[CallService] Signaling channel status: $status');
+      _recordStep('Signaling channel status: $status');
       if (status == RealtimeSubscribeStatus.subscribed) {
         _isSignalingSubscribed = true;
         final remoteUserId = _currentCall?.callerId == userId ? _currentCall?.receiverId : _currentCall?.callerId;
@@ -643,7 +648,7 @@ class CallService extends ChangeNotifier {
         }
       }
       if (status == RealtimeSubscribeStatus.channelError) {
-        debugPrint('[CallService] Signaling subscription error: $error');
+        _recordStep('Signaling subscription error: $error');
       }
     });
   }
