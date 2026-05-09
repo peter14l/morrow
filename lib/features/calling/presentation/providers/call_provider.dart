@@ -179,6 +179,7 @@ class CallProvider extends ChangeNotifier {
   CallEntity? get incomingCall => _state.incomingCall;
   bool get hasActiveCall => _state.activeCall != null;
   bool get hasIncomingCall => _state.incomingCall != null;
+  List<String> get callSteps => _callService.callSteps;
   MediaStream? get localStream => _state.localStream;
   Map<String, MediaStream> get remoteStreams => _state.remoteStreams;
   bool get isMuted => _state.isMuted;
@@ -239,12 +240,15 @@ class CallProvider extends ChangeNotifier {
       notifyListeners();
 
       // 1. Initialize local stream
+      debugPrint('[CallProvider] Initializing local stream for ${type.name} call');
       await _callService.initLocalStream(type == CallType.video);
       
       // 2. Create WebRTC offer
+      debugPrint('[CallProvider] Creating WebRTC offer for $receiverId');
       final offer = await _callService.createOffer(receiverId);
 
       // 3. Create call in DB
+      debugPrint('[CallProvider] Saving call to database');
       final call = await _initiateCall.call(
         conversationId: conversationId,
         callerId: callerId,
@@ -296,12 +300,15 @@ class CallProvider extends ChangeNotifier {
       await _callService.stopRingtone();
 
       // 2. Initialize local stream
+      debugPrint('[CallProvider] Initializing local stream for incoming ${call.type.name} call');
       await _callService.initLocalStream(call.type == CallType.video);
       
-      // 3. Create WebRTC answer (this now handles E2EE internally with retry)
+      // 3. Create WebRTC answer
+      debugPrint('[CallProvider] Creating WebRTC answer for ${call.callerId}');
       final answer = await _callService.createAnswer(call.callerId, call.offer!);
 
       // 4. Update DB with answer
+      debugPrint('[CallProvider] Updating call status to active in database');
       final acceptedCall = await _acceptCall.call(
         callId: call.id, 
         userId: call.receiverId,
@@ -309,6 +316,7 @@ class CallProvider extends ChangeNotifier {
       );
       
       // 5. Start signaling
+      debugPrint('[CallProvider] Starting signaling for call ${call.id}');
       await _callService.startSignaling(acceptedCall);
       
       _state = _state.copyWith(

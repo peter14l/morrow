@@ -286,9 +286,14 @@ class CallService extends ChangeNotifier {
     try {
       debugPrint('[CallService] Configuring audio session: speaker=$speakerOn, isVideo=$isVideo');
       
-      // On Windows, we still try to set speakerphone as it might trigger internal driver refreshes
+      // On Windows, we still try to set speakerphone as it might trigger internal driver refreshes.
+      // We wrap it in a try-catch as some Windows drivers might not support this specific command.
       if (Platform.isWindows) {
-        await Helper.setSpeakerphoneOn(true);
+        try {
+          await Helper.setSpeakerphoneOn(true);
+        } catch (e) {
+          debugPrint('[CallService] Windows Speakerphone helper warning: $e');
+        }
       }
 
       if (Platform.isIOS || Platform.isAndroid) {
@@ -373,14 +378,17 @@ class CallService extends ChangeNotifier {
           }
           _remoteStreams[remoteUserId] = stream;
 
-          if (event.track.kind == 'video') {
-            _recordStep('Initializing remote video renderer');
-            if (!_remoteRenderers.containsKey(remoteUserId)) {
-              final renderer = RTCVideoRenderer();
-              await renderer.initialize();
-              renderer.srcObject = stream;
-              _remoteRenderers[remoteUserId] = renderer;
-            } else {
+          // IMPORTANT: Always initialize a renderer for remote participants, even for audio-only calls.
+          // This ensures the stream is "attached" to a media consumer which triggers audio playback on some platforms (like Windows).
+          _recordStep('Initializing/updating remote renderer for ${event.track.kind} from $remoteUserId');
+          if (!_remoteRenderers.containsKey(remoteUserId)) {
+            final renderer = RTCVideoRenderer();
+            await renderer.initialize();
+            renderer.srcObject = stream;
+            _remoteRenderers[remoteUserId] = renderer;
+          } else {
+            // Update the source object if it's not already set correctly or if it's a new track in the aggregate
+            if (_remoteRenderers[remoteUserId]!.srcObject?.id != stream.id) {
               _remoteRenderers[remoteUserId]!.srcObject = stream;
             }
           }
@@ -427,7 +435,10 @@ class CallService extends ChangeNotifier {
     };
 
     pc.onIceConnectionState = (state) {
-      _recordStep('ICE Connection state: $state');
+      _recordStep('ICE Connection state for $remoteUserId: $state');
+      if (state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
+        _recordStep('ICE Connection FAILED for $remoteUserId - possible NAT/Firewall issue');
+      }
     };
 
     pc.onSignalingState = (state) {

@@ -134,8 +134,50 @@ class _CallingScreenState extends State<CallingScreen> {
               left: 20,
               child: CallHeaderDisplay(),
             ),
+
+            // Diagnostic Button (Only shown in debug or when explicitly requested)
+            Positioned(
+              top: 60,
+              right: 20,
+              child: IconButton(
+                icon: const Icon(Icons.bug_report, color: Colors.white54),
+                onPressed: () => _showDiagnostics(context),
+                tooltip: 'Diagnostics',
+              ),
+            ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showDiagnostics(BuildContext context) {
+    final steps = context.read<CallProvider>().callSteps;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.grey[900],
+        title: const Text('Call Diagnostics', style: TextStyle(color: Colors.white)),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: steps.length,
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Text(
+                steps[index],
+                style: const TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
       ),
     );
   }
