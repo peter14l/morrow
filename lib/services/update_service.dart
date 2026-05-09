@@ -296,10 +296,8 @@ class UpdateService extends ChangeNotifier {
         final result = await OpenFilex.open(updatePath);
         
         if (result.type == ResultType.done) {
-          _addLog('Installation process started.');
+          _addLog('Please complete the installation using the system prompt.');
           _updateState(_currentProgress.copyWith(status: UpdateStatus.completed));
-          await Future.delayed(const Duration(seconds: 3));
-          _quitApp();
         } else {
           _addLog('Installation failed: ${result.message}');
           _updateState(_currentProgress.copyWith(status: UpdateStatus.failed, error: result.message));
