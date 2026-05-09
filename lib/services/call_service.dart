@@ -334,7 +334,7 @@ class CallService extends ChangeNotifier {
           d.type == session_pkg.AudioDeviceType.bluetoothSco ||
           d.type == session_pkg.AudioDeviceType.wiredHeadset ||
           d.type == session_pkg.AudioDeviceType.wiredHeadphones ||
-          d.type == session_pkg.AudioDeviceType.usbHeadset
+          d.type == session_pkg.AudioDeviceType.usbAudio
         );
 
         debugPrint('[CallService] Audio devices detected: ${devices.map((d) => d.name).join(', ')}');
@@ -344,8 +344,6 @@ class CallService extends ChangeNotifier {
           avAudioSessionCategory: session_pkg.AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions:
               session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
-              session_pkg.AVAudioSessionCategoryOptions.allowBluetoothA2DP |
-              session_pkg.AVAudioSessionCategoryOptions.allowAirPlay |
               (speakerOn ? session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker : session_pkg.AVAudioSessionCategoryOptions.none),
           avAudioSessionMode: isVideo ? session_pkg.AVAudioSessionMode.videoChat : session_pkg.AVAudioSessionMode.voiceChat,
           avAudioSessionRouteSharingPolicy:
