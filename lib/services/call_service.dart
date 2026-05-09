@@ -666,35 +666,41 @@ class CallService extends ChangeNotifier {
 
   Future<void> toggleScreenShare() async {
     try {
-      debugPrint('[CallService] Toggling screen share: currently=$_isScreenSharing');
+      _recordStep('Toggling screen share: currently=$_isScreenSharing');
       if (_isScreenSharing) {
         _isScreenSharing = false;
         if (!kIsWeb && Platform.isAndroid) {
           try {
             final helper = Helper as dynamic;
             if (helper.stopForegroundService != null) await helper.stopForegroundService();
-          } catch (_) {}
+          } catch (e) {
+            _recordStep('Error stopping Android foreground service: $e');
+          }
         }
         await initLocalStream(_isVideoOn);
       } else {
         if (!kIsWeb && Platform.isAndroid) {
+          _recordStep('Starting Android foreground service for screen share');
           try {
             final helper = Helper as dynamic;
-            if (helper.startForegroundService != null) {
-              await helper.startForegroundService(
-                notificationId: 123,
-                contentTitle: 'Screen Sharing',
-                contentText: 'Sharing your screen',
-                iconName: 'ic_launcher',
-              );
-            }
-          } catch (_) {}
+            // Note: On Android 14+, mediaProjection type is required in manifest
+            await helper.startForegroundService(
+              notificationId: 123,
+              contentTitle: 'Oasis Screen Share',
+              contentText: 'Sharing your screen with participants',
+              iconName: 'ic_launcher', // Ensure this exists in res/drawable
+            );
+          } catch (e) {
+            _recordStep('Warning: Failed to start Android foreground service: $e');
+          }
         }
 
+        _recordStep('Calling getDisplayMedia');
         final Map<String, dynamic> mediaConstraints = {'audio': false, 'video': true};
         final MediaStream screenStream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
 
         if (screenStream.getVideoTracks().isNotEmpty) {
+          _recordStep('Screen stream obtained, replacing tracks');
           final screenTrack = screenStream.getVideoTracks().first;
           for (var pc in _peerConnections.values) {
             final senders = await pc.getSenders();
@@ -714,11 +720,17 @@ class CallService extends ChangeNotifier {
               await _sendSignaling(remoteId, {'type': 'screen_share_state', 'userId': user.id, 'isSharing': true});
             }
           }
-          screenTrack.onEnded = () { if (_isScreenSharing) toggleScreenShare(); };
+          screenTrack.onEnded = () { 
+            _recordStep('Screen share track ended');
+            if (_isScreenSharing) toggleScreenShare(); 
+          };
+        } else {
+          _recordStep('Error: No video tracks found in screen stream');
         }
       }
       _safeNotifyListeners();
     } catch (e) {
+      _recordStep('Error toggling screen share: $e');
       debugPrint('[CallService] Error toggling screen share: $e');
     }
   }
@@ -731,15 +743,19 @@ class CallService extends ChangeNotifier {
       try {
         final rd = pc != null ? await pc.getRemoteDescription() : null;
         if (type == 'offer') {
-          if (pc != null && rd == null) {
-            debugPrint('[CallService] Handling remote offer from $senderId');
-            await pc.setRemoteDescription(RTCSessionDescription(data['sdp'], data['sdp_type']));
+          // IMPORTANT: Allow processing offers even if a peer connection already exists.
+          // This is essential for renegotiation (e.g. switching from audio to video).
+          if (pc != null) {
+            _recordStep('Processing renegotiation offer from $senderId');
+            final offer = RTCSessionDescription(data['sdp'], data['sdp_type']);
+            await pc.setRemoteDescription(offer);
             final answer = await pc.createAnswer();
             await pc.setLocalDescription(answer);
-            await _sendSignaling(senderId, {'type': 'answer', 'sdp': answer.sdp, 'sdp_type': answer.type});
-            await _flushCandidateQueue(senderId, pc);
-          } else if (pc != null) {
-             debugPrint('[CallService] Skipping remote offer: remoteDescription already set for $senderId');
+            await _sendSignaling(senderId, {
+              'type': 'answer',
+              'sdp': answer.sdp,
+              'sdp_type': answer.type,
+            });
           }
         } else if (type == 'answer') {
           if (pc != null && pc.signalingState == RTCSignalingState.RTCSignalingStateHaveLocalOffer && rd == null) {
