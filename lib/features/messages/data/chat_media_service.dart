@@ -67,7 +67,8 @@ class ChatMediaService {
         onProgress: onProgress,
       );
 
-      return remoteUrl;
+      // Return the public access URL instead of the S3 endpoint
+      return '${R2Config.r2PublicBaseUrl}/$storagePath';
     } catch (e) {
       debugPrint('[ChatMediaService] Upload Error: $e');
       rethrow;
