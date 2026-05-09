@@ -893,6 +893,7 @@ void main() async {
         errorStr.contains('timeoutexception') ||
         errorStr.contains('authapierror') ||
         errorStr.contains('xmlhttprequest error') ||
+        errorStr.contains('invalid statuscode: 404') ||
         errorStr.contains('failed host lookup')) {
       material.debugPrint(
         '[GlobalError] Ignoring transient network/auth error: $error',

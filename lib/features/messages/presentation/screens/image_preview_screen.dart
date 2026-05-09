@@ -100,6 +100,19 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
             minScale: PhotoViewComputedScale.contained,
             maxScale: PhotoViewComputedScale.covered * 2,
             backgroundDecoration: const BoxDecoration(color: Colors.black),
+            errorBuilder: (context, error, stackTrace) => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.broken_image_rounded, color: Colors.white54, size: 64),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Image not available',
+                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
+                  ),
+                ],
+              ),
+            ),
           ),
           if (widget.caption != null && widget.caption!.isNotEmpty)
             Positioned(

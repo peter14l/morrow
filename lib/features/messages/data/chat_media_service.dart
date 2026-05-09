@@ -68,7 +68,8 @@ class ChatMediaService {
       );
 
       // Return the public access URL instead of the S3 endpoint
-      return '${R2Config.r2PublicBaseUrl}/$storagePath';
+      // We must include the folder prefix as the edge function puts files in folder/userId/uniqueFileId
+      return '${R2Config.r2PublicBaseUrl}/$folder/$storagePath';
     } catch (e) {
       debugPrint('[ChatMediaService] Upload Error: $e');
       rethrow;

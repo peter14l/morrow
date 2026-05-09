@@ -1180,6 +1180,9 @@ class _BentoItem extends StatelessWidget {
                                                               .otherUserAvatar,
                                                         )
                                                         : null,
+                                                onBackgroundImageError: (exception, stackTrace) {
+                                                  debugPrint('Avatar image error: $exception');
+                                                },
                                                 child:
                                                     conversation
                                                             .otherUserAvatar

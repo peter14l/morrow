@@ -19,17 +19,33 @@ class ChatBackground extends StatelessWidget {
   String? get _normalizedUrl {
     if (backgroundUrl == null) return null;
     
-    // Fix legacy URLs that point to the private S3 endpoint instead of public R2 domain
-    if (backgroundUrl!.contains('cloudflarestorage.com')) {
+    String url = backgroundUrl!;
+
+    // 1. Fix legacy URLs that point to the private S3 endpoint instead of public R2 domain
+    if (url.contains('cloudflarestorage.com')) {
       // S3 URL: https://<id>.r2.cloudflarestorage.com/oasis/<userId>/<fileId>
-      // Public URL: https://pub-xxx.r2.dev/<userId>/<fileId>
-      final parts = backgroundUrl!.split('/oasis/');
+      // or: https://<id>.r2.cloudflarestorage.com/oasis/<folder>/<userId>/<fileId>
+      final parts = url.split('/oasis/');
       if (parts.length > 1) {
-        return '${R2Config.r2PublicBaseUrl}/${parts.last}';
+        url = '${R2Config.r2PublicBaseUrl}/${parts.last}';
       }
     }
     
-    return backgroundUrl;
+    // 2. Fix URLs that are missing the folder prefix (e.g. backgrounds/)
+    // This occurs if the upload service returned a URL without the folder segment.
+    if (url.startsWith(R2Config.r2PublicBaseUrl)) {
+      final uri = Uri.tryParse(url);
+      if (uri != null) {
+        final segments = uri.pathSegments;
+        // If we only have <userId>/<fileId>, we are missing the <folder> segment.
+        // For ChatBackground, this folder is almost always 'backgrounds'.
+        if (segments.length == 2) {
+          url = '${R2Config.r2PublicBaseUrl}/backgrounds/${segments[0]}/${segments[1]}';
+        }
+      }
+    }
+    
+    return url;
   }
 
   @override

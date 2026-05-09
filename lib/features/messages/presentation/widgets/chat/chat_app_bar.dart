@@ -106,6 +106,9 @@ class ChatAppBar extends StatelessWidget {
                             backgroundImage: (otherUserAvatar ?? '').isNotEmpty
                                 ? CachedNetworkImageProvider(otherUserAvatar!)
                                 : null,
+                            onBackgroundImageError: (exception, stackTrace) {
+                              debugPrint('Avatar image error: $exception');
+                            },
                             child: (otherUserAvatar ?? '').isEmpty
                                 ? Icon(
                                     context.read<ChatProvider>().state.conversationType == 'group'
