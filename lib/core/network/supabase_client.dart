@@ -185,7 +185,7 @@ class SupabaseService {
         width: width,
         height: height,
         quality: quality,
-        format: 'webp',
+        format: RequestImageFormat.webp,
       ),
     );
   }
