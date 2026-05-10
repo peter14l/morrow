@@ -44,6 +44,7 @@ import 'package:oasis/services/razorpay_service.dart';
 import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/core/storage/hive_service.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/services/wellness_service.dart';
 import 'package:oasis/services/curation_tracking_service.dart';
@@ -314,10 +315,6 @@ class AppInitializer {
     if (Platform.isAndroid) {
       WebViewPlatform.instance = AndroidWebViewPlatform();
     }
-
-import 'package:oasis/core/storage/hive_service.dart';
-
-// ... other imports
 
     // --- CRITICAL PHASE: Must complete before UI shows ---
     debugPrint('STEP: Critical initialization starting...');
