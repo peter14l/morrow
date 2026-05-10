@@ -754,16 +754,29 @@ class _MainLayoutState extends State<MainLayout> {
                 onTapDown:
                     (details) =>
                         _showCreateMenu(context, details.globalPosition, theme),
-                child: IconButton.filled(
-                  onPressed: () {}, // Handled by onTapDown for position
-                  icon: const Icon(Icons.add_rounded),
-                  style: IconButton.styleFrom(
-                    backgroundColor: colorScheme.primary,
-                    foregroundColor: colorScheme.onPrimary,
-                    minimumSize: const Size(48, 48),
-                    maximumSize: const Size(48, 48),
-                    padding: EdgeInsets.zero,
-                    iconSize: 24,
+                child: MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.add_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -862,21 +875,24 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ],
           ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.add_rounded, color: Colors.white, size: 24),
-              SizedBox(width: 12),
-              Text(
-                'CREATE',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
+          child: const Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_rounded, color: Colors.white, size: 24),
+                SizedBox(width: 12),
+                Text(
+                  'CREATE',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -1027,6 +1043,7 @@ class _MainLayoutState extends State<MainLayout> {
       controller: _fluentCreateFlyoutController,
       child: fluent.SizedBox(
         width: double.infinity,
+        height: _isRailExtended ? 56 : 48,
         child: fluent.Button(
           onPressed: () => _showFluentCreateMenu(context),
           style: fluent.ButtonStyle(
@@ -1036,20 +1053,16 @@ class _MainLayoutState extends State<MainLayout> {
               }
               return theme.accentColor;
             }),
-            padding: fluent.WidgetStateProperty.all(
-              EdgeInsets.symmetric(
-                horizontal: _isRailExtended ? 16 : 10,
-                vertical: 14,
-              ),
-            ),
+            padding: fluent.WidgetStateProperty.all(fluent.EdgeInsets.zero),
             shape: fluent.WidgetStateProperty.all(
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
             ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(fluent.FluentIcons.add, color: Colors.white, size: 24),
+              const Icon(fluent.FluentIcons.add, color: Colors.white, size: 20),
               if (_isRailExtended) ...[
                 const SizedBox(width: 12),
                 const Text(
