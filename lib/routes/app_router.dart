@@ -724,12 +724,23 @@ class _MainLayoutState extends State<MainLayout> {
               ? theme.colorScheme.surface
               : (isMica ? theme.colorScheme.surface : const Color(0xFF0C0F14)),
       leading: Column(
+        crossAxisAlignment:
+            _isRailExtended
+                ? CrossAxisAlignment.stretch
+                : CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 8),
-          IconButton(
-            icon: Icon(_isRailExtended ? Icons.menu_open : Icons.menu),
-            onPressed: () => setState(() => _isRailExtended = !_isRailExtended),
-            color: colorScheme.onSurfaceVariant,
+          Align(
+            alignment: _isRailExtended ? Alignment.centerLeft : Alignment.center,
+            child: Padding(
+              padding: EdgeInsets.only(left: _isRailExtended ? 12 : 0),
+              child: IconButton(
+                icon: Icon(_isRailExtended ? Icons.menu_open : Icons.menu),
+                onPressed:
+                    () => setState(() => _isRailExtended = !_isRailExtended),
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           if (_isRailExtended)
             Padding(
@@ -835,6 +846,7 @@ class _MainLayoutState extends State<MainLayout> {
         onTap: () {}, // Handled by onTapDown
         borderRadius: BorderRadius.circular(12),
         child: Container(
+          width: double.infinity,
           height: 56,
           decoration: BoxDecoration(
             color: theme.colorScheme.primary,
