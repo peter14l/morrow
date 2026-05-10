@@ -760,7 +760,7 @@ class _MainLayoutState extends State<MainLayout> {
                   style: IconButton.styleFrom(
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
-                    minimumSize: const Size(56, 56),
+                    minimumSize: const Size(48, 48),
                   ),
                 ),
               ),
@@ -847,7 +847,7 @@ class _MainLayoutState extends State<MainLayout> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: double.infinity,
-          height: 56,
+          height: 64,
           decoration: BoxDecoration(
             color: theme.colorScheme.primary,
             borderRadius: BorderRadius.circular(12),
@@ -862,7 +862,7 @@ class _MainLayoutState extends State<MainLayout> {
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.add_rounded, color: Colors.white),
+              Icon(Icons.add_rounded, color: Colors.white, size: 28),
               SizedBox(width: 12),
               Text(
                 'CREATE',
@@ -1035,7 +1035,7 @@ class _MainLayoutState extends State<MainLayout> {
             padding: fluent.WidgetStateProperty.all(
               EdgeInsets.symmetric(
                 horizontal: _isRailExtended ? 16 : 10,
-                vertical: 10,
+                vertical: 14,
               ),
             ),
             shape: fluent.WidgetStateProperty.all(
@@ -1045,7 +1045,7 @@ class _MainLayoutState extends State<MainLayout> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(fluent.FluentIcons.add, color: Colors.white, size: 20),
+              const Icon(fluent.FluentIcons.add, color: Colors.white, size: 24),
               if (_isRailExtended) ...[
                 const SizedBox(width: 12),
                 const Text(
