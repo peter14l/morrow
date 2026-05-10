@@ -100,12 +100,15 @@ class CircleRemoteDatasource {
           );
 
       for (final memberId in memberIds) {
+        // Skip notifying yourself
+        if (memberId == createdBy) continue;
+        
         await _supabase.from('notifications').insert({
           'user_id': memberId,
+          'actor_id': createdBy,
           'type': 'circle_invite',
-          'title': 'You\'re in a Circle! $emoji',
-          'body': 'You\'ve been added to "$name"',
-          'data': {'circle_id': circleId},
+          'content': 'added you to the circle "$name" $emoji',
+          'metadata': {'circle_id': circleId},
           'created_at': now,
         });
       }

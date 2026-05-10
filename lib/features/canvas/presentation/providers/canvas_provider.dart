@@ -16,7 +16,7 @@ class CanvasProvider extends ChangeNotifier {
 
   CanvasState _state = const CanvasState();
   StreamSubscription<List<CanvasItemEntity>>? _realtimeSubscription;
-  StreamSubscription<Map<String, dynamic>>? _presenceSubscription;
+  StreamSubscription<Map<String, CanvasPresenceEntity>>? _presenceSubscription;
 
   CanvasProvider({
     GetCanvases? getCanvases,
@@ -45,7 +45,7 @@ class CanvasProvider extends ChangeNotifier {
   List<CanvasItemEntity> get activeItems => _state.activeItems;
   bool get isLoading => _state.isLoading;
   String? get error => _state.error;
-  Map<String, dynamic> get presenceState => _state.presenceState;
+  Map<String, CanvasPresenceEntity> get presenceState => _state.presenceState;
 
   // ─── Canvas list ─────────────────────────────────────────────────────────────
 
@@ -177,10 +177,14 @@ class CanvasProvider extends ChangeNotifier {
     });
 
     _presenceSubscription?.cancel();
-    _presenceSubscription = _repository.subscribeToPresence(canvasId).listen((
-      state,
-    ) {
-      _state = _state.copyWith(presenceState: state);
+    _presenceSubscription = _repository
+        .subscribeToPresence(canvasId)
+        .map((state) => state.map((key, value) => MapEntry(
+              key,
+              CanvasPresenceEntity.fromJson(key, value as Map<String, dynamic>),
+            )))
+        .listen((typedState) {
+      _state = _state.copyWith(presenceState: typedState);
       notifyListeners();
     });
   }

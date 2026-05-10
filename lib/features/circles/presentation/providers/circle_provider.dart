@@ -199,6 +199,7 @@ class CircleProvider with ChangeNotifier {
       return circle;
     } catch (e) {
       _state = _state.copyWith(error: e.toString());
+      debugPrint('[CircleProvider] createCircle error: $e');
       notifyListeners();
       return null;
     }

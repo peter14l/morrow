@@ -7,7 +7,7 @@ import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 class MusicPickerSheet extends StatefulWidget {
   const MusicPickerSheet({super.key});
@@ -287,16 +287,15 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
                           final track = _tracks[index];
                           final isPlaying =
                               _playingTrackId == track.trackId;
-                          return FadeInUp(
-                            duration: Duration(
-                                milliseconds: 100 + (index * 20)),
-                            child: _buildTrackTile(
-                              track,
-                              isPlaying,
-                              isM3E,
-                              colorScheme,
-                            ),
-                          );
+                          return _buildTrackTile(
+                            track,
+                            isPlaying,
+                            isM3E,
+                            colorScheme,
+                          ).animate().fadeIn(
+                                duration: Duration(
+                                    milliseconds: 100 + (index * 20)),
+                              ).moveY(begin: 10, end: 0);
                         },
                       ),
           ),

@@ -147,6 +147,51 @@ class CanvasItemEntity {
   }
 }
 
+class CanvasPresenceEntity {
+  final String userId;
+  final double x;
+  final double y;
+  final String? activeItemId;
+
+  const CanvasPresenceEntity({
+    required this.userId,
+    required this.x,
+    required this.y,
+    this.activeItemId,
+  });
+
+  factory CanvasPresenceEntity.fromJson(String userId, Map<String, dynamic> json) {
+    return CanvasPresenceEntity(
+      userId: userId,
+      x: (json['x'] as num?)?.toDouble() ?? 0.0,
+      y: (json['y'] as num?)?.toDouble() ?? 0.0,
+      activeItemId: json['active_item_id'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'x': x,
+      'y': y,
+      'active_item_id': activeItemId,
+    };
+  }
+
+  CanvasPresenceEntity copyWith({
+    String? userId,
+    double? x,
+    double? y,
+    String? activeItemId,
+  }) {
+    return CanvasPresenceEntity(
+      userId: userId ?? this.userId,
+      x: x ?? this.x,
+      y: y ?? this.y,
+      activeItemId: activeItemId ?? this.activeItemId,
+    );
+  }
+}
+
 class OasisCanvas {
   final String id;
   final String title;

@@ -7,7 +7,7 @@ class CanvasState {
   final List<CanvasItemEntity> activeItems;
   final bool isLoading;
   final String? error;
-  final Map<String, dynamic> presenceState;
+  final Map<String, CanvasPresenceEntity> presenceState;
 
   const CanvasState({
     this.canvases = const [],
@@ -26,7 +26,7 @@ class CanvasState {
     bool? isLoading,
     String? error,
     bool clearError = false,
-    Map<String, dynamic>? presenceState,
+    Map<String, CanvasPresenceEntity>? presenceState,
   }) {
     return CanvasState(
       canvases: canvases ?? this.canvases,

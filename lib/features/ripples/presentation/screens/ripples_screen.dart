@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/features/ripples/domain/models/ripple_entity.dart'
-    show RipplesLayoutType;
+    show RipplesLayoutType, RippleEntity, RippleCommentEntity;
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
@@ -50,7 +50,7 @@ class _RipplesScreenState extends State<RipplesScreen>
       service.refreshRipples().then((_) {
         if (widget.initialRippleId != null) {
           final index = service.ripples.indexWhere(
-            (r) => r['id'] == widget.initialRippleId,
+            (r) => r.id == widget.initialRippleId,
           );
           if (index >= 0) {
             setState(() {
@@ -154,347 +154,301 @@ class _RipplesScreenState extends State<RipplesScreen>
     return GrayscaleDetox(
       child: LayoutBuilder(
         builder: (context, constraints) {
-        final bool isDesktop = constraints.maxWidth >= 1000;
+          final bool isDesktop = constraints.maxWidth >= 1000;
 
-        if (isDesktop) {
-          return Scaffold(
-            backgroundColor: Colors.black,
-            body: Stack(
-              children: [
-                // Time tracking info
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 16,
-                  left: 16,
-                  right: 16,
-                  child: _buildTimeInfoBanner(context),
-                ),
-                // Immersive Blurred Background
-                Positioned.fill(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    child:
-                        Image.network(
-                              currentRipple['thumbnail_url'] ?? '',
-                              key: ValueKey('bg_${currentRipple['id']}'),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Container(color: Colors.black),
-                            )
-                            .animate(
-                              key: ValueKey('anim_bg_${currentRipple['id']}'),
-                            )
-                            .scale(
-                              begin: const Offset(1.0, 1.0),
-                              end: const Offset(1.2, 1.2),
-                              duration: 20.seconds,
-                              curve: Curves.linear,
-                            )
-                            .move(
-                              begin: const Offset(-20, -20),
-                              end: const Offset(20, 20),
-                              duration: 20.seconds,
-                              curve: Curves.linear,
-                            ),
-                  ),
-                ),
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.6),
-                    ),
-                  ),
-                ),
-
-                // Desktop Layout
-                Row(
-                  children: [
-                    // Left: Navigation Queue
-                    Container(
-                      width: 300,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 32,
-                        horizontal: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildGlassCircleButton(
-                            icon: Icons.arrow_back,
-                            onTap: _handleExit,
-                            isM3E: isM3E,
-                            disableTransparency: disableTransparency,
-                          ),
-                          const SizedBox(height: 32),
-                          const Text(
-                            'Coming Up',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Expanded(
-                            child: ListView.separated(
-                              itemCount: ripples.length,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 12),
-                              itemBuilder: (context, index) {
-                                final ripple = ripples[index];
-                                final isCurrent = index == _currentIndex;
-                                return _ComingUpItem(
-                                  ripple: ripple,
-                                  isCurrent: isCurrent,
-                                  isM3E: isM3E,
-                                  onTap: () {
-                                    setState(() {
-                                      _currentIndex = index;
-                                      _pageController.jumpToPage(index);
-                                    });
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+          if (isDesktop) {
+            return Scaffold(
+              backgroundColor: Colors.black,
+              body: Stack(
+                children: [
+                  // Immersive Blurred Background
+                  Positioned.fill(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 500),
+                      child: Image.network(
+                        currentRipple.thumbnailUrl ?? '',
+                        key: ValueKey('bg_${currentRipple.id}'),
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Container(color: Colors.black),
+                      ).animate(
+                        key: ValueKey('anim_bg_${currentRipple.id}'),
+                      ).scale(
+                        begin: const Offset(1.0, 1.0),
+                        end: const Offset(1.2, 1.2),
+                        duration: 20.seconds,
+                        curve: Curves.linear,
+                      ).move(
+                        begin: const Offset(-20, -20),
+                        end: const Offset(20, 20),
+                        duration: 20.seconds,
+                        curve: Curves.linear,
                       ),
                     ),
-                    // Center: Video Player
-                    Expanded(
-                      child: Center(
-                        child: Container(
-                          constraints: const BoxConstraints(maxWidth: 500),
-                          margin: const EdgeInsets.symmetric(vertical: 40),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(
-                              isM3E ? 48 : 24,
+                  ),
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                      child: Container(
+                        color: Colors.black.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
+
+                  // Desktop Layout
+                  Row(
+                    children: [
+                      // Left: Navigation Queue
+                      Container(
+                        width: 300,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 32,
+                          horizontal: 16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildGlassCircleButton(
+                              icon: Icons.arrow_back,
+                              onTap: _handleExit,
+                              isM3E: isM3E,
+                              disableTransparency: disableTransparency,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.5),
-                                blurRadius: 40,
-                                spreadRadius: 10,
+                            const SizedBox(height: 32),
+                            const Text(
+                              'Coming Up',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(
-                              isM3E ? 48 : 24,
                             ),
-                            child: _buildActiveLayout(
-                              ripplesService.currentLayout,
-                              ripples,
-                              isM3E,
-                              Theme.of(context).colorScheme,
-                              disableTransparency,
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: ListView.separated(
+                                itemCount: ripples.length,
+                                separatorBuilder: (context, index) =>
+                                    const SizedBox(height: 12),
+                                itemBuilder: (context, index) {
+                                  final ripple = ripples[index];
+                                  final isCurrent = index == _currentIndex;
+                                  return _ComingUpItem(
+                                    ripple: ripple,
+                                    isCurrent: isCurrent,
+                                    isM3E: isM3E,
+                                    onTap: () {
+                                      setState(() {
+                                        _currentIndex = index;
+                                        _pageController.jumpToPage(index);
+                                      });
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Center: Video Player
+                      Expanded(
+                        child: Center(
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 500),
+                            margin: const EdgeInsets.symmetric(vertical: 40),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                isM3E ? 48 : 24,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.5),
+                                  blurRadius: 40,
+                                  spreadRadius: 10,
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                isM3E ? 48 : 24,
+                              ),
+                              child: _buildActiveLayout(
+                                ripplesService.currentLayout,
+                                ripples,
+                                isM3E,
+                                Theme.of(context).colorScheme,
+                                disableTransparency,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    // Right: Info & Comments
-                    Container(
-                      width: 400,
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 24,
-                                backgroundImage:
-                                    currentRipple['profiles']['avatar_url'] !=
-                                        null
-                                    ? NetworkImage(
-                                        currentRipple['profiles']['avatar_url'],
-                                      )
-                                    : null,
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      currentRipple['profiles']?['username'] ??
-                                          'User',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              _buildGlassCircleButton(
-                                icon: FluentIcons.grid_24_regular,
-                                onTap: () => _showLayoutSwitcher(
-                                  context,
-                                  ripplesService,
-                                  isM3E,
-                                  disableTransparency,
-                                ),
-                                isM3E: isM3E,
-                                disableTransparency: disableTransparency,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            currentRipple['caption'] ?? '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                            ),
-                          ),
-                          const SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildDesktopAction(
-                                icon: currentRipple['is_liked']
-                                    ? FluentIcons.heart_24_filled
-                                    : FluentIcons.heart_24_regular,
-                                label: '${currentRipple['likes_count']}',
-                                color: currentRipple['is_liked']
-                                    ? Colors.redAccent
-                                    : Colors.white,
-                                onTap: () => _toggleLikeInBuild(currentRipple),
-                              ),
-                              _buildDesktopAction(
-                                icon: FluentIcons.comment_24_regular,
-                                label: '${currentRipple['comments_count']}',
-                                onTap: () => _showMobileComments(
-                                  context,
-                                  currentRipple['id'],
-                                  isM3E,
-                                  disableTransparency,
-                                ),
-                              ),
-                              _buildDesktopAction(
-                                icon: currentRipple['is_saved']
-                                    ? FluentIcons.bookmark_24_filled
-                                    : FluentIcons.bookmark_24_regular,
-                                label: 'Save',
-                                color: currentRipple['is_saved']
-                                    ? Colors.blueAccent
-                                    : Colors.white,
-                                onTap: () => _toggleSaveInBuild(currentRipple),
-                              ),
-                              _buildDesktopAction(
-                                icon: FluentIcons.send_24_regular,
-                                label: 'Send',
-                                onTap: () => _shareToDM(currentRipple),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 32),
-                          const Divider(color: Colors.white10),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Comments',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Expanded(
-                            child: RippleCommentsList(
-                              rippleId: currentRipple['id'],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          );
-        }
-
-        // Mobile Layout
-        return Scaffold(
-          backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-              _buildActiveLayout(
-                ripplesService.currentLayout,
-                ripples,
-                isM3E,
-                Theme.of(context).colorScheme,
-                disableTransparency,
-              ),
-              // Bottom Pill for Mobile (removed top buttons - no layout switcher or close at top)
-              Positioned(
-                bottom: MediaQuery.of(context).padding.bottom + 20,
-                left: 16,
-                right: 16,
-                child: motion.Animate(
-                  effects: [
-                    motion.FadeEffect(duration: 400.ms),
-                    const motion.MoveEffect(
-                      begin: Offset(0, 20),
-                      curve: Curves.easeOutQuad,
-                    ),
-                  ],
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(isM3E ? 24 : 32),
-                    child: disableTransparency
-                        ? Container(
-                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade900,
-                              borderRadius: BorderRadius.circular(
-                                isM3E ? 24 : 32,
-                              ),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.15),
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  blurRadius: 25,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Stack(
+                      // Right: Info & Comments
+                      Container(
+                        width: 400,
+                        padding: const EdgeInsets.all(32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
                               children: [
-                                _buildMobileBottomPillContent(currentRipple),
-                                Positioned(
-                                  top: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: _buildPillProgressBar(),
+                                CircleAvatar(
+                                  radius: 24,
+                                  backgroundImage: currentRipple.avatarUrl != null
+                                      ? NetworkImage(currentRipple.avatarUrl!)
+                                      : null,
+                                  child: currentRipple.avatarUrl == null
+                                      ? Text((currentRipple.username ?? 'U')[0].toUpperCase())
+                                      : null,
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        currentRipple.username ?? 'User',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                _buildGlassCircleButton(
+                                  icon: FluentIcons.grid_24_regular,
+                                  onTap: () => _showLayoutSwitcher(
+                                    context,
+                                    ripplesService,
+                                    isM3E,
+                                    disableTransparency,
+                                  ),
+                                  isM3E: isM3E,
+                                  disableTransparency: disableTransparency,
                                 ),
                               ],
                             ),
-                          )
-                        : BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 35, sigmaY: 35),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
+                            const SizedBox(height: 24),
+                            Text(
+                              currentRipple.caption ?? '',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 15,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _buildDesktopAction(
+                                  icon: currentRipple.isLiked
+                                      ? FluentIcons.heart_24_filled
+                                      : FluentIcons.heart_24_regular,
+                                  label: '${currentRipple.likesCount}',
+                                  color: currentRipple.isLiked
+                                      ? Colors.redAccent
+                                      : Colors.white,
+                                  onTap: () => _toggleLikeInBuild(currentRipple),
+                                ),
+                                _buildDesktopAction(
+                                  icon: FluentIcons.comment_24_regular,
+                                  label: '${currentRipple.commentsCount}',
+                                  onTap: () => _showMobileComments(
+                                    context,
+                                    currentRipple.id,
+                                    isM3E,
+                                    disableTransparency,
+                                  ),
+                                ),
+                                _buildDesktopAction(
+                                  icon: currentRipple.isSaved
+                                      ? FluentIcons.bookmark_24_filled
+                                      : FluentIcons.bookmark_24_regular,
+                                  label: 'Save',
+                                  color: currentRipple.isSaved
+                                      ? Colors.blueAccent
+                                      : Colors.white,
+                                  onTap: () => _toggleSaveInBuild(currentRipple),
+                                ),
+                                _buildDesktopAction(
+                                  icon: FluentIcons.send_24_regular,
+                                  label: 'Send',
+                                  onTap: () => _shareToDM(currentRipple),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            const Divider(color: Colors.white10),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Comments',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Expanded(
+                              child: RippleCommentsList(
+                                rippleId: currentRipple.id,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }
+
+          // Mobile Layout
+          return Scaffold(
+            backgroundColor: Colors.black,
+            body: Stack(
+              children: [
+                _buildActiveLayout(
+                  ripplesService.currentLayout,
+                  ripples,
+                  isM3E,
+                  Theme.of(context).colorScheme,
+                  disableTransparency,
+                ),
+                // Bottom Pill for Mobile
+                Positioned(
+                  bottom: MediaQuery.of(context).padding.bottom + 20,
+                  left: 16,
+                  right: 16,
+                  child: motion.Animate(
+                    effects: [
+                      motion.FadeEffect(duration: 400.ms),
+                      const motion.MoveEffect(
+                        begin: Offset(0, 20),
+                        curve: Curves.easeOutQuad,
+                      ),
+                    ],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(isM3E ? 24 : 32),
+                      child: disableTransparency
+                          ? Container(
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.08),
+                                color: Colors.grey.shade900,
                                 borderRadius: BorderRadius.circular(
                                   isM3E ? 24 : 32,
                                 ),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.12),
+                                  color: Colors.white.withValues(alpha: 0.15),
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.35),
-                                    blurRadius: 40,
-                                    offset: const Offset(0, 12),
+                                    color: Colors.black.withValues(alpha: 0.4),
+                                    blurRadius: 25,
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
@@ -503,48 +457,52 @@ class _RipplesScreenState extends State<RipplesScreen>
                                   _buildMobileBottomPillContent(currentRipple),
                                   Positioned(
                                     top: 0,
-                                    left: 20,
-                                    right: 20,
+                                    left: 0,
+                                    right: 0,
                                     child: _buildPillProgressBar(),
                                   ),
                                 ],
                               ),
+                            )
+                          : BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 35, sigmaY: 35),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(
+                                    isM3E ? 24 : 32,
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.12),
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.35),
+                                      blurRadius: 40,
+                                      offset: const Offset(0, 12),
+                                    ),
+                                  ],
+                                ),
+                                child: Stack(
+                                  children: [
+                                    _buildMobileBottomPillContent(currentRipple),
+                                    Positioned(
+                                      top: 0,
+                                      left: 20,
+                                      right: 20,
+                                      child: _buildPillProgressBar(),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    ),
-    );
-  }
-
-  Widget _buildTimeInfoBanner(BuildContext context) {
-    final wellbeing = context.watch<DigitalWellbeingService>();
-    final threshold = wellbeing.lockoutThresholdMinutes;
-    final usedMinutes = wellbeing.feedMinutes + wellbeing.ripplesMinutes;
-    final remaining = threshold - usedMinutes > 0 ? threshold - usedMinutes : 0;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.black54,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white12),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.timer_outlined, size: 14, color: Colors.white54),
-          const SizedBox(width: 6),
-          Text(
-            'Ripples time: ${wellbeing.ripplesMinutes}m / ${wellbeing.lockoutThresholdMinutes}m (Feed + Ripples)',
-            style: const TextStyle(fontSize: 11, color: Colors.white54),
-          ),
-        ],
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -566,7 +524,7 @@ class _RipplesScreenState extends State<RipplesScreen>
     );
   }
 
-  Widget _buildMobileBottomPillContent(dynamic currentRipple) {
+  Widget _buildMobileBottomPillContent(RippleEntity currentRipple) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
       child: Row(
@@ -579,25 +537,24 @@ class _RipplesScreenState extends State<RipplesScreen>
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: LinearGradient(
+                    gradient: const LinearGradient(
                       colors: [
                         Colors.blueAccent,
-                        Colors.purpleAccent.withValues(alpha: 0.5),
+                        Colors.purpleAccent,
                       ],
                     ),
                   ),
                   child: CircleAvatar(
                     radius: 18,
                     backgroundColor: Colors.black,
-                    backgroundImage:
-                        currentRipple['profiles']?['avatar_url'] != null
-                        ? NetworkImage(currentRipple['profiles']['avatar_url'])
+                    backgroundImage: currentRipple.avatarUrl != null
+                        ? NetworkImage(currentRipple.avatarUrl!)
                         : null,
-                    child: currentRipple['profiles']?['avatar_url'] == null
+                    child: currentRipple.avatarUrl == null
                         ? Text(
-                            (currentRipple['profiles']?['username']
-                                        as String? ??
-                                    'U')[0]
+                            (currentRipple.username?.isNotEmpty == true
+                                    ? currentRipple.username!
+                                    : 'U')[0]
                                 .toUpperCase(),
                             style: const TextStyle(
                               fontSize: 12,
@@ -615,7 +572,7 @@ class _RipplesScreenState extends State<RipplesScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        currentRipple['profiles']?['username'] ?? 'User',
+                        currentRipple.username ?? 'User',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w900,
@@ -637,12 +594,10 @@ class _RipplesScreenState extends State<RipplesScreen>
             mainAxisSize: MainAxisSize.min,
             children: [
               _buildMobileAction(
-                icon: currentRipple['is_liked'] == true
+                icon: currentRipple.isLiked
                     ? FluentIcons.heart_24_filled
                     : FluentIcons.heart_24_regular,
-                color: currentRipple['is_liked'] == true
-                    ? Colors.redAccent
-                    : Colors.white,
+                color: currentRipple.isLiked ? Colors.redAccent : Colors.white,
                 onTap: () => _toggleLikeInBuild(currentRipple),
               ),
               _buildMobileAction(
@@ -650,18 +605,16 @@ class _RipplesScreenState extends State<RipplesScreen>
                 color: Colors.white,
                 onTap: () => _showMobileComments(
                   context,
-                  currentRipple['id'],
+                  currentRipple.id,
                   false,
                   false,
-                ), // Actual values will come from context
+                ),
               ),
               _buildMobileAction(
-                icon: currentRipple['is_saved'] == true
+                icon: currentRipple.isSaved
                     ? FluentIcons.bookmark_24_filled
                     : FluentIcons.bookmark_24_regular,
-                color: currentRipple['is_saved'] == true
-                    ? Colors.blueAccent
-                    : Colors.white,
+                color: currentRipple.isSaved ? Colors.blueAccent : Colors.white,
                 onTap: () => _toggleSaveInBuild(currentRipple),
               ),
               _buildMobileAction(
@@ -863,9 +816,6 @@ class _RipplesScreenState extends State<RipplesScreen>
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      if (icon == FluentIcons.dismiss_24_filled ||
-                          icon == Icons.arrow_back)
-                        _buildWellbeingCircularTimer(),
                       Icon(icon, color: Colors.white, size: 24),
                     ],
                   ),
@@ -875,33 +825,9 @@ class _RipplesScreenState extends State<RipplesScreen>
     );
   }
 
-  Widget _buildWellbeingCircularTimer() {
-    final service = context.watch<DigitalWellbeingService>();
-
-    final thresholdMs = service.lockoutThresholdMinutes * 60 * 1000.0;
-    final remainingMs = (thresholdMs - (service.totalSeconds * 1000.0)).clamp(
-      0.0,
-      thresholdMs,
-    );
-    final progress = (remainingMs / thresholdMs).clamp(0.0, 1.0);
-
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: CircularProgressIndicator(
-        value: progress,
-        strokeWidth: 2,
-        backgroundColor: Colors.white10,
-        valueColor: AlwaysStoppedAnimation<Color>(
-          progress < 0.2 ? Colors.redAccent : Colors.blueAccent,
-        ),
-      ),
-    );
-  }
-
   Widget _buildActiveLayout(
     RipplesLayoutType layout,
-    List<dynamic> ripples,
+    List<RippleEntity> ripples,
     bool isM3E,
     ColorScheme colorScheme,
     bool disableTransparency,
@@ -920,7 +846,7 @@ class _RipplesScreenState extends State<RipplesScreen>
   }
 
   Widget _buildKineticCardStack(
-    List<dynamic> ripples,
+    List<RippleEntity> ripples,
     bool isM3E,
     ColorScheme colorScheme,
     bool disableTransparency,
@@ -942,10 +868,11 @@ class _RipplesScreenState extends State<RipplesScreen>
 
             final videoPlayer = RepaintBoundary(
               child: RippleVideoPlayer(
-                rippleId: ripples[index]['id'],
-                videoUrl: ripples[index]['video_url'],
+                rippleId: ripples[index].id,
+                videoUrl: ripples[index].videoUrl,
                 isPlaying: _currentIndex == index,
-                progressNotifier: _currentIndex == index ? _rippleProgress : null,
+                progressNotifier:
+                    _currentIndex == index ? _rippleProgress : null,
               ),
             );
 
@@ -973,12 +900,7 @@ class _RipplesScreenState extends State<RipplesScreen>
               child: Opacity(
                 opacity: opacity,
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    12,
-                    40,
-                    12,
-                    110,
-                  ), // Enlarged card by reducing top and bottom padding
+                  padding: const EdgeInsets.fromLTRB(12, 40, 12, 110),
                   child: Container(
                     decoration: BoxDecoration(
                       color: disableTransparency
@@ -1013,7 +935,7 @@ class _RipplesScreenState extends State<RipplesScreen>
     );
   }
 
-  Widget _buildChoiceMosaic(List<dynamic> ripples, bool isM3E) {
+  Widget _buildChoiceMosaic(List<RippleEntity> ripples, bool isM3E) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1031,13 +953,13 @@ class _RipplesScreenState extends State<RipplesScreen>
               _pageController.jumpToPage(index);
             });
             context.read<RipplesProvider>().setLayoutPreference(
-              RipplesLayoutType.kineticCardStack,
-            );
+                  RipplesLayoutType.kineticCardStack,
+                );
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
             child: CachedNetworkImage(
-              imageUrl: ripples[index]['thumbnail_url'] ?? '',
+              imageUrl: ripples[index].thumbnailUrl ?? '',
               fit: BoxFit.cover,
             ),
           ),
@@ -1066,41 +988,41 @@ class _RipplesScreenState extends State<RipplesScreen>
     );
   }
 
-  void _toggleLikeInBuild(Map<String, dynamic> ripple) {
+  void _toggleLikeInBuild(RippleEntity ripple) {
     final service = context.read<RipplesProvider>();
-    if (ripple['is_liked'] == true) {
-      service.unlikeRipple(ripple['id']);
+    if (ripple.isLiked) {
+      service.unlikeRipple(ripple.id);
     } else {
-      service.likeRipple(ripple['id']);
+      service.likeRipple(ripple.id);
     }
   }
 
-  void _toggleSaveInBuild(Map<String, dynamic> ripple) {
+  void _toggleSaveInBuild(RippleEntity ripple) {
     final service = context.read<RipplesProvider>();
-    if (ripple['is_saved'] == true) {
-      service.unsaveRipple(ripple['id']);
+    if (ripple.isSaved) {
+      service.unsaveRipple(ripple.id);
     } else {
-      service.saveRipple(ripple['id']);
+      service.saveRipple(ripple.id);
     }
   }
 
-  void _shareToDM(Map<String, dynamic> ripple) {
+  void _shareToDM(RippleEntity ripple) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ShareToDirectMessageModal(
         title: 'Share Ripple',
-        content: ripple['caption'] ?? 'Shared a ripple',
+        content: ripple.caption ?? 'Shared a ripple',
         messageType: MessageType.ripple,
-        rippleId: ripple['id'],
-        mediaUrl: ripple['thumbnail_url'],
+        rippleId: ripple.id,
+        mediaUrl: ripple.thumbnailUrl,
         shareData: {
-          'username': ripple['profiles']['username'],
-          'user_avatar': ripple['profiles']['avatar_url'],
-          'caption': ripple['caption'],
-          'video_url': ripple['video_url'],
-          'thumbnail_url': ripple['thumbnail_url'],
+          'username': ripple.username,
+          'user_avatar': ripple.avatarUrl,
+          'caption': ripple.caption,
+          'video_url': ripple.videoUrl,
+          'thumbnail_url': ripple.thumbnailUrl,
         },
       ),
     );
@@ -1147,8 +1069,7 @@ class _RippleVideoPlayerState extends State<RippleVideoPlayer>
     if (widget.isPlaying &&
         widget.progressNotifier != null &&
         _controller.value.isInitialized) {
-      final progress =
-          _controller.value.position.inMilliseconds /
+      final progress = _controller.value.position.inMilliseconds /
           _controller.value.duration.inMilliseconds;
       widget.progressNotifier!.value = progress.clamp(0.0, 1.0);
     }
@@ -1210,7 +1131,7 @@ class RippleCommentsList extends StatefulWidget {
 }
 
 class _RippleCommentsListState extends State<RippleCommentsList> {
-  List<dynamic> _comments = [];
+  List<RippleCommentEntity> _comments = [];
   bool _isLoading = true;
   final TextEditingController _commentController = TextEditingController();
   bool _isPosting = false;
@@ -1239,8 +1160,8 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
     setState(() => _isLoading = true);
     try {
       final response = await context.read<RipplesProvider>().getComments(
-        widget.rippleId,
-      );
+            widget.rippleId,
+          );
 
       if (mounted) {
         setState(() {
@@ -1260,9 +1181,9 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
 
     try {
       await context.read<RipplesProvider>().commentOnRipple(
-        widget.rippleId,
-        _commentController.text.trim(),
-      );
+            widget.rippleId,
+            _commentController.text.trim(),
+          );
 
       _commentController.clear();
       await _loadComments();
@@ -1276,8 +1197,8 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
   @override
   Widget build(BuildContext context) {
     final isMobile = Theme.of(context).platform == TargetPlatform.iOS ||
-                     Theme.of(context).platform == TargetPlatform.android;
-    
+        Theme.of(context).platform == TargetPlatform.android;
+
     return Column(
       children: [
         // Comments list
@@ -1285,64 +1206,69 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
               : _comments.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No comments yet',
-                    style: TextStyle(color: Colors.white24),
-                  ),
-                )
-              : ListView.separated(
-                  itemCount: _comments.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final comment = _comments[index];
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 14,
-                          backgroundImage:
-                              comment['profiles']?['avatar_url'] != null
-                              ? NetworkImage(comment['profiles']['avatar_url'])
-                              : null,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                comment['profiles']?['username'] ?? 'User',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                  ? const Center(
+                      child: Text(
+                        'No comments yet',
+                        style: TextStyle(color: Colors.white24),
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: _comments.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final comment = _comments[index];
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: 14,
+                              backgroundImage: comment.avatarUrl != null
+                                  ? NetworkImage(comment.avatarUrl!)
+                                  : null,
+                              child: comment.avatarUrl == null
+                                  ? Text((comment.username ?? 'U')[0].toUpperCase(), style: const TextStyle(fontSize: 10))
+                                  : null,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    comment.username ?? 'User',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 13,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    comment.content,
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 2),
-                              Text(
-                                comment['content'] ?? '',
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
         ),
         // Comment input field
         Container(
-          padding: EdgeInsets.fromLTRB(12, 8, 12, MediaQuery.of(context).viewInsets.bottom + 8),
+          padding: EdgeInsets.fromLTRB(
+              12, 8, 12, MediaQuery.of(context).viewInsets.bottom + 8),
           decoration: BoxDecoration(
-            color: isMobile ? Theme.of(context).colorScheme.surface : Colors.white.withValues(alpha: 0.05),
+            color: isMobile
+                ? Theme.of(context).colorScheme.surface
+                : Colors.white.withValues(alpha: 0.05),
             border: Border(
               top: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
             ),
@@ -1353,30 +1279,31 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
                 child: TextField(
                   controller: _commentController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: isMobile 
-                    ? InputDecoration(
-                        hintText: 'Add a comment...',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
+                  decoration: isMobile
+                      ? InputDecoration(
+                          hintText: 'Add a comment...',
+                          hintStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white.withValues(alpha: 0.08),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          isDense: true,
+                        )
+                      : InputDecoration(
+                          hintText: 'Add a comment...',
+                          hintStyle: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
                         ),
-                        filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.08),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        isDense: true,
-                      )
-                    : InputDecoration(
-                        hintText: 'Add a comment...',
-                        hintStyle: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.4),
-                        ),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: EdgeInsets.zero,
-                      ),
                   onSubmitted: (_) => _postComment(),
                 ),
               ),
@@ -1406,7 +1333,7 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
 }
 
 class _ComingUpItem extends StatefulWidget {
-  final Map<String, dynamic> ripple;
+  final RippleEntity ripple;
   final bool isCurrent;
   final bool isM3E;
   final VoidCallback onTap;
@@ -1444,8 +1371,8 @@ class _ComingUpItemState extends State<_ComingUpItem> {
               color: widget.isCurrent
                   ? Colors.white.withValues(alpha: 0.3)
                   : _isHovered
-                  ? Colors.white.withValues(alpha: 0.15)
-                  : Colors.transparent,
+                      ? Colors.white.withValues(alpha: 0.15)
+                      : Colors.transparent,
             ),
             boxShadow: _isHovered
                 ? [
@@ -1461,19 +1388,16 @@ class _ComingUpItemState extends State<_ComingUpItem> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(widget.isM3E ? 12 : 8),
-                child:
-                    Image.network(
-                          widget.ripple['thumbnail_url'] ?? '',
-                          width: 60,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        )
-                        .animate(target: _isHovered ? 1 : 0)
-                        .scale(
-                          begin: const Offset(1, 1),
-                          end: const Offset(1.1, 1.1),
-                          duration: 200.ms,
-                        ),
+                child: Image.network(
+                  widget.ripple.thumbnailUrl ?? '',
+                  width: 60,
+                  height: 80,
+                  fit: BoxFit.cover,
+                ).animate(target: _isHovered ? 1 : 0).scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.1, 1.1),
+                      duration: 200.ms,
+                    ),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1481,7 +1405,7 @@ class _ComingUpItemState extends State<_ComingUpItem> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.ripple['profiles']?['username'] ?? 'User',
+                      widget.ripple.username ?? 'User',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1491,7 +1415,7 @@ class _ComingUpItemState extends State<_ComingUpItem> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      widget.ripple['caption'] ?? '',
+                      widget.ripple.caption ?? '',
                       style: const TextStyle(
                         color: Colors.white54,
                         fontSize: 11,
@@ -1509,4 +1433,3 @@ class _ComingUpItemState extends State<_ComingUpItem> {
     );
   }
 }
-

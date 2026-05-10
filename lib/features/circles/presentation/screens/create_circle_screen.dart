@@ -61,10 +61,16 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
       );
       
       if (!mounted) return;
+
       if (circle != null) {
         context.pushReplacementNamed(
           'circle_detail',
           pathParameters: {'circleId': circle.id},
+        );
+      } else {
+        final error = context.read<CircleProvider>().error;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error ?? 'Failed to create circle. Please try again.')),
         );
       }
     } catch (e) {

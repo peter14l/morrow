@@ -1,6 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+class MockUser {
+  final String name;
+  final String username;
+  final String avatar;
+
+  const MockUser({
+    required this.name,
+    required this.username,
+    required this.avatar,
+  });
+}
+
+class MockConversation {
+  final String id;
+  final MockUser user;
+  final String lastMessage;
+  final String time;
+  final bool unread;
+
+  const MockConversation({
+    required this.id,
+    required this.user,
+    required this.lastMessage,
+    required this.time,
+    required this.unread,
+  });
+}
+
 class DirectMessagesScreen extends StatefulWidget {
   const DirectMessagesScreen({super.key});
 
@@ -9,46 +37,46 @@ class DirectMessagesScreen extends StatefulWidget {
 }
 
 class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
-  final List<Map<String, dynamic>> _conversations = [
-    {
-      'id': '1',
-      'user': {
-        'name': 'Alex Johnson',
-        'username': 'alexj',
-        'avatar': 'https://randomuser.me/api/portraits/men/1.jpg',
-      },
-      'lastMessage': 'Hey, how are you doing?',
-      'time': '2h ago',
-      'unread': true,
-    },
-    {
-      'id': '2',
-      'user': {
-        'name': 'Sarah Williams',
-        'username': 'sarahw',
-        'avatar': 'https://randomuser.me/api/portraits/women/2.jpg',
-      },
-      'lastMessage': 'Did you see the latest post?',
-      'time': '5h ago',
-      'unread': false,
-    },
-    {
-      'id': '3',
-      'user': {
-        'name': 'Mike Chen',
-        'username': 'mikec',
-        'avatar': 'https://randomuser.me/api/portraits/men/3.jpg',
-      },
-      'lastMessage': 'Thanks for your help!',
-      'time': '1d ago',
-      'unread': false,
-    },
+  final List<MockConversation> _conversations = [
+    const MockConversation(
+      id: '1',
+      user: MockUser(
+        name: 'Alex Johnson',
+        username: 'alexj',
+        avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+      ),
+      lastMessage: 'Hey, how are you doing?',
+      time: '2h ago',
+      unread: true,
+    ),
+    const MockConversation(
+      id: '2',
+      user: MockUser(
+        name: 'Sarah Williams',
+        username: 'sarahw',
+        avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
+      ),
+      lastMessage: 'Did you see the latest post?',
+      time: '5h ago',
+      unread: false,
+    ),
+    const MockConversation(
+      id: '3',
+      user: MockUser(
+        name: 'Mike Chen',
+        username: 'mikec',
+        avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+      ),
+      lastMessage: 'Thanks for your help!',
+      time: '1d ago',
+      unread: false,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    
+
     return Scaffold(
       extendBody: true,
       appBar: AppBar(
@@ -86,7 +114,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
 
   Widget _buildEmptyState() {
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    
+
     return Center(
       child: SingleChildScrollView(
         padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset + 80 : 100),
@@ -153,24 +181,24 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
     );
   }
 
-  Widget _buildConversationItem(Map<String, dynamic> conversation) {
-    final user = conversation['user'] as Map<String, dynamic>;
-    final isUnread = conversation['unread'] as bool;
+  Widget _buildConversationItem(MockConversation conversation) {
+    final user = conversation.user;
+    final isUnread = conversation.unread;
 
     return ListTile(
       leading: CircleAvatar(
         radius: 24,
-        backgroundImage: NetworkImage(user['avatar']),
+        backgroundImage: NetworkImage(user.avatar),
       ),
       title: Text(
-        user['name'],
+        user.name,
         style: TextStyle(
           fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
           color: Colors.white,
         ),
       ),
       subtitle: Text(
-        conversation['lastMessage'],
+        conversation.lastMessage,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
@@ -183,7 +211,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            conversation['time'],
+            conversation.time,
             style: const TextStyle(
               color: Color(0xFF9DA6B9),
               fontSize: 12,
@@ -201,8 +229,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
         ],
       ),
       onTap: () {
-        // Navigate to chat screen
-        context.push('/messages/${conversation['id']}');
+        context.push('/messages/${conversation.id}');
       },
     );
   }
@@ -229,22 +256,22 @@ class NewMessageDialog extends StatefulWidget {
 
 class _NewMessageDialogState extends State<NewMessageDialog> {
   final TextEditingController _searchController = TextEditingController();
-  final List<Map<String, dynamic>> _suggestedUsers = [
-    {
-      'name': 'Alex Johnson',
-      'username': 'alexj',
-      'avatar': 'https://randomuser.me/api/portraits/men/1.jpg',
-    },
-    {
-      'name': 'Sarah Williams',
-      'username': 'sarahw',
-      'avatar': 'https://randomuser.me/api/portraits/women/2.jpg',
-    },
-    {
-      'name': 'Mike Chen',
-      'username': 'mikec',
-      'avatar': 'https://randomuser.me/api/portraits/men/3.jpg',
-    },
+  final List<MockUser> _suggestedUsers = [
+    const MockUser(
+      name: 'Alex Johnson',
+      username: 'alexj',
+      avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
+    ),
+    const MockUser(
+      name: 'Sarah Williams',
+      username: 'sarahw',
+      avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
+    ),
+    const MockUser(
+      name: 'Mike Chen',
+      username: 'mikec',
+      avatar: 'https://randomuser.me/api/portraits/men/3.jpg',
+    ),
   ];
 
   @override
@@ -270,7 +297,6 @@ class _NewMessageDialogState extends State<NewMessageDialog> {
             ),
           ),
           const SizedBox(height: 16),
-          // Search Bar
           TextField(
             controller: _searchController,
             style: const TextStyle(color: Colors.white),
@@ -286,9 +312,7 @@ class _NewMessageDialogState extends State<NewMessageDialog> {
               ),
               contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             ),
-            onChanged: (value) {
-              // Filter users based on search query
-            },
+            onChanged: (value) {},
           ),
           const SizedBox(height: 24),
           const Text(
@@ -307,18 +331,17 @@ class _NewMessageDialogState extends State<NewMessageDialog> {
                 final user = _suggestedUsers[index];
                 return ListTile(
                   leading: CircleAvatar(
-                    backgroundImage: NetworkImage(user['avatar']),
+                    backgroundImage: NetworkImage(user.avatar),
                   ),
                   title: Text(
-                    user['name'],
+                    user.name,
                     style: const TextStyle(color: Colors.white),
                   ),
                   subtitle: Text(
-                    '@${user['username']}',
+                    '@${user.username}',
                     style: const TextStyle(color: Color(0xFF9DA6B9)),
                   ),
                   onTap: () {
-                    // Start chat with selected user
                     Navigator.pop(context);
                   },
                 );

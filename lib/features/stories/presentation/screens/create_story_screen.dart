@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 import 'package:go_router/go_router.dart';
-import 'package:animate_do/animate_do.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:gal/gal.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -1980,96 +1980,93 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       bottom: 100,
       left: 0,
       right: 0,
-      child: FadeInUp(
-        duration: const Duration(milliseconds: 300),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 120,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _filterPresets.length,
-                itemBuilder: (context, index) {
-                  final isSelected = _selectedFilterIndex == index;
-                  return GestureDetector(
-                    onTap: () => setState(() => _selectedFilterIndex = index),
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 15),
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                isM3E
-                                    ? 16
-                                    : 12, // M3E Large (16dp) vs M3 Medium (12dp)
-                              ),
-                              border: Border.all(
-                                color:
-                                    isSelected
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                width: 3,
-                              ),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 120,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: _filterPresets.length,
+              itemBuilder: (context, index) {
+                final isSelected = _selectedFilterIndex == index;
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedFilterIndex = index),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 15),
+                    child: Column(
+                      children: [
+                        Container(
+                          width: 70,
+                          height: 70,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              isM3E
+                                  ? 16
+                                  : 12, // M3E Large (16dp) vs M3 Medium (12dp)
                             ),
-                            clipBehavior: Clip.antiAlias,
-                            child: ColorFiltered(
-                              colorFilter: ui.ColorFilter.matrix(
-                                _filterPresets[index]['matrix'],
-                              ),
-                              child: Image.file(
-                                _selectedFile!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: Colors.grey[800],
-                                    child: const Center(
-                                      child: Icon(
-                                        Icons.broken_image_outlined,
-                                        color: Colors.white54,
-                                        size: 32,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            _filterPresets[index]['name'],
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : Colors.white60,
-                              fontSize: 12,
-                              fontWeight:
+                            border: Border.all(
+                              color:
                                   isSelected
-                                      ? (isM3E
-                                          ? FontWeight
-                                              .w600 // M3E uses Medium (500-600)
-                                          : FontWeight.bold)
-                                      : FontWeight.normal,
-                              letterSpacing:
-                                  isM3E ? -0.5 : 0, // M3E tighter spacing
+                                      ? Colors.white
+                                      : Colors.transparent,
+                              width: 3,
                             ),
                           ),
-                        ],
-                      ),
+                          clipBehavior: Clip.antiAlias,
+                          child: ColorFiltered(
+                            colorFilter: ui.ColorFilter.matrix(
+                              _filterPresets[index]['matrix'],
+                            ),
+                            child: Image.file(
+                              _selectedFile!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[800],
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.broken_image_outlined,
+                                      color: Colors.white54,
+                                      size: 32,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _filterPresets[index]['name'],
+                          style: TextStyle(
+                            color: isSelected ? Colors.white : Colors.white60,
+                            fontSize: 12,
+                            fontWeight:
+                                isSelected
+                                    ? (isM3E
+                                        ? FontWeight
+                                            .w600 // M3E uses Medium (500-600)
+                                        : FontWeight.bold)
+                                    : FontWeight.normal,
+                            letterSpacing:
+                                isM3E ? -0.5 : 0, // M3E tighter spacing
+                          ),
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
-            IconButton(
-              icon: const Icon(Icons.close),
-              style: IconButton.styleFrom(foregroundColor: Colors.white),
-              onPressed: () => setState(() => _isFilterPickerVisible = false),
-            ),
-          ],
-        ),
-      ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.close),
+            style: IconButton.styleFrom(foregroundColor: Colors.white),
+            onPressed: () => setState(() => _isFilterPickerVisible = false),
+          ),
+        ],
+      ).animate().fadeIn(duration: 300.ms).moveY(begin: 10, end: 0),
     );
   }
 

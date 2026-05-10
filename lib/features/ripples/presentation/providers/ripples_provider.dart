@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/features/ripples/domain/models/ripple_entity.dart'
-    show RipplesLayoutType, RippleEntity;
+    show RipplesLayoutType, RippleEntity, RippleCommentEntity;
 import 'package:oasis/features/ripples/domain/repositories/ripple_repository.dart';
 import 'package:oasis/features/ripples/data/repositories/ripple_repository_impl.dart';
 import 'package:oasis/services/ad_service.dart';
@@ -21,7 +21,7 @@ class RipplesProvider extends ChangeNotifier {
   final AdService _adService;
   final SubscriptionService _subscriptionService;
 
-  List<Map<String, dynamic>> _ripples = [];
+  List<RippleEntity> _ripples = [];
   bool _isLoading = false;
   String? _error;
   RipplesLayoutType _currentLayout = RipplesLayoutType.kineticCardStack;
@@ -49,7 +49,7 @@ class RipplesProvider extends ChangeNotifier {
   }
 
   // Getters
-  List<Map<String, dynamic>> get ripples => _ripples;
+  List<RippleEntity> get ripples => _ripples;
   bool get isLoading => _isLoading;
   String? get error => _error;
   RipplesLayoutType get currentLayout => _currentLayout;
@@ -206,8 +206,7 @@ class RipplesProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final ripplesData = await _rippleRepository.getRipples();
-      _ripples = ripplesData.map((e) => e.toJson()).toList();
+      _ripples = await _rippleRepository.getRipples();
       await _injectAds();
     } catch (e) {
       debugPrint('Error fetching ripples: $e');
@@ -224,32 +223,23 @@ class RipplesProvider extends ChangeNotifier {
     final ads = await _adService.getHouseAds();
     if (ads.isEmpty) return;
 
-    final List<Map<String, dynamic>> result = [];
+    final List<RippleEntity> result = [];
     int adIndex = 0;
     for (int i = 0; i < _ripples.length; i++) {
       result.add(_ripples[i]);
       if ((i + 1) % 5 == 0 && adIndex < ads.length) {
         final ad = ads[adIndex];
-        result.add({
-          'id': 'ad_${ad.id}',
-          'user_id': 'ad_system',
-          'is_ad': true,
-          'video_url':
-              ad.imageUrl ?? '', // Using imageUrl as videoUrl for house ads
-          'thumbnail_url': ad.imageUrl,
-          'caption': ad.content,
-          'created_at': ad.timestamp.toIso8601String(),
-          'likes_count': 0,
-          'comments_count': 0,
-          'saves_count': 0,
-          'profiles': {
-            'username': ad.username,
-            'avatar_url': ad.userAvatar,
-            'is_private': false,
-          },
-          'is_liked': false,
-          'is_saved': false,
-        });
+        result.add(RippleEntity(
+          id: 'ad_${ad.id}',
+          userId: 'ad_system',
+          isAd: true,
+          videoUrl: ad.imageUrl ?? '',
+          thumbnailUrl: ad.imageUrl,
+          caption: ad.content,
+          createdAt: ad.timestamp,
+          username: ad.username,
+          avatarUrl: ad.userAvatar,
+        ));
         adIndex++;
       }
     }
@@ -258,11 +248,12 @@ class RipplesProvider extends ChangeNotifier {
 
   Future<void> likeRipple(String rippleId) async {
     // Update locally first for instant feedback
-    final index = _ripples.indexWhere((r) => r['id'] == rippleId);
-    if (index != -1 && !(_ripples[index]['is_liked'] ?? false)) {
-      _ripples[index]['is_liked'] = true;
-      _ripples[index]['likes_count'] =
-          (_ripples[index]['likes_count'] ?? 0) + 1;
+    final index = _ripples.indexWhere((r) => r.id == rippleId);
+    if (index != -1 && !_ripples[index].isLiked) {
+      _ripples[index] = _ripples[index].copyWith(
+        isLiked: true,
+        likesCount: _ripples[index].likesCount + 1,
+      );
       notifyListeners();
     }
 
@@ -275,14 +266,12 @@ class RipplesProvider extends ChangeNotifier {
 
   Future<void> unlikeRipple(String rippleId) async {
     // Update locally first
-    final index = _ripples.indexWhere((r) => r['id'] == rippleId);
-    if (index != -1 && (_ripples[index]['is_liked'] ?? false)) {
-      _ripples[index]['is_liked'] = false;
-      _ripples[index]['likes_count'] =
-          (_ripples[index]['likes_count'] ?? 0) - 1;
-      if (_ripples[index]['likes_count'] < 0) {
-        _ripples[index]['likes_count'] = 0;
-      }
+    final index = _ripples.indexWhere((r) => r.id == rippleId);
+    if (index != -1 && _ripples[index].isLiked) {
+      _ripples[index] = _ripples[index].copyWith(
+        isLiked: false,
+        likesCount: (_ripples[index].likesCount - 1).clamp(0, 999999),
+      );
       notifyListeners();
     }
 
@@ -294,11 +283,12 @@ class RipplesProvider extends ChangeNotifier {
   }
 
   Future<void> saveRipple(String rippleId) async {
-    final index = _ripples.indexWhere((r) => r['id'] == rippleId);
-    if (index != -1 && !(_ripples[index]['is_saved'] ?? false)) {
-      _ripples[index]['is_saved'] = true;
-      _ripples[index]['saves_count'] =
-          (_ripples[index]['saves_count'] ?? 0) + 1;
+    final index = _ripples.indexWhere((r) => r.id == rippleId);
+    if (index != -1 && !_ripples[index].isSaved) {
+      _ripples[index] = _ripples[index].copyWith(
+        isSaved: true,
+        savesCount: _ripples[index].savesCount + 1,
+      );
       notifyListeners();
     }
 
@@ -310,14 +300,12 @@ class RipplesProvider extends ChangeNotifier {
   }
 
   Future<void> unsaveRipple(String rippleId) async {
-    final index = _ripples.indexWhere((r) => r['id'] == rippleId);
-    if (index != -1 && (_ripples[index]['is_saved'] ?? false)) {
-      _ripples[index]['is_saved'] = false;
-      _ripples[index]['saves_count'] =
-          (_ripples[index]['saves_count'] ?? 0) - 1;
-      if (_ripples[index]['saves_count'] < 0) {
-        _ripples[index]['saves_count'] = 0;
-      }
+    final index = _ripples.indexWhere((r) => r.id == rippleId);
+    if (index != -1 && _ripples[index].isSaved) {
+      _ripples[index] = _ripples[index].copyWith(
+        isSaved: false,
+        savesCount: (_ripples[index].savesCount - 1).clamp(0, 999999),
+      );
       notifyListeners();
     }
 
@@ -328,10 +316,9 @@ class RipplesProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getComments(String rippleId) async {
+  Future<List<RippleCommentEntity>> getComments(String rippleId) async {
     try {
-      final comments = await _rippleRepository.getComments(rippleId);
-      return comments.map<Map<String, dynamic>>((e) => e.toJson()).toList();
+      return await _rippleRepository.getComments(rippleId);
     } catch (e) {
       debugPrint('Error fetching comments: $e');
       return [];
@@ -346,10 +333,11 @@ class RipplesProvider extends ChangeNotifier {
       );
 
       // Update local count
-      final index = _ripples.indexWhere((r) => r['id'] == rippleId);
+      final index = _ripples.indexWhere((r) => r.id == rippleId);
       if (index != -1) {
-        _ripples[index]['comments_count'] =
-            (_ripples[index]['comments_count'] ?? 0) + 1;
+        _ripples[index] = _ripples[index].copyWith(
+          commentsCount: _ripples[index].commentsCount + 1,
+        );
         notifyListeners();
       }
     } catch (e) {

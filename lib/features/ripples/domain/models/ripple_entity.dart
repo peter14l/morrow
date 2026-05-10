@@ -15,6 +15,7 @@ class RippleEntity {
   final int savesCount;
   final bool isLiked;
   final bool isSaved;
+  final bool isAd;
   final DateTime createdAt;
 
   const RippleEntity({
@@ -31,6 +32,7 @@ class RippleEntity {
     this.savesCount = 0,
     this.isLiked = false,
     this.isSaved = false,
+    this.isAd = false,
     required this.createdAt,
   });
 
@@ -50,6 +52,7 @@ class RippleEntity {
       savesCount: json['saves_count'] as int? ?? 0,
       isLiked: json['is_liked'] as bool? ?? false,
       isSaved: json['is_saved'] as bool? ?? false,
+      isAd: json['is_ad'] as bool? ?? false,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -67,6 +70,7 @@ class RippleEntity {
       'saves_count': savesCount,
       'is_liked': isLiked,
       'is_saved': isSaved,
+      'is_ad': isAd,
       'created_at': createdAt.toIso8601String(),
       'profiles': {
         'username': username,
@@ -89,6 +93,7 @@ class RippleEntity {
     int? savesCount,
     bool? isLiked,
     bool? isSaved,
+    bool? isAd,
     DateTime? createdAt,
   }) {
     return RippleEntity(
@@ -105,6 +110,7 @@ class RippleEntity {
       savesCount: savesCount ?? this.savesCount,
       isLiked: isLiked ?? this.isLiked,
       isSaved: isSaved ?? this.isSaved,
+      isAd: isAd ?? this.isAd,
       createdAt: createdAt ?? this.createdAt,
     );
   }

@@ -1,6 +1,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -17,16 +18,19 @@ class FlutterSecureStorageWindows extends FlutterSecureStoragePlatform {
 
   static const String _storagePrefix = 'flutter_secure_storage_';
   
-  // Deterministic key derivation for Windows (similar to how others do it)
+  // Improved deterministic key derivation for Windows Beta
   encrypt.Key _deriveKey() {
-    // In a real stub, we'd use a more complex derivation, but for this fix:
-    final bytes = utf8.encode('morrow_v2_windows_secret_salt');
+    // Combine project name with a machine-specific seed if available, 
+    // fallback to a robust constant for consistent access.
+    final machineSeed = Platform.environment['COMPUTERNAME'] ?? 'oasis_fallback_machine_id';
+    final bytes = utf8.encode('oasis_v1_beta_secure_salt_$machineSeed');
     final digest = sha256.convert(bytes);
     return encrypt.Key(Uint8List.fromList(digest.bytes));
   }
 
   encrypt.IV _deriveIV(String key) {
-    final bytes = utf8.encode(key);
+    // IV should be deterministic per key for SharedPreferences storage
+    final bytes = utf8.encode('oasis_iv_seed_$key');
     final digest = sha256.convert(bytes);
     return encrypt.IV(Uint8List.fromList(digest.bytes.sublist(0, 16)));
   }
