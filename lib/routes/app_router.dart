@@ -761,6 +761,9 @@ class _MainLayoutState extends State<MainLayout> {
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
                     minimumSize: const Size(48, 48),
+                    maximumSize: const Size(48, 48),
+                    padding: EdgeInsets.zero,
+                    iconSize: 24,
                   ),
                 ),
               ),
@@ -847,7 +850,7 @@ class _MainLayoutState extends State<MainLayout> {
         borderRadius: BorderRadius.circular(12),
         child: Container(
           width: double.infinity,
-          height: 64,
+          height: 56,
           decoration: BoxDecoration(
             color: theme.colorScheme.primary,
             borderRadius: BorderRadius.circular(12),
@@ -861,8 +864,9 @@ class _MainLayoutState extends State<MainLayout> {
           ),
           child: const Row(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.add_rounded, color: Colors.white, size: 28),
+              Icon(Icons.add_rounded, color: Colors.white, size: 24),
               SizedBox(width: 12),
               Text(
                 'CREATE',
