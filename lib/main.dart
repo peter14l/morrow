@@ -519,14 +519,17 @@ class _MyAppState extends State<MyApp> {
 
   void _handleInitialization(String? userId) {
     if (_lastInitializedUserId == userId) return;
+    debugPrint('[MainApp] _handleInitialization triggered for userId: $userId');
     _lastInitializedUserId = userId;
 
     if (userId != null) {
+      debugPrint('[MainApp] Starting full initialization for user $userId');
       // Use unawaited to fire off data loads concurrently without blocking UI
       // We still use slight delays to prioritize the very first frame of the home screen
       unawaited(
         Future.microtask(() {
           if (!mounted) return;
+          debugPrint('[MainApp] Initializing Notification and Presence');
           context.read<NotificationProvider>().init(userId);
           context.read<PresenceProvider>().updateUserPresence(userId, 'online');
         }),
@@ -534,14 +537,17 @@ class _MyAppState extends State<MyApp> {
 
       unawaited(
         Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted) context.read<ConversationProvider>().initialize(userId);
+          if (!mounted) return;
+          debugPrint('[MainApp] Initializing ConversationProvider');
+          context.read<ConversationProvider>().initialize(userId);
         }),
       );
 
       unawaited(
         Future.delayed(const Duration(milliseconds: 200), () {
-          if (mounted)
-            context.read<ProfileProvider>().loadCurrentProfile(userId);
+          if (!mounted) return;
+          debugPrint('[MainApp] Initializing ProfileProvider');
+          context.read<ProfileProvider>().loadCurrentProfile(userId);
         }),
       );
 
@@ -549,13 +555,17 @@ class _MyAppState extends State<MyApp> {
       unawaited(
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
+            debugPrint('[MainApp] Triggering Circle and Canvas loading');
             context.read<CircleProvider>().loadCircles(userId);
             context.read<CanvasProvider>().loadCanvases(userId);
 
             if (AppConfig.enableCalls) {
+              debugPrint('[MainApp] Eagerly instantiating CallProvider');
               // Eagerly instantiate CallProvider to attach incoming call listeners
               context.read<CallProvider>();
             }
+          } else {
+            debugPrint('[MainApp] Widget unmounted before 500ms delay, skipping circle/canvas load');
           }
         }),
       );
@@ -563,6 +573,7 @@ class _MyAppState extends State<MyApp> {
       SharingService().init(context);
       DeepLinkService().init();
     } else {
+      debugPrint('[MainApp] User is null, only initializing notifications');
       context.read<NotificationProvider>().init(null);
     }
   }
@@ -584,6 +595,8 @@ class _MyAppState extends State<MyApp> {
             '${themeProvider.useMaterialYou}_'
             '${themeProvider.colorPalette}_'
             '${themeProvider.highContrast}_'
+            '${userSettings.micaEnabled}_'
+            '${userSettings.windowEffect}_'
             '${userSettings.fontFamily}_'
             '${lightDynamic?.primary.value}_'
             '${darkDynamic?.primary.value}';
@@ -614,6 +627,7 @@ class _MyAppState extends State<MyApp> {
             material.Brightness.light,
             isM3E: themeProvider.isM3EEnabled,
             highContrast: themeProvider.highContrast,
+            micaEnabled: userSettings.micaEnabled,
             fontFamily: userSettings.fontFamily,
             dynamicColorScheme: lightScheme,
           );
@@ -621,6 +635,7 @@ class _MyAppState extends State<MyApp> {
             material.Brightness.dark,
             isM3E: themeProvider.isM3EEnabled,
             highContrast: themeProvider.highContrast,
+            micaEnabled: userSettings.micaEnabled,
             fontFamily: userSettings.fontFamily,
             dynamicColorScheme: darkScheme,
           );
@@ -805,53 +820,18 @@ class CallNavigator extends StatelessWidget {
         !kIsWeb && (Platform.isWindows || Platform.isMacOS);
     final bool useTransparency = userSettings.micaEnabled && canUseTransparency;
 
-    if (useTransparency) {
-      final theme = material.Theme.of(context);
-      final isDark = theme.brightness == material.Brightness.dark;
-
-      childWidget = material.Theme(
-        data: theme.copyWith(
-          colorScheme: theme.colorScheme.copyWith(
-            surface: isDark
-                ? const material.Color(0xFF1A1D24).withValues(alpha: 0.9)
-                : material.Colors.white.withValues(alpha: 0.9),
-            surfaceContainer: isDark
-                ? const material.Color(0xFF111418).withValues(alpha: 0.8)
-                : material.Colors.white.withValues(alpha: 0.8),
-            onSurface: isDark ? material.Colors.white : material.Colors.black,
-          ),
-          scaffoldBackgroundColor: material.Colors.transparent,
-          canvasColor: material.Colors.transparent,
-          cardColor: isDark
-              ? material.Colors.white.withValues(alpha: 0.05)
-              : material.Colors.black.withValues(alpha: 0.05),
-          bottomSheetTheme: theme.bottomSheetTheme.copyWith(
-            backgroundColor: isDark
-                ? const material.Color(0xFF0D1F1A)
-                : const material.Color(0xFFFEF7FF),
-            surfaceTintColor: material.Colors.transparent,
-            elevation: 8,
-          ),
-        ),
-        child: childWidget,
-      );
-
-      childWidget = Container(
-        color: material.Colors.transparent,
-        child: childWidget,
-      );
-    }
-
     final isDark =
         material.Theme.of(context).brightness == material.Brightness.dark;
 
     return Container(
       color: useTransparency
-          ? material.Colors.transparent
+          ? (isDark
+                ? material.Colors.black.withValues(alpha: 0.0)
+                : material.Colors.white.withValues(alpha: 0.0))
           : (isDark
                 ? const material.Color(0xFF080A0E)
                 : const material.Color(0xFFF8F9FA)),
-      child: childWidget,
+      child: child,
     );
   }
 }
@@ -936,7 +916,11 @@ void main() async {
         message.contains('Firebase') ||
         message.contains('Supabase') ||
         message.contains('[PQAura]') ||
-        message.contains('[Signal]')) {
+        message.contains('[Signal]') ||
+        message.contains('[MainApp]') ||
+        message.contains('[CircleProvider]') ||
+        message.contains('[CircleRemoteDatasource]') ||
+        message.contains('[CanvasProvider]')) {
       if (kDebugMode) {
         debugPrintThrottled(message, wrapWidth: wrapWidth);
         return;

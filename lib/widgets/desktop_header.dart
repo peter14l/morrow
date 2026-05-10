@@ -5,6 +5,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
+import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 
 class DesktopHeader extends StatelessWidget {
   final String title;
@@ -31,6 +32,7 @@ class DesktopHeader extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+    final micaEnabled = context.watch<UserSettingsProvider>().micaEnabled;
 
     final Widget headerContent = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
@@ -105,7 +107,14 @@ class DesktopHeader extends StatelessWidget {
                 filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                 child: Container(
                   width: double.infinity,
-                  color: theme.scaffoldBackgroundColor.withValues(alpha: 0.7),
+                  color:
+                      micaEnabled
+                          ? (theme.brightness == Brightness.dark
+                              ? Colors.black.withValues(alpha: 0.2)
+                              : Colors.white.withValues(alpha: 0.2))
+                          : theme.scaffoldBackgroundColor.withValues(
+                            alpha: 0.7,
+                          ),
                   child: MaxWidthContainer(
                     maxWidth: maxWidth ?? ResponsiveLayout.maxContentWidth,
                     child: headerContent,

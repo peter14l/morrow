@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:oasis/features/profile/domain/models/user_profile_entity.dart';
 
 enum CommitmentStatus { open, closed }
@@ -181,25 +182,41 @@ class CircleEntity {
   });
 
   factory CircleEntity.fromJson(Map<String, dynamic> json) {
-    final memberIds = (json['member_ids'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList() ??
-          [];
-    
-    final members = (json['members'] as List<dynamic>?)
-              ?.map((e) => UserProfileEntity.fromJson(e as Map<String, dynamic>))
-              .toList() ?? [];
+    try {
+      final memberIds = (json['member_ids'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [];
+      
+      final members = (json['members'] as List<dynamic>?)
+                ?.map((e) {
+                  try {
+                    return UserProfileEntity.fromJson(e as Map<String, dynamic>);
+                  } catch (e) {
+                    debugPrint('[CircleEntity] Error parsing member profile: $e');
+                    return null;
+                  }
+                })
+                .whereType<UserProfileEntity>()
+                .toList() ?? [];
 
-    return CircleEntity(
-      id: json['id'] as String,
-      name: json['name'] as String? ?? 'My Circle',
-      emoji: json['emoji'] as String? ?? '🌊',
-      createdBy: json['created_by'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      streakCount: json['streak_count'] as int? ?? 0,
-      memberIds: memberIds,
-      members: members,
-    );
+      return CircleEntity(
+        id: json['id'] as String? ?? '',
+        name: json['name'] as String? ?? 'My Circle',
+        emoji: json['emoji'] as String? ?? '🌊',
+        createdBy: json['created_by'] as String? ?? '',
+        createdAt: json['created_at'] != null 
+            ? DateTime.parse(json['created_at'] as String) 
+            : DateTime.now(),
+        streakCount: json['streak_count'] as int? ?? 0,
+        memberIds: memberIds,
+        members: members,
+      );
+    } catch (e, stack) {
+      debugPrint('[CircleEntity] Global parsing error: $e');
+      debugPrint('Stack trace: $stack');
+      rethrow;
+    }
   }
 
   Map<String, dynamic> toJson() {

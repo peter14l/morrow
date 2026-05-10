@@ -123,39 +123,53 @@ class DesktopWindowService extends WindowListener with TrayListener {
 
     switch (effect) {
       case 'micaAlt':
-        windowEffect = WindowEffect.mica;
+        windowEffect = WindowEffect.mica; // Use mica as base
         break;
       case 'acrylic':
         windowEffect = WindowEffect.acrylic;
-        color = isDark ? const Color(0xCC1A1D24) : const Color(0xCCFFFFFF);
+        color = isDark ? const Color(0x22000000) : const Color(0x22FFFFFF);
         break;
       case 'mica':
       default:
         windowEffect = WindowEffect.mica;
+        color = Colors.transparent;
         break;
     }
 
     try {
+      // Small delay to ensure window is ready for composition changes
+      await Future.delayed(const Duration(milliseconds: 100));
+      
       await Window.setEffect(
         effect: windowEffect,
         dark: isDark,
-        color: color ?? (isDark ? Colors.black : Colors.white),
+        color: color ?? Colors.transparent,
       );
       debugPrint(
         'DesktopWindowService: $effect effect enabled (dark: $isDark)',
       );
     } catch (e) {
-      // Fallback to Mica or Acrylic if specific effect is unavailable
       debugPrint(
-        'DesktopWindowService: Effect $effect failed, falling back. Error: $e',
+        'DesktopWindowService: Effect $effect failed, trying alternative. Error: $e',
       );
       try {
-        await Window.setEffect(effect: WindowEffect.mica, dark: isDark);
-      } catch (_) {
+        // Fallback to Mica Alt if Mica fails
         await Window.setEffect(
-          effect: WindowEffect.acrylic,
-          color: isDark ? const Color(0xCC1A1D24) : const Color(0xCCFFFFFF),
+          effect: WindowEffect.mica,
+          dark: isDark,
+          color: Colors.transparent,
         );
+      } catch (_) {
+        try {
+          // Final attempt with Acrylic
+          await Window.setEffect(
+            effect: WindowEffect.acrylic,
+            color: isDark ? const Color(0x33000000) : const Color(0x33FFFFFF),
+          );
+        } catch (_) {
+          await Window.setEffect(effect: WindowEffect.disabled);
+          debugPrint('DesktopWindowService: All effects failed, disabled');
+        }
       }
     }
   }

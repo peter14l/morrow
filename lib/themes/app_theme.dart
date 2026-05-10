@@ -12,6 +12,7 @@ class AppTheme {
     Brightness brightness, {
     bool isM3E = false,
     bool highContrast = false,
+    bool micaEnabled = false,
     String? fontFamily,
     String? headingFontFamily,
     String? bodyFontFamily,
@@ -28,65 +29,77 @@ class AppTheme {
               headingFontFamily: headingFontFamily,
               bodyFontFamily: fontFamily ?? bodyFontFamily,
               dynamicColorScheme: dynamicColorScheme,
+              micaEnabled: micaEnabled,
             )
           : m3eLight(
               headingFontFamily: headingFontFamily,
               bodyFontFamily: fontFamily ?? bodyFontFamily,
               dynamicColorScheme: dynamicColorScheme,
+              micaEnabled: micaEnabled,
             );
     }
     return brightness == Brightness.dark
         ? dark(
             fontFamily: fontFamily ?? bodyFontFamily,
             dynamicColorScheme: dynamicColorScheme,
+            micaEnabled: micaEnabled,
           )
         : light(
             fontFamily: fontFamily ?? bodyFontFamily,
             dynamicColorScheme: dynamicColorScheme,
+            micaEnabled: micaEnabled,
           );
   }
 
   static ThemeData light({
     String? fontFamily,
     ColorScheme? dynamicColorScheme,
+    bool micaEnabled = false,
   }) => _createTheme(
     Brightness.light,
     false,
     null,
     fontFamily,
     dynamicColorScheme,
+    micaEnabled: micaEnabled,
   );
   static ThemeData dark({
     String? fontFamily,
     ColorScheme? dynamicColorScheme,
+    bool micaEnabled = false,
   }) => _createTheme(
     Brightness.dark,
     false,
     null,
     fontFamily,
     dynamicColorScheme,
+    micaEnabled: micaEnabled,
   );
   static ThemeData m3eLight({
     String? headingFontFamily,
     String? bodyFontFamily,
     ColorScheme? dynamicColorScheme,
+    bool micaEnabled = false,
   }) => _createTheme(
     Brightness.light,
     true,
     headingFontFamily,
     bodyFontFamily,
     dynamicColorScheme,
+    micaEnabled: micaEnabled,
   );
   static ThemeData m3eDark({
     String? headingFontFamily,
     String? bodyFontFamily,
     ColorScheme? dynamicColorScheme,
+    bool micaEnabled = false,
   }) => _createTheme(
     Brightness.dark,
     true,
     headingFontFamily,
     bodyFontFamily,
     dynamicColorScheme,
+    micaEnabled: micaEnabled,
   );
 
   static ThemeData highContrastLight({String? fontFamily}) {
@@ -160,13 +173,19 @@ class AppTheme {
     bool isM3E,
     String? headingFont,
     String? bodyFont,
-    ColorScheme? dynamicColorScheme,
-  ) {
+    ColorScheme? dynamicColorScheme, {
+    bool micaEnabled = false,
+  }) {
     final isDark = brightness == Brightness.dark;
 
     // Oasis default fonts
     final defaultHeadingFont = headingFont ?? 'Cormorant Garamond';
     final defaultBodyFont = bodyFont ?? 'Inter';
+
+    // Base colors for transparency
+    final Color micaBase = isDark ? Colors.white : Colors.black; // Flip base for glow
+    final Color micaTint = micaBase.withValues(alpha: isDark ? 0.05 : 0.1);
+    final Color micaSurface = micaBase.withValues(alpha: 0.01);
 
     if (isM3E) {
       var colorScheme = isDark ? m3eDarkColorScheme : m3eLightColorScheme;
@@ -174,37 +193,65 @@ class AppTheme {
       if (hasDynamicColor) {
         colorScheme = dynamicColorScheme;
       }
+
+      if (micaEnabled) {
+        colorScheme = colorScheme.copyWith(
+          surface: micaSurface,
+          surfaceContainer: micaTint,
+          surfaceContainerHigh: micaTint,
+          surfaceContainerHighest: micaTint,
+          surfaceContainerLow: micaTint,
+          surfaceContainerLowest: micaTint,
+        );
+      }
+
       final textTheme = m3eTextTheme(
         colorScheme.onSurface,
         defaultHeadingFont,
         defaultBodyFont,
       );
 
-      // Determine surface colors based on dynamic color availability
-      final Color scaffoldBackground = hasDynamicColor
-          ? colorScheme.surface
-          : (isDark ? OasisColors.deep : _m3eLightSurface);
-      final Color navigationBarBackground = hasDynamicColor
-          ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
-          : (isDark
-                ? OasisColors.deep.withValues(alpha: 0.6)
-                : _m3eLightSurfaceContainer);
-      final Color navigationBarIndicator = hasDynamicColor
-          ? colorScheme.secondaryContainer
-          : (isDark ? OasisColors.moss : _m3eLightSecondaryContainer);
-      final Color cardColor = hasDynamicColor
-          ? colorScheme.surfaceContainerHigh
-          : (isDark ? OasisColors.moss : _m3eLightSurfaceContainerLow);
-      final Color appBarBackground = hasDynamicColor
-          ? colorScheme.surface.withValues(alpha: 0.6)
-          : (isDark
-                ? OasisColors.deep.withValues(alpha: 0.6)
-                : _m3eLightSurface);
-      final Color inputFillColor = hasDynamicColor
-          ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-          : (isDark
-                ? OasisColors.moss.withValues(alpha: 0.5)
-                : _m3eLightSurfaceContainerLow);
+      // Determine surface colors
+      final Color scaffoldBackground =
+          micaEnabled
+              ? micaSurface
+              : (hasDynamicColor
+                  ? colorScheme.surface
+                  : (isDark ? OasisColors.deep : _m3eLightSurface));
+      
+      final Color navigationBarBackground = 
+          micaEnabled
+              ? micaTint
+              : (hasDynamicColor
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                  : (isDark
+                        ? OasisColors.deep.withValues(alpha: 0.6)
+                        : _m3eLightSurfaceContainer));
+
+      final Color cardColor = 
+          micaEnabled
+              ? micaTint
+              : (hasDynamicColor
+                  ? colorScheme.surfaceContainerHigh
+                  : (isDark ? OasisColors.moss : _m3eLightSurfaceContainerLow));
+
+      final Color appBarBackground =
+          micaEnabled
+              ? micaSurface
+              : (hasDynamicColor
+                  ? colorScheme.surface.withValues(alpha: 0.6)
+                  : (isDark
+                        ? OasisColors.deep.withValues(alpha: 0.6)
+                        : _m3eLightSurface));
+
+      final Color inputFillColor = 
+          micaEnabled
+              ? micaTint
+              : (hasDynamicColor
+                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                  : (isDark
+                        ? OasisColors.moss.withValues(alpha: 0.5)
+                        : _m3eLightSurfaceContainerLow));
 
       return ThemeData(
         useMaterial3: true,
@@ -212,6 +259,7 @@ class AppTheme {
         colorScheme: colorScheme,
         textTheme: textTheme,
         scaffoldBackgroundColor: scaffoldBackground,
+        canvasColor: micaEnabled ? micaSurface : scaffoldBackground,
         snackBarTheme: SnackBarThemeData(
           backgroundColor: colorScheme.surfaceContainerHighest,
           contentTextStyle: _getTextStyle(
@@ -268,7 +316,9 @@ class AppTheme {
         ),
         navigationBarTheme: NavigationBarThemeData(
           backgroundColor: navigationBarBackground,
-          indicatorColor: navigationBarIndicator,
+          indicatorColor: hasDynamicColor
+              ? colorScheme.secondaryContainer
+              : (isDark ? OasisColors.moss : _m3eLightSecondaryContainer),
           indicatorShape: const StadiumBorder(),
           elevation: 0,
           labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
@@ -312,7 +362,9 @@ class AppTheme {
               : SystemUiOverlayStyle.dark,
         ),
         bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: isDark ? OasisColors.deep : _m3eLightSurface,
+          backgroundColor: micaEnabled 
+              ? micaTint 
+              : (isDark ? OasisColors.deep : _m3eLightSurface),
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           shape: const RoundedRectangleBorder(
@@ -374,42 +426,65 @@ class AppTheme {
     if (hasDynamicColor) {
       colorScheme = dynamicColorScheme;
     }
+
+    if (micaEnabled) {
+      colorScheme = colorScheme.copyWith(
+        surface: micaSurface,
+        surfaceContainer: micaTint,
+        surfaceContainerHigh: micaTint,
+        surfaceContainerHighest: micaTint,
+        surfaceContainerLow: micaTint,
+        surfaceContainerLowest: micaTint,
+      );
+    }
+
     final textTheme = standardTextTheme(
       colorScheme.onSurface,
       defaultHeadingFont,
       defaultBodyFont,
     );
 
-    // Determine surface colors based on dynamic color availability
-    final Color scaffoldBackground = hasDynamicColor
-        ? colorScheme.surface
-        : (isDark ? OasisColors.deep : _lightBackgroundColor);
-    final Color appBarBackground = hasDynamicColor
-        ? colorScheme.surface.withValues(alpha: 0.6)
-        : (isDark
-              ? OasisColors.deep.withValues(alpha: 0.6)
-              : _lightBackgroundColor);
-    final Color appBarForeground = hasDynamicColor
-        ? colorScheme.onSurface
-        : (isDark ? OasisColors.white : _lightOnSurfaceColor);
-    final Color cardColor = hasDynamicColor
-        ? colorScheme.surfaceContainerHigh
-        : (isDark ? OasisColors.moss : _lightSurfaceColor);
-    final Color inputFillColor = hasDynamicColor
-        ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-        : ((isDark ? OasisColors.moss : _lightSurfaceColor).withValues(
-            alpha: isDark ? 0.6 : 0.3,
-          ));
-    final Color navigationBarIndicator = hasDynamicColor
-        ? colorScheme.primaryContainer.withValues(alpha: isDark ? 0.2 : 0.12)
-        : ((isDark ? OasisColors.glow : _lightPrimaryColor).withValues(
-            alpha: isDark ? 0.2 : 0.12,
-          ));
-    final Color navigationBarBackground = hasDynamicColor
-        ? colorScheme.surface.withValues(alpha: 0.6)
-        : (isDark
-              ? OasisColors.deep.withValues(alpha: 0.6)
-              : Colors.transparent);
+    // Determine surface colors
+    final Color scaffoldBackground =
+        micaEnabled
+            ? micaSurface
+            : (hasDynamicColor
+                ? colorScheme.surface
+                : (isDark ? OasisColors.deep : _lightBackgroundColor));
+    
+    final Color appBarBackground =
+        micaEnabled
+            ? micaSurface
+            : (hasDynamicColor
+                ? colorScheme.surface.withValues(alpha: 0.6)
+                : (isDark
+                      ? OasisColors.deep.withValues(alpha: 0.6)
+                      : _lightBackgroundColor));
+
+    final Color cardColor = 
+        micaEnabled
+            ? micaTint
+            : (hasDynamicColor
+                ? colorScheme.surfaceContainerHigh
+                : (isDark ? OasisColors.moss : _lightSurfaceColor));
+
+    final Color inputFillColor = 
+        micaEnabled
+            ? micaTint
+            : (hasDynamicColor
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                : ((isDark ? OasisColors.moss : _lightSurfaceColor).withValues(
+                    alpha: isDark ? 0.6 : 0.3,
+                  )));
+
+    final Color navigationBarBackground = 
+        micaEnabled
+            ? micaTint
+            : (hasDynamicColor
+                ? colorScheme.surface.withValues(alpha: 0.6)
+                : (isDark
+                      ? OasisColors.deep.withValues(alpha: 0.6)
+                      : Colors.transparent));
 
     return ThemeData(
       useMaterial3: true,
@@ -417,16 +492,21 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       scaffoldBackgroundColor: scaffoldBackground,
+      canvasColor: micaEnabled ? micaSurface : scaffoldBackground,
       appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: true,
         backgroundColor: appBarBackground,
-        foregroundColor: appBarForeground,
+        foregroundColor: hasDynamicColor
+            ? colorScheme.onSurface
+            : (isDark ? OasisColors.white : _lightOnSurfaceColor),
         titleTextStyle: _getTextStyle(
           fontFamily: defaultHeadingFont,
           fontSize: 22,
           fontWeight: FontWeight.bold,
-          color: appBarForeground,
+          color: hasDynamicColor
+              ? colorScheme.onSurface
+              : (isDark ? OasisColors.white : _lightOnSurfaceColor),
           isItalic: true,
         ),
         systemOverlayStyle: isDark
@@ -434,7 +514,9 @@ class AppTheme {
             : SystemUiOverlayStyle.dark,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: isDark ? OasisColors.deep : _lightBackgroundColor,
+        backgroundColor: micaEnabled
+            ? micaTint
+            : (isDark ? OasisColors.deep : _lightBackgroundColor),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -500,7 +582,11 @@ class AppTheme {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        indicatorColor: navigationBarIndicator,
+        indicatorColor: hasDynamicColor
+            ? colorScheme.primaryContainer.withValues(alpha: isDark ? 0.2 : 0.12)
+            : ((isDark ? OasisColors.glow : _lightPrimaryColor).withValues(
+                alpha: isDark ? 0.2 : 0.12,
+              )),
         backgroundColor: navigationBarBackground,
         indicatorShape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(16)),

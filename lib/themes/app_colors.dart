@@ -156,8 +156,8 @@ class AppThemeExtension extends ThemeExtension<AppThemeExtension> {
   );
 }
 
-// App Theme Data
-class AppTheme {
+// Legacy Theme Data (kept for reference, use AppTheme in themes/app_theme.dart)
+class LegacyAppTheme {
   static ThemeData get lightTheme {
     // Create text theme with proper styling
     final textTheme = TextTheme(

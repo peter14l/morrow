@@ -21,6 +21,8 @@ class AppFluentTheme {
         ? OasisColors.deep
         : (materialColorScheme?.surface ?? LightColors.background);
 
+    final micaBase = isDark ? material.Colors.black : material.Colors.white;
+
     // Mica/Acrylic transparency should only be applied on Windows/macOS
     final bool canUseTransparency =
         !kIsWeb &&
@@ -43,15 +45,12 @@ class AppFluentTheme {
       accentColor: accentColor,
       fontFamily: fontFamily,
       visualDensity: VisualDensity.standard,
-      scaffoldBackgroundColor: shouldBeTransparent
-          ? Colors.transparent
-          : scaffoldColor,
-      micaBackgroundColor: shouldBeTransparent
-          ? Colors.transparent
-          : scaffoldColor,
-      micaAltBackgroundColor: shouldBeTransparent
-          ? Colors.transparent
-          : scaffoldColor,
+      scaffoldBackgroundColor:
+          shouldBeTransparent ? material.Colors.transparent : scaffoldColor,
+      micaBackgroundColor:
+          shouldBeTransparent ? micaBase.withValues(alpha: 0.01) : scaffoldColor,
+      micaAltBackgroundColor:
+          shouldBeTransparent ? micaBase.withValues(alpha: 0.01) : scaffoldColor,
 
       // Animation curves updated to WinUI 3 "Fluid" motion
       animationCurve: standardCurve,

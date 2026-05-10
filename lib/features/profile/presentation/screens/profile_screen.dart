@@ -920,9 +920,10 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool disableTransparency,
     bool isPrivateAndNotFollowing,
   ) {
-    final desktopBgColor = disableTransparency
-        ? colorScheme.surface
-        : colorScheme.surface.withValues(alpha: 0.4);
+    final desktopBgColor =
+        disableTransparency
+            ? colorScheme.surface
+            : colorScheme.surface.withValues(alpha: 0.15);
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -930,24 +931,13 @@ class _ProfileScreenState extends State<ProfileScreen>
         decoration: BoxDecoration(
           color: desktopBgColor,
           borderRadius: BorderRadius.circular(isM3E ? 32 : 12),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.05)),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(isM3E ? 32 : 12),
-          child: disableTransparency
-              ? _buildDesktopContent(
-                  profile,
-                  theme,
-                  colorScheme,
-                  profileProvider,
-                  userId,
-                  isM3E,
-                  disableTransparency,
-                  isPrivateAndNotFollowing,
-                )
-              : BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: _buildDesktopContent(
+          child:
+              disableTransparency
+                  ? _buildDesktopContent(
                     profile,
                     theme,
                     colorScheme,
@@ -956,8 +946,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                     isM3E,
                     disableTransparency,
                     isPrivateAndNotFollowing,
+                  )
+                  : BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: _buildDesktopContent(
+                      profile,
+                      theme,
+                      colorScheme,
+                      profileProvider,
+                      userId,
+                      isM3E,
+                      disableTransparency,
+                      isPrivateAndNotFollowing,
+                    ),
                   ),
-                ),
         ),
       ),
     );

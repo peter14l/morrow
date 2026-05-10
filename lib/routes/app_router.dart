@@ -314,14 +314,16 @@ class _MainLayoutState extends State<MainLayout> {
 
         final panelColor =
             isMica
-                ? Colors.black.withValues(alpha: 0.1)
+                ? theme.colorScheme.surface
                 : (isM3E
                     ? theme.colorScheme.surfaceContainer
                     : const Color(0xFF0C0F14).withValues(alpha: 0.8));
 
         final slidingPanelColor =
             isMica
-                ? Colors.black.withValues(alpha: 0.8)
+                ? (theme.brightness == Brightness.dark
+                    ? Colors.black.withValues(alpha: 0.2)
+                    : Colors.white.withValues(alpha: 0.2))
                 : (isM3E
                     ? theme.colorScheme.surfaceContainerHigh
                     : const Color(0xFF0C0F14));
@@ -414,6 +416,7 @@ class _MainLayoutState extends State<MainLayout> {
         }
 
         return Scaffold(
+          backgroundColor: Colors.transparent,
           extendBody: true,
           body: RawGestureDetector(
             behavior: HitTestBehavior.translucent,
@@ -719,7 +722,7 @@ class _MainLayoutState extends State<MainLayout> {
       backgroundColor:
           disableTransparency
               ? theme.colorScheme.surface
-              : (isMica ? Colors.transparent : const Color(0xFF0C0F14)),
+              : (isMica ? theme.colorScheme.surface : const Color(0xFF0C0F14)),
       leading: Column(
         children: [
           const SizedBox(height: 8),
@@ -1237,6 +1240,51 @@ class AppRouter {
                 );
               },
             ),
+
+            // Profile Screen
+            GoRoute(
+              path: '/profile',
+              name: 'profile',
+              pageBuilder:
+                  (context, state) =>
+                      const NoTransitionPage(
+                        child: ProfileScreen(),
+                      ),
+            ),
+
+            // User Profile Screen (for viewing others)
+            GoRoute(
+              path: '/profile/:userId',
+              name: 'user_profile',
+              pageBuilder: (context, state) {
+                final userId = state.pathParameters['userId']!;
+                return NoTransitionPage(
+                  child: ProfileScreen(userId: userId),
+                );
+              },
+            ),
+
+            // Followers/Following Screens (Scoped to user profile)
+            GoRoute(
+              path: '/profile/:userId/followers',
+              name: 'followers',
+              pageBuilder: (context, state) {
+                final userId = state.pathParameters['userId']!;
+                return NoTransitionPage(
+                  child: FollowersScreen(userId: userId, initialTab: 0),
+                );
+              },
+            ),
+            GoRoute(
+              path: '/profile/:userId/following',
+              name: 'following',
+              pageBuilder: (context, state) {
+                final userId = state.pathParameters['userId']!;
+                return NoTransitionPage(
+                  child: FollowersScreen(userId: userId, initialTab: 1),
+                );
+              },
+            ),
           ],
         ),
 
@@ -1265,19 +1313,6 @@ class AppRouter {
                   const MaterialPage(
                     fullscreenDialog: true,
                     child: NotificationsScreen(),
-                  ),
-        ),
-
-        // Profile Screen
-        GoRoute(
-          path: '/profile',
-          name: 'profile',
-          parentNavigatorKey: rootNavigatorKey,
-          pageBuilder:
-              (context, state) =>
-                  const MaterialPage(
-                    fullscreenDialog: true,
-                    child: ProfileScreen(),
                   ),
         ),
 
@@ -1781,42 +1816,7 @@ class AppRouter {
               (context, state) =>
                   const MaterialPage(child: WellnessStatsScreen()),
         ),
-        // User Profile Screen (for viewing others)
-        GoRoute(
-          path: '/profile/:userId',
-          name: 'user_profile',
-          pageBuilder: (context, state) {
-            final userId = state.pathParameters['userId']!;
-            return MaterialPage(
-              key: state.pageKey,
-              child: ProfileScreen(userId: userId),
-            );
-          },
-        ),
-
-        // Followers/Following Screen
-        GoRoute(
-          path: '/profile/:userId/followers',
-          name: 'followers',
-          pageBuilder: (context, state) {
-            final userId = state.pathParameters['userId']!;
-            return MaterialPage(
-              key: state.pageKey,
-              child: FollowersScreen(userId: userId, initialTab: 0),
-            );
-          },
-        ),
-        GoRoute(
-          path: '/profile/:userId/following',
-          name: 'following',
-          pageBuilder: (context, state) {
-            final userId = state.pathParameters['userId']!;
-            return MaterialPage(
-              key: state.pageKey,
-              child: FollowersScreen(userId: userId, initialTab: 1),
-            );
-          },
-        ), // New Message Screen
+        // New Message Screen
         GoRoute(
           path: '/new-message',
           name: 'new_message',

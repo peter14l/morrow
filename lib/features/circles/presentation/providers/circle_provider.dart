@@ -166,15 +166,18 @@ class CircleProvider with ChangeNotifier {
   Future<void> loadCircles(String userId, {bool forceRefresh = false}) async {
     if (_state.circles.isNotEmpty && !forceRefresh) return;
 
+    debugPrint('[CircleProvider] loadCircles for userId: $userId (forceRefresh: $forceRefresh)');
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners();
 
     try {
       final circles = await _repository.getCircles(userId);
+      debugPrint('[CircleProvider] loadCircles success: fetched ${circles.length} circles');
       _state = _state.copyWith(circles: circles);
-    } catch (e) {
+    } catch (e, stack) {
       _state = _state.copyWith(error: e.toString());
       debugPrint('[CircleProvider] Error loading circles: $e');
+      debugPrint('Stack trace: $stack');
     } finally {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();
