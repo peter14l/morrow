@@ -175,28 +175,19 @@ class SupabaseService {
     _checkInitialized();
 
     if (!useCdn) {
-      return '${SupabaseConfig.supabaseUrl}/storage/v1/object/public/$bucket/$path';
+      return client.storage.from(bucket).getPublicUrl(path);
     }
 
-    // Base CDN URL
-    String url = '${SupabaseConfig.cdnUrl}/$bucket/$path';
-
-    // Add transformations if provided
-    // This assumes a Cloudflare-style transformation proxy or Supabase's built-in one
-    final List<String> transforms = [];
-    if (width != null) transforms.add('width=$width');
-    if (height != null) transforms.add('height=$height');
-    if (quality != null) transforms.add('quality=$quality');
-    if (width != null || height != null) transforms.add('format=webp'); // Default to WebP for optimized images
-
-    if (transforms.isNotEmpty) {
-      // If using Cloudflare Images or a similar proxy, the format might differ.
-      // For now, we append them as query parameters which many CDNs can use for caching keys.
-      final queryString = transforms.join('&');
-      url = '$url${url.contains('?') ? '&' : '?'}$queryString';
-    }
-
-    return url;
+    // Use Supabase native transformation if possible, or fallback to custom CDN logic
+    return client.storage.from(bucket).getPublicUrl(
+      path,
+      transform: TransformOptions(
+        width: width,
+        height: height,
+        quality: quality,
+        format: 'webp',
+      ),
+    );
   }
 
   // Upload file to storage

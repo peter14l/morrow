@@ -28,9 +28,9 @@ export default function Hero() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <h1 className="font-cormorant text-7xl md:text-9xl italic text-oasis-sand leading-[0.9] tracking-tight">
-              Be social.<br />
+              Digital sanctuary.<br />
               Be present.<br />
-              Be protected.
+              Private chat.
             </h1>
           </motion.div>
 
@@ -40,7 +40,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
             className="font-geist text-xl md:text-2xl text-oasis-mist max-w-lg leading-relaxed opacity-90"
           >
-            Oasis is a social platform built around your wellbeing, not your attention span.
+            Oasis is a high-performance sanctuary built for your wellbeing, protected by post-quantum encryption.
           </motion.p>
 
           <motion.div

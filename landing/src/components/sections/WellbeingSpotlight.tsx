@@ -6,8 +6,8 @@ import { Lock, Timer, Mail } from "lucide-react";
 
 const spotlightBlocks = [
   {
-    title: "Your time is yours.",
-    description: "Take control of your focus with customizable study sessions. Set your duration from 15 to 60 minutes and activate 'Lock-in Mode' for deep focus—straying from Oasis during a session will result in XP penalties, keeping you accountable.",
+    title: "Your time is your life.",
+    description: "Reclaim your focus with customizable study sessions and 'Lock-in Mode'. Straying from your goals results in XP penalties, training your mind for deep, intentional work. Oasis doesn't just save your time; it values it.",
     icon: Timer,
     color: "var(--oasis-glow)",
     graphic: (
@@ -41,21 +41,21 @@ const spotlightBlocks = [
     ),
   },
   {
-    title: "Privacy isn't a setting. It's the foundation.",
-    description: "Your digital life belongs to you. We use Row-Level Security (RLS) to ensure only you can access your profile and content, while End-to-End Encryption (E2EE) protects your journals and capsules. With the Privacy Sync Toggle, you decide exactly when your data touches the cloud.",
+    title: "Post-Quantum Privacy. Built for the future.",
+    description: "We don't just use encryption; we use the world's most advanced post-quantum resilient double-ratchet. PQ-Aura ensures that your conversations are safe even against tomorrow's supercomputers. Your digital sanctuary is truly impenetrable.",
     icon: Lock,
     color: "#5DC9A8",
     graphic: (
       <div className="relative w-48 h-48 flex items-center justify-center">
         <motion.div
-          animate={{ 
+          animate={{
             scale: [1, 1.05, 1],
             rotate: [0, 5, -5, 0]
           }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           className="w-36 h-36 bg-oasis-glow/5 rounded-[2rem] flex items-center justify-center border border-oasis-glow/20 shadow-[0_0_60px_rgba(93,201,168,0.1)]"
         >
-          <div className="w-20 h-20 bg-oasis-glow/10 rounded-full flex items-center justify-center border border-oasis-glow/20">
+          <div className="w-20 h-20 bg-oasis-glow/10 rounded-full flex items-center justify-center border border-oasis-glow/20">        
             <Lock className="text-oasis-glow" size={32} />
           </div>
         </motion.div>
@@ -69,12 +69,12 @@ const spotlightBlocks = [
     color: "var(--oasis-sand)",
     graphic: (
       <div className="relative w-48 h-48 flex items-center justify-center">
-        <div className="w-32 h-44 bg-oasis-sand/5 rounded-2xl border border-oasis-sand/20 relative overflow-hidden backdrop-blur-sm">
-          <div className="absolute top-0 left-0 w-full h-14 bg-oasis-sand/10 border-b border-oasis-sand/20 flex items-center px-4">
+        <div className="w-32 h-44 bg-oasis-sand/5 rounded-2xl border border-oasis-sand/20 relative overflow-hidden backdrop-blur-sm">   
+          <div className="absolute top-0 left-0 w-full h-14 bg-oasis-sand/10 border-b border-oasis-sand/20 flex items-center px-4">     
              <div className="w-2 h-2 rounded-full bg-oasis-sand/40 mr-2" />
              <div className="w-12 h-1 bg-oasis-sand/20 rounded-full" />
           </div>
-          <motion.div 
+          <motion.div
             initial={{ y: 20, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -92,15 +92,15 @@ export default function WellbeingSpotlight() {
     <section id="wellbeing" className="py-24 px-6 bg-oasis-deep overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-32">
         {spotlightBlocks.map((block, i) => (
-          <div 
+          <div
             key={block.title}
             className={`flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 md:gap-24`}
           >
             {/* Graphic side */}
             <motion.div
-              initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -50 : 50 }}   
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}       
               viewport={{ once: true, margin: "-100px" }}
               className="flex-1 flex justify-center"
             >
@@ -112,11 +112,11 @@ export default function WellbeingSpotlight() {
 
             {/* Text side */}
             <motion.div
-              initial={{ opacity: 0, x: i % 2 === 0 ? 50 : -50 }}
+              initial={{ opacity: 0, x: i % 2 === 0 ? 50 : -50 }}   
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: "easeOut" }}       
               viewport={{ once: true, margin: "-100px" }}
-              className="flex-1 space-y-6 text-center md:text-left"
+              className="flex-1 space-y-6 text-center md:text-left" 
             >
               <div className="flex justify-center md:justify-start">
                 <div className="p-3 rounded-xl bg-oasis-moss border border-oasis-sage/30 text-oasis-glow mb-2">

@@ -315,11 +315,16 @@ class AppInitializer {
       WebViewPlatform.instance = AndroidWebViewPlatform();
     }
 
+import 'package:oasis/core/storage/hive_service.dart';
+
+// ... other imports
+
     // --- CRITICAL PHASE: Must complete before UI shows ---
     debugPrint('STEP: Critical initialization starting...');
     
-    // 1. Supabase & Storage (Parallel)
+    // 1. Hive & Supabase & Storage (Parallel)
     await Future.wait([
+      HiveService.initialize(),
       SupabaseService.initialize(),
       PrefsStorage.init(),
     ]);

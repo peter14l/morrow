@@ -157,9 +157,9 @@ dev_dependencies:
 
 msix_config:
   display_name: Oasis
-  publisher_display_name: Oasis
-  publisher: CN=Oasis, O=Oasis, L=Delhi, S=Delhi, C=IN
-  identity_name: com.oasis.v2
+  publisher_display_name: OasisApp
+  publisher: CN=OasisApp, O=Oasis, L=Delhi, S=Delhi, C=IN
+  identity_name: com.oasis.app
   msix_version: 1.1.10.0
   logo_path: assets/images/logo.png
   capabilities: internetClient, location, microphone, webcam

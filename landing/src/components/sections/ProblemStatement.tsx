@@ -4,8 +4,9 @@ import React from "react";
 import { motion } from "framer-motion";
 
 const stats = [
-  "2.5 hrs/day avg screen time",
-  "Your data. Their profit.",
+  "93% of users feel 'digital burnout'",
+  "Your attention is the product.",
+  "E2EE is no longer enough.",
 ];
 
 export default function ProblemStatement() {
@@ -19,8 +20,8 @@ export default function ProblemStatement() {
           viewport={{ once: true }}
           className="mb-12"
         >
-          <h2 className="font-dm-serif text-3xl md:text-5xl text-oasis-sand">
-            "Social media was supposed to connect us.<br className="hidden md:block" /> Instead, it consumes us."
+          <h2 className="font-dm-serif text-3xl md:text-5xl text-oasis-sand leading-tight">
+            "Social media was supposed to connect us.<br className="hidden md:block" /> Instead, it harvested us. It's time to go home."
           </h2>
         </motion.div>
 
