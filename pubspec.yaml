@@ -158,10 +158,10 @@ dev_dependencies:
   json_serializable: ^6.13.1
 
 msix_config:
-  display_name: Oasis
+  display_name: OasisApp
   publisher_display_name: OasisApp
-  publisher: CN=OasisApp, O=Oasis, L=Delhi, S=Delhi, C=IN
-  identity_name: com.oasis.app
+  publisher: CN=95D0DA2B-7A5E-492D-BF38-F13FA12E0899
+  identity_name: NoteSpark.OasisApp
   msix_version: 1.1.10.0
   logo_path: assets/images/logo.png
   capabilities: internetClient, location, microphone, webcam
