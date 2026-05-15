@@ -45,6 +45,11 @@ _Post _$PostFromJson(Map<String, dynamic> json) => _Post(
   poll: json['poll'] == null
       ? null
       : EnhancedPoll.fromJson(json['poll'] as Map<String, dynamic>),
+  collaborators:
+      (json['collaborators'] as List<dynamic>?)
+          ?.map((e) => e as Map<String, dynamic>)
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
@@ -74,4 +79,5 @@ Map<String, dynamic> _$PostToJson(_Post instance) => <String, dynamic>{
   'storage_provider': instance.storageProvider,
   'mood': instance.mood,
   'poll': instance.poll,
+  'collaborators': instance.collaborators,
 };

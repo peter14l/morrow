@@ -126,4 +126,5 @@ const _$MessageTypeEnumMap = {
   MessageType.system: 'system',
   MessageType.gif: 'gif',
   MessageType.sticker: 'sticker',
+  MessageType.collaborationRequest: 'collaborationRequest',
 };

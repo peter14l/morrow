@@ -198,13 +198,13 @@ class MockFeedRepository extends _i1.Mock implements _i6.FeedRepository {
   _i5.Future<List<_i2.Post>> getFeedPosts({
     required String? userId,
     int? limit = 20,
-    int? offset = 0,
+    String? cursor,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getFeedPosts, [], {
               #userId: userId,
               #limit: limit,
-              #offset: offset,
+              #cursor: cursor,
             }),
             returnValue: _i5.Future<List<_i2.Post>>.value(<_i2.Post>[]),
             returnValueForMissingStub: _i5.Future<List<_i2.Post>>.value(
@@ -217,13 +217,13 @@ class MockFeedRepository extends _i1.Mock implements _i6.FeedRepository {
   _i5.Future<List<_i2.Post>> getFollowingFeedPosts({
     required String? userId,
     int? limit = 20,
-    int? offset = 0,
+    String? cursor,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getFollowingFeedPosts, [], {
               #userId: userId,
               #limit: limit,
-              #offset: offset,
+              #cursor: cursor,
             }),
             returnValue: _i5.Future<List<_i2.Post>>.value(<_i2.Post>[]),
             returnValueForMissingStub: _i5.Future<List<_i2.Post>>.value(
@@ -236,13 +236,13 @@ class MockFeedRepository extends _i1.Mock implements _i6.FeedRepository {
   _i5.Future<List<_i2.Post>> getUnifiedFeed({
     required String? userId,
     int? limit = 20,
-    int? offset = 0,
+    String? cursor,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#getUnifiedFeed, [], {
               #userId: userId,
               #limit: limit,
-              #offset: offset,
+              #cursor: cursor,
             }),
             returnValue: _i5.Future<List<_i2.Post>>.value(<_i2.Post>[]),
             returnValueForMissingStub: _i5.Future<List<_i2.Post>>.value(
@@ -280,6 +280,7 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
     String? communityId,
     String? mood,
     bool? isSpoiler = false,
+    List<String>? collaboratorIds,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#createPost, [], {
@@ -290,6 +291,7 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
               #communityId: communityId,
               #mood: mood,
               #isSpoiler: isSpoiler,
+              #collaboratorIds: collaboratorIds,
             }),
             returnValue: _i5.Future<_i2.Post>.value(
               _FakePost_0(
@@ -302,6 +304,7 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
                   #communityId: communityId,
                   #mood: mood,
                   #isSpoiler: isSpoiler,
+                  #collaboratorIds: collaboratorIds,
                 }),
               ),
             ),
@@ -316,11 +319,30 @@ class MockPostRepository extends _i1.Mock implements _i7.PostRepository {
                   #communityId: communityId,
                   #mood: mood,
                   #isSpoiler: isSpoiler,
+                  #collaboratorIds: collaboratorIds,
                 }),
               ),
             ),
           )
           as _i5.Future<_i2.Post>);
+
+  @override
+  _i5.Future<void> acceptCollaboration(String? postId, String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#acceptCollaboration, [postId, userId]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<void> declineCollaboration(String? postId, String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#declineCollaboration, [postId, userId]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
 
   @override
   _i5.Future<_i2.Post> getPost(String? postId, String? userId) =>

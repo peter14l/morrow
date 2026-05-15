@@ -3,22 +3,22 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i6;
-import 'dart:io' as _i9;
-import 'dart:typed_data' as _i8;
+import 'dart:async' as _i5;
+import 'dart:io' as _i8;
+import 'dart:typed_data' as _i9;
 import 'dart:ui' as _i16;
 
-import 'package:encrypt/encrypt.dart' as _i2;
+import 'package:encrypt/encrypt.dart' as _i7;
 import 'package:flutter/material.dart' as _i15;
-import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart' as _i4;
+import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart' as _i3;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i11;
-import 'package:oasis/features/auth/domain/models/app_user.dart' as _i5;
-import 'package:oasis/features/messages/data/encryption_service.dart' as _i3;
+import 'package:oasis/features/auth/domain/models/app_user.dart' as _i4;
+import 'package:oasis/features/messages/data/encryption_service.dart' as _i2;
 import 'package:oasis/features/messages/data/signal/signal_service.dart'
     as _i10;
 import 'package:oasis/services/auth_service.dart' as _i12;
-import 'package:oasis/services/key_management_service.dart' as _i7;
+import 'package:oasis/services/key_management_service.dart' as _i6;
 import 'package:oasis/services/session_registry_service.dart' as _i13;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i14;
 
@@ -37,32 +37,27 @@ import 'package:supabase_flutter/supabase_flutter.dart' as _i14;
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeKey_0 extends _i1.SmartFake implements _i2.Key {
-  _FakeKey_0(Object parent, Invocation parentInvocation)
+class _FakeEncryptedMessage_0 extends _i1.SmartFake
+    implements _i2.EncryptedMessage {
+  _FakeEncryptedMessage_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeEncryptedMessage_1 extends _i1.SmartFake
-    implements _i3.EncryptedMessage {
-  _FakeEncryptedMessage_1(Object parent, Invocation parentInvocation)
+class _FakeCiphertextMessage_1 extends _i1.SmartFake
+    implements _i3.CiphertextMessage {
+  _FakeCiphertextMessage_1(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeCiphertextMessage_2 extends _i1.SmartFake
-    implements _i4.CiphertextMessage {
-  _FakeCiphertextMessage_2(Object parent, Invocation parentInvocation)
-    : super(parent, parentInvocation);
-}
-
-class _FakeAppUser_3 extends _i1.SmartFake implements _i5.AppUser {
-  _FakeAppUser_3(Object parent, Invocation parentInvocation)
+class _FakeAppUser_2 extends _i1.SmartFake implements _i4.AppUser {
+  _FakeAppUser_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [EncryptionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
+class MockEncryptionService extends _i1.Mock implements _i2.EncryptionService {
   MockEncryptionService() {
     _i1.throwOnMissingStub(this);
   }
@@ -73,133 +68,64 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
           as bool);
 
   @override
-  _i6.Future<_i7.EncryptionStatus> init() =>
+  _i5.Future<_i6.EncryptionStatus> init() =>
       (super.noSuchMethod(
             Invocation.method(#init, []),
-            returnValue: _i6.Future<_i7.EncryptionStatus>.value(
-              _i7.EncryptionStatus.ready,
+            returnValue: _i5.Future<_i6.EncryptionStatus>.value(
+              _i6.EncryptionStatus.ready,
             ),
           )
-          as _i6.Future<_i7.EncryptionStatus>);
+          as _i5.Future<_i6.EncryptionStatus>);
 
   @override
-  _i6.Future<bool> restoreSecureKeys(String? pin) =>
+  _i5.Future<bool> restoreSecureKeys(String? pin) =>
       (super.noSuchMethod(
             Invocation.method(#restoreSecureKeys, [pin]),
-            returnValue: _i6.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i6.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i6.Future<bool> restoreWithRecoveryKey(String? recoveryKey) =>
+  _i5.Future<bool> restoreWithRecoveryKey(String? recoveryKey) =>
       (super.noSuchMethod(
             Invocation.method(#restoreWithRecoveryKey, [recoveryKey]),
-            returnValue: _i6.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i6.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i6.Future<({String? recoveryKey, bool success})> resetPinWithRecoveryKey(
-    String? recoveryKey,
-    String? newPin,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#resetPinWithRecoveryKey, [recoveryKey, newPin]),
-            returnValue:
-                _i6.Future<({String? recoveryKey, bool success})>.value((
-                  recoveryKey: null,
-                  success: false,
-                )),
-          )
-          as _i6.Future<({String? recoveryKey, bool success})>);
-
-  @override
-  _i6.Future<({String? recoveryKey, bool success})> upgradeSecurity(
+  _i5.Future<({String? recoveryKey, bool success})> upgradeSecurity(
     String? pin,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#upgradeSecurity, [pin]),
             returnValue:
-                _i6.Future<({String? recoveryKey, bool success})>.value((
+                _i5.Future<({String? recoveryKey, bool success})>.value((
                   recoveryKey: null,
                   success: false,
                 )),
           )
-          as _i6.Future<({String? recoveryKey, bool success})>);
+          as _i5.Future<({String? recoveryKey, bool success})>);
 
   @override
-  _i6.Future<bool> generateNewKeys() =>
-      (super.noSuchMethod(
-            Invocation.method(#generateNewKeys, []),
-            returnValue: _i6.Future<bool>.value(false),
-          )
-          as _i6.Future<bool>);
-
-  @override
-  _i6.Future<({String? recoveryKey, bool success})> generateNewKeysWithPin(
-    String? pin,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#generateNewKeysWithPin, [pin]),
-            returnValue:
-                _i6.Future<({String? recoveryKey, bool success})>.value((
-                  recoveryKey: null,
-                  success: false,
-                )),
-          )
-          as _i6.Future<({String? recoveryKey, bool success})>);
-
-  @override
-  _i6.Future<({String? recoveryKey, bool success})> setupEncryption({
+  _i5.Future<({String? recoveryKey, bool success})> setupEncryption({
     String? pin,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#setupEncryption, [], {#pin: pin}),
             returnValue:
-                _i6.Future<({String? recoveryKey, bool success})>.value((
+                _i5.Future<({String? recoveryKey, bool success})>.value((
                   recoveryKey: null,
                   success: false,
                 )),
           )
-          as _i6.Future<({String? recoveryKey, bool success})>);
+          as _i5.Future<({String? recoveryKey, bool success})>);
 
   @override
-  _i6.Future<bool> restoreKeys() =>
-      (super.noSuchMethod(
-            Invocation.method(#restoreKeys, []),
-            returnValue: _i6.Future<bool>.value(false),
-          )
-          as _i6.Future<bool>);
-
-  @override
-  _i2.Key generateAESKey() =>
-      (super.noSuchMethod(
-            Invocation.method(#generateAESKey, []),
-            returnValue: _FakeKey_0(
-              this,
-              Invocation.method(#generateAESKey, []),
-            ),
-          )
-          as _i2.Key);
-
-  @override
-  _i8.Uint8List encryptData(_i8.Uint8List? data, _i2.Key? key) =>
-      (super.noSuchMethod(
-            Invocation.method(#encryptData, [data, key]),
-            returnValue: _i8.Uint8List(0),
-          )
-          as _i8.Uint8List);
-
-  @override
-  _i8.Uint8List? decryptData(_i8.Uint8List? combinedData, _i2.Key? key) =>
-      (super.noSuchMethod(Invocation.method(#decryptData, [combinedData, key]))
-          as _i8.Uint8List?);
-
-  @override
-  _i6.Future<_i3.EncryptedMessage> encryptMessage(
+  _i5.Future<_i2.EncryptedMessage> encryptMessage(
     String? content,
     List<String>? recipientPublicKeysPem, {
-    _i2.Key? reuseKey,
+    _i7.Key? reuseKey,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -207,8 +133,8 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               [content, recipientPublicKeysPem],
               {#reuseKey: reuseKey},
             ),
-            returnValue: _i6.Future<_i3.EncryptedMessage>.value(
-              _FakeEncryptedMessage_1(
+            returnValue: _i5.Future<_i2.EncryptedMessage>.value(
+              _FakeEncryptedMessage_0(
                 this,
                 Invocation.method(
                   #encryptMessage,
@@ -218,10 +144,10 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               ),
             ),
           )
-          as _i6.Future<_i3.EncryptedMessage>);
+          as _i5.Future<_i2.EncryptedMessage>);
 
   @override
-  _i6.Future<String?> decryptMessage(
+  _i5.Future<String?> decryptMessage(
     String? encryptedContentBase64,
     Map<String, dynamic>? encryptedKeys,
     String? ivBase64, {
@@ -233,13 +159,13 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               [encryptedContentBase64, encryptedKeys, ivBase64],
               {#userId: userId},
             ),
-            returnValue: _i6.Future<String?>.value(),
+            returnValue: _i5.Future<String?>.value(),
           )
-          as _i6.Future<String?>);
+          as _i5.Future<String?>);
 
   @override
-  _i6.Future<Map<String, dynamic>> encryptMediaFile({
-    required _i9.File? file,
+  _i5.Future<Map<String, dynamic>> encryptMediaFile({
+    required _i8.File? file,
     required List<String>? recipientPublicKeysPem,
     List<String>? recipientUserIds,
     String? recipientUserId,
@@ -251,15 +177,15 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               #recipientUserIds: recipientUserIds,
               #recipientUserId: recipientUserId,
             }),
-            returnValue: _i6.Future<Map<String, dynamic>>.value(
+            returnValue: _i5.Future<Map<String, dynamic>>.value(
               <String, dynamic>{},
             ),
           )
-          as _i6.Future<Map<String, dynamic>>);
+          as _i5.Future<Map<String, dynamic>>);
 
   @override
-  _i6.Future<_i8.Uint8List?> decryptMediaFile({
-    required _i8.Uint8List? encryptedBytes,
+  _i5.Future<_i9.Uint8List?> decryptMediaFile({
+    required _i9.Uint8List? encryptedBytes,
     required String? ivBase64,
     required Map<String, dynamic>? encryptedKeys,
     String? senderId,
@@ -271,12 +197,42 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               #encryptedKeys: encryptedKeys,
               #senderId: senderId,
             }),
-            returnValue: _i6.Future<_i8.Uint8List?>.value(),
+            returnValue: _i5.Future<_i9.Uint8List?>.value(),
           )
-          as _i6.Future<_i8.Uint8List?>);
+          as _i5.Future<_i9.Uint8List?>);
 
   @override
-  _i6.Future<bool> backupSignalIdentity(
+  _i5.Future<bool> generateNewKeys() =>
+      (super.noSuchMethod(
+            Invocation.method(#generateNewKeys, []),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<({String? recoveryKey, bool success})> generateNewKeysWithPin(
+    String? pin,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#generateNewKeysWithPin, [pin]),
+            returnValue:
+                _i5.Future<({String? recoveryKey, bool success})>.value((
+                  recoveryKey: null,
+                  success: false,
+                )),
+          )
+          as _i5.Future<({String? recoveryKey, bool success})>);
+
+  @override
+  _i5.Future<bool> restoreKeys() =>
+      (super.noSuchMethod(
+            Invocation.method(#restoreKeys, []),
+            returnValue: _i5.Future<bool>.value(false),
+          )
+          as _i5.Future<bool>);
+
+  @override
+  _i5.Future<bool> backupSignalIdentity(
     String? identityKeyPairBase64,
     int? registrationId,
   ) =>
@@ -285,26 +241,26 @@ class MockEncryptionService extends _i1.Mock implements _i3.EncryptionService {
               identityKeyPairBase64,
               registrationId,
             ]),
-            returnValue: _i6.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i6.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i6.Future<Map<String, dynamic>?> restoreSignalIdentity() =>
+  _i5.Future<Map<String, dynamic>?> restoreSignalIdentity() =>
       (super.noSuchMethod(
             Invocation.method(#restoreSignalIdentity, []),
-            returnValue: _i6.Future<Map<String, dynamic>?>.value(),
+            returnValue: _i5.Future<Map<String, dynamic>?>.value(),
           )
-          as _i6.Future<Map<String, dynamic>?>);
+          as _i5.Future<Map<String, dynamic>?>);
 
   @override
-  _i6.Future<void> clearKeys() =>
+  _i5.Future<void> clearKeys() =>
       (super.noSuchMethod(
             Invocation.method(#clearKeys, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
   void reset() => super.noSuchMethod(
@@ -327,24 +283,24 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
           as bool);
 
   @override
-  _i6.Future<bool> init({String? userId}) =>
+  _i5.Future<bool> init({String? userId}) =>
       (super.noSuchMethod(
             Invocation.method(#init, [], {#userId: userId}),
-            returnValue: _i6.Future<bool>.value(false),
+            returnValue: _i5.Future<bool>.value(false),
           )
-          as _i6.Future<bool>);
+          as _i5.Future<bool>);
 
   @override
-  _i6.Future<void> clearData({String? userId}) =>
+  _i5.Future<void> clearData({String? userId}) =>
       (super.noSuchMethod(
             Invocation.method(#clearData, [], {#userId: userId}),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<void> forceRefreshBundle(
+  _i5.Future<void> forceRefreshBundle(
     String? remoteUserId, {
     String? localUserId,
   }) =>
@@ -354,13 +310,13 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
               [remoteUserId],
               {#localUserId: localUserId},
             ),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<_i4.CiphertextMessage> encryptMessage(
+  _i5.Future<_i3.CiphertextMessage> encryptMessage(
     String? recipientId,
     String? plaintext, {
     String? localUserId,
@@ -372,8 +328,8 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
               [recipientId, plaintext],
               {#localUserId: localUserId, #deviceId: deviceId},
             ),
-            returnValue: _i6.Future<_i4.CiphertextMessage>.value(
-              _FakeCiphertextMessage_2(
+            returnValue: _i5.Future<_i3.CiphertextMessage>.value(
+              _FakeCiphertextMessage_1(
                 this,
                 Invocation.method(
                   #encryptMessage,
@@ -383,10 +339,10 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
               ),
             ),
           )
-          as _i6.Future<_i4.CiphertextMessage>);
+          as _i5.Future<_i3.CiphertextMessage>);
 
   @override
-  _i6.Future<String> decryptMessage(
+  _i5.Future<String> decryptMessage(
     String? senderId,
     String? base64Ciphertext,
     int? type, {
@@ -404,7 +360,7 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
                 #isHistorical: isHistorical,
               },
             ),
-            returnValue: _i6.Future<String>.value(
+            returnValue: _i5.Future<String>.value(
               _i11.dummyValue<String>(
                 this,
                 Invocation.method(
@@ -419,7 +375,7 @@ class MockSignalService extends _i1.Mock implements _i10.SignalService {
               ),
             ),
           )
-          as _i6.Future<String>);
+          as _i5.Future<String>);
 }
 
 /// A class which mocks [AuthService].
@@ -439,12 +395,12 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
           as List<_i13.RegisteredAccount>);
 
   @override
-  _i6.Stream<_i14.AuthState> get authStateChanges =>
+  _i5.Stream<_i14.AuthState> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
-            returnValue: _i6.Stream<_i14.AuthState>.empty(),
+            returnValue: _i5.Stream<_i14.AuthState>.empty(),
           )
-          as _i6.Stream<_i14.AuthState>);
+          as _i5.Stream<_i14.AuthState>);
 
   @override
   bool get hasListeners =>
@@ -458,13 +414,13 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
   );
 
   @override
-  _i6.Future<void> switchAccount(_i15.BuildContext? context, String? userId) =>
+  _i5.Future<void> switchAccount(_i15.BuildContext? context, String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#switchAccount, [context, userId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
   void resetProviders(_i15.BuildContext? context) => super.noSuchMethod(
@@ -473,32 +429,32 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
   );
 
   @override
-  _i6.Future<void> removeAccount(_i15.BuildContext? context, String? userId) =>
+  _i5.Future<void> removeAccount(_i15.BuildContext? context, String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#removeAccount, [context, userId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<void> restoreSession() =>
+  _i5.Future<void> restoreSession() =>
       (super.noSuchMethod(
             Invocation.method(#restoreSession, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<_i5.AppUser> signInWithEmailAndPassword(
+  _i5.Future<_i4.AppUser> signInWithEmailAndPassword(
     String? email,
     String? password,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#signInWithEmailAndPassword, [email, password]),
-            returnValue: _i6.Future<_i5.AppUser>.value(
-              _FakeAppUser_3(
+            returnValue: _i5.Future<_i4.AppUser>.value(
+              _FakeAppUser_2(
                 this,
                 Invocation.method(#signInWithEmailAndPassword, [
                   email,
@@ -507,10 +463,10 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
               ),
             ),
           )
-          as _i6.Future<_i5.AppUser>);
+          as _i5.Future<_i4.AppUser>);
 
   @override
-  _i6.Future<_i5.AppUser> registerWithEmailAndPassword({
+  _i5.Future<_i4.AppUser> registerWithEmailAndPassword({
     required String? email,
     required String? password,
     required String? username,
@@ -523,8 +479,8 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
               #username: username,
               #displayName: displayName,
             }),
-            returnValue: _i6.Future<_i5.AppUser>.value(
-              _FakeAppUser_3(
+            returnValue: _i5.Future<_i4.AppUser>.value(
+              _FakeAppUser_2(
                 this,
                 Invocation.method(#registerWithEmailAndPassword, [], {
                   #email: email,
@@ -535,16 +491,16 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
               ),
             ),
           )
-          as _i6.Future<_i5.AppUser>);
+          as _i5.Future<_i4.AppUser>);
 
   @override
-  _i6.Future<_i5.AppUser> signInWithGoogle({bool? forceSignIn = false}) =>
+  _i5.Future<_i4.AppUser> signInWithGoogle({bool? forceSignIn = false}) =>
       (super.noSuchMethod(
             Invocation.method(#signInWithGoogle, [], {
               #forceSignIn: forceSignIn,
             }),
-            returnValue: _i6.Future<_i5.AppUser>.value(
-              _FakeAppUser_3(
+            returnValue: _i5.Future<_i4.AppUser>.value(
+              _FakeAppUser_2(
                 this,
                 Invocation.method(#signInWithGoogle, [], {
                   #forceSignIn: forceSignIn,
@@ -552,26 +508,26 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
               ),
             ),
           )
-          as _i6.Future<_i5.AppUser>);
+          as _i5.Future<_i4.AppUser>);
 
   @override
-  _i6.Future<_i5.AppUser> signInWithApple() =>
+  _i5.Future<_i4.AppUser> signInWithApple() =>
       (super.noSuchMethod(
             Invocation.method(#signInWithApple, []),
-            returnValue: _i6.Future<_i5.AppUser>.value(
-              _FakeAppUser_3(this, Invocation.method(#signInWithApple, [])),
+            returnValue: _i5.Future<_i4.AppUser>.value(
+              _FakeAppUser_2(this, Invocation.method(#signInWithApple, [])),
             ),
           )
-          as _i6.Future<_i5.AppUser>);
+          as _i5.Future<_i4.AppUser>);
 
   @override
-  _i6.Future<void> signOut({_i15.BuildContext? context}) =>
+  _i5.Future<void> signOut({_i15.BuildContext? context}) =>
       (super.noSuchMethod(
             Invocation.method(#signOut, [], {#context: context}),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -580,7 +536,7 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
   );
 
   @override
-  _i6.Future<void> updateProfile({
+  _i5.Future<void> updateProfile({
     String? username,
     String? displayName,
     String? avatarUrl,
@@ -591,68 +547,68 @@ class MockAuthService extends _i1.Mock implements _i12.AuthService {
               #displayName: displayName,
               #avatarUrl: avatarUrl,
             }),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<String> uploadProfilePicture(String? filePath) =>
+  _i5.Future<String> uploadProfilePicture(String? filePath) =>
       (super.noSuchMethod(
             Invocation.method(#uploadProfilePicture, [filePath]),
-            returnValue: _i6.Future<String>.value(
+            returnValue: _i5.Future<String>.value(
               _i11.dummyValue<String>(
                 this,
                 Invocation.method(#uploadProfilePicture, [filePath]),
               ),
             ),
           )
-          as _i6.Future<String>);
+          as _i5.Future<String>);
 
   @override
-  _i6.Future<String?> getPublicKey(String? userId) =>
+  _i5.Future<String?> getPublicKey(String? userId) =>
       (super.noSuchMethod(
             Invocation.method(#getPublicKey, [userId]),
-            returnValue: _i6.Future<String?>.value(),
+            returnValue: _i5.Future<String?>.value(),
           )
-          as _i6.Future<String?>);
+          as _i5.Future<String?>);
 
   @override
-  _i6.Future<Map<String, String>> getPublicKeys(List<String>? userIds) =>
+  _i5.Future<Map<String, String>> getPublicKeys(List<String>? userIds) =>
       (super.noSuchMethod(
             Invocation.method(#getPublicKeys, [userIds]),
-            returnValue: _i6.Future<Map<String, String>>.value(
+            returnValue: _i5.Future<Map<String, String>>.value(
               <String, String>{},
             ),
           )
-          as _i6.Future<Map<String, String>>);
+          as _i5.Future<Map<String, String>>);
 
   @override
-  _i6.Future<void> sendPasswordResetEmail(String? email) =>
+  _i5.Future<void> sendPasswordResetEmail(String? email) =>
       (super.noSuchMethod(
             Invocation.method(#sendPasswordResetEmail, [email]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<void> updatePassword(String? newPassword) =>
+  _i5.Future<void> updatePassword(String? newPassword) =>
       (super.noSuchMethod(
             Invocation.method(#updatePassword, [newPassword]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
-  _i6.Future<void> deleteAccount() =>
+  _i5.Future<void> deleteAccount() =>
       (super.noSuchMethod(
             Invocation.method(#deleteAccount, []),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
           )
-          as _i6.Future<void>);
+          as _i5.Future<void>);
 
   @override
   void addListener(_i16.VoidCallback? listener) => super.noSuchMethod(
