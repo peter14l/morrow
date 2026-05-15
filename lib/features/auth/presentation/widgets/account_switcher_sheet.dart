@@ -230,9 +230,10 @@ class AccountSwitcherSheet extends StatelessWidget {
               },
             ),
           ],
-        ),
+        ],
       ),
-    );
+    ),
+  );
 
     if (isSolid || disableTransparency) {
       return sheetContent;
