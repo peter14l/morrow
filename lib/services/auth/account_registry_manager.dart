@@ -5,24 +5,32 @@ import 'package:oasis/services/session_registry_service.dart';
 class AccountRegistryManager with ChangeNotifier {
   final SessionRegistryService _registry = SessionRegistryService();
   List<RegisteredAccount> _registeredAccounts = [];
+  bool _isLoading = false;
+
   List<RegisteredAccount> get registeredAccounts => _registeredAccounts;
+  bool get isLoading => _isLoading;
 
   AccountRegistryManager() {
     loadRegistry();
   }
 
   Future<void> loadRegistry() async {
+    if (_isLoading) return;
     try {
       debugPrint('[AccountRegistryManager] loadRegistry starting...');
+      _isLoading = true;
+      notifyListeners();
+
       _registeredAccounts = await _registry.getAllAccounts();
       debugPrint(
         '[AccountRegistryManager] loadRegistry completed. Count: ${_registeredAccounts.length}',
       );
-      notifyListeners();
     } catch (e) {
       debugPrint('[AccountRegistryManager] CRITICAL ERROR in loadRegistry: $e');
       // If it fails, we start with empty to prevent app crash
       _registeredAccounts = [];
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }

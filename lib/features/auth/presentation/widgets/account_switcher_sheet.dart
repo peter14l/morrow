@@ -31,9 +31,10 @@ class AccountSwitcherSheet extends StatelessWidget {
     final authService = context.watch<AuthService>();
     final currentUserId = authService.currentUser?.id;
     final accounts = authService.registeredAccounts;
+    final isLoadingRegistry = authService.isLoadingRegistry;
 
     debugPrint(
-      '[AccountSwitcherSheet] Building with ${accounts.length} accounts. Current User: $currentUserId',
+      '[AccountSwitcherSheet] Building with ${accounts.length} accounts. Current User: $currentUserId. Loading: $isLoadingRegistry',
     );
 
     final sheetContent = Container(
@@ -74,12 +75,18 @@ class AccountSwitcherSheet extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Accounts List
-            Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: accounts.length,
-                itemBuilder: (context, index) {
+            if (isLoadingRegistry)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else ...[
+              // Accounts List
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: accounts.length,
+                  itemBuilder: (context, index) {
                   final account = accounts[index];
                   final isCurrent = account.userId == currentUserId;
 
@@ -136,9 +143,51 @@ class AccountSwitcherSheet extends StatelessWidget {
                       account.email,
                       style: theme.textTheme.bodySmall,
                     ),
-                    trailing: isCurrent
-                        ? Icon(Icons.check_circle, color: colorScheme.primary)
-                        : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (isCurrent)
+                          Icon(Icons.check_circle, color: colorScheme.primary)
+                        else
+                          IconButton(
+                            icon: const Icon(Icons.logout_rounded, size: 20),
+                            tooltip: 'Remove account',
+                            onPressed: () async {
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Remove Account?'),
+                                  content: Text(
+                                    'Do you want to remove ${account.username} from this device?',
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text('Cancel'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text(
+                                        'Remove',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirmed == true) {
+                                await authService.removeAccount(
+                                  context,
+                                  account.userId,
+                                );
+                              }
+                            },
+                          ),
+                      ],
+                    ),
                     onTap: isCurrent
                         ? null
                         : () async {

@@ -47,6 +47,8 @@ class AuthService with ChangeNotifier {
   List<RegisteredAccount> get registeredAccounts =>
       _accountRegistry.registeredAccounts;
 
+  bool get isLoadingRegistry => _accountRegistry.isLoading;
+
   factory AuthService() {
     return _instance;
   }
@@ -444,7 +446,7 @@ class AuthService with ChangeNotifier {
   }
 
   // Sign out
-  Future<void> signOut({BuildContext? context}) async {
+  Future<void> signOut({BuildContext? context, bool forgetAccount = true}) async {
     try {
       final currentUserId = _supabase.auth.currentUser?.id;
 
@@ -455,11 +457,17 @@ class AuthService with ChangeNotifier {
             .toList();
         if (otherAccounts.isNotEmpty) {
           debugPrint(
-            '[AuthService] Signing out current account and switching to ${otherAccounts.first.username}',
+            '[AuthService] Switching to ${otherAccounts.first.username} during sign out of $currentUserId',
           );
-          // Remove current account from registry first
-          await _accountRegistry.removeAccount(currentUserId);
-          // Then switch to the next available account
+          
+          if (forgetAccount) {
+            // Only remove from registry if explicitly requested
+            await _accountRegistry.removeAccount(currentUserId);
+            // Also sign out from Supabase to invalidate the session
+            await _providersDelegate.signOut();
+          }
+
+          // Switch to the next available account
           await switchAccount(context, otherAccounts.first.userId);
           return;
         }
@@ -467,9 +475,10 @@ class AuthService with ChangeNotifier {
 
       // Fallback: Full sign out
       debugPrint('[AuthService] Performing full sign out');
-      if (currentUserId != null) {
+      if (currentUserId != null && forgetAccount) {
         await _accountRegistry.removeAccount(currentUserId);
       }
+      
       await _providersDelegate.signOut();
       await EncryptionService().clearKeys();
       await SignalService().clearData();

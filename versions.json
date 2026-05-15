@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.8",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.8.apk",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
+    "latestVersion": "1.1.12",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.12.apk",
+    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T14:00:00Z"
+    "releaseDate": "2026-05-15T10:00:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.8",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.8.msix",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
+    "latestVersion": "1.1.12",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.12.msix",
+    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T14:00:00Z"
+    "releaseDate": "2026-05-15T10:00:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.8",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.8.dmg",
-    "releaseNotes": "• Fixed WebRTC calling regressions (answer button, screen flicker).\n• Improved audio routing for Bluetooth headsets and peripherals.\n• Resolved potential Stack Overflow and initialization errors during calls.\n• Fixed chat background images not loading by using public R2 URLs.",
+    "latestVersion": "1.1.12",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.12.dmg",
+    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
-    "releaseDate": "2026-05-09T14:00:00Z"
+    "releaseDate": "2026-05-15T10:00:00Z"
   }
 }

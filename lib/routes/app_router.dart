@@ -141,6 +141,19 @@ class UnreadMessagesBadge extends StatelessWidget {
   }
 }
 
+class _SwitchTabIntent extends Intent {
+  final int index;
+  const _SwitchTabIntent(this.index);
+}
+
+class _SearchIntent extends Intent {
+  const _SearchIntent();
+}
+
+class _SettingsIntent extends Intent {
+  const _SettingsIntent();
+}
+
 class MainLayout extends StatefulWidget {
   final Widget child;
 
@@ -349,68 +362,239 @@ class _MainLayoutState extends State<MainLayout> {
           slidingPanelColor: slidingPanelColor,
         );
 
-        if (useFluent && isDesktop) {
-          return fluent.NavigationView(
-            pane: fluent.NavigationPane(
-              header: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10.0,
-                  vertical: 8.0,
-                ),
-                child: _buildFluentCreateButton(context),
-              ),
-              selected: currentIndex,
-              size: const fluent.NavigationPaneSize(compactWidth: 54),
-              onChanged: (index) => _onDestinationSelected(
-                index,
-                killSwitchActive: killSwitchActive,
-              ),
-              displayMode: _isRailExtended
-                  ? fluent.PaneDisplayMode.expanded
-                  : fluent.PaneDisplayMode.compact,
-              items: [
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.home_24_regular),
-                  title: const Text('Feed'),
-                  body: contentWithPanels,
-                ),
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.search_24_regular),
-                  title: const Text('Search'),
-                  body: contentWithPanels,
-                ),
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.channel_24_regular),
-                  title: const Text('Spaces'),
-                  body: contentWithPanels,
-                ),
-                fluent.PaneItem(
-                  icon: UnreadMessagesBadge(
-                    child: const Icon(FluentIcons.chat_24_regular),
+        Widget buildDesktopLayout() {
+          if (useFluent) {
+            return fluent.NavigationView(
+              pane: fluent.NavigationPane(
+                header: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10.0,
+                    vertical: 8.0,
                   ),
-                  title: const Text('Messages'),
-                  body: contentWithPanels,
+                  child: _buildFluentCreateButton(context),
                 ),
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.alert_24_regular),
-                  title: const Text('Notifications'),
-                  body: contentWithPanels,
+                selected: currentIndex,
+                size: const fluent.NavigationPaneSize(compactWidth: 54),
+                onChanged: (index) => _onDestinationSelected(
+                  index,
+                  killSwitchActive: killSwitchActive,
                 ),
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.person_24_regular),
-                  title: const Text('Profile'),
-                  body: contentWithPanels,
+                displayMode: _isRailExtended
+                    ? fluent.PaneDisplayMode.expanded
+                    : fluent.PaneDisplayMode.compact,
+                items: [
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.home_24_regular),
+                    title: const Text('Feed'),
+                    body: contentWithPanels,
+                  ),
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.search_24_regular),
+                    title: const Text('Search'),
+                    body: contentWithPanels,
+                  ),
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.channel_24_regular),
+                    title: const Text('Spaces'),
+                    body: contentWithPanels,
+                  ),
+                  fluent.PaneItem(
+                    icon: UnreadMessagesBadge(
+                      child: const Icon(FluentIcons.chat_24_regular),
+                    ),
+                    title: const Text('Messages'),
+                    body: contentWithPanels,
+                  ),
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.alert_24_regular),
+                    title: const Text('Notifications'),
+                    body: contentWithPanels,
+                  ),
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.person_24_regular),
+                    title: const Text('Profile'),
+                    body: contentWithPanels,
+                  ),
+                ],
+                footerItems: [
+                  fluent.PaneItemSeparator(),
+                  fluent.PaneItem(
+                    icon: const Icon(FluentIcons.settings_24_regular),
+                    title: const Text('Settings'),
+                    body: contentWithPanels,
+                    onTap: () => context.push('/settings'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return Scaffold(
+            backgroundColor: Colors.transparent,
+            extendBody: true,
+            body: RawGestureDetector(
+              behavior: HitTestBehavior.translucent,
+              gestures: {
+                _TwoFingerLongPressGestureRecognizer:
+                    GestureRecognizerFactoryWithHandlers<
+                      _TwoFingerLongPressGestureRecognizer
+                    >(
+                      () => _TwoFingerLongPressGestureRecognizer(
+                        onTwoFingerLongPress: () {
+                          setState(
+                            () => _isPrivacyBlurActive = !_isPrivacyBlurActive,
+                          );
+                          if (_isPrivacyBlurActive) {
+                            HapticFeedback.heavyImpact();
+                          } else {
+                            HapticFeedback.mediumImpact();
+                          }
+                        },
+                      ),
+                      (instance) {},
+                    ),
+              },
+              child: Stack(
+                children: [
+                  Column(
+                    children: [
+                      if (_encryptionStatus == EncryptionStatus.needsRestore)
+                        const SecurityUpgradeBanner(),
+                      Expanded(
+                        child: Row(
+                          children: [
+                            if (isDesktop)
+                              _buildNavigationRail(
+                                context,
+                                currentIndex,
+                                theme,
+                                killSwitchActive: killSwitchActive,
+                                isMica: isMica,
+                                disableTransparency: disableTransparency,
+                              ),
+                            Expanded(child: contentWithPanels),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  // Encryption PIN Overlay (Full Screen)
+                  if (_encryptionStatus == EncryptionStatus.needsRestore ||
+                      _encryptionStatus == EncryptionStatus.needsSetup ||
+                      _encryptionStatus ==
+                          EncryptionStatus.needsSecurityUpgrade)
+                    Positioned.fill(
+                      child: EncryptionPinOverlay(
+                        status: _encryptionStatus!,
+                        onComplete: () {
+                          _checkEncryption(); // Re-check status to clear overlay
+                        },
+                      ),
+                    ),
+
+                  // Privacy Blur Overlay
+                  if (_isPrivacyBlurActive)
+                    Positioned.fill(
+                      child: motion.Animate(
+                        effects: const [
+                          motion.FadeEffect(
+                            duration: Duration(milliseconds: 300),
+                          ),
+                        ],
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => _isPrivacyBlurActive = false),
+                          child: BackdropFilter(
+                            filter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                            child: Container(
+                              color: OasisColors.deep.withValues(alpha: 0.7),
+                              child: Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.spa_rounded,
+                                      color: OasisColors.glow,
+                                      size: 80,
+                                    ),
+                                    const SizedBox(height: 24),
+                                    Text(
+                                      'Privacy Mode Active',
+                                      style: theme.textTheme.headlineSmall
+                                          ?.copyWith(
+                                            color: OasisColors.white,
+                                            fontFamily: 'Cormorant Garamond',
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Tap to resume your Oasis',
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(color: OasisColors.mist),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            bottomNavigationBar: !isDesktop
+                ? _buildBottomNavigationBar(
+                    context,
+                    currentIndex,
+                    theme,
+                    killSwitchActive: killSwitchActive,
+                  )
+                : null,
+            floatingActionButton: _buildFloatingActionButton(
+              context,
+              currentIndex,
+              theme,
+              killSwitchActive: killSwitchActive,
+            ),
+          );
+        }
+
+        if (isDesktop) {
+          return Shortcuts(
+            shortcuts: <ShortcutActivator, Intent>{
+              const SingleActivator(LogicalKeyboardKey.digit1, control: true):
+                  const _SwitchTabIntent(0),
+              const SingleActivator(LogicalKeyboardKey.digit2, control: true):
+                  const _SwitchTabIntent(1),
+              const SingleActivator(LogicalKeyboardKey.digit3, control: true):
+                  const _SwitchTabIntent(2),
+              const SingleActivator(LogicalKeyboardKey.digit4, control: true):
+                  const _SwitchTabIntent(3),
+              const SingleActivator(LogicalKeyboardKey.digit5, control: true):
+                  const _SwitchTabIntent(4),
+              const SingleActivator(LogicalKeyboardKey.digit6, control: true):
+                  const _SwitchTabIntent(5),
+              const SingleActivator(LogicalKeyboardKey.keyF, control: true):
+                  const _SearchIntent(),
+              const SingleActivator(LogicalKeyboardKey.comma, control: true):
+                  const _SettingsIntent(),
+            },
+            child: Actions(
+              actions: <Type, Action<Intent>>{
+                _SwitchTabIntent: CallbackAction<_SwitchTabIntent>(
+                  onInvoke: (intent) => _onDestinationSelected(intent.index),
                 ),
-              ],
-              footerItems: [
-                fluent.PaneItemSeparator(),
-                fluent.PaneItem(
-                  icon: const Icon(FluentIcons.settings_24_regular),
-                  title: const Text('Settings'),
-                  body: contentWithPanels,
-                  onTap: () => context.push('/settings'),
+                _SearchIntent: CallbackAction<_SearchIntent>(
+                  onInvoke: (intent) => setState(() => _activePanel = 'search'),
                 ),
-              ],
+                _SettingsIntent: CallbackAction<_SettingsIntent>(
+                  onInvoke: (intent) => context.push('/settings'),
+                ),
+              },
+              child: buildDesktopLayout(),
             ),
           );
         }

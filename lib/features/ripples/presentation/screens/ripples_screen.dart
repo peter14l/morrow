@@ -193,12 +193,14 @@ class _RipplesScreenState extends State<RipplesScreen>
                     ),
                   ),
                   Positioned.fill(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                      child: Container(
-                        color: Colors.black.withValues(alpha: 0.6),
-                      ),
-                    ),
+                    child: disableTransparency
+                        ? Container(color: Colors.black.withValues(alpha: 0.9))
+                        : BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                            child: Container(
+                              color: Colors.black.withValues(alpha: 0.6),
+                            ),
+                          ),
                   ),
 
                   // Desktop Layout
@@ -1389,6 +1391,7 @@ class _ComingUpItemState extends State<_ComingUpItem> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(

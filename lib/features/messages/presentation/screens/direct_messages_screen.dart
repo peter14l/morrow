@@ -1135,14 +1135,16 @@ class _BentoItem extends StatelessWidget {
         ? AuthService().currentUser?.id
         : null;
 
-    return GestureDetector(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      onSecondaryTapDown: (details) {
-        // Desktop right-click support
-        _showBentoMenu(context, details.globalPosition);
-      },
-      child: Container(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        onSecondaryTapDown: (details) {
+          // Desktop right-click support
+          _showBentoMenu(context, details.globalPosition);
+        },
+        child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
@@ -1380,7 +1382,7 @@ class _BentoItem extends StatelessWidget {
           ),
         ),
       ),
-    ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack).fadeIn();
+    )).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack).fadeIn();
   }
 
   void _showBentoMenu(BuildContext context, Offset position) {
@@ -1440,11 +1442,13 @@ class _FloatingBubble extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final vibeColor = _getVibeColor(conversation.otherUserName);
-    return GestureDetector(
-      onTap: onTap,
-      onLongPressStart: (details) =>
-          onLongPress(conversation, details.globalPosition),
-      child: Column(
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        onLongPressStart: (details) =>
+            onLongPress(conversation, details.globalPosition),
+        child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Stack(
@@ -1580,7 +1584,7 @@ class _FloatingBubble extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn();
+    )).animate().scale(duration: 600.ms, curve: Curves.easeOutBack).fadeIn();
   }
 }
 

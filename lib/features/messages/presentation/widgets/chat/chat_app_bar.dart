@@ -493,19 +493,34 @@ class _FloatingContainer extends StatelessWidget {
     required this.isCircular,
     this.backgroundUrl,
   });
+@override
+Widget build(BuildContext context) {
+  final theme = Theme.of(context);
+  final colorScheme = theme.colorScheme;
+  final themeProvider = context.watch<ThemeProvider>();
+  final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+  final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+  final isDark = theme.brightness == Brightness.dark;
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final liquidGlassMode = context
-        .watch<UserSettingsProvider>()
-        .liquidGlassMode;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  // Base container with or without liquid glass
+  Container container;
 
-    // Base container with or without liquid glass
-    Container container;
+  if (disableTransparency) {
+    container = Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1A1D24) : Colors.white,
+        borderRadius: isCircular
+            ? BorderRadius.circular(20)
+            : BorderRadius.circular(24),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.2),
+          width: 1,
+        ),
+      ),
+      child: child,
+    );
+  } else if (liquidGlassMode != LiquidGlassMode.disabled) {
 
-    if (liquidGlassMode != LiquidGlassMode.disabled) {
       // Enhanced liquid glass effect
       container = Container(
         decoration: BoxDecoration(

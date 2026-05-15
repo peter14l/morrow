@@ -902,6 +902,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 },
               ),
       ),
+      _buildSettingsTile(
+        context,
+        icon: material.Icons.blur_on_outlined,
+        title: 'Transparency Effects',
+        subtitle: 'Glassmorphism and blur effects.',
+        iconColor: material.Colors.cyan,
+        trailing: useFluent
+            ? fluent.ToggleSwitch(
+                checked: !themeProvider.isM3ETransparencyDisabled,
+                onChanged: (v) => themeProvider.setM3ETransparencyDisabled(!v),
+              )
+            : material.Switch(
+                value: !themeProvider.isM3ETransparencyDisabled,
+                onChanged: (v) => themeProvider.setM3ETransparencyDisabled(!v),
+              ),
+      ),
+      if (themeProvider.isM3ETransparencyDisabled && (kIsWeb || !Platform.isAndroid && !Platform.isIOS))
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: material.Text(
+            'Note: Transparency is disabled on this platform for performance.',
+            style: TextStyle(fontSize: 11, color: material.Colors.orange),
+          ),
+        ),
       if (themeProvider.isM3EEnabled)
         _buildSettingsTile(
           context,

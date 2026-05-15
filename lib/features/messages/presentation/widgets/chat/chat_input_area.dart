@@ -446,16 +446,19 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                       },
                     },
                     child: widget.isDesktop
-                        ? material.SizedBox(
-                            height: 36,
+                        ? material.Container(
+                            constraints: const material.BoxConstraints(
+                              minHeight: 36,
+                              maxHeight: 120,
+                            ),
                             child: fluent.TextBox(
                               controller: widget.controller,
                               focusNode: widget.focusNode,
                               placeholder:
                                   widget.hintText ?? 'Type a message...',
                               padding: const material.EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
+                                horizontal: 12,
+                                vertical: 8,
                               ),
                               decoration:
                                   fluent.WidgetStateProperty.resolveWith((
@@ -464,7 +467,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                                     return fluent.BoxDecoration(
                                       color: material.Colors.transparent,
                                       borderRadius:
-                                          material.BorderRadius.circular(32),
+                                          material.BorderRadius.circular(12),
                                       border: material.Border.all(
                                         color: material.Colors.transparent,
                                         width: 0,
@@ -474,6 +477,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                               style: material.TextStyle(
                                 color: material.Colors.white,
                                 fontSize: 14,
+                                height: 1.4,
                               ),
                               placeholderStyle: material.TextStyle(
                                 color: material.Colors.white38,
@@ -484,7 +488,8 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                               ).accentColor,
                               scrollPhysics:
                                   const material.BouncingScrollPhysics(),
-                              maxLines: 1,
+                              maxLines: null,
+                              minLines: 1,
                             ),
                           )
                         : CustomTextField(

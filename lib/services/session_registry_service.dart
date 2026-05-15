@@ -34,19 +34,30 @@ class RegisteredAccount {
     'lastUsed': lastUsed.toIso8601String(),
   };
 
-  factory RegisteredAccount.fromJson(Map<String, dynamic> json) =>
-      RegisteredAccount(
-        userId: json['userId'] as String? ?? '',
+  factory RegisteredAccount.fromJson(Map<String, dynamic> json) {
+    try {
+      final sessionData = json['session'];
+      if (sessionData == null) {
+        throw const FormatException('Missing session data');
+      }
+
+      return RegisteredAccount(
+        userId: json['userId'] as String? ?? json['user_id'] as String? ?? '',
         email: json['email'] as String? ?? '',
         username: json['username'] as String? ?? 'user',
-        fullName: json['fullName'] as String?,
+        fullName: json['fullName'] as String? ?? json['full_name'] as String?,
         avatarUrl:
             json['avatar_url'] as String? ?? json['avatarUrl'] as String?,
-        session: Session.fromJson(json['session'] ?? {})!,
+        session: Session.fromJson(Map<String, dynamic>.from(sessionData))!,
         lastUsed: json['lastUsed'] != null
             ? DateTime.parse(json['lastUsed'] as String)
             : DateTime.now(),
       );
+    } catch (e) {
+      debugPrint('[RegisteredAccount] Error parsing from JSON: $e');
+      rethrow;
+    }
+  }
 
   RegisteredAccount copyWith({
     String? username,
@@ -94,53 +105,7 @@ class SessionRegistryService {
   /// Get all registered accounts
   Future<List<RegisteredAccount>> getAllAccounts() async {
     return _synchronized(() async {
-      try {
-        debugPrint('[SessionRegistry] Reading registry from storage...');
-        final data = await _storage.read(key: _registryKey);
-
-        if (data == null) {
-          debugPrint('[SessionRegistry] No registry data found');
-          return [];
-        }
-
-        // Guard against corrupted files (e.g. file filled with zeros/nulls)
-        if (data.trim().isEmpty ||
-            data.runes.every((r) => r == 0) ||
-            data.runes.every((r) => r == 48)) {
-          debugPrint(
-            '[SessionRegistry] Detected corrupted data (zeros or empty), ignoring.',
-          );
-          return [];
-        }
-
-        final List<dynamic> decoded = jsonDecode(data);
-        debugPrint('[SessionRegistry] Decoding ${decoded.length} accounts');
-
-        final List<RegisteredAccount> accounts = [];
-        for (var i = 0; i < decoded.length; i++) {
-          try {
-            final item = decoded[i];
-            if (item is Map<String, dynamic>) {
-              accounts.add(RegisteredAccount.fromJson(item));
-            }
-          } catch (e) {
-            debugPrint(
-              '[SessionRegistry] ERROR parsing account at index $i: $e',
-            );
-            // We skip this one but keep others
-          }
-        }
-
-        debugPrint(
-          '[SessionRegistry] Successfully loaded ${accounts.length} accounts',
-        );
-        return accounts;
-      } catch (e) {
-        debugPrint(
-          '[SessionRegistry] CRITICAL ERROR reading/parsing registry: $e',
-        );
-        return [];
-      }
+      return _getAllAccountsNoLock();
     });
   }
 
@@ -190,19 +155,40 @@ class SessionRegistryService {
 
   Future<List<RegisteredAccount>> _getAllAccountsNoLock() async {
     try {
+      debugPrint('[SessionRegistry] Reading registry from storage...');
       final data = await _storage.read(key: _registryKey);
-      if (data == null) return [];
+      if (data == null) {
+        debugPrint('[SessionRegistry] No registry data found');
+        return [];
+      }
 
-      if (data.isEmpty ||
+      if (data.trim().isEmpty ||
           data.runes.every((r) => r == 0) ||
           data.runes.every((r) => r == 48)) {
+        debugPrint('[SessionRegistry] Detected empty or corrupted data, ignoring.');
         return [];
       }
 
       final List<dynamic> decoded = jsonDecode(data);
-      return decoded.map((item) => RegisteredAccount.fromJson(item)).toList();
+      debugPrint('[SessionRegistry] Decoding ${decoded.length} items from registry');
+      
+      final List<RegisteredAccount> accounts = [];
+      for (var i = 0; i < decoded.length; i++) {
+        try {
+          final item = decoded[i];
+          if (item is Map<String, dynamic>) {
+            accounts.add(RegisteredAccount.fromJson(item));
+          }
+        } catch (e) {
+          debugPrint('[SessionRegistry] Skipping malformed account at index $i: $e');
+        }
+      }
+
+      debugPrint('[SessionRegistry] Successfully loaded ${accounts.length} accounts');
+      return accounts;
     } catch (e) {
-      debugPrint('[SessionRegistry] ERROR in _getAllAccountsNoLock: $e');
+      debugPrint('[SessionRegistry] CRITICAL ERROR reading/parsing registry: $e');
+      // Return empty only on critical failure, but this prevents infinite loops
       return [];
     }
   }

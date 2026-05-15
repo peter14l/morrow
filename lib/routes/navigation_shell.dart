@@ -150,9 +150,9 @@ class NavigationShell extends material.StatelessWidget {
     bool isM3E,
     int unreadCount,
   ) {
-    final liquidGlassMode = context
-        .watch<UserSettingsProvider>()
-        .liquidGlassMode;
+    final liquidGlassMode =
+        context.watch<UserSettingsProvider>().liquidGlassMode;
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
 
     final navigationBar = material.NavigationBar(
       selectedIndex: currentIndex,
@@ -198,20 +198,16 @@ class NavigationShell extends material.StatelessWidget {
       ],
     );
 
-    // Apply liquid glass effect if enabled
-    if (liquidGlassMode != LiquidGlassMode.disabled) {
-      return material.Scaffold(
-        body: child,
-        bottomNavigationBar: _applyLiquidGlassToBottomNav(
-          navigationBar,
-          liquidGlassMode,
-          theme.brightness,
-          context,
-        ),
-      );
-    }
-
-    return material.Scaffold(body: child, bottomNavigationBar: navigationBar);
+    // Always wrap to handle global transparency toggle and liquid glass
+    return material.Scaffold(
+      body: child,
+      bottomNavigationBar: _applyLiquidGlassToBottomNav(
+        navigationBar,
+        liquidGlassMode,
+        theme.brightness,
+        context,
+      ),
+    );
   }
 
   Widget _applyLiquidGlassToBottomNav(
@@ -229,10 +225,14 @@ class NavigationShell extends material.StatelessWidget {
     if (disableTransparency) {
       return Container(
         color: brightness == material.Brightness.dark
-            ? const material.Color(0xFF0D1F1A)
+            ? const material.Color(0xFF1A1D24)
             : material.Colors.white,
         child: navBar,
       );
+    }
+
+    if (mode == LiquidGlassMode.disabled) {
+      return navBar;
     }
 
     if (mode == LiquidGlassMode.fake) {

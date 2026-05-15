@@ -162,7 +162,7 @@ msix_config:
   publisher_display_name: OasisApp
   publisher: CN=95D0DA2B-7A5E-492D-BF38-F13FA12E0899
   identity_name: NoteSpark.OasisApp
-  msix_version: 1.1.11.0
+  msix_version: 1.1.12.0
   logo_path: assets/images/logo.png
   capabilities: internetClient, location, microphone, webcam
   architecture: x64
