@@ -13,7 +13,8 @@ class VaultSettingsScreen extends material.StatefulWidget {
   const VaultSettingsScreen({super.key});
 
   @override
-  material.State<VaultSettingsScreen> createState() => _VaultSettingsScreenState();
+  material.State<VaultSettingsScreen> createState() =>
+      _VaultSettingsScreenState();
 }
 
 class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
@@ -120,8 +121,13 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
             ),
             fluent.FilledButton(
               onPressed: () async {
-                final service = Provider.of<VaultService>(context, listen: false);
-                final isValid = await service.unlockVaultWithPin(controller.text);
+                final service = Provider.of<VaultService>(
+                  context,
+                  listen: false,
+                );
+                final isValid = await service.unlockVaultWithPin(
+                  controller.text,
+                );
                 if (context.mounted) {
                   material.Navigator.pop(context, isValid);
                 }
@@ -136,42 +142,36 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
 
     final result = await material.showDialog<bool>(
       context: context,
-      builder:
-          (context) => material.AlertDialog(
-            title: const material.Text('Enter PIN'),
-            content: material.TextField(
-              controller: controller,
-              keyboardType: material.TextInputType.number,
-              obscureText: true,
-              maxLength: 4,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const material.InputDecoration(
-                hintText: 'Current PIN',
-                counterText: '',
-              ),
-            ),
-            actions: [
-              material.TextButton(
-                onPressed: () => material.Navigator.pop(context, false),
-                child: const material.Text('Cancel'),
-              ),
-              material.TextButton(
-                onPressed: () async {
-                  final service = Provider.of<VaultService>(
-                    context,
-                    listen: false,
-                  );
-                  final isValid = await service.unlockVaultWithPin(
-                    controller.text,
-                  );
-                  if (context.mounted) {
-                    material.Navigator.pop(context, isValid);
-                  }
-                },
-                child: const material.Text('Confirm'),
-              ),
-            ],
+      builder: (context) => material.AlertDialog(
+        title: const material.Text('Enter PIN'),
+        content: material.TextField(
+          controller: controller,
+          keyboardType: material.TextInputType.number,
+          obscureText: true,
+          maxLength: 4,
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          decoration: const material.InputDecoration(
+            hintText: 'Current PIN',
+            counterText: '',
           ),
+        ),
+        actions: [
+          material.TextButton(
+            onPressed: () => material.Navigator.pop(context, false),
+            child: const material.Text('Cancel'),
+          ),
+          material.TextButton(
+            onPressed: () async {
+              final service = Provider.of<VaultService>(context, listen: false);
+              final isValid = await service.unlockVaultWithPin(controller.text);
+              if (context.mounted) {
+                material.Navigator.pop(context, isValid);
+              }
+            },
+            child: const material.Text('Confirm'),
+          ),
+        ],
+      ),
     );
     return result ?? false;
   }
@@ -224,7 +224,10 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
                   const material.SizedBox(height: 16),
                   material.Text(
                     errorMessage!,
-                    style: const material.TextStyle(color: material.Colors.red, fontSize: 12),
+                    style: const material.TextStyle(
+                      color: material.Colors.red,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ],
@@ -237,22 +240,33 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
               fluent.FilledButton(
                 onPressed: () async {
                   if (currentPinController.text.length != 4) {
-                    setDialogState(() => errorMessage = 'Please enter current PIN');
+                    setDialogState(
+                      () => errorMessage = 'Please enter current PIN',
+                    );
                     return;
                   }
                   if (newPinController.text.length != 4) {
-                    setDialogState(() => errorMessage = 'New PIN must be 4 digits');
+                    setDialogState(
+                      () => errorMessage = 'New PIN must be 4 digits',
+                    );
                     return;
                   }
                   if (newPinController.text != confirmPinController.text) {
-                    setDialogState(() => errorMessage = 'New PINs do not match');
+                    setDialogState(
+                      () => errorMessage = 'New PINs do not match',
+                    );
                     return;
                   }
-                  final success = await service.changePin(currentPinController.text, newPinController.text);
+                  final success = await service.changePin(
+                    currentPinController.text,
+                    newPinController.text,
+                  );
                   if (success) {
                     material.Navigator.pop(dialogContext, true);
                   } else {
-                    setDialogState(() => errorMessage = 'Current PIN is incorrect');
+                    setDialogState(
+                      () => errorMessage = 'Current PIN is incorrect',
+                    );
                   }
                 },
                 child: const material.Text('Change'),
@@ -269,119 +283,107 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
 
     final result = await material.showDialog<bool>(
       context: context,
-      builder:
-          (dialogContext) => material.StatefulBuilder(
-            builder:
-                (context, setDialogState) => material.AlertDialog(
-                  title: const material.Text('Change PIN'),
-                  content: material.Column(
-                    mainAxisSize: material.MainAxisSize.min,
-                    children: [
-                      material.TextField(
-                        controller: currentPinController,
-                        keyboardType: material.TextInputType.number,
-                        obscureText: true,
-                        maxLength: 4,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const material.InputDecoration(
-                          labelText: 'Current PIN',
-                          counterText: '',
-                        ),
-                      ),
-                      const material.SizedBox(height: 16),
-                      material.TextField(
-                        controller: newPinController,
-                        keyboardType: material.TextInputType.number,
-                        obscureText: true,
-                        maxLength: 4,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const material.InputDecoration(
-                          labelText: 'New PIN',
-                          counterText: '',
-                        ),
-                      ),
-                      const material.SizedBox(height: 16),
-                      material.TextField(
-                        controller: confirmPinController,
-                        keyboardType: material.TextInputType.number,
-                        obscureText: true,
-                        maxLength: 4,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        decoration: const material.InputDecoration(
-                          labelText: 'Confirm New PIN',
-                          counterText: '',
-                        ),
-                      ),
-                      if (errorMessage != null) ...[
-                        const material.SizedBox(height: 16),
-                        material.Text(
-                          errorMessage!,
-                          style: const material.TextStyle(
-                            color: material.Colors.red,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  actions: [
-                    material.TextButton(
-                      onPressed: () => material.Navigator.pop(dialogContext, false),
-                      child: const material.Text('Cancel'),
-                    ),
-                    material.TextButton(
-                      onPressed: () async {
-                        if (currentPinController.text.length != 4) {
-                          setDialogState(
-                            () => errorMessage = 'Please enter current PIN',
-                          );
-                          return;
-                        }
-                        if (newPinController.text.length != 4) {
-                          setDialogState(
-                            () => errorMessage = 'New PIN must be 4 digits',
-                          );
-                          return;
-                        }
-                        if (newPinController.text !=
-                            confirmPinController.text) {
-                          setDialogState(
-                            () => errorMessage = 'New PINs do not match',
-                          );
-                          return;
-                        }
-                        if (currentPinController.text ==
-                            newPinController.text) {
-                          setDialogState(
-                            () => errorMessage = 'New PIN must be different',
-                          );
-                          return;
-                        }
-
-                        final success = await service.changePin(
-                          currentPinController.text,
-                          newPinController.text,
-                        );
-
-                        if (success) {
-                          material.Navigator.pop(dialogContext, true);
-                        } else {
-                          setDialogState(
-                            () => errorMessage = 'Current PIN is incorrect',
-                          );
-                        }
-                      },
-                      child: const material.Text('Change'),
-                    ),
-                  ],
+      builder: (dialogContext) => material.StatefulBuilder(
+        builder: (context, setDialogState) => material.AlertDialog(
+          title: const material.Text('Change PIN'),
+          content: material.Column(
+            mainAxisSize: material.MainAxisSize.min,
+            children: [
+              material.TextField(
+                controller: currentPinController,
+                keyboardType: material.TextInputType.number,
+                obscureText: true,
+                maxLength: 4,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const material.InputDecoration(
+                  labelText: 'Current PIN',
+                  counterText: '',
                 ),
+              ),
+              const material.SizedBox(height: 16),
+              material.TextField(
+                controller: newPinController,
+                keyboardType: material.TextInputType.number,
+                obscureText: true,
+                maxLength: 4,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const material.InputDecoration(
+                  labelText: 'New PIN',
+                  counterText: '',
+                ),
+              ),
+              const material.SizedBox(height: 16),
+              material.TextField(
+                controller: confirmPinController,
+                keyboardType: material.TextInputType.number,
+                obscureText: true,
+                maxLength: 4,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: const material.InputDecoration(
+                  labelText: 'Confirm New PIN',
+                  counterText: '',
+                ),
+              ),
+              if (errorMessage != null) ...[
+                const material.SizedBox(height: 16),
+                material.Text(
+                  errorMessage!,
+                  style: const material.TextStyle(
+                    color: material.Colors.red,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ],
           ),
+          actions: [
+            material.TextButton(
+              onPressed: () => material.Navigator.pop(dialogContext, false),
+              child: const material.Text('Cancel'),
+            ),
+            material.TextButton(
+              onPressed: () async {
+                if (currentPinController.text.length != 4) {
+                  setDialogState(
+                    () => errorMessage = 'Please enter current PIN',
+                  );
+                  return;
+                }
+                if (newPinController.text.length != 4) {
+                  setDialogState(
+                    () => errorMessage = 'New PIN must be 4 digits',
+                  );
+                  return;
+                }
+                if (newPinController.text != confirmPinController.text) {
+                  setDialogState(() => errorMessage = 'New PINs do not match');
+                  return;
+                }
+                if (currentPinController.text == newPinController.text) {
+                  setDialogState(
+                    () => errorMessage = 'New PIN must be different',
+                  );
+                  return;
+                }
+
+                final success = await service.changePin(
+                  currentPinController.text,
+                  newPinController.text,
+                );
+
+                if (success) {
+                  material.Navigator.pop(dialogContext, true);
+                } else {
+                  setDialogState(
+                    () => errorMessage = 'Current PIN is incorrect',
+                  );
+                }
+              },
+              child: const material.Text('Change'),
+            ),
+          ],
+        ),
+      ),
     );
 
     if (result == true && mounted) {
@@ -396,7 +398,9 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
     final isDesktop = kIsWeb || Platform.isWindows || Platform.isMacOS;
 
     if (_isLoading) {
-      return const material.Scaffold(body: material.Center(child: material.CircularProgressIndicator()));
+      return const material.Scaffold(
+        body: material.Center(child: material.CircularProgressIndicator()),
+      );
     }
 
     final content = material.ListView(
@@ -420,12 +424,13 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
                   child: material.Column(
                     children: [
                       material.Icon(
-                        _isEnabled ? material.Icons.lock : material.Icons.lock_open,
+                        _isEnabled
+                            ? material.Icons.lock
+                            : material.Icons.lock_open,
                         size: 64,
-                        color:
-                            _isEnabled
-                                ? theme.colorScheme.primary
-                                : material.Colors.grey,
+                        color: _isEnabled
+                            ? theme.colorScheme.primary
+                            : material.Colors.grey,
                       ),
                       const material.SizedBox(height: 16),
                       material.Text(
@@ -447,7 +452,10 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
                 ),
                 const material.SizedBox(height: 32),
                 if (!_isEnabled) ...[
-                  material.Text('Setup Vault', style: theme.textTheme.titleMedium),
+                  material.Text(
+                    'Setup Vault',
+                    style: theme.textTheme.titleMedium,
+                  ),
                   const material.SizedBox(height: 16),
                   material.Form(
                     key: _formKey,
@@ -499,7 +507,9 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
                         material.ListTile(
                           leading: const material.Icon(material.Icons.password),
                           title: const material.Text('Change PIN'),
-                          trailing: const material.Icon(material.Icons.chevron_right),
+                          trailing: const material.Icon(
+                            material.Icons.chevron_right,
+                          ),
                           onTap: () {
                             final service = Provider.of<VaultService>(
                               context,
@@ -510,7 +520,9 @@ class _VaultSettingsScreenState extends material.State<VaultSettingsScreen> {
                         ),
                         const material.Divider(height: 1),
                         material.ListTile(
-                          leading: const material.Icon(material.Icons.delete_outline),
+                          leading: const material.Icon(
+                            material.Icons.delete_outline,
+                          ),
                           title: const material.Text('Disable Vault'),
                           subtitle: const material.Text(
                             'This will unhide all secluded content',

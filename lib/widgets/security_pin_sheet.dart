@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/widgets/recovery_key_sheet.dart';
 import 'package:oasis/features/auth/presentation/screens/pin_reset_screen.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class SecurityPinSheet extends StatefulWidget {
   final EncryptionStatus status;
@@ -242,25 +243,28 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
 
     if (widget.status == EncryptionStatus.needsSetup) {
       title = _isConfirming ? 'Confirm PIN' : 'Setup Security PIN';
-      subtitle =
-          _isConfirming
-              ? 'Re-enter your 6-digit PIN'
-              : 'Create a PIN to protect your encrypted messages';
+      subtitle = _isConfirming
+          ? 'Re-enter your 6-digit PIN'
+          : 'Create a PIN to protect your encrypted messages';
     } else if (widget.status == EncryptionStatus.needsSecurityUpgrade) {
       title = _isConfirming ? 'Confirm PIN' : 'Upgrade Security';
-      subtitle =
-          _isConfirming
-              ? 'Re-enter your new PIN'
-              : 'Set a 6-digit PIN to secure your chat backups';
+      subtitle = _isConfirming
+          ? 'Re-enter your new PIN'
+          : 'Set a 6-digit PIN to secure your chat backups';
     } else if (widget.status == EncryptionStatus.needsRestore) {
       title = 'Restore Chats';
       subtitle = 'Enter your 6-digit Security PIN to access your messages';
     }
 
+    final isSolid = context.shouldUseSolidBackground;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: EdgeInsets.fromLTRB(24, 32, 24, 32 + bottomPadding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: isSolid
+            ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+            : theme.colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(

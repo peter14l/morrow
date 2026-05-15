@@ -160,7 +160,7 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     String title = 'Security PIN';
     String subtitle = 'Enter your 6-digit PIN';
 
@@ -192,7 +192,7 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                 color: theme.colorScheme.surface.withValues(alpha: 0.8),
               ),
             ),
-            
+
             // Content
             SafeArea(
               child: Center(
@@ -205,7 +205,9 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                       Container(
                         padding: const EdgeInsets.all(20),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          color: theme.colorScheme.primaryContainer.withValues(
+                            alpha: 0.3,
+                          ),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -213,10 +215,13 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                           size: 64,
                           color: theme.colorScheme.primary,
                         ),
-                      ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
-                      
+                      ).animate().scale(
+                        duration: 400.ms,
+                        curve: Curves.easeOutBack,
+                      ),
+
                       const SizedBox(height: 32),
-                      
+
                       // Title
                       Text(
                         title,
@@ -224,9 +229,9 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 12),
-                      
+
                       // Subtitle
                       Text(
                         subtitle,
@@ -235,9 +240,9 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                      
+
                       const SizedBox(height: 48),
-                      
+
                       // PIN Input
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -271,24 +276,29 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                                     ),
                                   ),
                                 ),
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
                                 onChanged: (value) => _onChanged(value, index),
                               ),
                             ),
                           ),
                         ),
                       ),
-                      
+
                       if (_error != null) ...[
                         const SizedBox(height: 24),
                         Text(
                           _error!,
-                          style: TextStyle(color: theme.colorScheme.error, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: theme.colorScheme.error,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ).animate().shake(),
                       ],
-                      
+
                       const SizedBox(height: 48),
-                      
+
                       // Loading or Buttons
                       if (_isLoading)
                         const CircularProgressIndicator()
@@ -297,25 +307,34 @@ class _EncryptionPinOverlayState extends State<EncryptionPinOverlay> {
                           onPressed: () async {
                             await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => const PINResetScreen()),
+                              MaterialPageRoute(
+                                builder: (_) => const PINResetScreen(),
+                              ),
                             );
                           },
                           child: const Text('Forgot PIN?'),
                         ),
-                      
+
                       const SizedBox(height: 24),
-                      
+
                       // Branding
                       Opacity(
                         opacity: 0.5,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.spa_rounded, size: 16, color: theme.colorScheme.primary),
+                            Icon(
+                              Icons.spa_rounded,
+                              size: 16,
+                              color: theme.colorScheme.primary,
+                            ),
                             const SizedBox(width: 8),
                             const Text(
                               'Oasis Vault Protection',
-                              style: TextStyle(letterSpacing: 1.2, fontSize: 12),
+                              style: TextStyle(
+                                letterSpacing: 1.2,
+                                fontSize: 12,
+                              ),
                             ),
                           ],
                         ),

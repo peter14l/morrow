@@ -31,16 +31,12 @@ class _FluidMeshBackgroundState extends State<FluidMeshBackground>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     // Muted colors for broken streak (0), vibrant for high streak
     final isBroken = widget.streakCount == 0;
-    final baseColor = isBroken 
-        ? Colors.blueGrey.shade900 
-        : colorScheme.primary;
-    
-    final secondaryColor = isBroken 
-        ? Colors.black 
-        : colorScheme.tertiary;
+    final baseColor = isBroken ? Colors.blueGrey.shade900 : colorScheme.primary;
+
+    final secondaryColor = isBroken ? Colors.black : colorScheme.tertiary;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -75,17 +71,18 @@ class _MeshPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    
+
     // Draw base background
     canvas.drawRect(rect, Paint()..color = baseColor.withValues(alpha: 0.2));
 
     for (int i = 0; i < 3; i++) {
       final progress = (animationValue + (i * 0.33)) % 1.0;
       final x = size.width * (0.5 + 0.3 * math.cos(progress * 2 * math.pi + i));
-      final y = size.height * (0.5 + 0.3 * math.sin(progress * 2 * math.pi + i));
-      
+      final y =
+          size.height * (0.5 + 0.3 * math.sin(progress * 2 * math.pi + i));
+
       final radius = size.width * (0.6 + 0.2 * math.sin(progress * math.pi));
-      
+
       final gradient = RadialGradient(
         colors: [
           secondaryColor.withValues(alpha: 0.3 * intensity),

@@ -13,7 +13,8 @@ import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
 /// The Spaces hub replaces the old Communities tab.
 /// It contains two sub-tabs: Circles & Canvas.
 class SpacesScreen extends StatefulWidget {
-  const SpacesScreen({super.key});
+  final int initialIndex;
+  const SpacesScreen({super.key, this.initialIndex = 0});
 
   @override
   State<SpacesScreen> createState() => _SpacesScreenState();
@@ -26,7 +27,11 @@ class _SpacesScreenState extends State<SpacesScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: widget.initialIndex,
+    );
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         setState(() {});
@@ -51,9 +56,7 @@ class _SpacesScreenState extends State<SpacesScreen>
     if (useFluent && isDesktop) {
       return AdaptiveScaffold(
         title: const Text('Spaces'),
-        actions: [
-          _buildDesktopTabSwitcher(theme.colorScheme, isM3E),
-        ],
+        actions: [_buildDesktopTabSwitcher(theme.colorScheme, isM3E)],
         body: Row(
           children: [
             // Left sidebar for navigation
@@ -107,9 +110,7 @@ class _SpacesScreenState extends State<SpacesScreen>
             DesktopHeader(
               title: 'Spaces',
               subtitle: 'Communities & Creative Hub',
-              actions: [
-                _buildDesktopTabSwitcher(theme.colorScheme, isM3E),
-              ],
+              actions: [_buildDesktopTabSwitcher(theme.colorScheme, isM3E)],
             ),
             const Divider(height: 1),
           ],
@@ -133,7 +134,9 @@ class _SpacesScreenState extends State<SpacesScreen>
                     decoration: BoxDecoration(
                       border: Border(
                         right: BorderSide(
-                          color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.05,
+                          ),
                         ),
                       ),
                     ),
@@ -179,9 +182,7 @@ class _SpacesScreenState extends State<SpacesScreen>
         DesktopHeader(
           title: 'Spaces',
           subtitle: 'Communities & Creative Hub',
-          actions: [
-            _buildDesktopTabSwitcher(theme.colorScheme, isM3E),
-          ],
+          actions: [_buildDesktopTabSwitcher(theme.colorScheme, isM3E)],
         ),
         const Divider(height: 1),
         Expanded(
@@ -193,7 +194,9 @@ class _SpacesScreenState extends State<SpacesScreen>
                 decoration: BoxDecoration(
                   border: Border(
                     right: BorderSide(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+                      color: theme.colorScheme.onSurface.withValues(
+                        alpha: 0.05,
+                      ),
                     ),
                   ),
                 ),
@@ -252,37 +255,31 @@ class _SpacesScreenState extends State<SpacesScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? colorScheme.primaryContainer.withValues(alpha: 0.3)
-                    : Colors.transparent,
+            color: isSelected
+                ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
-            border:
-                isSelected
-                    ? Border.all(
-                      color: colorScheme.primary.withValues(alpha: 0.2),
-                    )
-                    : null,
+            border: isSelected
+                ? Border.all(color: colorScheme.primary.withValues(alpha: 0.2))
+                : null,
           ),
           child: Row(
             children: [
               Icon(
                 isSelected ? selectedIcon : icon,
                 size: 20,
-                color:
-                    isSelected
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 12),
               Text(
                 label,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
-                  color:
-                      isSelected
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
+                  color: isSelected
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

@@ -229,17 +229,19 @@ class RipplesProvider extends ChangeNotifier {
       result.add(_ripples[i]);
       if ((i + 1) % 5 == 0 && adIndex < ads.length) {
         final ad = ads[adIndex];
-        result.add(RippleEntity(
-          id: 'ad_${ad.id}',
-          userId: 'ad_system',
-          isAd: true,
-          videoUrl: ad.imageUrl ?? '',
-          thumbnailUrl: ad.imageUrl,
-          caption: ad.content,
-          createdAt: ad.timestamp,
-          username: ad.username,
-          avatarUrl: ad.userAvatar,
-        ));
+        result.add(
+          RippleEntity(
+            id: 'ad_${ad.id}',
+            userId: 'ad_system',
+            isAd: true,
+            videoUrl: ad.imageUrl ?? '',
+            thumbnailUrl: ad.imageUrl,
+            caption: ad.content,
+            createdAt: ad.timestamp,
+            username: ad.username,
+            avatarUrl: ad.userAvatar,
+          ),
+        );
         adIndex++;
       }
     }
@@ -357,6 +359,23 @@ class RipplesProvider extends ChangeNotifier {
     );
     await refreshRipples();
     return ripple;
+  }
+
+  /// Clear ripples state (used during account switching)
+  void clear() {
+    _ripples = [];
+    _isLoading = false;
+    _error = null;
+    _isRipplesLocked = false;
+    _lockoutEndTime = null;
+    _remainingDuration = null;
+    _currentUserId = null;
+    _activeSessionTimer?.cancel();
+    _activeSessionTimer = null;
+    _lockoutCheckTimer?.cancel();
+    _lockoutMultiplier = 1.0;
+    _lastSessionEndTime = null;
+    notifyListeners();
   }
 
   @override

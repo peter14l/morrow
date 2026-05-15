@@ -37,7 +37,7 @@ class RazorpayService extends ChangeNotifier {
     if (!_isInitialized || _razorpay == null) {
       init();
     }
-    
+
     if (_razorpay != null) {
       _lastSuccessResponse = null;
       _lastFailureResponse = null;

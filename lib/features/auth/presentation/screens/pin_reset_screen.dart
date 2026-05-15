@@ -294,14 +294,13 @@ class _PINResetScreenState extends State<PINResetScreen> {
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
-            child:
-                _isLoading
-                    ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : const Text('Verify Identity'),
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Verify Identity'),
           ),
         ],
       ),
@@ -367,8 +366,8 @@ class _PINResetScreenState extends State<PINResetScreen> {
           const SizedBox(height: 24),
           CheckboxListTile(
             value: _understandsDataLoss,
-            onChanged:
-                (val) => setState(() => _understandsDataLoss = val ?? false),
+            onChanged: (val) =>
+                setState(() => _understandsDataLoss = val ?? false),
             title: const Text(
               'I understand my old messages will be lost forever',
             ),
@@ -377,14 +376,13 @@ class _PINResetScreenState extends State<PINResetScreen> {
           ),
           const SizedBox(height: 24),
           FilledButton(
-            onPressed:
-                !_understandsDataLoss
-                    ? null
-                    : () {
-                      setState(() {
-                        _currentStep = 2;
-                      });
-                    },
+            onPressed: !_understandsDataLoss
+                ? null
+                : () {
+                    setState(() {
+                      _currentStep = 2;
+                    });
+                  },
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: theme.colorScheme.error,
@@ -483,21 +481,20 @@ class _PINResetScreenState extends State<PINResetScreen> {
           const SizedBox(height: 24),
           if (!_isConfirmingPin)
             FilledButton(
-              onPressed:
-                  _currentPin.length == 6
-                      ? () {
-                        if (_currentPin.length == 6) {
-                          setState(() {
-                            _firstPin = _currentPin;
-                            _isConfirmingPin = true;
-                            for (var c in _pinControllers) {
-                              c.clear();
-                            }
-                            _pinFocusNodes[0].requestFocus();
-                          });
-                        }
+              onPressed: _currentPin.length == 6
+                  ? () {
+                      if (_currentPin.length == 6) {
+                        setState(() {
+                          _firstPin = _currentPin;
+                          _isConfirmingPin = true;
+                          for (var c in _pinControllers) {
+                            c.clear();
+                          }
+                          _pinFocusNodes[0].requestFocus();
+                        });
                       }
-                      : null,
+                    }
+                  : null,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -505,24 +502,23 @@ class _PINResetScreenState extends State<PINResetScreen> {
             )
           else
             FilledButton(
-              onPressed:
-                  _confirmPin.length == 6
-                      ? () {
-                        if (_confirmPin != _firstPin) {
-                          setState(() {
-                            _error = 'PINs do not match. Try again.';
-                            _firstPin = '';
-                            _isConfirmingPin = false;
-                            for (var c in _confirmPinControllers) {
-                              c.clear();
-                            }
-                            _pinFocusNodes[0].requestFocus();
-                          });
-                        } else {
-                          _generateNewKeys();
-                        }
+              onPressed: _confirmPin.length == 6
+                  ? () {
+                      if (_confirmPin != _firstPin) {
+                        setState(() {
+                          _error = 'PINs do not match. Try again.';
+                          _firstPin = '';
+                          _isConfirmingPin = false;
+                          for (var c in _confirmPinControllers) {
+                            c.clear();
+                          }
+                          _pinFocusNodes[0].requestFocus();
+                        });
+                      } else {
+                        _generateNewKeys();
                       }
-                      : null,
+                    }
+                  : null,
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),

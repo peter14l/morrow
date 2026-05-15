@@ -11,8 +11,8 @@ class SettingsRepositoryImpl implements SettingsRepository {
   SettingsRepositoryImpl({
     SettingsLocalDatasource? localDatasource,
     SettingsRemoteDatasource? remoteDatasource,
-  })  : _localDatasource = localDatasource ?? SettingsLocalDatasource(),
-        _remoteDatasource = remoteDatasource ?? SettingsRemoteDatasource();
+  }) : _localDatasource = localDatasource ?? SettingsLocalDatasource(),
+       _remoteDatasource = remoteDatasource ?? SettingsRemoteDatasource();
 
   @override
   Future<Result<UserSettingsEntity>> getSettings() async {

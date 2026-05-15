@@ -181,4 +181,3 @@ class CanvasRepositoryImpl implements CanvasRepository {
     return _remoteDatasource.sendPulse(canvasId, userId, intensity: intensity);
   }
 }
-

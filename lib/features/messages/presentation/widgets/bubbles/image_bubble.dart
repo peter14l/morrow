@@ -30,7 +30,7 @@ class ImageBubble extends StatefulWidget {
 class _ImageBubbleState extends State<ImageBubble> {
   final MediaCacheService _cacheService = MediaCacheService();
   final ChatMediaService _chatMediaService = ChatMediaService();
-  
+
   String? _localPath;
   bool _isDownloading = false;
 
@@ -56,7 +56,7 @@ class _ImageBubbleState extends State<ImageBubble> {
       setState(() => _localPath = url);
       return;
     }
-    
+
     final path = await _cacheService.getLocalPath(url);
     if (mounted) {
       setState(() => _localPath = path);
@@ -70,7 +70,8 @@ class _ImageBubbleState extends State<ImageBubble> {
     setState(() => _isDownloading = true);
 
     try {
-      final encryptedKeys = widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
+      final encryptedKeys =
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
       final iv = widget.message.shareData?['media_iv'] as String?;
 
       if (encryptedKeys == null || iv == null) {
@@ -99,16 +100,19 @@ class _ImageBubbleState extends State<ImageBubble> {
       debugPrint('[ImageBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Download failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Download failed: $e')));
       }
     }
   }
 
-  bool get _isRestricted => widget.message.mediaViewMode == 'once' || widget.message.mediaViewMode == 'twice';
+  bool get _isRestricted =>
+      widget.message.mediaViewMode == 'once' ||
+      widget.message.mediaViewMode == 'twice';
   int get _viewLimit => widget.message.mediaViewMode == 'once' ? 1 : 2;
-  bool get _isViewed => _isRestricted && widget.message.currentUserViewCount >= _viewLimit;
+  bool get _isViewed =>
+      _isRestricted && widget.message.currentUserViewCount >= _viewLimit;
 
   @override
   Widget build(BuildContext context) {
@@ -128,20 +132,23 @@ class _ImageBubbleState extends State<ImageBubble> {
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: (widget.message.isUploading || _localPath == null) ? null : () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder:
-                    (context) => ImagePreviewScreen(
-                      imageUrl: _localPath!,
-                      caption:
-                          MessageTextUtils.isDisplayableCaption(widget.message.content)
-                              ? widget.message.content
-                              : null,
+          onTap: (widget.message.isUploading || _localPath == null)
+              ? null
+              : () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => ImagePreviewScreen(
+                        imageUrl: _localPath!,
+                        caption:
+                            MessageTextUtils.isDisplayableCaption(
+                              widget.message.content,
+                            )
+                            ? widget.message.content
+                            : null,
+                      ),
                     ),
-              ),
-            );
-          },
+                  );
+                },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: ConstrainedBox(
@@ -170,57 +177,60 @@ class _ImageBubbleState extends State<ImageBubble> {
 
   Widget _buildRestrictedUI(ThemeData theme) {
     return GestureDetector(
-      onTap:
-          _isViewed || _localPath == null
-              ? (_localPath == null ? _downloadMedia : null)
-              : () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder:
-                        (context) => ImagePreviewScreen(
-                          imageUrl: _localPath!,
-                          caption:
-                              MessageTextUtils.isDisplayableCaption(widget.message.content)
-                                  ? widget.message.content
-                                  : null,
-                          messageId: widget.message.id,
-                          mediaViewMode: widget.message.mediaViewMode,
-                        ),
+      onTap: _isViewed || _localPath == null
+          ? (_localPath == null ? _downloadMedia : null)
+          : () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ImagePreviewScreen(
+                    imageUrl: _localPath!,
+                    caption:
+                        MessageTextUtils.isDisplayableCaption(
+                          widget.message.content,
+                        )
+                        ? widget.message.content
+                        : null,
+                    messageId: widget.message.id,
+                    mediaViewMode: widget.message.mediaViewMode,
                   ),
+                ),
+              );
+              if (context.mounted) {
+                context.read<ChatProvider>().incrementLocalMediaViewCount(
+                  widget.message.id,
                 );
-                if (context.mounted) {
-                  context.read<ChatProvider>().incrementLocalMediaViewCount(widget.message.id);
-                }
-              },
+              }
+            },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color:
-                  widget.isMe
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : theme.colorScheme.primary.withValues(alpha: 0.1),
+              color: widget.isMe
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : theme.colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _localPath == null ? Icons.download_rounded : Icons.camera_alt_rounded,
+              _localPath == null
+                  ? Icons.download_rounded
+                  : Icons.camera_alt_rounded,
               size: 20,
-              color:
-                  _isViewed
-                      ? (widget.isMe ? Colors.white54 : Colors.grey)
-                      : (widget.isMe ? Colors.white : theme.colorScheme.primary),
+              color: _isViewed
+                  ? (widget.isMe ? Colors.white54 : Colors.grey)
+                  : (widget.isMe ? Colors.white : theme.colorScheme.primary),
             ),
           ),
           const SizedBox(width: 12),
           Text(
-            _isViewed ? 'Opened' : (_localPath == null ? 'Download Photo' : 'Photo'),
+            _isViewed
+                ? 'Opened'
+                : (_localPath == null ? 'Download Photo' : 'Photo'),
             style: theme.textTheme.bodyMedium?.copyWith(
-              color:
-                  _isViewed
-                      ? (widget.isMe ? Colors.white54 : Colors.grey)
-                      : (widget.isMe ? Colors.white : theme.colorScheme.onSurface),
+              color: _isViewed
+                  ? (widget.isMe ? Colors.white54 : Colors.grey)
+                  : (widget.isMe ? Colors.white : theme.colorScheme.onSurface),
               fontWeight: _isViewed ? FontWeight.normal : FontWeight.w600,
             ),
           ),
@@ -238,8 +248,10 @@ class _ImageBubbleState extends State<ImageBubble> {
 
   Widget _buildImage(BuildContext context, ThemeData theme) {
     final url = widget.message.mediaUrl;
-    final isEncrypted = widget.message.shareData?['media_keys'] != null && widget.message.shareData?['media_iv'] != null;
-    
+    final isEncrypted =
+        widget.message.shareData?['media_keys'] != null &&
+        widget.message.shareData?['media_iv'] != null;
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -247,7 +259,8 @@ class _ImageBubbleState extends State<ImageBubble> {
           Image.file(
             File(_localPath!),
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image),
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.broken_image),
           )
         else if (url != null)
           isEncrypted
@@ -266,17 +279,25 @@ class _ImageBubbleState extends State<ImageBubble> {
                         ),
                         child: BackdropFilter(
                           filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(color: Colors.black.withValues(alpha: 0.1)),
+                          child: Container(
+                            color: Colors.black.withValues(alpha: 0.1),
+                          ),
                         ),
                       ),
-                      placeholder: (context, url) => Container(color: Colors.grey[300]),
-                      errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
+                      placeholder: (context, url) =>
+                          Container(color: Colors.grey[300]),
+                      errorWidget: (context, url, error) =>
+                          Container(color: Colors.grey[300]),
                     ),
                     if (_isDownloading)
                       const CircularProgressIndicator()
                     else
                       IconButton(
-                        icon: const Icon(Icons.download_for_offline, size: 48, color: Colors.white),
+                        icon: const Icon(
+                          Icons.download_for_offline,
+                          size: 48,
+                          color: Colors.white,
+                        ),
                         onPressed: _downloadMedia,
                       ),
                   ],
@@ -284,13 +305,17 @@ class _ImageBubbleState extends State<ImageBubble> {
               : CachedNetworkImage(
                   imageUrl: url,
                   fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(color: Colors.grey[300]),
-                  errorWidget: (context, url, error) => Container(color: Colors.grey[300]),
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey[300]),
+                  errorWidget: (context, url, error) =>
+                      Container(color: Colors.grey[300]),
                 )
         else
-          Container(color: Colors.grey[300], child: const Icon(Icons.broken_image)),
+          Container(
+            color: Colors.grey[300],
+            child: const Icon(Icons.broken_image),
+          ),
 
-          
         if (widget.message.isUploading) ...[
           Positioned.fill(
             child: BackdropFilter(

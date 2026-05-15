@@ -26,26 +26,42 @@ class Page3Canvas extends StatelessWidget {
           ).animate(target: isActive ? 1 : 0).fadeIn().slideX(begin: -0.1),
           const SizedBox(height: 10),
           Text(
-            'Your shared world,\nalive and infinite.',
-            textAlign: TextAlign.center,
-            style: OasisTextStyles.onboardingHeadline.copyWith(fontSize: 36, height: 1.2),
-          ).animate(target: isActive ? 1 : 0).fadeIn(delay: 200.ms).slideY(begin: 0.06),
+                'Your shared world,\nalive and infinite.',
+                textAlign: TextAlign.center,
+                style: OasisTextStyles.onboardingHeadline.copyWith(
+                  fontSize: 36,
+                  height: 1.2,
+                ),
+              )
+              .animate(target: isActive ? 1 : 0)
+              .fadeIn(delay: 200.ms)
+              .slideY(begin: 0.06),
           const SizedBox(height: 18),
           const CanvasMockup()
               .animate(target: isActive ? 1 : 0)
-              .scale(duration: 800.ms, delay: 200.ms, begin: const Offset(0.92, 0.92))
+              .scale(
+                duration: 800.ms,
+                delay: 200.ms,
+                begin: const Offset(0.92, 0.92),
+              )
               .fadeIn(delay: 200.ms),
           const SizedBox(height: 20),
           Text(
             'A living mural of your relationships. Place anything, anywhere.\nScrub back through time and watch your story unfold.',
             textAlign: TextAlign.center,
-            style: OasisTextStyles.onboardingSubtitle.copyWith(fontSize: 15, height: 1.65),
+            style: OasisTextStyles.onboardingSubtitle.copyWith(
+              fontSize: 15,
+              height: 1.65,
+            ),
           ).animate(target: isActive ? 1 : 0).fadeIn(delay: 700.ms),
           const SizedBox(height: 30),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _FeatureIcon(icon: Icons.grid_view_outlined, label: 'Infinite Space')
+              _FeatureIcon(
+                    icon: Icons.grid_view_outlined,
+                    label: 'Infinite Space',
+                  )
                   .animate(target: isActive ? 1 : 0)
                   .fadeIn(delay: 800.ms)
                   .slideY(begin: 0.1),

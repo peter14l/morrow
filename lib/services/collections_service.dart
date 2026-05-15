@@ -49,17 +49,16 @@ class CollectionsService {
         }
       }
 
-      final response =
-          await _supabase
-              .from('collections')
-              .insert({
-                'user_id': userId,
-                'name': name,
-                'description': description,
-                'is_private': isPrivate,
-              })
-              .select()
-              .single();
+      final response = await _supabase
+          .from('collections')
+          .insert({
+            'user_id': userId,
+            'name': name,
+            'description': description,
+            'is_private': isPrivate,
+          })
+          .select()
+          .single();
 
       return Collection.fromJson(response);
     } catch (e) {
@@ -193,13 +192,12 @@ class CollectionsService {
   /// Check if post is in a specific collection
   Future<bool> isPostInCollection(String collectionId, String postId) async {
     try {
-      final response =
-          await _supabase
-              .from('collection_items')
-              .select('id')
-              .eq('collection_id', collectionId)
-              .eq('post_id', postId)
-              .maybeSingle();
+      final response = await _supabase
+          .from('collection_items')
+          .select('id')
+          .eq('collection_id', collectionId)
+          .eq('post_id', postId)
+          .maybeSingle();
 
       return response != null;
     } catch (e) {

@@ -28,7 +28,8 @@ abstract class AppUser with _$AppUser {
 
   const AppUser._();
 
-  factory AppUser.fromJson(Map<String, dynamic> json) => _$AppUserFromJson(json);
+  factory AppUser.fromJson(Map<String, dynamic> json) =>
+      _$AppUserFromJson(json);
 
   int get safeFollowersCount => followersCount < 0 ? 0 : followersCount;
   int get safeFollowingCount => followingCount < 0 ? 0 : followingCount;

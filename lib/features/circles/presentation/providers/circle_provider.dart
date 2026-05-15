@@ -24,17 +24,23 @@ class CircleProvider with ChangeNotifier {
   CircleProvider({required CircleRepository repository})
     : _repository = repository;
 
-  Future<void> loadCircleFeed(String circleId, String userId, {bool refresh = false}) async {
+  Future<void> loadCircleFeed(
+    String circleId,
+    String userId, {
+    bool refresh = false,
+  }) async {
     if (_state.isLoadingFeed) return;
-    
+
     // If we are loading a different circle than what's in the state, force a clear
     final isDifferentCircle = _state.activeCircle?.id != circleId;
     final effectiveRefresh = refresh || isDifferentCircle;
 
     // Preserve existing posts on refresh ONLY if it's the same circle
-    final existingPosts = (!isDifferentCircle && refresh) ? List<Post>.from(_state.circleFeed) : <Post>[];
+    final existingPosts = (!isDifferentCircle && refresh)
+        ? List<Post>.from(_state.circleFeed)
+        : <Post>[];
     final offset = effectiveRefresh ? 0 : _state.circleFeed.length;
-    
+
     _state = _state.copyWith(
       isLoadingFeed: true,
       circleFeed: effectiveRefresh ? [] : _state.circleFeed,
@@ -61,13 +67,15 @@ class CircleProvider with ChangeNotifier {
       } else {
         newList = [..._state.circleFeed, ...posts];
       }
-          
+
       _state = _state.copyWith(
         circleFeed: newList,
         hasMoreFeed: posts.length == 20,
       );
-      
-      debugPrint('[CircleProvider] loadCircleFeed: circleId=$circleId, refresh=$effectiveRefresh, fetched=${posts.length}, total=${newList.length}');
+
+      debugPrint(
+        '[CircleProvider] loadCircleFeed: circleId=$circleId, refresh=$effectiveRefresh, fetched=${posts.length}, total=${newList.length}',
+      );
     } catch (e) {
       debugPrint('[CircleProvider] loadCircleFeed error: $e');
       if (effectiveRefresh && !isDifferentCircle && existingPosts.isNotEmpty) {
@@ -102,10 +110,8 @@ class CircleProvider with ChangeNotifier {
         isSpoiler: isSpoiler,
         poll: poll,
       );
-      
-      _state = _state.copyWith(
-        circleFeed: [post, ..._state.circleFeed],
-      );
+
+      _state = _state.copyWith(circleFeed: [post, ..._state.circleFeed]);
       notifyListeners();
     } catch (e) {
       debugPrint('[CircleProvider] createCirclePost error: $e');
@@ -120,7 +126,7 @@ class CircleProvider with ChangeNotifier {
     final post = _state.circleFeed[index];
     final isLiked = post.isLiked;
     final newLikes = isLiked ? post.likes - 1 : post.likes + 1;
-    
+
     final updatedPost = post.copyWith(
       isLiked: !isLiked,
       likes: newLikes < 0 ? 0 : newLikes,
@@ -132,8 +138,8 @@ class CircleProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-       // Since liking is global, we might need a post repository or similar.
-       // However, for now we've updated the UI state.
+      // Since liking is global, we might need a post repository or similar.
+      // However, for now we've updated the UI state.
     } catch (e) {
       debugPrint('[CircleProvider] toggleLike error: $e');
     }
@@ -146,7 +152,7 @@ class CircleProvider with ChangeNotifier {
     DateTime? dueDate,
   }) async {
     if (_state.activeCircle == null) return;
-    
+
     try {
       final commitment = await _repository.createCommitment(
         circleId: _state.activeCircle!.id,
@@ -166,13 +172,17 @@ class CircleProvider with ChangeNotifier {
   Future<void> loadCircles(String userId, {bool forceRefresh = false}) async {
     if (_state.circles.isNotEmpty && !forceRefresh) return;
 
-    debugPrint('[CircleProvider] loadCircles for userId: $userId (forceRefresh: $forceRefresh)');
+    debugPrint(
+      '[CircleProvider] loadCircles for userId: $userId (forceRefresh: $forceRefresh)',
+    );
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners();
 
     try {
       final circles = await _repository.getCircles(userId);
-      debugPrint('[CircleProvider] loadCircles success: fetched ${circles.length} circles');
+      debugPrint(
+        '[CircleProvider] loadCircles success: fetched ${circles.length} circles',
+      );
       _state = _state.copyWith(circles: circles);
     } catch (e, stack) {
       _state = _state.copyWith(error: e.toString());

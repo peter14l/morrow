@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter/foundation.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/auth/domain/models/auth_models.dart';
 import 'package:oasis/features/auth/domain/repositories/auth_repository.dart';
 import 'package:oasis/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -22,21 +24,29 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<RegisteredAccount> signInWithEmail(AuthCredentials credentials) async {
-    debugPrint('[AuthRepositoryImpl] Sign in with email: ${credentials.identifier}');
+    debugPrint(
+      '[AuthRepositoryImpl] Sign in with email: ${credentials.identifier}',
+    );
     final account = await _remoteDatasource.signInWithEmail(credentials);
-    debugPrint('[AuthRepositoryImpl] Sign in successful. User ID: ${account.userId}');
-    
-    debugPrint('[AuthRepositoryImpl] Explicitly saving account to local datasource');
+    debugPrint(
+      '[AuthRepositoryImpl] Sign in successful. User ID: ${account.userId}',
+    );
+
+    debugPrint(
+      '[AuthRepositoryImpl] Explicitly saving account to local datasource',
+    );
     await _localDatasource.saveAccount(account);
     await _localDatasource.setLastActiveUserId(account.userId);
-    
+
     // Update FCM token
     _notificationService.updateFcmToken(account.userId);
-    
+
     // Provision encryption keys
     await _encryptionProvisioner.provisionEncryptionKeys();
-    
-    debugPrint('[AuthRepositoryImpl] Sign in flow completed for ${account.username}');
+
+    debugPrint(
+      '[AuthRepositoryImpl] Sign in flow completed for ${account.username}',
+    );
     return account;
   }
 
@@ -47,26 +57,34 @@ class AuthRepositoryImpl implements AuthRepository {
     String? username,
     String? fullName,
   }) async {
-    debugPrint('[AuthRepositoryImpl] Sign up for email: $email, username: $username');
+    debugPrint(
+      '[AuthRepositoryImpl] Sign up for email: $email, username: $username',
+    );
     final account = await _remoteDatasource.signUp(
       email: email,
       password: password,
       username: username,
       fullName: fullName,
     );
-    debugPrint('[AuthRepositoryImpl] Sign up successful. User ID: ${account.userId}');
-    
-    debugPrint('[AuthRepositoryImpl] Explicitly saving new account to local datasource');
+    debugPrint(
+      '[AuthRepositoryImpl] Sign up successful. User ID: ${account.userId}',
+    );
+
+    debugPrint(
+      '[AuthRepositoryImpl] Explicitly saving new account to local datasource',
+    );
     await _localDatasource.saveAccount(account);
     await _localDatasource.setLastActiveUserId(account.userId);
-    
+
     // Update FCM token
     _notificationService.updateFcmToken(account.userId);
-    
+
     // Provision encryption keys
     await _encryptionProvisioner.provisionEncryptionKeys();
-    
-    debugPrint('[AuthRepositoryImpl] Sign up flow completed for ${account.username}');
+
+    debugPrint(
+      '[AuthRepositoryImpl] Sign up flow completed for ${account.username}',
+    );
     return account;
   }
 
@@ -122,10 +140,13 @@ class AuthRepositoryImpl implements AuthRepository {
       orElse: () => throw Exception('Account not found'),
     );
 
-    await _remoteDatasource.setSession(account.session.refreshToken!);
+    // Use recoverSession with JSON for consistency with AuthService
+    final sessionJson = jsonEncode(account.session.toJson());
+    await SupabaseService().client.auth.recoverSession(sessionJson);
+
     await _localDatasource.markAsUsed(userId);
     await _localDatasource.setLastActiveUserId(userId);
-    
+
     _notificationService.updateFcmToken(userId);
   }
 

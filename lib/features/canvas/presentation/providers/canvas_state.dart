@@ -30,8 +30,9 @@ class CanvasState {
   }) {
     return CanvasState(
       canvases: canvases ?? this.canvases,
-      activeCanvas:
-          clearActiveCanvas ? null : (activeCanvas ?? this.activeCanvas),
+      activeCanvas: clearActiveCanvas
+          ? null
+          : (activeCanvas ?? this.activeCanvas),
       activeItems: activeItems ?? this.activeItems,
       isLoading: isLoading ?? this.isLoading,
       error: clearError ? null : (error ?? this.error),
@@ -51,4 +52,3 @@ class CanvasState {
   @override
   int get hashCode => Object.hash(isLoading, error, activeCanvas);
 }
-

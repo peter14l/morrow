@@ -49,10 +49,9 @@ class _CreateCommitmentScreenState extends State<CreateCommitmentScreen> {
       await context.read<CircleProvider>().addCommitment(
         createdBy: userId,
         title: title,
-        description:
-            _descController.text.trim().isEmpty
-                ? null
-                : _descController.text.trim(),
+        description: _descController.text.trim().isEmpty
+            ? null
+            : _descController.text.trim(),
         dueDate: DateTime.now(),
       );
       if (!mounted) return;
@@ -113,21 +112,20 @@ class _CreateCommitmentScreenState extends State<CreateCommitmentScreen> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children:
-                  _suggestions.map((s) {
-                    return ActionChip(
-                      label: Text(s),
-                      onPressed: () {
-                        _titleController.text = s;
-                        setState(() {});
-                      },
-                      backgroundColor: theme.colorScheme.surface,
-                      side: BorderSide(
-                        color: theme.colorScheme.outline.withValues(alpha: 0.3),
-                      ),
-                      labelStyle: theme.textTheme.bodySmall,
-                    );
-                  }).toList(),
+              children: _suggestions.map((s) {
+                return ActionChip(
+                  label: Text(s),
+                  onPressed: () {
+                    _titleController.text = s;
+                    setState(() {});
+                  },
+                  backgroundColor: theme.colorScheme.surface,
+                  side: BorderSide(
+                    color: theme.colorScheme.outline.withValues(alpha: 0.3),
+                  ),
+                  labelStyle: theme.textTheme.bodySmall,
+                );
+              }).toList(),
             ),
 
             const SizedBox(height: 24),
@@ -158,17 +156,16 @@ class _CreateCommitmentScreenState extends State<CreateCommitmentScreen> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: _isLoading ? null : _create,
-                icon:
-                    _isLoading
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Icon(FluentIcons.send_24_regular),
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(FluentIcons.send_24_regular),
                 label: Text(_isLoading ? 'Posting...' : 'Post to Circle'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),

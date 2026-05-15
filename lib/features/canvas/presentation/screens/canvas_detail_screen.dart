@@ -56,24 +56,23 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
   void _deleteCanvas() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Canvas?'),
-            content: const Text(
-              'This will permanently delete this canvas and all its memories. This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Canvas?'),
+        content: const Text(
+          'This will permanently delete this canvas and all its memories. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true && mounted) {
@@ -96,24 +95,23 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
   void _leaveCanvas() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Leave Canvas?'),
-            content: const Text(
-              'You will no longer be able to see or contribute to this canvas unless invited back.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Leave'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Leave Canvas?'),
+        content: const Text(
+          'You will no longer be able to see or contribute to this canvas unless invited back.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true && mounted) {
@@ -146,10 +144,9 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
     final canvas = provider.activeCanvas;
     final currentUserId = _getAuthorId();
     final isOwner = canvas?.createdBy == currentUserId;
-    final canvasColor =
-        canvas?.coverColor != null
-            ? Color(int.parse(canvas!.coverColor.replaceAll('#', '0xFF')))
-            : const Color(0xFF0C0F14);
+    final canvasColor = canvas?.coverColor != null
+        ? Color(int.parse(canvas!.coverColor.replaceAll('#', '0xFF')))
+        : const Color(0xFF0C0F14);
 
     return Scaffold(
       backgroundColor: canvasColor,
@@ -169,11 +166,10 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
                   context: context,
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
-                  builder:
-                      (context) => ShareSheet(
-                        title: 'Share Canvas',
-                        payload: '[INVITE:canvas:${canvas.id}:${canvas.title}]',
-                      ),
+                  builder: (context) => ShareSheet(
+                    title: 'Share Canvas',
+                    payload: '[INVITE:canvas:${canvas.id}:${canvas.title}]',
+                  ),
                 );
               }
             },
@@ -187,45 +183,41 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
                 _leaveCanvas();
               }
             },
-            itemBuilder:
-                (context) => [
-                  if (isOwner)
-                    const PopupMenuItem(
-                      value: 'delete',
-                      child: Row(
-                        children: [
-                          Icon(
-                            FluentIcons.delete_24_regular,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Delete Canvas',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
+            itemBuilder: (context) => [
+              if (isOwner)
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Row(
+                    children: [
+                      Icon(
+                        FluentIcons.delete_24_regular,
+                        color: Colors.red,
+                        size: 20,
                       ),
-                    )
-                  else
-                    const PopupMenuItem(
-                      value: 'leave',
-                      child: Row(
-                        children: [
-                          Icon(
-                            FluentIcons.arrow_exit_20_regular,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            'Leave Canvas',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ],
+                      SizedBox(width: 12),
+                      Text(
+                        'Delete Canvas',
+                        style: TextStyle(color: Colors.red),
                       ),
-                    ),
-                ],
+                    ],
+                  ),
+                )
+              else
+                const PopupMenuItem(
+                  value: 'leave',
+                  child: Row(
+                    children: [
+                      Icon(
+                        FluentIcons.arrow_exit_20_regular,
+                        color: Colors.red,
+                        size: 20,
+                      ),
+                      SizedBox(width: 12),
+                      Text('Leave Canvas', style: TextStyle(color: Colors.red)),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -236,74 +228,73 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
         onAddVoice: () {}, // future: voice recorder
         onAddSticker: () => _addSticker(context),
       ),
-      body:
-          provider.isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Stack(
-                children: [
-                  // ── Interactive canvas surface ─────────────────────
-                  GestureDetector(
-                    onTapDown: (details) {
-                      // Tap on empty space to deselect
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      height: double.infinity,
-                      color: Colors.transparent,
-                    ),
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+              children: [
+                // ── Interactive canvas surface ─────────────────────
+                GestureDetector(
+                  onTapDown: (details) {
+                    // Tap on empty space to deselect
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    color: Colors.transparent,
                   ),
-                  // ── Canvas items ───────────────────────────────────
-                  ...provider.activeItems.map((item) {
-                    return Positioned(
-                      left: item.xPos,
-                      top: item.yPos,
-                      child: CanvasItemWidget(
-                        item: item,
-                        onMoved: (dx, dy, rotation) {
-                          context.read<CanvasProvider>().moveItem(
-                            itemId: item.id,
-                            xPos: dx,
-                            yPos: dy,
-                            rotation: rotation,
-                            lastModifiedBy: currentUserId,
-                          );
-                        },
-                        onDelete: () {
-                          context.read<CanvasProvider>().deleteItem(item.id);
-                        },
-                      ),
-                    );
-                  }),
-                  // ── Empty state hint ───────────────────────────────
-                  if (provider.activeItems.isEmpty)
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            FluentIcons.emoji_add_24_regular,
-                            size: 56,
+                ),
+                // ── Canvas items ───────────────────────────────────
+                ...provider.activeItems.map((item) {
+                  return Positioned(
+                    left: item.xPos,
+                    top: item.yPos,
+                    child: CanvasItemWidget(
+                      item: item,
+                      onMoved: (dx, dy, rotation) {
+                        context.read<CanvasProvider>().moveItem(
+                          itemId: item.id,
+                          xPos: dx,
+                          yPos: dy,
+                          rotation: rotation,
+                          lastModifiedBy: currentUserId,
+                        );
+                      },
+                      onDelete: () {
+                        context.read<CanvasProvider>().deleteItem(item.id);
+                      },
+                    ),
+                  );
+                }),
+                // ── Empty state hint ───────────────────────────────
+                if (provider.activeItems.isEmpty)
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          FluentIcons.emoji_add_24_regular,
+                          size: 56,
+                          color: Colors.white.withValues(alpha: 0.2),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Your canvas is empty',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Tap + to add stickers, notes, or photos',
+                          style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.white.withValues(alpha: 0.2),
                           ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Your canvas is empty',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.3),
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Tap + to add stickers, notes, or photos',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.2),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                ],
-              ),
+                  ),
+              ],
+            ),
     );
   }
 
@@ -314,68 +305,65 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (_) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
+      builder: (_) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Add a note',
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                maxLines: 4,
+                maxLength: 200,
+                decoration: const InputDecoration(
+                  hintText: 'Write something...',
+                  alignLabelWithHint: true,
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Add a note',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    if (controller.text.trim().isNotEmpty) {
+                      Navigator.pop(context);
+                      context.read<CanvasProvider>().addItem(
+                        authorId: authorId,
+                        type: CanvasItemType.text,
+                        content: controller.text.trim(),
+                        xPos: 50,
+                        yPos: 120,
+                      );
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: controller,
-                    autofocus: true,
-                    maxLines: 4,
-                    maxLength: 200,
-                    decoration: const InputDecoration(
-                      hintText: 'Write something...',
-                      alignLabelWithHint: true,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (controller.text.trim().isNotEmpty) {
-                          Navigator.pop(context);
-                          context.read<CanvasProvider>().addItem(
-                            authorId: authorId,
-                            type: CanvasItemType.text,
-                            content: controller.text.trim(),
-                            xPos: 50,
-                            yPos: 120,
-                          );
-                        }
-                      },
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                      ),
-                      child: const Text('Add to Canvas'),
-                    ),
-                  ),
-                ],
+                  child: const Text('Add to Canvas'),
+                ),
               ),
-            ),
+            ],
           ),
+        ),
+      ),
     );
   }
 
@@ -446,64 +434,56 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (_) => Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(28),
-              ),
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Pick a sticker',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Pick a sticker',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: stickers.map((s) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.read<CanvasProvider>().addItem(
+                      authorId: authorId,
+                      type: CanvasItemType.sticker,
+                      content: s,
+                      xPos: 80,
+                      yPos: 100,
+                    );
+                  },
+                  child: Container(
+                    width: 52,
+                    height: 52,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                    ),
+                    child: Text(s, style: const TextStyle(fontSize: 28)),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
-                  children:
-                      stickers.map((s) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            context.read<CanvasProvider>().addItem(
-                              authorId: authorId,
-                              type: CanvasItemType.sticker,
-                              content: s,
-                              xPos: 80,
-                              yPos: 100,
-                            );
-                          },
-                          child: Container(
-                            width: 52,
-                            height: 52,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color:
-                                  Theme.of(
-                                    context,
-                                  ).colorScheme.surfaceContainerHighest,
-                            ),
-                            child: Text(
-                              s,
-                              style: const TextStyle(fontSize: 28),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                ),
-                const SizedBox(height: 8),
-              ],
+                );
+              }).toList(),
             ),
-          ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }

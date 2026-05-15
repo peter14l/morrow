@@ -58,10 +58,14 @@ class SignalService {
 
       PersistentSignalStore store;
       if (!hasLocalKeys) {
-        debugPrint('[Signal] Local keys missing for $uid, attempting restoration...');
+        debugPrint(
+          '[Signal] Local keys missing for $uid, attempting restoration...',
+        );
         final backup = await EncryptionService().restoreSignalIdentity();
         if (backup != null) {
-          debugPrint('[Signal] Restoration data found for $uid, saving locally...');
+          debugPrint(
+            '[Signal] Restoration data found for $uid, saving locally...',
+          );
           final identityKeyPair = IdentityKeyPair.fromSerialized(
             base64Decode(backup['identityKeyPair'] as String),
           );
@@ -105,13 +109,16 @@ class SignalService {
     final registrationId = generateRegistrationId(false);
 
     return await PersistentSignalStore.saveAndInit(
-      identityKeyPair, 
-      registrationId, 
+      identityKeyPair,
+      registrationId,
       userId: userId,
     );
   }
 
-  Future<void> _verifyIdentityWithServer(String userId, PersistentSignalStore store) async {
+  Future<void> _verifyIdentityWithServer(
+    String userId,
+    PersistentSignalStore store,
+  ) async {
     final identityKeyPair = await store.getIdentityKeyPair();
     final localIdentityKeyBase64 = base64Encode(
       identityKeyPair.getPublicKey().serialize(),
@@ -127,7 +134,7 @@ class SignalService {
     final isIdentityMismatch =
         serverIdentityKey != null &&
         serverIdentityKey != localIdentityKeyBase64;
-    
+
     if (isIdentityMismatch) {
       debugPrint('[Signal] Server identity mismatch for $userId. Updating...');
       await _generateAndUploadBundle(userId);
@@ -138,7 +145,7 @@ class SignalService {
   Future<void> clearData({String? userId}) async {
     final uid = userId ?? _supabase.auth.currentUser?.id;
     if (uid == null) return;
-    
+
     try {
       final store = _stores[uid];
       if (store != null) {
@@ -201,9 +208,14 @@ class SignalService {
   }
 
   /// Ensure we have an active session with [remoteUserId].
-  Future<void> _ensureSession(String remoteUserId, {String? localUserId, int deviceId = 1}) async {
+  Future<void> _ensureSession(
+    String remoteUserId, {
+    String? localUserId,
+    int deviceId = 1,
+  }) async {
     final store = _getStore(localUserId);
-    if (store == null) throw Exception('No store found for local user $localUserId');
+    if (store == null)
+      throw Exception('No store found for local user $localUserId');
 
     final address = SignalProtocolAddress(remoteUserId, deviceId);
 
@@ -274,7 +286,10 @@ class SignalService {
   }
 
   /// Force a refresh of a remote user's bundle and rebuild the session.
-  Future<void> forceRefreshBundle(String remoteUserId, {String? localUserId}) async {
+  Future<void> forceRefreshBundle(
+    String remoteUserId, {
+    String? localUserId,
+  }) async {
     debugPrint('[Signal] Force-refreshing bundle for $remoteUserId...');
     final store = _getStore(localUserId);
     if (store == null) return;
@@ -297,7 +312,7 @@ class SignalService {
       final success = await init(userId: uid);
       if (!success) throw Exception('SignalService init failed for $uid');
     }
-    
+
     final store = _stores[uid]!;
     await _ensureSession(recipientId, localUserId: uid, deviceId: deviceId);
 
@@ -311,7 +326,7 @@ class SignalService {
     } catch (e) {
       await store.deleteSession(address);
       await _ensureSession(recipientId, localUserId: uid, deviceId: deviceId);
-      
+
       final retryCipher = SessionCipher(store, store, store, store, address);
       return await retryCipher.encrypt(
         Uint8List.fromList(utf8.encode(plaintext)),
@@ -360,19 +375,26 @@ class SignalService {
       final errorStr = e.toString();
       if (errorStr.contains('Bad Mac')) {
         if (isHistorical) return '🔒 Message encrypted (Historical)';
-        
+
         final now = DateTime.now();
         final lastAttempt = _lastRecoveryAttempt[senderId];
         if (lastAttempt == null || now.difference(lastAttempt).inMinutes > 5) {
           _lastRecoveryAttempt[senderId] = now;
-          forceRefreshBundle(senderId, localUserId: uid).then((_) async {
-            try {
-              await encryptMessage(senderId, 'PROTOCOL_SYNC', localUserId: uid);
-            } catch (_) {}
-          }).catchError((_) {});
+          forceRefreshBundle(senderId, localUserId: uid)
+              .then((_) async {
+                try {
+                  await encryptMessage(
+                    senderId,
+                    'PROTOCOL_SYNC',
+                    localUserId: uid,
+                  );
+                } catch (_) {}
+              })
+              .catchError((_) {});
         }
         return '🔒 Optimizing secure connection...';
-      } else if (errorStr.contains('No valid sessions') || errorStr.contains('InvalidMessageException')) {
+      } else if (errorStr.contains('No valid sessions') ||
+          errorStr.contains('InvalidMessageException')) {
         await store.deleteSession(address);
         return '🔒 Session expired';
       }

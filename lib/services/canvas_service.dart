@@ -26,12 +26,11 @@ class CanvasService {
   /// Fetch all canvases the user is a member of.
   Future<List<OasisCanvas>> fetchUserCanvases(String userId) async {
     try {
-      final response =
-          await _supabase
-              .from('canvases')
-              .select('*, canvas_members!inner(user_id)')
-              .eq('canvas_members.user_id', userId)
-              .order('updated_at', ascending: false);
+      final response = await _supabase
+          .from('canvases')
+          .select('*, canvas_members!inner(user_id)')
+          .eq('canvas_members.user_id', userId)
+          .order('updated_at', ascending: false);
 
       // Privacy Audit: Log READ
       await _privacyAudit.logAccess(
@@ -43,12 +42,12 @@ class CanvasService {
       return (response as List).map((row) {
         final canvasMap = Map<String, dynamic>.from(row);
         final memberRows =
-            (canvasMap['canvas_members'] as List?)?.cast<
-              Map<String, dynamic>
-            >() ??
+            (canvasMap['canvas_members'] as List?)
+                ?.cast<Map<String, dynamic>>() ??
             [];
-        canvasMap['member_ids'] =
-            memberRows.map((m) => m['user_id'] as String).toList();
+        canvasMap['member_ids'] = memberRows
+            .map((m) => m['user_id'] as String)
+            .toList();
         return OasisCanvas.fromJson(canvasMap);
       }).toList();
     } catch (e) {
@@ -66,16 +65,15 @@ class CanvasService {
   }) async {
     try {
       // 1. Create the canvas
-      final canvasData =
-          await _supabase
-              .from('canvases')
-              .insert({
-                'title': title,
-                'created_by': createdBy,
-                'cover_color': coverColor,
-              })
-              .select()
-              .single();
+      final canvasData = await _supabase
+          .from('canvases')
+          .insert({
+            'title': title,
+            'created_by': createdBy,
+            'cover_color': coverColor,
+          })
+          .select()
+          .single();
 
       final canvas = OasisCanvas.fromJson(canvasData);
 
@@ -157,12 +155,11 @@ class CanvasService {
   /// Fetch a single canvas by ID
   Future<OasisCanvas> getCanvas(String canvasId) async {
     try {
-      final response =
-          await _supabase
-              .from('canvases')
-              .select('*, canvas_members(user_id)')
-              .eq('id', canvasId)
-              .single();
+      final response = await _supabase
+          .from('canvases')
+          .select('*, canvas_members(user_id)')
+          .eq('id', canvasId)
+          .single();
 
       final userId = _supabase.auth.currentUser?.id;
       if (userId != null) {
@@ -176,12 +173,12 @@ class CanvasService {
 
       final canvasMap = Map<String, dynamic>.from(response);
       final memberRows =
-          (canvasMap['canvas_members'] as List?)?.cast<
-            Map<String, dynamic>
-          >() ??
+          (canvasMap['canvas_members'] as List?)
+              ?.cast<Map<String, dynamic>>() ??
           [];
-      canvasMap['member_ids'] =
-          memberRows.map((m) => m['user_id'] as String).toList();
+      canvasMap['member_ids'] = memberRows
+          .map((m) => m['user_id'] as String)
+          .toList();
 
       return OasisCanvas.fromJson(canvasMap);
     } catch (e) {
@@ -195,12 +192,11 @@ class CanvasService {
   /// Fetch all items for a specific canvas.
   Future<List<CanvasItemEntity>> fetchCanvasItems(String canvasId) async {
     try {
-      final response =
-          await _supabase
-              .from('canvas_items')
-              .select('*')
-              .eq('canvas_id', canvasId)
-              .order('created_at', ascending: true);
+      final response = await _supabase
+          .from('canvas_items')
+          .select('*')
+          .eq('canvas_id', canvasId)
+          .order('created_at', ascending: true);
 
       final userId = _supabase.auth.currentUser?.id;
       if (userId != null) {
@@ -212,10 +208,9 @@ class CanvasService {
         );
       }
 
-      final items =
-          (response as List)
-              .map((json) => CanvasItemEntity.fromJson(json))
-              .toList();
+      final items = (response as List)
+          .map((json) => CanvasItemEntity.fromJson(json))
+          .toList();
 
       return Future.wait(items.map(_decryptItem));
     } catch (e) {
@@ -242,21 +237,19 @@ class CanvasService {
       if (!_encryption.isInitialized) await _encryption.init();
 
       // Get all member public keys for this canvas
-      final membersResponse =
-          await _supabase
-              .from('canvas_members')
-              .select('profiles(public_key)')
-              .eq('canvas_id', canvasId);
+      final membersResponse = await _supabase
+          .from('canvas_members')
+          .select('profiles(public_key)')
+          .eq('canvas_id', canvasId);
 
-      final publicKeys =
-          (membersResponse as List)
-              .map(
-                (m) =>
-                    (m['profiles'] as Map<String, dynamic>?)?['public_key']
-                        as String?,
-              )
-              .whereType<String>()
-              .toList();
+      final publicKeys = (membersResponse as List)
+          .map(
+            (m) =>
+                (m['profiles'] as Map<String, dynamic>?)?['public_key']
+                    as String?,
+          )
+          .whereType<String>()
+          .toList();
 
       if (publicKeys.isEmpty) {
         throw Exception(
@@ -284,8 +277,11 @@ class CanvasService {
         insertData['unlock_at'] = unlockAt.toIso8601String();
       }
 
-      final response =
-          await _supabase.from('canvas_items').insert(insertData).select().single();
+      final response = await _supabase
+          .from('canvas_items')
+          .insert(insertData)
+          .select()
+          .single();
 
       // Privacy Audit: Log WRITE
       await _privacyAudit.logAccess(
@@ -385,18 +381,18 @@ class CanvasService {
   }) async {
     try {
       // 1. Get current reactions
-      final itemData =
-          await _supabase
-              .from('canvas_items')
-              .select('reactions')
-              .eq('id', itemId)
-              .single();
+      final itemData = await _supabase
+          .from('canvas_items')
+          .select('reactions')
+          .eq('id', itemId)
+          .single();
 
       final Map<String, dynamic> reactions = Map<String, dynamic>.from(
         itemData['reactions'] ?? {},
       );
-      final List<dynamic> users =
-          reactions[emoji] != null ? List.from(reactions[emoji]) : [];
+      final List<dynamic> users = reactions[emoji] != null
+          ? List.from(reactions[emoji])
+          : [];
 
       if (users.contains(userId)) {
         users.remove(userId);
@@ -524,8 +520,7 @@ class CanvasService {
 
     // Reuse or create channel
     final channel =
-        _presenceChannels[canvasId] ??
-        _supabase.channel('presence:$canvasId');
+        _presenceChannels[canvasId] ?? _supabase.channel('presence:$canvasId');
     _presenceChannels[canvasId] = channel;
 
     channel
@@ -535,8 +530,9 @@ class CanvasService {
 
           for (final singleState in state) {
             if (singleState.presences.isNotEmpty) {
-              mappedState[singleState.key] =
-                  singleState.presences.map((p) => p.payload).toList();
+              mappedState[singleState.key] = singleState.presences
+                  .map((p) => p.payload)
+                  .toList();
             }
           }
 

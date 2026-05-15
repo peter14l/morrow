@@ -48,15 +48,19 @@ class SupabaseService {
     final anonKey = SupabaseConfig.supabaseAnonKey;
 
     if (url.isEmpty || anonKey.isEmpty) {
-      debugPrint('Supabase configuration is missing (URL or Anon Key is empty)');
-      throw Exception('Supabase configuration is missing. Check your .env or dart-define values.');
+      debugPrint(
+        'Supabase configuration is missing (URL or Anon Key is empty)',
+      );
+      throw Exception(
+        'Supabase configuration is missing. Check your .env or dart-define values.',
+      );
     }
 
     try {
       if (kDebugMode) {
         debugPrint('Connecting to Supabase...');
       }
-      
+
       // We removed the hard 15s timeout to prevent crashes on cold starts.
       // Supabase initialization primarily handles local session restoration.
       try {
@@ -75,11 +79,15 @@ class SupabaseService {
         );
       } on FormatException catch (fe) {
         debugPrint('CRITICAL: Supabase.initialize threw FormatException: $fe');
-        debugPrint('This usually means the persisted session data is corrupted.');
+        debugPrint(
+          'This usually means the persisted session data is corrupted.',
+        );
         rethrow;
       } on TimeoutException catch (te) {
         debugPrint('Supabase initialization timed out: $te');
-        throw Exception('Connection timed out. Please check your internet and try again.');
+        throw Exception(
+          'Connection timed out. Please check your internet and try again.',
+        );
       }
 
       _instance._clientInstance = Supabase.instance.client;
@@ -88,11 +96,13 @@ class SupabaseService {
     } catch (e, st) {
       debugPrint('Failed to initialize Supabase: $e');
       debugPrint('Stack trace: $st');
-      
+
       if (e.toString().contains('Failed host lookup')) {
-        throw Exception('No internet connection. Oasis requires a connection for the first launch.');
+        throw Exception(
+          'No internet connection. Oasis requires a connection for the first launch.',
+        );
       }
-      
+
       throw Exception('Failed to connect to Oasis servers: $e');
     }
   }
@@ -101,13 +111,13 @@ class SupabaseService {
   /// Useful in background isolates.
   Future<bool> waitForSession({int timeoutMs = 2000}) async {
     if (!isInitialized) return false;
-    
+
     int elapsed = 0;
     while (client.auth.currentUser == null && elapsed < timeoutMs) {
       await Future.delayed(const Duration(milliseconds: 100));
       elapsed += 100;
     }
-    
+
     return client.auth.currentUser != null;
   }
 
@@ -179,14 +189,16 @@ class SupabaseService {
     }
 
     // Use Supabase native transformation if possible, or fallback to custom CDN logic
-    return client.storage.from(bucket).getPublicUrl(
-      path,
-      transform: TransformOptions(
-        width: width,
-        height: height,
-        quality: quality,
-      ),
-    );
+    return client.storage
+        .from(bucket)
+        .getPublicUrl(
+          path,
+          transform: TransformOptions(
+            width: width,
+            height: height,
+            quality: quality,
+          ),
+        );
   }
 
   // Upload file to storage

@@ -32,7 +32,8 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
   @override
   void initState() {
     super.initState();
-    _isRestricted = widget.mediaViewMode == 'once' || widget.mediaViewMode == 'twice';
+    _isRestricted =
+        widget.mediaViewMode == 'once' || widget.mediaViewMode == 'twice';
 
     if (_isRestricted) {
       _enableProtection();
@@ -79,13 +80,12 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
               onPressed: () {
                 if (isLocal) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Image is already saved locally.')),
+                    const SnackBar(
+                      content: Text('Image is already saved locally.'),
+                    ),
                   );
                 } else {
-                  _mediaDownloadService.downloadImage(
-                    widget.imageUrl,
-                    context,
-                  );
+                  _mediaDownloadService.downloadImage(widget.imageUrl, context);
                 }
               },
             ),
@@ -94,7 +94,7 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
       body: Stack(
         children: [
           PhotoView(
-            imageProvider: isLocal 
+            imageProvider: isLocal
                 ? FileImage(File(widget.imageUrl)) as ImageProvider
                 : CachedNetworkImageProvider(widget.imageUrl),
             minScale: PhotoViewComputedScale.contained,
@@ -104,11 +104,17 @@ class _ImagePreviewScreenState extends State<ImagePreviewScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.broken_image_rounded, color: Colors.white54, size: 64),
+                  const Icon(
+                    Icons.broken_image_rounded,
+                    color: Colors.white54,
+                    size: 64,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     'Image not available',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white54,
+                    ),
                   ),
                 ],
               ),

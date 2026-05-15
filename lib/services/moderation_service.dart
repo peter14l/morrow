@@ -162,10 +162,9 @@ class ModerationService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return false;
 
-      final expiresAt =
-          duration != null
-              ? DateTime.now().add(duration).toIso8601String()
-              : null;
+      final expiresAt = duration != null
+          ? DateTime.now().add(duration).toIso8601String()
+          : null;
 
       await _supabase.from('muted_users').insert({
         'muter_id': userId,

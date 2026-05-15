@@ -141,7 +141,9 @@ class AuthProvidersDelegate {
 
   /// Initiates a passkey sign-in flow.
   Future<AuthResponse> signInWithPasskey(String email) async {
-    throw UnimplementedError('Native Passkey support in Supabase Flutter SDK is still in preview/experimental.');
+    throw UnimplementedError(
+      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    );
   }
 
   /// Registers a new user with a passkey.
@@ -151,12 +153,16 @@ class AuthProvidersDelegate {
     required String fullName,
     Map<String, dynamic>? data,
   }) async {
-    throw UnimplementedError('Native Passkey support in Supabase Flutter SDK is still in preview/experimental.');
+    throw UnimplementedError(
+      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    );
   }
 
   /// Adds a passkey to the currently authenticated user's account.
   Future<void> addPasskeyToCurrentUser() async {
-    throw UnimplementedError('Native Passkey support in Supabase Flutter SDK is still in preview/experimental.');
+    throw UnimplementedError(
+      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    );
   }
 
   Future<void> signOut() async {
@@ -180,6 +186,20 @@ class AuthProvidersDelegate {
     } catch (e) {
       debugPrint('Error during Google sign out: $e');
     }
-    await _supabase.auth.signOut();
+
+    try {
+      await _supabase.auth.signOut();
+    } on AuthException catch (e) {
+      // If the error is about a missing or invalid refresh token, we can ignore it
+      // as the goal is to be signed out anyway.
+      if (e.message.contains('refresh_token_not_found') ||
+          e.message.contains('Invalid Refresh Token')) {
+        debugPrint(
+          '[AuthProvidersDelegate] Sign out error (token already invalid): ${e.message}',
+        );
+      } else {
+        rethrow;
+      }
+    }
   }
 }

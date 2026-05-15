@@ -38,7 +38,11 @@ class _CapsuleCarouselState extends State<CapsuleCarousel> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.hourglass_empty, size: 20, color: Colors.white70),
+                  const Icon(
+                    Icons.hourglass_empty,
+                    size: 20,
+                    color: Colors.white70,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     'Time Capsules',
@@ -59,14 +63,12 @@ class _CapsuleCarouselState extends State<CapsuleCarousel> {
                 itemBuilder: (context, index) {
                   return SizedBox(
                     width: 300, // Fixed width for cards
-                    child: CapsuleFeedItem(
-                      capsule: provider.capsules[index],
-                    ),
+                    child: CapsuleFeedItem(capsule: provider.capsules[index]),
                   );
                 },
               ),
             ),
-             const SizedBox(height: 16),
+            const SizedBox(height: 16),
           ],
         );
       },

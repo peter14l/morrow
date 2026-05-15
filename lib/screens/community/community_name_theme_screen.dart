@@ -5,7 +5,8 @@ class CommunityNameThemeScreen extends StatefulWidget {
   const CommunityNameThemeScreen({super.key});
 
   @override
-  State<CommunityNameThemeScreen> createState() => _CommunityNameThemeScreenState();
+  State<CommunityNameThemeScreen> createState() =>
+      _CommunityNameThemeScreenState();
 }
 
 class _CommunityNameThemeScreenState extends State<CommunityNameThemeScreen> {
@@ -39,10 +40,7 @@ class _CommunityNameThemeScreenState extends State<CommunityNameThemeScreen> {
       // Navigate to the next screen with the community name and theme
       context.push(
         '/community/create/guidelines',
-        extra: {
-          'name': _nameController.text.trim(),
-          'theme': _selectedTheme,
-        },
+        extra: {'name': _nameController.text.trim(), 'theme': _selectedTheme},
       );
     }
   }
@@ -103,10 +101,7 @@ class _CommunityNameThemeScreenState extends State<CommunityNameThemeScreen> {
               const SizedBox(height: 8),
               const Text(
                 'Community names can be up to 21 characters and can\'t be changed later.',
-                style: TextStyle(
-                  color: Color(0xFF9DA6B9),
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Color(0xFF9DA6B9), fontSize: 14),
               ),
               const SizedBox(height: 24),
               const Text(

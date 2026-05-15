@@ -34,9 +34,11 @@ class ChatMediaService {
   final EncryptionService _encryptionService = EncryptionService();
   final _uuid = const Uuid();
 
-  ChatMediaService({SupabaseClient? client, SubscriptionService? subscriptionService})
-      : _supabase = client ?? SupabaseService().client,
-        _subscriptionService = subscriptionService ?? SubscriptionService();
+  ChatMediaService({
+    SupabaseClient? client,
+    SubscriptionService? subscriptionService,
+  }) : _supabase = client ?? SupabaseService().client,
+       _subscriptionService = subscriptionService ?? SubscriptionService();
 
   /// Uploads media to Cloudflare R2 unencrypted (for backgrounds, etc.).
   Future<String> uploadChatMedia(
@@ -54,7 +56,8 @@ class ChatMediaService {
       if (!await file.exists()) throw Exception('File not found');
 
       final fileExt = fileExtension ?? filePath.split('.').last;
-      final uniqueFileId = '${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4()}.$fileExt';
+      final uniqueFileId =
+          '${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4()}.$fileExt';
       final storagePath = '$userId/$uniqueFileId';
 
       final remoteUrl = await _s3StorageService.uploadFile(
@@ -63,7 +66,9 @@ class ChatMediaService {
         type: folder,
         file: encryptedBytes == null ? file : null,
         bytes: encryptedBytes,
-        contentType: encryptedBytes != null ? 'application/octet-stream' : 'application/$fileExt',
+        contentType: encryptedBytes != null
+            ? 'application/octet-stream'
+            : 'application/$fileExt',
         onProgress: onProgress,
       );
 
@@ -111,12 +116,14 @@ class ChatMediaService {
       );
       final Uint8List encryptedBytes = encryptionResult['encryptedBytes'];
       final String iv = encryptionResult['iv'];
-      final Map<String, String> encryptedKeys = encryptionResult['encryptedKeys'];
+      final Map<String, String> encryptedKeys =
+          encryptionResult['encryptedKeys'];
 
       // 2. Upload to Cloudflare R2
       final fileExt = filePath.split('.').last;
       // Enforce path: <type>/<user_id>/<file_id>
-      final uniqueFileId = '${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4()}.$fileExt';
+      final uniqueFileId =
+          '${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4()}.$fileExt';
       final storagePath = '$userId/$uniqueFileId';
 
       final remoteUrl = await _s3StorageService.uploadFile(
@@ -206,7 +213,7 @@ class ChatMediaService {
         final type = pathSegments[pathSegments.length - 3];
         final userId = pathSegments[pathSegments.length - 2];
         final fileName = pathSegments.length > 0 ? pathSegments.last : '';
-        
+
         final fileId = '$userId/$fileName';
 
         await _s3StorageService.deleteFile(

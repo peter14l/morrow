@@ -5,7 +5,7 @@ import '../test_setup.dart';
 
 void main() {
   setupTestEnvironment();
-  
+
   group('ModerationService', () {
     group('Content Filtering', () {
       final moderationService = ModerationService();

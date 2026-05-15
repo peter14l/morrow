@@ -26,24 +26,22 @@ class StoryCircle extends StatelessWidget {
             decoration: BoxDecoration(
               shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
               borderRadius: isM3E ? BorderRadius.circular(24) : null,
-              gradient:
-                  !story.hasViewed
-                      ? LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.secondary,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                      : null,
-              border:
-                  story.hasViewed
-                      ? Border.all(
-                        color: theme.colorScheme.outlineVariant,
-                        width: 2,
-                      )
-                      : null,
+              gradient: !story.hasViewed
+                  ? LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.secondary,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              border: story.hasViewed
+                  ? Border.all(
+                      color: theme.colorScheme.outlineVariant,
+                      width: 2,
+                    )
+                  : null,
             ),
             child: Container(
               padding: const EdgeInsets.all(2),
@@ -60,7 +58,9 @@ class StoryCircle extends StatelessWidget {
                 clipBehavior: Clip.antiAlias,
                 child: CircleAvatar(
                   radius: 32,
-                  backgroundImage: CachedNetworkImageProvider(story.userAvatar ?? ''),
+                  backgroundImage: CachedNetworkImageProvider(
+                    story.userAvatar ?? '',
+                  ),
                 ),
               ),
             ),

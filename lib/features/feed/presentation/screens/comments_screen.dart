@@ -65,7 +65,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
     } else {
       if (await _audioRecorder.hasPermission()) {
         final tempDir = await getTemporaryDirectory();
-        final path = '${tempDir.path}/comment_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        final path =
+            '${tempDir.path}/comment_voice_${DateTime.now().millisecondsSinceEpoch}.m4a';
         await _audioRecorder.start(const RecordConfig(), path: path);
         setState(() => _isRecording = true);
       }
@@ -248,47 +249,42 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     showModalBottomSheet(
       context: context,
-      builder:
-          (context) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isOwnComment) ...[
-                  ListTile(
-                    leading: const Icon(Icons.delete_outline),
-                    title: const Text('Delete Comment'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _deleteComment(comment);
-                    },
-                  ),
-                ] else ...[
-                  ListTile(
-                    leading: const Icon(Icons.flag_outlined),
-                    title: const Text('Report Comment'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      _showReportDialog(comment);
-                    },
-                  ),
-                ],
-                ListTile(
-                  leading: const Icon(Icons.cancel),
-                  title: const Text('Cancel'),
-                  onTap: () => Navigator.pop(context),
-                ),
-              ],
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isOwnComment) ...[
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: const Text('Delete Comment'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _deleteComment(comment);
+                },
+              ),
+            ] else ...[
+              ListTile(
+                leading: const Icon(Icons.flag_outlined),
+                title: const Text('Report Comment'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showReportDialog(comment);
+                },
+              ),
+            ],
+            ListTile(
+              leading: const Icon(Icons.cancel),
+              title: const Text('Cancel'),
+              onTap: () => Navigator.pop(context),
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 
   void _showReportDialog(Comment comment) {
-    ReportDialog.show(
-      context,
-      commentId: comment.id,
-      userId: comment.userId,
-    );
+    ReportDialog.show(context, commentId: comment.id, userId: comment.userId);
   }
 
   @override
@@ -303,59 +299,58 @@ class _CommentsScreenState extends State<CommentsScreen> {
         children: [
           // Comments List
           Expanded(
-            child:
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : _error != null
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline, size: 48),
-                          const SizedBox(height: 16),
-                          Text('Error: $_error'),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadComments,
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    )
-                    : _comments.isEmpty
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.chat_bubble_outline,
-                            size: 48,
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _error != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error_outline, size: 48),
+                        const SizedBox(height: 16),
+                        Text('Error: $_error'),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadComments,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  )
+                : _comments.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.chat_bubble_outline,
+                          size: 48,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No comments yet',
+                          style: theme.textTheme.titleLarge,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Be the first to comment!',
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurfaceVariant,
                           ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'No comments yet',
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Be the first to comment!',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                    : ListView.builder(
-                      controller: _scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _comments.length,
-                      itemBuilder: (context, index) {
-                        final comment = _comments[index];
-                        return _buildCommentItem(comment, userId);
-                      },
+                        ),
+                      ],
                     ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _comments.length,
+                    itemBuilder: (context, index) {
+                      final comment = _comments[index];
+                      return _buildCommentItem(comment, userId);
+                    },
+                  ),
           ),
 
           // Reply indicator
@@ -391,15 +386,21 @@ class _CommentsScreenState extends State<CommentsScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: Icon(_isRecording ? Icons.stop_circle : Icons.mic_none_rounded, 
-                      color: _isRecording ? Colors.red : colorScheme.onSurfaceVariant),
+                    icon: Icon(
+                      _isRecording ? Icons.stop_circle : Icons.mic_none_rounded,
+                      color: _isRecording
+                          ? Colors.red
+                          : colorScheme.onSurfaceVariant,
+                    ),
                     onPressed: _toggleRecording,
                   ),
                   Expanded(
                     child: TextField(
                       controller: _commentController,
                       decoration: InputDecoration(
-                        hintText: _isRecording ? 'Recording...' : 'Add a comment...',
+                        hintText: _isRecording
+                            ? 'Recording...'
+                            : 'Add a comment...',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
@@ -415,15 +416,16 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
-                    onPressed: (_isSubmitting || _isRecording) ? null : _submitComment,
-                    icon:
-                        _isSubmitting
-                            ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.send_rounded),
+                    onPressed: (_isSubmitting || _isRecording)
+                        ? null
+                        : _submitComment,
+                    icon: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send_rounded),
                   ),
                 ],
               ),
@@ -435,9 +437,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     return ResponsiveLayout.isDesktop(context)
         ? MaxWidthContainer(
-          maxWidth: ResponsiveLayout.maxCommentsWidth,
-          child: content,
-        )
+            maxWidth: ResponsiveLayout.maxCommentsWidth,
+            child: content,
+          )
         : content;
   }
 
@@ -452,14 +454,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
         children: [
           CircleAvatar(
             radius: 18,
-            backgroundImage:
-                comment.userAvatar.isNotEmpty
-                    ? CachedNetworkImageProvider(comment.userAvatar)
-                    : null,
-            child:
-                comment.userAvatar.isEmpty
-                    ? Text(comment.username[0].toUpperCase())
-                    : null,
+            backgroundImage: comment.userAvatar.isNotEmpty
+                ? CachedNetworkImageProvider(comment.userAvatar)
+                : null,
+            child: comment.userAvatar.isEmpty
+                ? Text(comment.username[0].toUpperCase())
+                : null,
           ),
           const SizedBox(width: 12),
           Expanded(

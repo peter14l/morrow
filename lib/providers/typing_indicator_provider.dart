@@ -55,11 +55,7 @@ class TypingIndicatorProvider with ChangeNotifier {
       // Update typing status via Realtime Broadcast (Zero IOPS)
       final channel = _subscriptions[conversationId];
       if (channel != null) {
-        await _messagingService.sendTypingStatus(
-          channel,
-          userId,
-          isTyping,
-        );
+        await _messagingService.sendTypingStatus(channel, userId, isTyping);
       } else {
         // Fallback to DB if subscription isn't ready (should be rare)
         await _messagingService.updateTypingStatus(

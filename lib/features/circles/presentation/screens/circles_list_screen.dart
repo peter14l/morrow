@@ -34,15 +34,15 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
     try {
       await context.read<CircleProvider>().deleteCircle(circleId);
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Circle deleted')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Circle deleted')));
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting circle: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting circle: $e')));
       }
     }
   }
@@ -61,126 +61,127 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // ── App Bar ────────────────────────────────────────────────────
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isDesktop ? 40 : 20,
-                  isDesktop ? 40 : 20,
-                  isDesktop ? 40 : 20,
-                  0,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Circles',
-                            style:
-                                (isDesktop
-                                        ? theme.textTheme.headlineLarge
-                                        : theme.textTheme.headlineMedium)
-                                    ?.copyWith(
-                                      fontWeight: isM3E
-                                          ? FontWeight.w900
-                                          : FontWeight.w900,
-                                      letterSpacing: isM3E ? -1.5 : -1,
-                                    ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Your private commitment groups',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurfaceVariant,
+          child: CustomScrollView(
+            slivers: [
+              // ── App Bar ────────────────────────────────────────────────────
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    isDesktop ? 40 : 20,
+                    isDesktop ? 40 : 20,
+                    isDesktop ? 40 : 20,
+                    0,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Circles',
+                              style:
+                                  (isDesktop
+                                          ? theme.textTheme.headlineLarge
+                                          : theme.textTheme.headlineMedium)
+                                      ?.copyWith(
+                                        fontWeight: isM3E
+                                            ? FontWeight.w900
+                                            : FontWeight.w900,
+                                        letterSpacing: isM3E ? -1.5 : -1,
+                                      ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              'Your private commitment groups',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // Create circle button
-                    _PrimaryButton(
-                      label: isDesktop ? 'Create New Circle' : 'New Circle',
-                      icon: FluentIcons.add_circle_24_regular,
-                      isM3E: isM3E,
-                      onTap: () => context.pushNamed('create_circle'),
-                    ),
-                  ],
+                      // Create circle button
+                      _PrimaryButton(
+                        label: isDesktop ? 'Create New Circle' : 'New Circle',
+                        icon: FluentIcons.add_circle_24_regular,
+                        isM3E: isM3E,
+                        onTap: () => context.pushNamed('create_circle'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
 
-            // ── Content ────────────────────────────────────────────────────
-            if (circles.isLoading)
-              const SliverFillRemaining(
-                child: Center(child: CircularProgressIndicator()),
-              )
-            else if (circles.circles.isEmpty)
-              SliverFillRemaining(
-                child: _EmptyCirclesState(
-                  isM3E: isM3E,
-                  onCreateTap: () => context.pushNamed('create_circle'),
-                ),
-              )
-            else if (isDesktop)
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                sliver: SliverGrid.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 1.4,
+              // ── Content ────────────────────────────────────────────────────
+              if (circles.isLoading)
+                const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                )
+              else if (circles.circles.isEmpty)
+                SliverFillRemaining(
+                  child: _EmptyCirclesState(
+                    isM3E: isM3E,
+                    onCreateTap: () => context.pushNamed('create_circle'),
                   ),
-                  itemCount: circles.circles.length,
-                  itemBuilder: (context, i) {
-                    final circle = circles.circles[i];
-                    return CircleListCard(
-                      circle: circle,
-                      isDesktop: true,
-                      onTap: () => context.pushNamed(
-                        'circle_detail',
-                        pathParameters: {'circleId': circle.id},
-                      ),
-                      onDelete: () => _deleteCircle(context, circle.id),
-                      currentUserId: profile.currentProfile?.id,
-                    );
-                  },
-                ),
-              )
-            else
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                sliver: SliverList.builder(
-                  itemCount: circles.circles.length,
-                  itemBuilder: (context, i) {
-                    final circle = circles.circles[i];
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: CircleListCard(
+                )
+              else if (isDesktop)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  sliver: SliverGrid.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 20,
+                      childAspectRatio: 1.4,
+                    ),
+                    itemCount: circles.circles.length,
+                    itemBuilder: (context, i) {
+                      final circle = circles.circles[i];
+                      return CircleListCard(
                         circle: circle,
+                        isDesktop: true,
                         onTap: () => context.pushNamed(
                           'circle_detail',
                           pathParameters: {'circleId': circle.id},
                         ),
                         onDelete: () => _deleteCircle(context, circle.id),
                         currentUserId: profile.currentProfile?.id,
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList.builder(
+                    itemCount: circles.circles.length,
+                    itemBuilder: (context, i) {
+                      final circle = circles.circles[i];
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: CircleListCard(
+                          circle: circle,
+                          onTap: () => context.pushNamed(
+                            'circle_detail',
+                            pathParameters: {'circleId': circle.id},
+                          ),
+                          onDelete: () => _deleteCircle(context, circle.id),
+                          currentUserId: profile.currentProfile?.id,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
-          ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          ),
         ),
       ),
-    ));
+    );
   }
 }
 

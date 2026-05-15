@@ -27,7 +27,10 @@ class GiphyMedia {
     this.isSticker = false,
   });
 
-  factory GiphyMedia.fromJson(Map<String, dynamic> json, {bool isSticker = false}) {
+  factory GiphyMedia.fromJson(
+    Map<String, dynamic> json, {
+    bool isSticker = false,
+  }) {
     final images = json['images'] as Map<String, dynamic>?;
     final original = images?['original'] as Map<String, dynamic>?;
     final fixedHeight = images?['fixed_height'] as Map<String, dynamic>?;
@@ -36,7 +39,8 @@ class GiphyMedia {
     return GiphyMedia(
       id: json['id']?.toString() ?? '',
       url: original?['url'] ?? '',
-      thumbnailUrl: fixedHeight?['url'] ?? downsized?['url'] ?? original?['url'] ?? '',
+      thumbnailUrl:
+          fixedHeight?['url'] ?? downsized?['url'] ?? original?['url'] ?? '',
       title: json['title'] ?? '',
       isSticker: isSticker,
     );
@@ -66,7 +70,9 @@ class GiphyService {
         final data = json.decode(response.body);
         final List results = data['data'] as List? ?? [];
         return GiphyResult.success(
-          results.map((e) => GiphyMedia.fromJson(e, isSticker: isSticker)).toList(),
+          results
+              .map((e) => GiphyMedia.fromJson(e, isSticker: isSticker))
+              .toList(),
         );
       }
       return GiphyResult.failure('HTTP ${response.statusCode}');
@@ -94,7 +100,9 @@ class GiphyService {
         final data = json.decode(response.body);
         final List results = data['data'] as List? ?? [];
         return GiphyResult.success(
-          results.map((e) => GiphyMedia.fromJson(e, isSticker: isSticker)).toList(),
+          results
+              .map((e) => GiphyMedia.fromJson(e, isSticker: isSticker))
+              .toList(),
         );
       }
       return GiphyResult.failure('HTTP ${response.statusCode}');
@@ -103,7 +111,9 @@ class GiphyService {
     }
   }
 
-  Future<GiphyResult<List<String>>> getCategories({bool isSticker = false}) async {
+  Future<GiphyResult<List<String>>> getCategories({
+    bool isSticker = false,
+  }) async {
     // Standard categories that work well
     return GiphyResult.success([
       'Trending',

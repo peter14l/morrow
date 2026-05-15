@@ -16,7 +16,7 @@ class AuthLayoutWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // The content constrained
     final contentContainer = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 400),
@@ -83,7 +83,9 @@ class AuthLayoutWrapper extends StatelessWidget {
                         body: SafeArea(
                           child: Center(
                             child: SingleChildScrollView(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                              ),
                               child: contentContainer,
                             ),
                           ),
@@ -101,13 +103,7 @@ class AuthLayoutWrapper extends StatelessWidget {
             backgroundColor: const Color(0xFF111318), // Deep dark for auth
             appBar: topBar,
             body: Stack(
-              children: [
-                SafeArea(
-                  child: Center(
-                    child: contentContainer,
-                  ),
-                ),
-              ],
+              children: [SafeArea(child: Center(child: contentContainer))],
             ),
           );
         }

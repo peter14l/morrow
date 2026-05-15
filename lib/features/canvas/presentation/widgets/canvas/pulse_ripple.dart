@@ -28,9 +28,10 @@ class _PulseRippleState extends State<PulseRipple>
       duration: const Duration(milliseconds: 2000),
     );
 
-    _radiusAnimation = Tween<double>(begin: 0, end: 500).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo),
-    );
+    _radiusAnimation = Tween<double>(
+      begin: 0,
+      end: 500,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutExpo));
 
     _opacityAnimation = TweenSequence<double>([
       TweenSequenceItem(tween: Tween(begin: 0.0, end: 0.6), weight: 20),
@@ -69,7 +70,9 @@ class _PulseRippleState extends State<PulseRipple>
               ),
               boxShadow: [
                 BoxShadow(
-                  color: widget.color.withValues(alpha: _opacityAnimation.value * 0.5),
+                  color: widget.color.withValues(
+                    alpha: _opacityAnimation.value * 0.5,
+                  ),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),

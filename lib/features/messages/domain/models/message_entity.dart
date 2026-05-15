@@ -47,10 +47,9 @@ class MessageEntity {
       mediaUrl: json['media_url'] as String?,
       mediaFileName: json['media_file_name'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'] as String)
-              : null,
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
       isDeleted: json['is_deleted'] as bool? ?? false,
       replyToId: json['reply_to_id'] as String?,
       rippleId: json['ripple_id'] as String?,

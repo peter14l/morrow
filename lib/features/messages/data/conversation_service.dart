@@ -73,12 +73,9 @@ class ConversationService {
                 senderId: lastMsgData['sender_id'],
                 currentUserId: userId,
                 content: lastMsgData['content'] ?? '',
-                encryptedKeys:
-                    lastMsgData['encrypted_keys'] != null
-                        ? Map<String, String>.from(
-                          lastMsgData['encrypted_keys'],
-                        )
-                        : null,
+                encryptedKeys: lastMsgData['encrypted_keys'] != null
+                    ? Map<String, String>.from(lastMsgData['encrypted_keys'])
+                    : null,
                 iv: lastMsgData['iv'],
                 signalMessageType: lastMsgData['signal_message_type'],
                 signalSenderContent: lastMsgData['signal_sender_content'],
@@ -168,26 +165,21 @@ class ConversationService {
       if (lastMsgRows.isNotEmpty) {
         final lastMsgData = lastMsgRows.first;
         lastMessageSenderId = lastMsgData['sender_id'] as String?;
-        lastMessageTime =
-            lastMsgData['created_at'] != null
-                ? DateTime.tryParse(lastMsgData['created_at'] as String)
-                : null;
+        lastMessageTime = lastMsgData['created_at'] != null
+            ? DateTime.tryParse(lastMsgData['created_at'] as String)
+            : null;
         lastMessageType = _decryptionService.determineMessageType(lastMsgData);
 
         final decrypted = await _decryptionService.decryptMessageContent(
           senderId: lastMsgData['sender_id'] as String? ?? '',
           currentUserId: userId,
           content: lastMsgData['content'] as String? ?? '',
-          encryptedKeys:
-              lastMsgData['encrypted_keys'] != null
-                  ? Map<String, String>.from(
-                    lastMsgData['encrypted_keys'] as Map,
-                  )
-                  : null,
+          encryptedKeys: lastMsgData['encrypted_keys'] != null
+              ? Map<String, String>.from(lastMsgData['encrypted_keys'] as Map)
+              : null,
           iv: lastMsgData['iv'] as String?,
           signalMessageType: lastMsgData['signal_message_type'] as int?,
-          signalSenderContent:
-              lastMsgData['signal_sender_content'] as String?,
+          signalSenderContent: lastMsgData['signal_sender_content'] as String?,
         );
         lastMessage = decrypted;
       }
@@ -196,8 +188,14 @@ class ConversationService {
         'id': conversationId,
         'type': type,
         'other_user_id': other['user_id'],
-        'other_user_name': type == 'group' ? (name ?? 'Group') : (otherProfile['username'] ?? otherProfile['full_name'] ?? 'Unknown'),
-        'other_user_avatar': type == 'group' ? (imageUrl ?? '') : (otherProfile['avatar_url'] ?? ''),
+        'other_user_name': type == 'group'
+            ? (name ?? 'Group')
+            : (otherProfile['username'] ??
+                  otherProfile['full_name'] ??
+                  'Unknown'),
+        'other_user_avatar': type == 'group'
+            ? (imageUrl ?? '')
+            : (otherProfile['avatar_url'] ?? ''),
         'unread_count': unreadCount,
         'is_muted': me['is_muted'] ?? false,
         'last_message': lastMessage,
@@ -353,10 +351,9 @@ class ConversationService {
             value: conversationId,
           ),
           callback: (payload) {
-            final data =
-                payload.newRecord.isNotEmpty
-                    ? payload.newRecord
-                    : payload.oldRecord;
+            final data = payload.newRecord.isNotEmpty
+                ? payload.newRecord
+                : payload.oldRecord;
             if (data.isNotEmpty && data['user_id'] == effectiveUserId) {
               onUpdate(data['background_image_url'] as String?);
             }
@@ -437,14 +434,13 @@ class ConversationService {
   /// Retrieves the current background URL for a conversation.
   Future<String?> getChatBackground(String conversationId) async {
     try {
-      final data =
-          await _supabase
-              .from(SupabaseConfig.chatThemesTable)
-              .select('background_image_url')
-              .eq('conversation_id', conversationId)
-              .order('updated_at', ascending: false)
-              .limit(1)
-              .maybeSingle();
+      final data = await _supabase
+          .from(SupabaseConfig.chatThemesTable)
+          .select('background_image_url')
+          .eq('conversation_id', conversationId)
+          .order('updated_at', ascending: false)
+          .limit(1)
+          .maybeSingle();
 
       return data?['background_image_url'] as String?;
     } catch (e) {
@@ -510,16 +506,12 @@ class ConversationService {
             senderId: msgData['sender_id'] as String? ?? '',
             currentUserId: userId,
             content: msgData['content'] as String? ?? '',
-            encryptedKeys:
-                msgData['encrypted_keys'] != null
-                    ? Map<String, String>.from(
-                      msgData['encrypted_keys'] as Map,
-                    )
-                    : null,
+            encryptedKeys: msgData['encrypted_keys'] != null
+                ? Map<String, String>.from(msgData['encrypted_keys'] as Map)
+                : null,
             iv: msgData['iv'] as String?,
             signalMessageType: msgData['signal_message_type'] as int?,
-            signalSenderContent:
-                msgData['signal_sender_content'] as String?,
+            signalSenderContent: msgData['signal_sender_content'] as String?,
           );
           content = decrypted;
         }

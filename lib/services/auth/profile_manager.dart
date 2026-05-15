@@ -20,13 +20,12 @@ class ProfileManager {
 
     if (username != null) {
       // Check if username is available
-      final usernameCheck =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('id')
-              .eq('username', username)
-              .neq('id', userId)
-              .maybeSingle();
+      final usernameCheck = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('id')
+          .eq('username', username)
+          .neq('id', userId)
+          .maybeSingle();
 
       if (usernameCheck != null) {
         throw const AuthException('Username is already taken');
@@ -81,10 +80,7 @@ class ProfileManager {
         .upload(
           'profiles/$userId/$fileName',
           file,
-          fileOptions: FileOptions(
-            contentType: 'image/$fileExt',
-            upsert: true,
-          ),
+          fileOptions: FileOptions(contentType: 'image/$fileExt', upsert: true),
         );
 
     final publicUrl =

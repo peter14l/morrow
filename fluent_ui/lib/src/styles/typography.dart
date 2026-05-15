@@ -102,7 +102,8 @@ class Typography with Diagnosticable {
   ///
   /// The default font family is "Segoe UI Variable" for Windows platforms,
   /// and "Segoe UI" for other platforms, if not explicitly provided in [FluentThemeData].
-    factory Typography.fromBrightness({Brightness? brightness, Color? color}) {    assert(
+  factory Typography.fromBrightness({Brightness? brightness, Color? color}) {
+    assert(
       brightness != null || color != null,
       'Either brightness or color must be provided',
     );

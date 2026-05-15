@@ -79,7 +79,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     try {
       context.read<CanvasProvider>().removeListener(_handleProviderError);
     } catch (_) {}
-    
+
     _scrollController.dispose();
     _audioRecorder.dispose();
     _morphTimer?.cancel();
@@ -103,7 +103,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
   String _getAuthorId() {
     final profileId = context.read<ProfileProvider>().currentProfile?.id;
     if (profileId != null && profileId.isNotEmpty) return profileId;
-    
+
     // Fallback to Supabase auth directly if profile provider isn't ready
     final authId = Supabase.instance.client.auth.currentUser?.id;
     return authId ?? '';
@@ -129,130 +129,138 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
         backgroundColor: const Color(0xFF0F1115),
         body: Stack(
           children: [
-          // Background - Starry Night with Parallax support
-          StarryNightBackground(
-            offset: _isMapMode ? _canvasOffset : Offset(0, _scrollOffset),
-          ),
+            // Background - Starry Night with Parallax support
+            StarryNightBackground(
+              offset: _isMapMode ? _canvasOffset : Offset(0, _scrollOffset),
+            ),
 
-          if (_isMapMode) ...[
-            InfiniteCanvas(
-              items: provider.activeItems,
-              isDrawingMode: _isDrawingMode,
-              onLongPress: (pos) => _sendPulse(pos),
-              onTransformationChanged: (offset) {
-                setState(() => _canvasOffset = offset);
-              },
-              onItemMoved: (itemId, x, y) {
-                context.read<CanvasProvider>().moveItem(
-                      itemId: itemId,
-                      xPos: x,
-                      yPos: y,
-                      lastModifiedBy: currentUserId,
-                    );
-              },
-              drawingLayer: _isDrawingMode ? _buildDrawingLayer() : null,
-            ),
-            
-            // Floating Controls Overlay (Map Mode only)
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              left: 16,
-              right: 16,
-              child: _buildHeaderOverlay(canvas, isDesktop, provider),
-            ),
-          ] else
-            CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                if (!isDesktop)
-                  _buildMobileAppBar(canvas, isOwner)
-                else
-                  SliverToBoxAdapter(
-                    child: _buildDesktopHeader(canvas, provider),
-                  ),
-                if (provider.isLoading)
-                  const SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(color: Colors.white),
+            if (_isMapMode) ...[
+              InfiniteCanvas(
+                items: provider.activeItems,
+                isDrawingMode: _isDrawingMode,
+                onLongPress: (pos) => _sendPulse(pos),
+                onTransformationChanged: (offset) {
+                  setState(() => _canvasOffset = offset);
+                },
+                onItemMoved: (itemId, x, y) {
+                  context.read<CanvasProvider>().moveItem(
+                    itemId: itemId,
+                    xPos: x,
+                    yPos: y,
+                    lastModifiedBy: currentUserId,
+                  );
+                },
+                drawingLayer: _isDrawingMode ? _buildDrawingLayer() : null,
+              ),
+
+              // Floating Controls Overlay (Map Mode only)
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10,
+                left: 16,
+                right: 16,
+                child: _buildHeaderOverlay(canvas, isDesktop, provider),
+              ),
+            ] else
+              CustomScrollView(
+                controller: _scrollController,
+                slivers: [
+                  if (!isDesktop)
+                    _buildMobileAppBar(canvas, isOwner)
+                  else
+                    SliverToBoxAdapter(
+                      child: _buildDesktopHeader(canvas, provider),
                     ),
-                  )
-                else if (provider.activeItems.isEmpty)
-                  SliverFillRemaining(child: _buildEmptyState())
-                else
-                  ..._buildTimelineSlivers(provider.activeItems),
-                const SliverToBoxAdapter(child: SizedBox(height: 120)),
-              ],
-            ),
+                  if (provider.isLoading)
+                    const SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      ),
+                    )
+                  else if (provider.activeItems.isEmpty)
+                    SliverFillRemaining(child: _buildEmptyState())
+                  else
+                    ..._buildTimelineSlivers(provider.activeItems),
+                  const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                ],
+              ),
 
-          // Collaborative Cursors
-          if (_isMapMode || isDesktop) ..._buildPresenceCursors(provider),
+            // Collaborative Cursors
+            if (_isMapMode || isDesktop) ..._buildPresenceCursors(provider),
 
-          // Pulses
-          ..._pulses.map(
-            (p) => PulseRipple(
-              key: ValueKey(p.id),
-              position: p.position,
-              color: Colors.white,
-            ),
-          ),
-
-          // Drawing Toolbar
-          if (_isDrawingMode)
-            Positioned(
-              bottom: 120,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: _DoodleToolbar(
-                  selectedColor: _selectedDrawingColor,
-                  strokeWidth: _drawingStrokeWidth,
-                  onColorChanged: (color) => setState(() => _selectedDrawingColor = color),
-                  onStrokeWidthChanged: (w) => setState(() => _drawingStrokeWidth = w),
-                  onUndo: _undoLastSegment,
-                  onClose: () => setState(() => _isDrawingMode = false),
-                ),
+            // Pulses
+            ..._pulses.map(
+              (p) => PulseRipple(
+                key: ValueKey(p.id),
+                position: p.position,
+                color: Colors.white,
               ),
             ),
 
-          // Right-side Timeline Scrubber (only in Spatial mode)
-          if (provider.activeItems.isNotEmpty && _isMapMode)
-            Positioned(
-              right: 16,
-              top: 100,
-              bottom: 100,
-              child: Center(
-                child: Container(
-                  width: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white10),
-                  ),
-                  child: TimelineScrubber(
-                    items: provider.activeItems,
-                    scrollController: _scrollController,
+            // Drawing Toolbar
+            if (_isDrawingMode)
+              Positioned(
+                bottom: 120,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: _DoodleToolbar(
+                    selectedColor: _selectedDrawingColor,
+                    strokeWidth: _drawingStrokeWidth,
+                    onColorChanged: (color) =>
+                        setState(() => _selectedDrawingColor = color),
+                    onStrokeWidthChanged: (w) =>
+                        setState(() => _drawingStrokeWidth = w),
+                    onUndo: _undoLastSegment,
+                    onClose: () => setState(() => _isDrawingMode = false),
                   ),
                 ),
               ),
-            ),
-        ],
+
+            // Right-side Timeline Scrubber (only in Spatial mode)
+            if (provider.activeItems.isNotEmpty && _isMapMode)
+              Positioned(
+                right: 16,
+                top: 100,
+                bottom: 100,
+                child: Center(
+                  child: Container(
+                    width: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white10),
+                    ),
+                    child: TimelineScrubber(
+                      items: provider.activeItems,
+                      scrollController: _scrollController,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        floatingActionButton: isDesktop
+            ? null
+            : _TimelineAddItemTray(
+                onAddText: () => _showAddNote(context),
+                onAddPhoto: () => _pickAndUploadPhoto(),
+                onAddVoice: () => _showVoiceRecorder(context),
+                onAddSticker: () => _showStickerPicker(context),
+                onAddMilestone: () => _showAddMilestone(context),
+                onAddJournal: () => _showAddJournal(context),
+                onToggleDrawing: () =>
+                    setState(() => _isDrawingMode = !_isDrawingMode),
+                isDrawingMode: _isDrawingMode,
+              ),
       ),
-      floatingActionButton: isDesktop
-          ? null
-          : _TimelineAddItemTray(
-              onAddText: () => _showAddNote(context),
-              onAddPhoto: () => _pickAndUploadPhoto(),
-              onAddVoice: () => _showVoiceRecorder(context),
-              onAddSticker: () => _showStickerPicker(context),
-              onAddMilestone: () => _showAddMilestone(context),
-              onAddJournal: () => _showAddJournal(context),
-              onToggleDrawing: () => setState(() => _isDrawingMode = !_isDrawingMode),
-              isDrawingMode: _isDrawingMode,
-            ),
-    ));
+    );
   }
 
-  Widget _buildHeaderOverlay(OasisCanvas? canvas, bool isDesktop, CanvasProvider provider) {
+  Widget _buildHeaderOverlay(
+    OasisCanvas? canvas,
+    bool isDesktop,
+    CanvasProvider provider,
+  ) {
     return Row(
       children: [
         GestureDetector(
@@ -264,7 +272,11 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white10),
             ),
-            child: const Icon(FluentIcons.chevron_left_24_regular, color: Colors.white, size: 20),
+            child: const Icon(
+              FluentIcons.chevron_left_24_regular,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -285,7 +297,11 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
                     children: [
                       Text(
                         canvas?.title ?? 'Our Canvas',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
                       _buildActiveUsersRow(provider),
                     ],
@@ -293,14 +309,20 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
                 ),
                 IconButton(
                   icon: Icon(
-                    _isMapMode ? FluentIcons.list_24_regular : FluentIcons.glance_24_regular,
+                    _isMapMode
+                        ? FluentIcons.list_24_regular
+                        : FluentIcons.glance_24_regular,
                     color: Colors.white,
                     size: 20,
                   ),
                   onPressed: () => setState(() => _isMapMode = !_isMapMode),
                 ),
                 IconButton(
-                  icon: const Icon(FluentIcons.people_add_24_regular, color: Colors.white, size: 20),
+                  icon: const Icon(
+                    FluentIcons.people_add_24_regular,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   onPressed: () => _showInviteSheet(canvas),
                 ),
               ],
@@ -378,10 +400,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     );
   }
 
-  Widget _buildDesktopHeader(
-    OasisCanvas? canvas,
-    CanvasProvider provider,
-  ) {
+  Widget _buildDesktopHeader(OasisCanvas? canvas, CanvasProvider provider) {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
@@ -417,7 +436,8 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
             onAddSticker: () => _showStickerPicker(context),
             onAddMilestone: () => _showAddMilestone(context),
             onToggleView: () => setState(() => _isMapMode = !_isMapMode),
-            onToggleDrawing: () => setState(() => _isDrawingMode = !_isDrawingMode),
+            onToggleDrawing: () =>
+                setState(() => _isDrawingMode = !_isDrawingMode),
             isMapMode: _isMapMode,
             isDrawingMode: _isDrawingMode,
           ),
@@ -522,11 +542,10 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => ShareSheet(
-            title: 'Share Canvas',
-            payload: '[INVITE:canvas:${canvas.id}:${canvas.title}]',
-          ),
+      builder: (context) => ShareSheet(
+        title: 'Share Canvas',
+        payload: '[INVITE:canvas:${canvas.id}:${canvas.title}]',
+      ),
     );
   }
 
@@ -538,82 +557,81 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (ctx) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: Container(
-              height: MediaQuery.of(context).size.height * 0.7,
-              padding: const EdgeInsets.all(32),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFDFCF0),
-                borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.7,
+          padding: const EdgeInsets.all(32),
+          decoration: const BoxDecoration(
+            color: Color(0xFFFDFCF0),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'NEW JOURNAL ENTRY',
-                        style: GoogleFonts.montserrat(
-                          color: Colors.brown[300],
-                          letterSpacing: 2,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.brown),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      maxLines: null,
-                      autofocus: true,
-                      style: GoogleFonts.playfairDisplay(
-                        fontSize: 20,
-                        color: Colors.black87,
-                        height: 1.6,
-                      ),
-                      decoration: const InputDecoration(
-                        hintText: 'Pour your thoughts here...',
-                        border: InputBorder.none,
-                      ),
+                  Text(
+                    'NEW JOURNAL ENTRY',
+                    style: GoogleFonts.montserrat(
+                      color: Colors.brown[300],
+                      letterSpacing: 2,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                      onPressed: () {
-                        if (controller.text.trim().isNotEmpty) {
-                          context.read<CanvasProvider>().addItem(
-                            authorId: authorId,
-                            type: CanvasItemType.journal,
-                            content: controller.text.trim(),
-                            xPos: 0,
-                            yPos: 0,
-                          );
-                          Navigator.pop(context);
-                        }
-                      },
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.brown[700],
-                      ),
-                      child: const Text('Seal Entry'),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.brown),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  maxLines: null,
+                  autofocus: true,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 20,
+                    color: Colors.black87,
+                    height: 1.6,
+                  ),
+                  decoration: const InputDecoration(
+                    hintText: 'Pour your thoughts here...',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  onPressed: () {
+                    if (controller.text.trim().isNotEmpty) {
+                      context.read<CanvasProvider>().addItem(
+                        authorId: authorId,
+                        type: CanvasItemType.journal,
+                        content: controller.text.trim(),
+                        xPos: 0,
+                        yPos: 0,
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.brown[700],
+                  ),
+                  child: const Text('Seal Entry'),
+                ),
+              ),
+            ],
           ),
+        ),
+      ),
     );
   }
 
@@ -645,10 +663,9 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     String? currentMonth;
 
     for (var group in timelineGroups) {
-      final firstItem =
-          group is List
-              ? group.first as CanvasItemEntity
-              : group as CanvasItemEntity;
+      final firstItem = group is List
+          ? group.first as CanvasItemEntity
+          : group as CanvasItemEntity;
       final monthStr = DateFormat('MMMM yyyy').format(firstItem.createdAt);
 
       if (monthStr != currentMonth) {
@@ -749,14 +766,13 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
           );
         },
         onDelete: () => context.read<CanvasProvider>().deleteItem(item.id),
-        onReact:
-            (emoji) => context.read<CanvasProvider>().toggleReaction(
-              item.id,
-              currentUserId,
-              emoji,
-            ),
-        onLock:
-            (lock) => context.read<CanvasProvider>().setItemLock(item.id, lock),
+        onReact: (emoji) => context.read<CanvasProvider>().toggleReaction(
+          item.id,
+          currentUserId,
+          emoji,
+        ),
+        onLock: (lock) =>
+            context.read<CanvasProvider>().setItemLock(item.id, lock),
       ),
     );
   }
@@ -800,29 +816,33 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     return GestureDetector(
       onPanStart: (details) {
         setState(() {
-          _currentPoints.add(DrawingPoint(
-            point: details.localPosition,
-            paint: Paint()
-              ..color = _selectedDrawingColor
-              ..strokeCap = StrokeCap.round
-              ..strokeJoin = StrokeJoin.round
-              ..strokeWidth = _drawingStrokeWidth
-              ..isAntiAlias = true,
-          ));
+          _currentPoints.add(
+            DrawingPoint(
+              point: details.localPosition,
+              paint: Paint()
+                ..color = _selectedDrawingColor
+                ..strokeCap = StrokeCap.round
+                ..strokeJoin = StrokeJoin.round
+                ..strokeWidth = _drawingStrokeWidth
+                ..isAntiAlias = true,
+            ),
+          );
         });
         _startMorphTimer();
       },
       onPanUpdate: (details) {
         setState(() {
-          _currentPoints.add(DrawingPoint(
-            point: details.localPosition,
-            paint: Paint()
-              ..color = _selectedDrawingColor
-              ..strokeCap = StrokeCap.round
-              ..strokeJoin = StrokeJoin.round
-              ..strokeWidth = _drawingStrokeWidth
-              ..isAntiAlias = true,
-          ));
+          _currentPoints.add(
+            DrawingPoint(
+              point: details.localPosition,
+              paint: Paint()
+                ..color = _selectedDrawingColor
+                ..strokeCap = StrokeCap.round
+                ..strokeJoin = StrokeJoin.round
+                ..strokeWidth = _drawingStrokeWidth
+                ..isAntiAlias = true,
+            ),
+          );
         });
         _lastPointerPosition = details.localPosition;
       },
@@ -868,7 +888,10 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
   }
 
   void _tryMorphShape() {
-    final points = _currentPoints.where((p) => p != null).map((p) => p!.point).toList();
+    final points = _currentPoints
+        .where((p) => p != null)
+        .map((p) => p!.point)
+        .toList();
     if (points.isEmpty) return;
 
     final shape = ShapeRecognizer.recognize(points);
@@ -882,10 +905,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
         content: shape.type.name,
         xPos: shape.bounds.left / _canvasScale,
         yPos: shape.bounds.top / _canvasScale,
-        metadata: {
-          'w': shape.bounds.width,
-          'h': shape.bounds.height,
-        },
+        metadata: {'w': shape.bounds.width, 'h': shape.bounds.height},
       );
 
       setState(() {
@@ -898,7 +918,10 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
 
   void _finishDoodle() {
     if (_currentPoints.isEmpty) return;
-    final points = _currentPoints.where((p) => p != null).map((p) => p!.point).toList();
+    final points = _currentPoints
+        .where((p) => p != null)
+        .map((p) => p!.point)
+        .toList();
     if (points.length < 5) {
       setState(() => _currentPoints = []);
       return;
@@ -914,7 +937,9 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       if (p.dy < minY) minY = p.dy;
     }
 
-    final relativePoints = points.map((p) => Offset(p.dx - minX, p.dy - minY)).toList();
+    final relativePoints = points
+        .map((p) => Offset(p.dx - minX, p.dy - minY))
+        .toList();
     // Filter out any invalid points before joining
     final content = relativePoints
         .where((p) => p.dx.isFinite && p.dy.isFinite)
@@ -973,159 +998,135 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (ctx) => StatefulBuilder(
-            builder:
-                (context, setModalState) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1A1F26),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Create Core Memory',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1A1F26),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(28),
-                      ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: controller,
+                  maxLines: 4,
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'What happened?',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.3),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Create Core Memory',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: controller,
-                          maxLines: 4,
-                          autofocus: true,
-                          style: const TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            hintText: 'What happened?',
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.3),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.05),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children:
-                              colors
-                                  .map(
-                                    (c) => GestureDetector(
-                                      onTap:
-                                          () => setModalState(
-                                            () => selectedColor = c,
-                                          ),
-                                      child: Container(
-                                        width: 32,
-                                        height: 32,
-                                        decoration: BoxDecoration(
-                                          color: Color(
-                                            int.parse(
-                                              'FF${c.replaceAll('#', '')}',
-                                              radix: 16,
-                                            ),
-                                          ),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color:
-                                                selectedColor == c
-                                                    ? Colors.white
-                                                    : Colors.transparent,
-                                            width: 2,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                        const SizedBox(height: 20),
-                        ListTile(
-                          leading: const Icon(
-                            FluentIcons.lock_closed_24_regular,
-                            color: Colors.amber,
-                          ),
-                          title: Text(
-                            unlockAt == null
-                                ? 'Set Unlock Date (Optional)'
-                                : 'Unlocks: ${DateFormat('yMMMd').format(unlockAt!)}',
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 14,
-                            ),
-                          ),
-                          trailing:
-                              unlockAt != null
-                                  ? IconButton(
-                                    icon: const Icon(
-                                      Icons.close,
-                                      color: Colors.white54,
-                                    ),
-                                    onPressed:
-                                        () => setModalState(
-                                          () => unlockAt = null,
-                                        ),
-                                  )
-                                  : const Icon(
-                                    Icons.chevron_right,
-                                    color: Colors.white54,
-                                  ),
-                          onTap: () async {
-                            final date = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now().add(
-                                const Duration(days: 1),
-                              ),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(
-                                const Duration(days: 365 * 10),
-                              ),
-                            );
-                            if (date != null) {
-                              setModalState(() => unlockAt = date);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: () {
-                              if (controller.text.trim().isNotEmpty) {
-                                context.read<CanvasProvider>().addItem(
-                                  authorId: authorId,
-                                  type: CanvasItemType.text,
-                                  content: controller.text.trim(),
-                                  color: selectedColor,
-                                  xPos: 0,
-                                  yPos: 0,
-                                  unlockAt: unlockAt,
-                                );
-                                Navigator.pop(context);
-                              }
-                            },
-                            child: const Text('Add to Timeline'),
-                          ),
-                        ),
-                      ],
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: colors
+                      .map(
+                        (c) => GestureDetector(
+                          onTap: () => setModalState(() => selectedColor = c),
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: Color(
+                                int.parse(
+                                  'FF${c.replaceAll('#', '')}',
+                                  radix: 16,
+                                ),
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selectedColor == c
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 20),
+                ListTile(
+                  leading: const Icon(
+                    FluentIcons.lock_closed_24_regular,
+                    color: Colors.amber,
+                  ),
+                  title: Text(
+                    unlockAt == null
+                        ? 'Set Unlock Date (Optional)'
+                        : 'Unlocks: ${DateFormat('yMMMd').format(unlockAt!)}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  trailing: unlockAt != null
+                      ? IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white54),
+                          onPressed: () => setModalState(() => unlockAt = null),
+                        )
+                      : const Icon(Icons.chevron_right, color: Colors.white54),
+                  onTap: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now().add(const Duration(days: 1)),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(
+                        const Duration(days: 365 * 10),
+                      ),
+                    );
+                    if (date != null) {
+                      setModalState(() => unlockAt = date);
+                    }
+                  },
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      if (controller.text.trim().isNotEmpty) {
+                        context.read<CanvasProvider>().addItem(
+                          authorId: authorId,
+                          type: CanvasItemType.text,
+                          content: controller.text.trim(),
+                          color: selectedColor,
+                          xPos: 0,
+                          yPos: 0,
+                          unlockAt: unlockAt,
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Add to Timeline'),
+                  ),
+                ),
+              ],
+            ),
           ),
+        ),
+      ),
     );
   }
 
@@ -1139,117 +1140,108 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (ctx) => StatefulBuilder(
-            builder:
-                (context, setModalState) => Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: const BoxDecoration(
+              color: Color(0xFF1A1F26),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'New Milestone',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
                   ),
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF1A1F26),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(28),
-                      ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: controller,
+                  maxLines: 1,
+                  autofocus: true,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                  decoration: InputDecoration(
+                    hintText: 'Chapter Name (e.g. Summer Trip)',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      fontSize: 16,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'New Milestone',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: controller,
-                          maxLines: 1,
-                          autofocus: true,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            hintText: 'Chapter Name (e.g. Summer Trip)',
-                            hintStyle: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.3),
-                              fontSize: 16,
-                            ),
-                            filled: true,
-                            fillColor: Colors.white.withValues(alpha: 0.05),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              borderSide: BorderSide.none,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children:
-                              colors
-                                  .map(
-                                    (c) => GestureDetector(
-                                      onTap:
-                                          () => setModalState(
-                                            () => selectedColor = c,
-                                          ),
-                                      child: Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          color: Color(
-                                            int.parse(
-                                              'FF${c.replaceAll('#', '')}',
-                                              radix: 16,
-                                            ),
-                                          ),
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color:
-                                                selectedColor == c
-                                                    ? Colors.white
-                                                    : Colors.transparent,
-                                            width: 3,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                  .toList(),
-                        ),
-                        const SizedBox(height: 24),
-                        SizedBox(
-                          width: double.infinity,
-                          child: FilledButton(
-                            onPressed: () {
-                              if (controller.text.trim().isNotEmpty) {
-                                context.read<CanvasProvider>().addItem(
-                                  authorId: authorId,
-                                  type: CanvasItemType.milestone,
-                                  content: controller.text.trim(),
-                                  color: selectedColor,
-                                  xPos: 0,
-                                  yPos: 0,
-                                );
-                                Navigator.pop(context);
-                              }
-                            },
-                            child: const Text('Pin Milestone'),
-                          ),
-                        ),
-                      ],
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: colors
+                      .map(
+                        (c) => GestureDetector(
+                          onTap: () => setModalState(() => selectedColor = c),
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Color(
+                                int.parse(
+                                  'FF${c.replaceAll('#', '')}',
+                                  radix: 16,
+                                ),
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: selectedColor == c
+                                    ? Colors.white
+                                    : Colors.transparent,
+                                width: 3,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      if (controller.text.trim().isNotEmpty) {
+                        context.read<CanvasProvider>().addItem(
+                          authorId: authorId,
+                          type: CanvasItemType.milestone,
+                          content: controller.text.trim(),
+                          color: selectedColor,
+                          xPos: 0,
+                          yPos: 0,
+                        );
+                        Navigator.pop(context);
+                      }
+                    },
+                    child: const Text('Pin Milestone'),
+                  ),
+                ),
+              ],
+            ),
           ),
+        ),
+      ),
     );
   }
 
@@ -1290,55 +1282,53 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(24),
-            decoration: const BoxDecoration(
-              color: Color(0xFF1A1F26),
-              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1F26),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Add Sticker',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Add Sticker',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
-                  alignment: WrapAlignment.center,
-                  children:
-                      stickers
-                          .map(
-                            (sticker) => GestureDetector(
-                              onTap: () {
-                                context.read<CanvasProvider>().addItem(
-                                  authorId: _getAuthorId(),
-                                  type: CanvasItemType.sticker,
-                                  content: sticker,
-                                  xPos: 0,
-                                  yPos: 0,
-                                );
-                                Navigator.pop(context);
-                              },
-                              child: Text(
-                                sticker,
-                                style: const TextStyle(fontSize: 48),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                ),
-                const SizedBox(height: 24),
-              ],
+            const SizedBox(height: 24),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              alignment: WrapAlignment.center,
+              children: stickers
+                  .map(
+                    (sticker) => GestureDetector(
+                      onTap: () {
+                        context.read<CanvasProvider>().addItem(
+                          authorId: _getAuthorId(),
+                          type: CanvasItemType.sticker,
+                          content: sticker,
+                          xPos: 0,
+                          yPos: 0,
+                        );
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        sticker,
+                        style: const TextStyle(fontSize: 48),
+                      ),
+                    ),
+                  )
+                  .toList(),
             ),
-          ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
     );
   }
 
@@ -1351,136 +1341,124 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
       isDismissible: false,
       enableDrag: false,
       backgroundColor: Colors.transparent,
-      builder:
-          (modalCtx) => StatefulBuilder(
-            builder:
-                (innerModalCtx, setModalState) => Container(
-                  padding: const EdgeInsets.all(32),
+      builder: (modalCtx) => StatefulBuilder(
+        builder: (innerModalCtx, setModalState) => Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: const Color(0xFF1A1F26),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border.all(color: Colors.white10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isRecording ? 'Recording...' : 'Record Voice Memo',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 32),
+              GestureDetector(
+                onTap: () async {
+                  if (isRecording) {
+                    final path = await _audioRecorder.stop();
+                    setModalState(() {
+                      isRecording = false;
+                      recordPath = path;
+                    });
+
+                    if (recordPath != null && modalCtx.mounted) {
+                      final authorId = _getAuthorId();
+                      final canvasProvider = modalCtx.read<CanvasProvider>();
+                      final messenger = ScaffoldMessenger.of(modalCtx);
+                      final canvasService = CanvasService();
+
+                      Navigator.pop(modalCtx);
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Uploading voice memo...'),
+                        ),
+                      );
+
+                      try {
+                        final url = await canvasService.uploadCanvasAudio(
+                          widget.canvasId,
+                          recordPath!,
+                        );
+                        if (mounted) {
+                          canvasProvider.addItem(
+                            authorId: authorId,
+                            type: CanvasItemType.voice,
+                            content: url,
+                            xPos: 0,
+                            yPos: 0,
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          messenger.showSnackBar(
+                            SnackBar(content: Text('Failed to upload: $e')),
+                          );
+                        }
+                      }
+                    }
+                  } else {
+                    if (await _audioRecorder.hasPermission()) {
+                      final tempDir = await getTemporaryDirectory();
+                      final path =
+                          '${tempDir.path}/canvas_memo_${DateTime.now().millisecondsSinceEpoch}.m4a';
+                      await _audioRecorder.start(
+                        const RecordConfig(),
+                        path: path,
+                      );
+                      setModalState(() => isRecording = true);
+                    }
+                  }
+                },
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1A1F26),
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                    border: Border.all(color: Colors.white10),
+                    color: isRecording
+                        ? Colors.red
+                        : Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    boxShadow: isRecording
+                        ? [
+                            BoxShadow(
+                              color: Colors.red.withValues(alpha: 0.5),
+                              blurRadius: 20,
+                              spreadRadius: 5,
+                            ),
+                          ]
+                        : [],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        isRecording ? 'Recording...' : 'Record Voice Memo',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      GestureDetector(
-                        onTap: () async {
-                          if (isRecording) {
-                            final path = await _audioRecorder.stop();
-                            setModalState(() {
-                              isRecording = false;
-                              recordPath = path;
-                            });
-
-                            if (recordPath != null && modalCtx.mounted) {
-                              final authorId = _getAuthorId();
-                              final canvasProvider =
-                                  modalCtx.read<CanvasProvider>();
-                              final messenger = ScaffoldMessenger.of(modalCtx);
-                              final canvasService = CanvasService();
-
-                              Navigator.pop(modalCtx);
-                              messenger.showSnackBar(
-                                const SnackBar(
-                                  content: Text('Uploading voice memo...'),
-                                ),
-                              );
-
-                              try {
-                                final url = await canvasService
-                                    .uploadCanvasAudio(
-                                      widget.canvasId,
-                                      recordPath!,
-                                    );
-                                if (mounted) {
-                                  canvasProvider.addItem(
-                                    authorId: authorId,
-                                    type: CanvasItemType.voice,
-                                    content: url,
-                                    xPos: 0,
-                                    yPos: 0,
-                                  );
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  messenger.showSnackBar(
-                                    SnackBar(
-                                      content: Text('Failed to upload: $e'),
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                          } else {
-                            if (await _audioRecorder.hasPermission()) {
-                              final tempDir = await getTemporaryDirectory();
-                              final path =
-                                  '${tempDir.path}/canvas_memo_${DateTime.now().millisecondsSinceEpoch}.m4a';
-                              await _audioRecorder.start(
-                                const RecordConfig(),
-                                path: path,
-                              );
-                              setModalState(() => isRecording = true);
-                            }
-                          }
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color:
-                                isRecording
-                                    ? Colors.red
-                                    : Theme.of(context).colorScheme.primary,
-                            shape: BoxShape.circle,
-                            boxShadow:
-                                isRecording
-                                    ? [
-                                      BoxShadow(
-                                        color: Colors.red.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                        blurRadius: 20,
-                                        spreadRadius: 5,
-                                      ),
-                                    ]
-                                    : [],
-                          ),
-                          child: Icon(
-                            isRecording
-                                ? FluentIcons.stop_24_filled
-                                : FluentIcons.mic_24_filled,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      if (!isRecording)
-                        TextButton(
-                          onPressed: () => Navigator.pop(modalCtx),
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(color: Colors.white54),
-                          ),
-                        ),
-                    ],
+                  child: Icon(
+                    isRecording
+                        ? FluentIcons.stop_24_filled
+                        : FluentIcons.mic_24_filled,
+                    color: Colors.white,
+                    size: 32,
                   ),
                 ),
+              ),
+              const SizedBox(height: 32),
+              if (!isRecording)
+                TextButton(
+                  onPressed: () => Navigator.pop(modalCtx),
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                ),
+            ],
           ),
+        ),
+      ),
     );
   }
 }
@@ -1515,7 +1493,11 @@ class _HeaderOverlay extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: Colors.white10),
             ),
-            child: const Icon(FluentIcons.chevron_left_24_regular, color: Colors.white, size: 20),
+            child: const Icon(
+              FluentIcons.chevron_left_24_regular,
+              color: Colors.white,
+              size: 20,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -1536,18 +1518,33 @@ class _HeaderOverlay extends StatelessWidget {
                     children: [
                       Text(
                         canvas?.title ?? 'Our Canvas',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                       ),
-                      _ActiveUsersRow(provider: provider, currentUserId: currentUserId),
+                      _ActiveUsersRow(
+                        provider: provider,
+                        currentUserId: currentUserId,
+                      ),
                     ],
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(FluentIcons.glance_24_regular, color: Colors.white, size: 20),
+                  icon: const Icon(
+                    FluentIcons.glance_24_regular,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   onPressed: onToggleView,
                 ),
                 IconButton(
-                  icon: const Icon(FluentIcons.people_add_24_regular, color: Colors.white, size: 20),
+                  icon: const Icon(
+                    FluentIcons.people_add_24_regular,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                   onPressed: onInvite,
                 ),
               ],
@@ -1667,10 +1664,9 @@ class _DesktopCanvasToolbar extends StatelessWidget {
             color: Colors.white10,
           ),
           _ToolbarAction(
-            icon:
-                isMapMode
-                    ? FluentIcons.list_24_regular
-                    : FluentIcons.glance_24_regular,
+            icon: isMapMode
+                ? FluentIcons.list_24_regular
+                : FluentIcons.glance_24_regular,
             label: isMapMode ? 'Timeline' : 'Spatial',
             onTap: onToggleView,
             isVibrant: true,
@@ -1788,7 +1784,9 @@ class _TimelineAddItemTrayState extends State<_TimelineAddItemTray> {
               setState(() => _expanded = false);
               widget.onToggleDrawing();
             },
-            backgroundColor: widget.isDrawingMode ? Colors.blueAccent : Colors.white,
+            backgroundColor: widget.isDrawingMode
+                ? Colors.blueAccent
+                : Colors.white,
             child: Icon(
               FluentIcons.gesture_24_regular,
               color: widget.isDrawingMode ? Colors.white : Colors.black,
@@ -1889,11 +1887,13 @@ class _DoodleToolbar extends StatelessWidget {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ...colors.map((color) => _DoodleColorButton(
-                color: color,
-                isSelected: selectedColor == color,
-                onTap: () => onColorChanged(color),
-              )),
+              ...colors.map(
+                (color) => _DoodleColorButton(
+                  color: color,
+                  isSelected: selectedColor == color,
+                  onTap: () => onColorChanged(color),
+                ),
+              ),
               const VerticalDivider(width: 20, color: Colors.white24),
               IconButton(
                 icon: const Icon(Icons.undo, color: Colors.white),
@@ -1918,7 +1918,9 @@ class _DoodleToolbar extends StatelessWidget {
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     trackHeight: 2,
-                    thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
                   ),
                   child: Slider(
                     value: strokeWidth,

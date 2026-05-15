@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oasis/features/feed/domain/models/post_mood.dart';
 import 'package:oasis/widgets/pulse_picker_sheet.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class UnifiedVibePickerSheet extends StatefulWidget {
   final String? currentMood;
@@ -54,6 +55,8 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
     final colorScheme = theme.colorScheme;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -63,7 +66,9 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
         (keyboardPadding > 0 ? keyboardPadding + 16 : bottomPadding + 24),
       ),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: isSolid
+            ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+            : colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: SingleChildScrollView(
@@ -101,7 +106,12 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
             const SizedBox(height: 24),
 
             // Mood Section
-            _buildSectionHeader(context, 'Current Vibe', widget.currentMood != null, widget.onClearMood),
+            _buildSectionHeader(
+              context,
+              'Current Vibe',
+              widget.currentMood != null,
+              widget.onClearMood,
+            ),
             const SizedBox(height: 12),
             SizedBox(
               height: 44,
@@ -125,7 +135,9 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                         HapticUtils.selectionClick();
                         widget.onMoodSelect(mood.name, mood.emoji);
                       },
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
                     ),
                   );
                 }).toList(),
@@ -135,7 +147,12 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
             const SizedBox(height: 32),
 
             // Pulse Section
-            _buildSectionHeader(context, 'Check-in Pulse', widget.currentPulse != null, widget.onClearPulse),
+            _buildSectionHeader(
+              context,
+              'Check-in Pulse',
+              widget.currentPulse != null,
+              widget.onClearPulse,
+            ),
             const SizedBox(height: 12),
             Wrap(
               spacing: 8,
@@ -156,17 +173,22 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                     HapticUtils.selectionClick();
                     setState(() => _selectedPulse = selected ? status : null);
                   },
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 );
               }).toList(),
             ),
 
-            if (_selectedPulse == PulseStatus.withFriend || _selectedPulse == PulseStatus.atLocation) ...[
+            if (_selectedPulse == PulseStatus.withFriend ||
+                _selectedPulse == PulseStatus.atLocation) ...[
               const SizedBox(height: 16),
               TextField(
                 controller: _pulseTextController,
                 decoration: InputDecoration(
-                  hintText: _selectedPulse == PulseStatus.withFriend ? "Who are you with?" : "Where are you?",
+                  hintText: _selectedPulse == PulseStatus.withFriend
+                      ? "Who are you with?"
+                      : "Where are you?",
                   filled: true,
                   fillColor: colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
@@ -187,9 +209,11 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                 onPressed: () {
                   if (_selectedPulse != null) {
                     String? customText;
-                    if (_selectedPulse == PulseStatus.withFriend || _selectedPulse == PulseStatus.atLocation) {
+                    if (_selectedPulse == PulseStatus.withFriend ||
+                        _selectedPulse == PulseStatus.atLocation) {
                       customText = _pulseTextController.text.trim();
-                      if (customText.isEmpty) return; // Prevent setting empty custom pulse
+                      if (customText.isEmpty)
+                        return; // Prevent setting empty custom pulse
                     }
                     widget.onPulseSelect(_selectedPulse!, customText);
                   }
@@ -207,7 +231,12 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
     );
   }
 
-  Widget _buildSectionHeader(BuildContext context, String title, bool hasValue, VoidCallback onClear) {
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    bool hasValue,
+    VoidCallback onClear,
+  ) {
     final theme = Theme.of(context);
     return Row(
       children: [

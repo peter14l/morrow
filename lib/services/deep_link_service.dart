@@ -15,12 +15,15 @@ class DeepLinkService {
     _appLinks = AppLinks();
 
     // Handle links when the app is already running (foreground/background)
-    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      debugPrint('DeepLinkService: Received link: $uri');
-      _handleDeepLink(uri);
-    }, onError: (err) {
-      debugPrint('DeepLinkService: Error listening to links: $err');
-    });
+    _linkSubscription = _appLinks.uriLinkStream.listen(
+      (uri) {
+        debugPrint('DeepLinkService: Received link: $uri');
+        _handleDeepLink(uri);
+      },
+      onError: (err) {
+        debugPrint('DeepLinkService: Error listening to links: $err');
+      },
+    );
 
     // Handle the link that opened the app (cold start)
     _checkInitialLink();
@@ -40,7 +43,7 @@ class DeepLinkService {
 
   void _handleDeepLink(Uri uri) {
     String path = uri.path;
-    
+
     // For custom schemes like oasis://post/123, the host is 'post' and path is '/123'
     if (uri.scheme == 'oasis') {
       path = '/${uri.host}${uri.path}';
@@ -49,13 +52,16 @@ class DeepLinkService {
     // Only handle our specific web domain or scheme
     if (uri.host == 'oasis-web-red.vercel.app' || uri.scheme == 'oasis') {
       debugPrint('DeepLinkService: Navigating to path: $path');
-      
+
       // Ensure we don't navigate if the path is empty or just /
       if (path.isEmpty || path == '/') return;
-      
+
       // Ignore auth callbacks as they are handled by the Supabase SDK internally
-      if (path.startsWith('/auth/callback') || path.startsWith('/auth/apple/callback')) {
-        debugPrint('DeepLinkService: Ignoring auth callback path, letting Supabase handle it.');
+      if (path.startsWith('/auth/callback') ||
+          path.startsWith('/auth/apple/callback')) {
+        debugPrint(
+          'DeepLinkService: Ignoring auth callback path, letting Supabase handle it.',
+        );
         return;
       }
 

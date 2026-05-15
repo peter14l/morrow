@@ -35,10 +35,11 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
   List<String> _categories = [];
   bool _isLoading = false;
   String? _error;
-  
+
   Timer? _searchDebounce;
 
-  bool get _isUsingKlipy => widget.useKlipy || ChatApiConfig.giphyApiKey.isEmpty;
+  bool get _isUsingKlipy =>
+      widget.useKlipy || ChatApiConfig.giphyApiKey.isEmpty;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   Future<void> _loadInitialData() async {
     setState(() => _isLoading = true);
-    
+
     // Load categories (Giphy only for now, or standard list)
     final catResult = await _giphyService.getCategories(isSticker: _isStickers);
     if (catResult.isSuccess) {
@@ -75,7 +76,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
     });
 
     final query = _searchController.text.trim();
-    
+
     if (_isUsingKlipy) {
       KlipyResult<List<KlipyMedia>> result;
       if (query.isNotEmpty) {
@@ -100,7 +101,10 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
       if (query.isNotEmpty) {
         result = await _giphyService.search(query, isSticker: _isStickers);
       } else if (_selectedCategory != 'Trending') {
-        result = await _giphyService.search(_selectedCategory, isSticker: _isStickers);
+        result = await _giphyService.search(
+          _selectedCategory,
+          isSticker: _isStickers,
+        );
       } else {
         result = await _giphyService.getTrending(isSticker: _isStickers);
       }
@@ -126,8 +130,9 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   void _toggleType(bool isStickers) {
     if (_isStickers == isStickers) return;
-    if (_isUsingKlipy) return; // Klipy doesn't support stickers in current service impl
-    
+    if (_isUsingKlipy)
+      return; // Klipy doesn't support stickers in current service impl
+
     HapticUtils.lightImpact();
     setState(() {
       _isStickers = isStickers;
@@ -157,7 +162,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
       height: MediaQuery.of(context).size.height * (isDesktop ? 0.8 : 0.75),
       constraints: const BoxConstraints(maxWidth: 800),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark 
+        color: theme.brightness == Brightness.dark
             ? colorScheme.surface.withValues(alpha: 0.8)
             : colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -174,7 +179,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          
+
           // Header & Toggle
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
@@ -199,7 +204,9 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
             child: Container(
               height: 44,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.4,
+                ),
                 borderRadius: BorderRadius.circular(22),
                 border: Border.all(
                   color: colorScheme.outlineVariant.withValues(alpha: 0.3),
@@ -210,17 +217,25 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
                 onChanged: _onSearchChanged,
                 style: const TextStyle(fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: _isUsingKlipy ? 'Search Klipy...' : 'Search Giphy...',
-                  hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
-                  prefixIcon: Icon(FluentIcons.search_20_regular, size: 18, color: colorScheme.onSurfaceVariant),
-                  suffixIcon: _searchController.text.isNotEmpty 
+                  hintText: _isUsingKlipy
+                      ? 'Search Klipy...'
+                      : 'Search Giphy...',
+                  hintStyle: TextStyle(
+                    color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                  ),
+                  prefixIcon: Icon(
+                    FluentIcons.search_20_regular,
+                    size: 18,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  suffixIcon: _searchController.text.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.close_rounded, size: 18),
                           onPressed: () {
                             _searchController.clear();
                             _fetchData();
                           },
-                        ) 
+                        )
                       : null,
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 11),
@@ -234,9 +249,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
           _buildCategoryChips(),
 
           // Results Grid
-          Expanded(
-            child: _buildResults(),
-          ),
+          Expanded(child: _buildResults()),
         ],
       ),
     );
@@ -281,7 +294,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
         itemBuilder: (context, index) {
           final category = _categories[index];
           final isSelected = _selectedCategory == category;
-          
+
           return Padding(
             padding: const EdgeInsets.only(right: 8),
             child: ChoiceChip(
@@ -297,11 +310,15 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
               selectedColor: Theme.of(context).colorScheme.primary,
               backgroundColor: Colors.transparent,
               side: BorderSide(
-                color: isSelected 
-                    ? Colors.transparent 
-                    : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                color: isSelected
+                    ? Colors.transparent
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outlineVariant.withValues(alpha: 0.5),
               ),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
             ),
           );
         },
@@ -319,7 +336,11 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
+            Icon(
+              Icons.error_outline,
+              size: 48,
+              color: Theme.of(context).colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(_error!),
             TextButton(onPressed: _fetchData, child: const Text('Retry')),
@@ -333,7 +354,13 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(FluentIcons.emoji_sad_24_regular, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
+            Icon(
+              FluentIcons.emoji_sad_24_regular,
+              size: 48,
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             const Text('No results found'),
           ],
@@ -359,7 +386,9 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               child: Stack(
                 children: [
                   CachedNetworkImage(
@@ -369,9 +398,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
                       return const AspectRatio(
                         aspectRatio: 1.0,
                         child: Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                          ),
+                          child: CircularProgressIndicator(strokeWidth: 2),
                         ),
                       );
                     },
@@ -409,13 +436,15 @@ class _ToggleItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected ? colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(15),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            )
-          ] : null,
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: colorScheme.primary.withValues(alpha: 0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         alignment: Alignment.center,
         child: Text(
@@ -430,4 +459,3 @@ class _ToggleItem extends StatelessWidget {
     );
   }
 }
-

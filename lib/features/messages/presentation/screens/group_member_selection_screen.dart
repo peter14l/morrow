@@ -19,10 +19,12 @@ class GroupMemberSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<GroupMemberSelectionScreen> createState() => _GroupMemberSelectionScreenState();
+  State<GroupMemberSelectionScreen> createState() =>
+      _GroupMemberSelectionScreenState();
 }
 
-class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen> {
+class _GroupMemberSelectionScreenState
+    extends State<GroupMemberSelectionScreen> {
   final Set<String> _selectedUserIds = {};
   String _searchQuery = '';
   bool _isCreating = false;
@@ -58,16 +60,16 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
       );
 
       if (mounted) {
-        context.pushReplacement('/messages/$conversationId', extra: {
-          'otherUserName': groupName,
-          'type': 'group',
-        });
+        context.pushReplacement(
+          '/messages/$conversationId',
+          extra: {'otherUserName': groupName, 'type': 'group'},
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error creating group: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error creating group: $e')));
       }
     } finally {
       if (mounted) setState(() => _isCreating = false);
@@ -82,9 +84,7 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
         title: const Text('Group Name'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
-            hintText: 'Enter group name',
-          ),
+          decoration: const InputDecoration(hintText: 'Enter group name'),
           autofocus: true,
         ),
         actions: [
@@ -189,15 +189,22 @@ class _GroupMemberSelectionScreenState extends State<GroupMemberSelectionScreen>
                               right: -4,
                               top: -4,
                               child: GestureDetector(
-                                onTap: () => setState(() => _selectedUserIds.remove(id)),
+                                onTap: () =>
+                                    setState(() => _selectedUserIds.remove(id)),
                                 child: Container(
                                   padding: const EdgeInsets.all(2),
                                   decoration: BoxDecoration(
                                     color: colorScheme.surface,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: colorScheme.outline),
+                                    border: Border.all(
+                                      color: colorScheme.outline,
+                                    ),
                                   ),
-                                  child: Icon(Icons.close, size: 14, color: colorScheme.error),
+                                  child: Icon(
+                                    Icons.close,
+                                    size: 14,
+                                    color: colorScheme.error,
+                                  ),
                                 ),
                               ),
                             ),

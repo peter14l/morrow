@@ -17,46 +17,43 @@ class AccountPrivacyScreen extends StatelessWidget {
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     final content = ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          SwitchListTile(
-            title: const Text('Private Account'),
-            subtitle: const Text(
-              'When your account is private, only people you approve can see your photos and videos.',
-            ),
-            value: isPrivate,
-            onChanged: (value) async {
-              if (user != null) {
-                try {
-                  await profileProvider.updatePrivacy(
-                    userId: user.id,
-                    isPrivate: value,
-                  );
-                } catch (e) {
-                  if (context.mounted) {
-                    CustomSnackbar.showError(context, e);
-                  }
+      padding: const EdgeInsets.all(16),
+      children: [
+        SwitchListTile(
+          title: const Text('Private Account'),
+          subtitle: const Text(
+            'When your account is private, only people you approve can see your photos and videos.',
+          ),
+          value: isPrivate,
+          onChanged: (value) async {
+            if (user != null) {
+              try {
+                await profileProvider.updatePrivacy(
+                  userId: user.id,
+                  isPrivate: value,
+                );
+              } catch (e) {
+                if (context.mounted) {
+                  CustomSnackbar.showError(context, e);
                 }
               }
-            },
+            }
+          },
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Text(
+            'This doesn\'t change who can message you or see your profile information.',
+            style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'This doesn\'t change who can message you or see your profile information.',
-              style: TextStyle(fontSize: 12, color: Colors.grey),
-            ),
-          ),
-        ],
-      );
+        ),
+      ],
+    );
 
     if (isDesktop) return Material(color: Colors.transparent, child: content);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Account Privacy'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Account Privacy'), centerTitle: true),
       body: content,
     );
   }

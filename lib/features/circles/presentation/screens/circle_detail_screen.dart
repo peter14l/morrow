@@ -29,16 +29,24 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final currentUserId = AuthService().currentUser?.id;
       if (currentUserId != null && mounted) {
         final provider = context.read<CircleProvider>();
-        debugPrint('[CircleDetailScreen] Initializing circle ${widget.circleId} for user $currentUserId');
+        debugPrint(
+          '[CircleDetailScreen] Initializing circle ${widget.circleId} for user $currentUserId',
+        );
         await provider.setActiveCircle(widget.circleId, currentUserId);
         if (mounted) {
-          await provider.loadCircleFeed(widget.circleId, currentUserId, refresh: true);
-          debugPrint('[CircleDetailScreen] Feed loaded: ${provider.circleFeed.length} posts');
+          await provider.loadCircleFeed(
+            widget.circleId,
+            currentUserId,
+            refresh: true,
+          );
+          debugPrint(
+            '[CircleDetailScreen] Feed loaded: ${provider.circleFeed.length} posts',
+          );
         }
       }
     });
@@ -47,10 +55,14 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
       final currentUserId = AuthService().currentUser?.id;
       if (currentUserId != null) {
-        context.read<CircleProvider>().loadCircleFeed(widget.circleId, currentUserId);
+        context.read<CircleProvider>().loadCircleFeed(
+          widget.circleId,
+          currentUserId,
+        );
       }
     }
   }
@@ -66,17 +78,19 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
     final currentUserId = AuthService().currentUser?.id;
     if (currentUserId == null) return;
 
-    debugPrint('[CircleDetailScreen] Opening CreatePostScreen for circle ${widget.circleId}');
+    debugPrint(
+      '[CircleDetailScreen] Opening CreatePostScreen for circle ${widget.circleId}',
+    );
     await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => CreatePostScreen(
-          circleId: widget.circleId,
-        ),
+        builder: (context) => CreatePostScreen(circleId: widget.circleId),
       ),
     );
 
-    debugPrint('[CircleDetailScreen] Returned from CreatePostScreen. Local feed count: ${context.read<CircleProvider>().circleFeed.length}');
+    debugPrint(
+      '[CircleDetailScreen] Returned from CreatePostScreen. Local feed count: ${context.read<CircleProvider>().circleFeed.length}',
+    );
   }
 
   @override
@@ -166,13 +180,18 @@ class _FeedTab extends StatelessWidget {
           onRefresh: () async {
             final currentUserId = AuthService().currentUser?.id;
             if (currentUserId != null && provider.activeCircle != null) {
-              await provider.loadCircleFeed(provider.activeCircle!.id, currentUserId, refresh: true);
+              await provider.loadCircleFeed(
+                provider.activeCircle!.id,
+                currentUserId,
+                refresh: true,
+              );
             }
           },
           child: ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            itemCount: provider.circleFeed.length + (provider.hasMoreFeed ? 1 : 0),
+            itemCount:
+                provider.circleFeed.length + (provider.hasMoreFeed ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == provider.circleFeed.length) {
                 return const Center(
@@ -212,29 +231,31 @@ class _FeedTab extends StatelessWidget {
                       content: post.content,
                       messageType: MessageType.postShare,
                       postId: post.id,
-                      mediaUrl: post.mediaUrls.isNotEmpty ? post.mediaUrls.first : null,
+                      mediaUrl: post.mediaUrls.isNotEmpty
+                          ? post.mediaUrls.first
+                          : null,
                       shareData: post.toJson(),
                     ),
                   );
                 },
                 onDelete: () async {
-                   final currentUserId = AuthService().currentUser?.id;
-                   if (currentUserId != null) {
-                     try {
-                        await provider.deletePost(post.id, currentUserId);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(content: Text('Post deleted')),
-                                                    );
-                        }
-                     } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error deleting post: $e')),
-                          );
-                        }
-                     }
-                   }
+                  final currentUserId = AuthService().currentUser?.id;
+                  if (currentUserId != null) {
+                    try {
+                      await provider.deletePost(post.id, currentUserId);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text('Post deleted')));
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error deleting post: $e')),
+                        );
+                      }
+                    }
+                  }
                 },
               );
             },
@@ -258,7 +279,9 @@ class _MembersTab extends StatelessWidget {
         // If members list is empty but we have member IDs, we might still be loading profiles
         // or the data wasn't joined.
         final hasProfiles = circle.members.isNotEmpty;
-        final count = hasProfiles ? circle.members.length : circle.memberIds.length;
+        final count = hasProfiles
+            ? circle.members.length
+            : circle.memberIds.length;
 
         return ListView.builder(
           padding: const EdgeInsets.all(16),
@@ -268,7 +291,8 @@ class _MembersTab extends StatelessWidget {
               final member = circle.members[index];
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundImage: member.avatarUrl != null && member.avatarUrl!.isNotEmpty
+                  backgroundImage:
+                      member.avatarUrl != null && member.avatarUrl!.isNotEmpty
                       ? NetworkImage(member.avatarUrl!)
                       : null,
                   child: (member.avatarUrl == null || member.avatarUrl!.isEmpty)
@@ -276,15 +300,21 @@ class _MembersTab extends StatelessWidget {
                       : null,
                 ),
                 title: Text(member.displayName),
-                subtitle: Text(member.id == circle.createdBy ? 'Author' : 'Member'),
+                subtitle: Text(
+                  member.id == circle.createdBy ? 'Author' : 'Member',
+                ),
               );
             }
 
             final memberId = circle.memberIds[index];
             return ListTile(
-              leading: const CircleAvatar(child: Icon(FluentIcons.person_24_regular)),
+              leading: const CircleAvatar(
+                child: Icon(FluentIcons.person_24_regular),
+              ),
               title: Text('User $memberId'),
-              subtitle: Text(memberId == circle.createdBy ? 'Author' : 'Member'),
+              subtitle: Text(
+                memberId == circle.createdBy ? 'Author' : 'Member',
+              ),
             );
           },
         );

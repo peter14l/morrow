@@ -25,10 +25,9 @@ class WellnessStatsScreen extends StatelessWidget {
 
     // For non-own profile, we'll fetch their data
     return FutureBuilder<Map<String, dynamic>?>(
-      future:
-          isOwnProfile
-              ? Future.value(null)
-              : ProfileRemoteDatasource().getProfile(userId!),
+      future: isOwnProfile
+          ? Future.value(null)
+          : ProfileRemoteDatasource().getProfile(userId!),
       builder: (context, snapshot) {
         final targetUser = snapshot.data;
         final displayName = targetUser?['username'] ?? 'User';
@@ -72,7 +71,10 @@ class WellnessStatsScreen extends StatelessWidget {
               ),
               children: [
                 // XP Summary Card
-                _buildXPCard(theme, isOwnProfile ? wellness.totalXp : displayXp),
+                _buildXPCard(
+                  theme,
+                  isOwnProfile ? wellness.totalXp : displayXp,
+                ),
                 const SizedBox(height: 24),
 
                 // Focus Session Stats
@@ -174,8 +176,9 @@ class WellnessStatsScreen extends StatelessWidget {
   }
 
   Widget _buildStatGrid(ThemeData theme, WellnessService wellness) {
-    final completed =
-        wellness.achievements.where((a) => a.id.startsWith('focus_')).length;
+    final completed = wellness.achievements
+        .where((a) => a.id.startsWith('focus_'))
+        .length;
 
     return Row(
       children: [

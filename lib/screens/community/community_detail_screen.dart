@@ -112,17 +112,16 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
         }
 
         return Scaffold(
-          floatingActionButton:
-              provider.isMember
-                  ? FloatingActionButton.extended(
-                    onPressed: () {
-                      context.push('/create-post', extra: widget.communityId);
-                      // Note: You need to make sure your router creates CreatePostScreen with the extra as communityId
-                    },
-                    label: const Text('Post'),
-                    icon: const Icon(Icons.edit),
-                  )
-                  : null,
+          floatingActionButton: provider.isMember
+              ? FloatingActionButton.extended(
+                  onPressed: () {
+                    context.push('/create-post', extra: widget.communityId);
+                    // Note: You need to make sure your router creates CreatePostScreen with the extra as communityId
+                  },
+                  label: const Text('Post'),
+                  icon: const Icon(Icons.edit),
+                )
+              : null,
           body: CustomScrollView(
             slivers: [
               // App Bar with Community Header
@@ -231,14 +230,12 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                             provider.isMember ? 'Joined' : 'Join Community',
                           ),
                           style: FilledButton.styleFrom(
-                            backgroundColor:
-                                provider.isMember
-                                    ? colorScheme.surfaceContainerHighest
-                                    : colorScheme.primary,
-                            foregroundColor:
-                                provider.isMember
-                                    ? colorScheme.onSurface
-                                    : colorScheme.onPrimary,
+                            backgroundColor: provider.isMember
+                                ? colorScheme.surfaceContainerHighest
+                                : colorScheme.primary,
+                            foregroundColor: provider.isMember
+                                ? colorScheme.onSurface
+                                : colorScheme.onPrimary,
                           ),
                         ),
                       ),
@@ -271,7 +268,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         Icon(
                           Icons.article_outlined,
                           size: 64,
-                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                          color: colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          ),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -310,9 +309,15 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         final userId = _authService.currentUser?.id;
                         if (userId == null) return;
                         if (post.isBookmarked) {
-                          provider.unbookmarkPost(userId: userId, postId: post.id);
+                          provider.unbookmarkPost(
+                            userId: userId,
+                            postId: post.id,
+                          );
                         } else {
-                          provider.bookmarkPost(userId: userId, postId: post.id);
+                          provider.bookmarkPost(
+                            userId: userId,
+                            postId: post.id,
+                          );
                         }
                       },
                       onComment: () {
@@ -325,7 +330,9 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         );
                       },
                       onShare: () {
-                        final deepLink = AppConfig.getWebUrl('/post/${post.id}');
+                        final deepLink = AppConfig.getWebUrl(
+                          '/post/${post.id}',
+                        );
                         Share.share('Check out this post on Oasis! $deepLink');
                       },
                       onDelete: () async {

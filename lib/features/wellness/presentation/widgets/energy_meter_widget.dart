@@ -84,10 +84,9 @@ class _EnergyMeterWidgetState extends State<EnergyMeterWidget>
               top: MediaQuery.of(context).padding.top + 8,
               right: 16,
               child: ScaleTransition(
-                scale:
-                    isLowEnergy
-                        ? _pulseAnimation
-                        : const AlwaysStoppedAnimation(1.0),
+                scale: isLowEnergy
+                    ? _pulseAnimation
+                    : const AlwaysStoppedAnimation(1.0),
                 child: _buildEnergyIndicator(energyMeter),
               ),
             ),

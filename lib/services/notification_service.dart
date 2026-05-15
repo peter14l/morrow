@@ -84,7 +84,10 @@ class NotificationService {
           .from(SupabaseConfig.notificationsTable)
           .delete()
           .eq('user_id', userId)
-          .neq('type', 'dm'); // Don't delete DM notifications as they are handled differently
+          .neq(
+            'type',
+            'dm',
+          ); // Don't delete DM notifications as they are handled differently
     } catch (e) {
       debugPrint('Error clearing all notifications: $e');
       rethrow;
@@ -140,24 +143,27 @@ class NotificationService {
           ),
           callback: (payload) async {
             try {
-              final notificationData = Map<String, dynamic>.from(payload.newRecord);
+              final notificationData = Map<String, dynamic>.from(
+                payload.newRecord,
+              );
 
               // Fetch actor details for the display name/avatar
               if (notificationData['actor_id'] != null) {
                 try {
-                  final profile =
-                      await _supabase
-                          .from(SupabaseConfig.profilesTable)
-                          .select('username, avatar_url')
-                          .eq('id', notificationData['actor_id'])
-                          .maybeSingle();
+                  final profile = await _supabase
+                      .from(SupabaseConfig.profilesTable)
+                      .select('username, avatar_url')
+                      .eq('id', notificationData['actor_id'])
+                      .maybeSingle();
 
                   if (profile != null) {
                     notificationData['actor_name'] = profile['username'];
                     notificationData['actor_avatar'] = profile['avatar_url'];
                   }
                 } catch (e) {
-                  debugPrint('Could not fetch actor profile for notification: $e');
+                  debugPrint(
+                    'Could not fetch actor profile for notification: $e',
+                  );
                 }
               }
 
@@ -170,9 +176,13 @@ class NotificationService {
         )
         .subscribe((status, [error]) {
           if (status == RealtimeSubscribeStatus.channelError) {
-            debugPrint('[NotificationService] Subscription error for user $userId: $error');
+            debugPrint(
+              '[NotificationService] Subscription error for user $userId: $error',
+            );
           } else {
-            debugPrint('[NotificationService] Subscription status for user $userId: $status');
+            debugPrint(
+              '[NotificationService] Subscription status for user $userId: $status',
+            );
           }
         });
 
@@ -224,10 +234,10 @@ class NotificationService {
   }) async {
     try {
       final List<Map<String, dynamic>> notifications = [];
-      
+
       for (final memberId in memberIds) {
         if (memberId == actorId) continue;
-        
+
         notifications.add({
           'user_id': memberId,
           'type': 'canvas_pulse',
@@ -235,9 +245,11 @@ class NotificationService {
           'content': 'is looking at your "$canvasTitle" Canvas right now.',
         });
       }
-      
+
       if (notifications.isNotEmpty) {
-        await _supabase.from(SupabaseConfig.notificationsTable).insert(notifications);
+        await _supabase
+            .from(SupabaseConfig.notificationsTable)
+            .insert(notifications);
       }
     } catch (e) {
       debugPrint('Error sending pulse notification: $e');

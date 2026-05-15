@@ -16,11 +16,7 @@ class VerificationDialog extends StatelessWidget {
   /// Called when user denies "No, I didn't reach home"
   final VoidCallback? onDeny;
 
-  const VerificationDialog({
-    super.key,
-    this.onConfirm,
-    this.onDeny,
-  });
+  const VerificationDialog({super.key, this.onConfirm, this.onDeny});
 
   /// Show as a modal dialog
   static Future<void> show(
@@ -32,17 +28,15 @@ class VerificationDialog extends StatelessWidget {
       context: context,
       barrierDismissible: false,
       barrierColor: Colors.black54,
-      builder: (context) => VerificationDialog(
-        onConfirm: onConfirm,
-        onDeny: onDeny,
-      ),
+      builder: (context) =>
+          VerificationDialog(onConfirm: onConfirm, onDeny: onDeny),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Dialog(
       backgroundColor: Colors.transparent,
       child: Container(
@@ -73,9 +67,9 @@ class VerificationDialog extends StatelessWidget {
             // Title
             Text(
               'Did you actually reach home?',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 12),
@@ -84,8 +78,8 @@ class VerificationDialog extends StatelessWidget {
             Text(
               'Tap "Yes" to confirm your arrival and let your partner know you\'re safe.',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color,
-                  ),
+                color: Theme.of(context).textTheme.bodySmall?.color,
+              ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 28),

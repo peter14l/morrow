@@ -14,6 +14,7 @@ class CreatePost {
     List<String>? mediaTypes,
     String? communityId,
     String? mood,
+    List<String>? collaboratorIds,
   }) {
     return _repository.createPost(
       userId: userId,
@@ -22,6 +23,7 @@ class CreatePost {
       mediaTypes: mediaTypes,
       communityId: communityId,
       mood: mood,
+      collaboratorIds: collaboratorIds,
     );
   }
 }

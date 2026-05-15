@@ -14,8 +14,8 @@ class UserSettingsProvider with ChangeNotifier {
   UserSettingsProvider({
     required GetSettingsUseCase getSettingsUseCase,
     required SaveSettingsUseCase saveSettingsUseCase,
-  })  : _getSettingsUseCase = getSettingsUseCase,
-        _saveSettingsUseCase = saveSettingsUseCase;
+  }) : _getSettingsUseCase = getSettingsUseCase,
+       _saveSettingsUseCase = saveSettingsUseCase;
 
   bool get dataSaver => _settings.dataSaver;
   double get fontSizeFactor => _settings.fontSizeFactor;
@@ -60,7 +60,7 @@ class UserSettingsProvider with ChangeNotifier {
 
   Future<void> setMicaEnabled(bool value, {bool isDark = true}) async {
     await _updateAndSave(_settings.copyWith(micaEnabled: value));
-    
+
     // Apply effect immediately on Windows
     if (!kIsWeb && Platform.isWindows) {
       await DesktopWindowService.instance.setWindowEffect(
@@ -73,7 +73,7 @@ class UserSettingsProvider with ChangeNotifier {
 
   Future<void> setWindowEffect(String value, {bool isDark = true}) async {
     await _updateAndSave(_settings.copyWith(windowEffect: value));
-    
+
     // Apply effect immediately on Windows
     if (!kIsWeb && Platform.isWindows) {
       await DesktopWindowService.instance.setWindowEffect(

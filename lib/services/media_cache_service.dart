@@ -11,7 +11,7 @@ class MediaCacheService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final localPath = prefs.getString('$_mediaMapPrefix$remoteUrl');
-      
+
       if (localPath != null) {
         final file = File(localPath);
         if (await file.exists()) {
@@ -49,11 +49,16 @@ class MediaCacheService {
   }
 
   /// Saves bytes to the local media cache.
-  Future<String> saveToCache(Uint8List bytes, String fileName, String type, String remoteUrl) async {
+  Future<String> saveToCache(
+    Uint8List bytes,
+    String fileName,
+    String type,
+    String remoteUrl,
+  ) async {
     final dir = await getMediaDirectory(type);
     final file = File('${dir.path}/$fileName');
     await file.writeAsBytes(bytes);
-    
+
     await setLocalPath(remoteUrl, file.path);
     return file.path;
   }
@@ -66,7 +71,7 @@ class MediaCacheService {
       if (await mediaDir.exists()) {
         await mediaDir.delete(recursive: true);
       }
-      
+
       final prefs = await SharedPreferences.getInstance();
       final keys = prefs.getKeys().where((k) => k.startsWith(_mediaMapPrefix));
       for (final key in keys) {

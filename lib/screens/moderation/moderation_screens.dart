@@ -60,37 +60,32 @@ class _BlockedUsersScreenState extends State<BlockedUsersScreen> {
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     final content = _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _blockedUsers.isEmpty
-              ? const Center(child: Text('You haven\'t blocked anyone'))
-              : ListView.builder(
-                itemCount: _blockedUsers.length,
-                itemBuilder: (context, index) {
-                  final user = _blockedUsers[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          user.avatarUrl != null
-                              ? CachedNetworkImageProvider(user.avatarUrl!)
-                              : null,
-                      child:
-                          user.avatarUrl == null
-                              ? const Icon(Icons.person)
-                              : null,
-                    ),
-                    title: Text(user.username ?? 'Unknown'),
-                    subtitle: Text('Blocked on ${_formatDate(user.createdAt)}'),
-                    trailing: TextButton(
-                      onPressed:
-                          () => _unblockUser(
-                            user.blockedId,
-                            user.username ?? 'Unknown',
-                          ),
-                      child: const Text('Unblock'),
-                    ),
-                  );
-                },
+        ? const Center(child: CircularProgressIndicator())
+        : _blockedUsers.isEmpty
+        ? const Center(child: Text('You haven\'t blocked anyone'))
+        : ListView.builder(
+            itemCount: _blockedUsers.length,
+            itemBuilder: (context, index) {
+              final user = _blockedUsers[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: user.avatarUrl != null
+                      ? CachedNetworkImageProvider(user.avatarUrl!)
+                      : null,
+                  child: user.avatarUrl == null
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
+                title: Text(user.username ?? 'Unknown'),
+                subtitle: Text('Blocked on ${_formatDate(user.createdAt)}'),
+                trailing: TextButton(
+                  onPressed: () =>
+                      _unblockUser(user.blockedId, user.username ?? 'Unknown'),
+                  child: const Text('Unblock'),
+                ),
               );
+            },
+          );
 
     if (isDesktop) return Material(color: Colors.transparent, child: content);
 
@@ -160,41 +155,36 @@ class _MutedUsersScreenState extends State<MutedUsersScreen> {
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
     final content = _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _mutedUsers.isEmpty
-              ? const Center(child: Text('You haven\'t muted anyone'))
-              : ListView.builder(
-                itemCount: _mutedUsers.length,
-                itemBuilder: (context, index) {
-                  final user = _mutedUsers[index];
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage:
-                          user.avatarUrl != null
-                              ? CachedNetworkImageProvider(user.avatarUrl!)
-                              : null,
-                      child:
-                          user.avatarUrl == null
-                              ? const Icon(Icons.person)
-                              : null,
-                    ),
-                    title: Text(user.username ?? 'Unknown'),
-                    subtitle: Text(
-                      user.expiresAt != null
-                          ? 'Muted until ${_formatDate(user.expiresAt!)}'
-                          : 'Muted indefinitely',
-                    ),
-                    trailing: TextButton(
-                      onPressed:
-                          () => _unmuteUser(
-                            user.mutedId,
-                            user.username ?? 'Unknown',
-                          ),
-                      child: const Text('Unmute'),
-                    ),
-                  );
-                },
+        ? const Center(child: CircularProgressIndicator())
+        : _mutedUsers.isEmpty
+        ? const Center(child: Text('You haven\'t muted anyone'))
+        : ListView.builder(
+            itemCount: _mutedUsers.length,
+            itemBuilder: (context, index) {
+              final user = _mutedUsers[index];
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: user.avatarUrl != null
+                      ? CachedNetworkImageProvider(user.avatarUrl!)
+                      : null,
+                  child: user.avatarUrl == null
+                      ? const Icon(Icons.person)
+                      : null,
+                ),
+                title: Text(user.username ?? 'Unknown'),
+                subtitle: Text(
+                  user.expiresAt != null
+                      ? 'Muted until ${_formatDate(user.expiresAt!)}'
+                      : 'Muted indefinitely',
+                ),
+                trailing: TextButton(
+                  onPressed: () =>
+                      _unmuteUser(user.mutedId, user.username ?? 'Unknown'),
+                  child: const Text('Unmute'),
+                ),
               );
+            },
+          );
 
     if (isDesktop) return Material(color: Colors.transparent, child: content);
 

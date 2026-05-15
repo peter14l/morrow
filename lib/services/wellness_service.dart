@@ -93,9 +93,57 @@ class WellnessService extends ChangeNotifier {
 
   int _totalXp = 0;
 
+  // Focus Session (Lock-in Mode)
+  bool _isFocusSessionActive = false;
+  DateTime? _focusStartTime;
+  int _focusTargetMinutes = 0;
+  int _focusEarnedXp = 0;
+
   WellnessService(this._prefs) {
     _loadSettings();
     _startWindDownMonitor();
+  }
+
+  // Getters
+  bool get zenModeEnabled => _zenModeEnabled;
+  bool get isFocusSessionActive => _isFocusSessionActive;
+  int get focusTargetMinutes => _focusTargetMinutes;
+  double get focusProgress => _focusStartTime == null
+      ? 0
+      : (DateTime.now().difference(_focusStartTime!).inSeconds /
+                (_focusTargetMinutes * 60))
+            .clamp(0.0, 1.0);
+
+  // Focus Session methods
+  void startFocusSession(int minutes) {
+    _isFocusSessionActive = true;
+    _focusStartTime = DateTime.now();
+    _focusTargetMinutes = minutes;
+    _focusEarnedXp = minutes; // 1 XP per minute of focus
+    notifyListeners();
+  }
+
+  Future<void> stopFocusSession({required bool completed}) async {
+    if (!_isFocusSessionActive) return;
+
+    if (completed) {
+      await _updateUserXP(_focusEarnedXp);
+    } else {
+      // Penalty for breaking focus intentionally
+      await _updateUserXP(-(_focusEarnedXp ~/ 2));
+    }
+
+    _isFocusSessionActive = false;
+    _focusStartTime = null;
+    _focusTargetMinutes = 0;
+    notifyListeners();
+  }
+
+  /// Penalize XP for distracting behavior (like browsing feed during focus)
+  Future<void> penalizeDistraction() async {
+    if (!_isFocusSessionActive) return;
+    await _updateUserXP(-10); // Fixed penalty for distraction
+    notifyListeners();
   }
 
   /// App lifecycle handling to save battery
@@ -167,8 +215,9 @@ class WellnessService extends ChangeNotifier {
     final achievementsJson = _prefs.getString(_achievementsKey);
     if (achievementsJson != null) {
       final List decoded = jsonDecode(achievementsJson);
-      _achievements =
-          decoded.map((a) => WellnessAchievement.fromJson(a)).toList();
+      _achievements = decoded
+          .map((a) => WellnessAchievement.fromJson(a))
+          .toList();
     }
 
     notifyListeners();
@@ -179,10 +228,14 @@ class WellnessService extends ChangeNotifier {
   }
 
   // Getters
-  bool get zenModeEnabled => _zenModeEnabled;
   bool get allowCallsDuringZen => _allowCallsDuringZen;
   int get zenRemainingSeconds => _zenRemainingSeconds;
-  double get zenProgress => _zenStartTime == null ? 0 : (1 - (_zenRemainingSeconds / (_zenSessionDurationMinutes * 60))).clamp(0.0, 1.0);
+  double get zenProgress => _zenStartTime == null
+      ? 0
+      : (1 - (_zenRemainingSeconds / (_zenSessionDurationMinutes * 60))).clamp(
+          0.0,
+          1.0,
+        );
   Map<String, bool> get zenSchedule => _zenSchedule;
   Set<String> get blockedFeatures => _blockedFeatures;
   bool get windDownEnabled => _windDownEnabled;
@@ -196,16 +249,16 @@ class WellnessService extends ChangeNotifier {
   // Zen Mode methods
   Future<void> setZenModeEnabled(bool enabled) async {
     if (_zenModeEnabled == enabled) return;
-    
+
     _zenModeEnabled = enabled;
     await _prefs.setBool(_zenModeKey, enabled);
-    
+
     if (enabled) {
       _startZenSession();
     } else {
       _stopZenSession(manual: true);
     }
-    
+
     notifyListeners();
   }
 
@@ -218,7 +271,7 @@ class WellnessService extends ChangeNotifier {
   void _startZenSession() {
     _zenStartTime = DateTime.now();
     _zenRemainingSeconds = _zenSessionDurationMinutes * 60;
-    
+
     // Pause notifications
     _setNotificationsPaused(true);
 
@@ -236,7 +289,7 @@ class WellnessService extends ChangeNotifier {
   Future<void> _stopZenSession({required bool manual}) async {
     _zenTimer?.cancel();
     _zenTimer = null;
-    
+
     // Resume notifications
     _setNotificationsPaused(false);
 
@@ -265,11 +318,12 @@ class WellnessService extends ChangeNotifier {
     if (user == null) return;
 
     try {
-      await SupabaseService().client.rpc('increment_xp', params: {
-        'xp_amount': amount,
-      });
+      await SupabaseService().client.rpc(
+        'increment_xp',
+        params: {'xp_amount': amount},
+      );
       debugPrint('XP Updated via RPC: $amount');
-      
+
       _totalXp = (_totalXp + amount) < 0 ? 0 : (_totalXp + amount);
       await _prefs.setInt('total_xp', _totalXp);
       notifyListeners();
@@ -460,7 +514,9 @@ class WellnessService extends ChangeNotifier {
     List<Map<String, dynamic>> weeklyData,
   ) {
     if (!_isUserPro()) {
-      throw Exception('Upgrade to Oasis Pro to generate Wellness Weekly Reports.');
+      throw Exception(
+        'Upgrade to Oasis Pro to generate Wellness Weekly Reports.',
+      );
     }
     if (weeklyData.isEmpty) {
       return {

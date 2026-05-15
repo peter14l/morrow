@@ -11,4 +11,3 @@ class OpenCapsule {
     return _repository.openCapsule(capsuleId);
   }
 }
-

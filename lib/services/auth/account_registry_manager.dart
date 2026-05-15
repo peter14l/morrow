@@ -15,7 +15,9 @@ class AccountRegistryManager with ChangeNotifier {
     try {
       debugPrint('[AccountRegistryManager] loadRegistry starting...');
       _registeredAccounts = await _registry.getAllAccounts();
-      debugPrint('[AccountRegistryManager] loadRegistry completed. Count: ${_registeredAccounts.length}');
+      debugPrint(
+        '[AccountRegistryManager] loadRegistry completed. Count: ${_registeredAccounts.length}',
+      );
       notifyListeners();
     } catch (e) {
       debugPrint('[AccountRegistryManager] CRITICAL ERROR in loadRegistry: $e');
@@ -39,10 +41,14 @@ class AccountRegistryManager with ChangeNotifier {
       lastUsed: DateTime.now(),
     );
 
-    debugPrint('[AccountRegistryManager] Syncing account ${account.username} (${account.userId}) to registry');
+    debugPrint(
+      '[AccountRegistryManager] Syncing account ${account.username} (${account.userId}) to registry',
+    );
     try {
       await _registry.saveAccount(account);
-      debugPrint('[AccountRegistryManager] Account saved. Reloading registry...');
+      debugPrint(
+        '[AccountRegistryManager] Account saved. Reloading registry...',
+      );
       await loadRegistry();
     } catch (e) {
       debugPrint('[AccountRegistryManager] ERROR syncing account: $e');
@@ -68,6 +74,7 @@ class AccountRegistryManager with ChangeNotifier {
       debugPrint('[AccountRegistryManager] ERROR marking as used: $e');
     }
   }
+
   RegisteredAccount getAccount(String userId) {
     return _registeredAccounts.firstWhere((a) => a.userId == userId);
   }

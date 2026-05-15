@@ -33,31 +33,40 @@ void main() {
       expect(notification.getNotificationText(), 'Hello there!');
     });
 
-    test('AppNotification displayTitle should handle System type correctly', () {
-      final notification = AppNotification(
-        id: '2',
-        userId: 'user1',
-        type: 'like',
-        actorName: 'Jane Smith',
-        timestamp: DateTime.now(),
-      );
+    test(
+      'AppNotification displayTitle should handle System type correctly',
+      () {
+        final notification = AppNotification(
+          id: '2',
+          userId: 'user1',
+          type: 'like',
+          actorName: 'Jane Smith',
+          timestamp: DateTime.now(),
+        );
 
-      expect(notification.displayTitle, 'New Like');
-      expect(notification.getNotificationText(), 'Jane Smith liked your post');
-    });
+        expect(notification.displayTitle, 'New Like');
+        expect(
+          notification.getNotificationText(),
+          'Jane Smith liked your post',
+        );
+      },
+    );
 
-    test('AppNotification displayTitle should handle Custom title correctly', () {
-      final notification = AppNotification(
-        id: '3',
-        userId: 'user1',
-        type: 'system',
-        title: 'Security Alert',
-        message: 'New login detected',
-        timestamp: DateTime.now(),
-      );
+    test(
+      'AppNotification displayTitle should handle Custom title correctly',
+      () {
+        final notification = AppNotification(
+          id: '3',
+          userId: 'user1',
+          type: 'system',
+          title: 'Security Alert',
+          message: 'New login detected',
+          timestamp: DateTime.now(),
+        );
 
-      expect(notification.displayTitle, 'Security Alert');
-      expect(notification.getNotificationText(), 'New login detected');
-    });
+        expect(notification.displayTitle, 'Security Alert');
+        expect(notification.getNotificationText(), 'New login detected');
+      },
+    );
   });
 }

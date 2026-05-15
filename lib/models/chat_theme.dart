@@ -56,21 +56,16 @@ class ChatTheme {
       conversationId: json['conversation_id'],
       userId: json['user_id'],
       themeName: json['theme_name'] ?? 'default',
-      backgroundColor:
-          json['background_color'] != null
-              ? Color(
-                int.parse(json['background_color'].replaceFirst('#', '0xFF')),
-              )
-              : null,
+      backgroundColor: json['background_color'] != null
+          ? Color(int.parse(json['background_color'].replaceFirst('#', '0xFF')))
+          : null,
       backgroundImageUrl: json['background_image_url'],
-      bubbleColor:
-          json['bubble_color'] != null
-              ? Color(int.parse(json['bubble_color'].replaceFirst('#', '0xFF')))
-              : null,
-      textColor:
-          json['text_color'] != null
-              ? Color(int.parse(json['text_color'].replaceFirst('#', '0xFF')))
-              : null,
+      bubbleColor: json['bubble_color'] != null
+          ? Color(int.parse(json['bubble_color'].replaceFirst('#', '0xFF')))
+          : null,
+      textColor: json['text_color'] != null
+          ? Color(int.parse(json['text_color'].replaceFirst('#', '0xFF')))
+          : null,
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
     );
@@ -82,19 +77,16 @@ class ChatTheme {
       'conversation_id': conversationId,
       'user_id': userId,
       'theme_name': themeName,
-      'background_color':
-          backgroundColor != null
-              ? '#${backgroundColor!.toARGB32().toRadixString(16).substring(2)}'
-              : null,
+      'background_color': backgroundColor != null
+          ? '#${backgroundColor!.toARGB32().toRadixString(16).substring(2)}'
+          : null,
       'background_image_url': backgroundImageUrl,
-      'bubble_color':
-          bubbleColor != null
-              ? '#${bubbleColor!.toARGB32().toRadixString(16).substring(2)}'
-              : null,
-      'text_color':
-          textColor != null
-              ? '#${textColor!.toARGB32().toRadixString(16).substring(2)}'
-              : null,
+      'bubble_color': bubbleColor != null
+          ? '#${bubbleColor!.toARGB32().toRadixString(16).substring(2)}'
+          : null,
+      'text_color': textColor != null
+          ? '#${textColor!.toARGB32().toRadixString(16).substring(2)}'
+          : null,
     };
   }
 

@@ -94,18 +94,16 @@ class _CommunitiesScreenState extends State<CommunitiesScreen>
                       _showSidebar ? Icons.menu_open : Icons.menu,
                       size: 24,
                     ),
-                    onPressed:
-                        () => setState(() => _showSidebar = !_showSidebar),
+                    onPressed: () =>
+                        setState(() => _showSidebar = !_showSidebar),
                     tooltip: _showSidebar ? 'Hide Sidebar' : 'Show Sidebar',
                     style: IconButton.styleFrom(
-                      backgroundColor:
-                          _showSidebar
-                              ? colorScheme.primaryContainer
-                              : colorScheme.surfaceContainerHighest,
-                      foregroundColor:
-                          _showSidebar
-                              ? colorScheme.primary
-                              : colorScheme.onSurfaceVariant,
+                      backgroundColor: _showSidebar
+                          ? colorScheme.primaryContainer
+                          : colorScheme.surfaceContainerHighest,
+                      foregroundColor: _showSidebar
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
@@ -153,7 +151,10 @@ class _CommunitiesScreenState extends State<CommunitiesScreen>
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Discover'), Tab(text: 'My Communities')],
+          tabs: const [
+            Tab(text: 'Discover'),
+            Tab(text: 'My Communities'),
+          ],
         ),
       ),
       body: Consumer<CommunityProvider>(
@@ -183,8 +184,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen>
     if (_showJoinedOnly) {
       communitiesToShow = provider.userCommunities;
     } else if (_showPrivateOnly) {
-      communitiesToShow =
-          provider.allCommunities.where((c) => c.isPrivate).toList();
+      communitiesToShow = provider.allCommunities
+          .where((c) => c.isPrivate)
+          .toList();
     } else {
       communitiesToShow = provider.allCommunities;
     }
@@ -300,10 +302,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
-            color:
-                isSelected
-                    ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
-                    : null,
+            color: isSelected
+                ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
+                : null,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -311,10 +312,9 @@ class _CommunitiesScreenState extends State<CommunitiesScreen>
               Icon(
                 icon,
                 size: 22,
-                color:
-                    isSelected
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 12),
               Text(

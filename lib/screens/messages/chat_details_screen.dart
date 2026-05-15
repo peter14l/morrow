@@ -261,8 +261,6 @@
 //     }
 //   }
 
-
-
 //   void _onSearchChanged(String query) {
 //     if (query.isEmpty) {
 //       setState(() {
@@ -862,10 +860,10 @@
 //                     _buildActionTile(
 //                       icon: _whisperMode > 0 ? FluentIcons.delete_dismiss_24_filled : FluentIcons.delete_dismiss_24_regular,
 //                       title: 'Whisper Mode',
-//                       subtitle: _whisperMode == 1 
-//                           ? 'Instant Vanish active' 
-//                           : _whisperMode == 2 
-//                               ? '24h Vanish active' 
+//                       subtitle: _whisperMode == 1
+//                           ? 'Instant Vanish active'
+//                           : _whisperMode == 2
+//                               ? '24h Vanish active'
 //                               : 'Self-vanishing messages',
 //                       trailing: Row(
 //                         mainAxisSize: MainAxisSize.min,

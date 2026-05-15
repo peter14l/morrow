@@ -91,10 +91,11 @@ class ChatMessageList extends StatelessWidget {
 
     if (message.messageType == MessageType.text &&
         message.content.startsWith('[INVITE:')) {
-      return InviteBubble(
-        content: message.content,
-        isMe: isMe,
-      );
+      return InviteBubble(content: message.content, isMe: isMe);
+    }
+
+    if (message.messageType == MessageType.collaborationRequest) {
+      return CollaborationRequestBubble(message: message, isMe: isMe);
     }
 
     final isMobile = Platform.isAndroid || Platform.isIOS;
@@ -213,17 +214,25 @@ class MessageBubble extends StatelessWidget {
     final bubbleColor = isHighlighted
         ? colorScheme.primary
         : isMe
-            ? (bubbleColorSent ?? colorScheme.primary)
-            : (bubbleColorReceived ?? colorScheme.surfaceContainerHighest);
+        ? (bubbleColorSent ?? colorScheme.primary)
+        : (bubbleColorReceived ?? colorScheme.surfaceContainerHighest);
 
     // Fallback text color based on bubble luminance if specific text colors aren't provided
-    final Color autoTextColor = bubbleColor.computeLuminance() > 0.5 ? Colors.black87 : Colors.white;
+    final Color autoTextColor = bubbleColor.computeLuminance() > 0.5
+        ? Colors.black87
+        : Colors.white;
 
     final textColor = isHighlighted
         ? colorScheme.onPrimary
         : isMe
-            ? (textColorSent ?? (bubbleColorSent != null ? autoTextColor : colorScheme.onPrimaryContainer))
-            : (textColorReceived ?? (bubbleColorReceived != null ? autoTextColor : colorScheme.onSurface));
+        ? (textColorSent ??
+              (bubbleColorSent != null
+                  ? autoTextColor
+                  : colorScheme.onPrimaryContainer))
+        : (textColorReceived ??
+              (bubbleColorReceived != null
+                  ? autoTextColor
+                  : colorScheme.onSurface));
 
     // Final safety check: if we are using theme defaults but they are unreadable, force autoTextColor
     final Color finalTextColor;
@@ -235,7 +244,8 @@ class MessageBubble extends StatelessWidget {
       } else {
         // If bubble is light but theme says onPrimaryContainer is white (or vice versa), override it
         final bool isLight = bubbleColor.computeLuminance() > 0.5;
-        final bool isTextLight = colorScheme.onPrimaryContainer.computeLuminance() > 0.5;
+        final bool isTextLight =
+            colorScheme.onPrimaryContainer.computeLuminance() > 0.5;
         if (isLight && isTextLight) {
           finalTextColor = Colors.black87;
         } else if (!isLight && !isTextLight) {
@@ -264,45 +274,44 @@ class MessageBubble extends StatelessWidget {
 
     final isWhisper = message.isEphemeral || message.whisperMode != 'OFF';
 
-    final bubbleDecoration =
-        isSticker
-            ? null
-            : BoxDecoration(
-              color: bubbleColor,
-              borderRadius: BorderRadius.circular(24).copyWith(
-                bottomRight: isMe ? const Radius.circular(8) : null,
-                bottomLeft: !isMe ? const Radius.circular(8) : null,
-              ),
-              border: isWhisper 
-                  ? Border.all(
-                      color: textColor.withValues(alpha: 0.5),
-                      width: 1.5,
-                      style: BorderStyle.solid, // Note: standard Border doesn't support dashed. 
-                      // I should probably use a CustomPainter or a wrapper if I want TRUE dashed.
-                      // For now, I'll use a specific color/width to differentiate.
-                    )
-                  : Border.all(
-                      color:
-                          isHighlighted
-                              ? colorScheme.primaryContainer
-                              : colorScheme.outlineVariant.withValues(alpha: 0.1),
-                      width: isHighlighted ? 2.0 : 0.1,
-                    ),
-              boxShadow: [
-                if (isHighlighted)
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.5),
-                    blurRadius: 15,
-                    spreadRadius: 4,
+    final bubbleDecoration = isSticker
+        ? null
+        : BoxDecoration(
+            color: bubbleColor,
+            borderRadius: BorderRadius.circular(24).copyWith(
+              bottomRight: isMe ? const Radius.circular(8) : null,
+              bottomLeft: !isMe ? const Radius.circular(8) : null,
+            ),
+            border: isWhisper
+                ? Border.all(
+                    color: textColor.withValues(alpha: 0.5),
+                    width: 1.5,
+                    style: BorderStyle
+                        .solid, // Note: standard Border doesn't support dashed.
+                    // I should probably use a CustomPainter or a wrapper if I want TRUE dashed.
+                    // For now, I'll use a specific color/width to differentiate.
                   )
-                else
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
+                : Border.all(
+                    color: isHighlighted
+                        ? colorScheme.primaryContainer
+                        : colorScheme.outlineVariant.withValues(alpha: 0.1),
+                    width: isHighlighted ? 2.0 : 0.1,
                   ),
-              ],
-            );
+            boxShadow: [
+              if (isHighlighted)
+                BoxShadow(
+                  color: colorScheme.primary.withValues(alpha: 0.5),
+                  blurRadius: 15,
+                  spreadRadius: 4,
+                )
+              else
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+            ],
+          );
 
     final isOptimistic = message.id.startsWith('optimistic_');
 
@@ -310,10 +319,9 @@ class MessageBubble extends StatelessWidget {
       isDissolving: isOptimistic,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        padding:
-            isSticker
-                ? EdgeInsets.zero
-                : const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: isSticker
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: bubbleDecoration,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,7 +341,9 @@ class MessageBubble extends StatelessWidget {
                     Container(
                       width: 3,
                       decoration: BoxDecoration(
-                        color: isMe ? colorScheme.onPrimaryContainer : colorScheme.primary,
+                        color: isMe
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.primary,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -345,7 +355,9 @@ class MessageBubble extends StatelessWidget {
                           Text(
                             message.replyToSenderName ?? 'Unknown',
                             style: theme.textTheme.labelSmall?.copyWith(
-                              color: isMe ? colorScheme.onPrimaryContainer : colorScheme.primary,
+                              color: isMe
+                                  ? colorScheme.onPrimaryContainer
+                                  : colorScheme.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 10,
                             ),
@@ -355,12 +367,13 @@ class MessageBubble extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color:
-                                  isMe
-                                      ? colorScheme.onPrimaryContainer.withValues(alpha: 0.7)
-                                      : colorScheme.onSurface.withValues(
-                                        alpha: 0.6,
-                                      ),
+                              color: isMe
+                                  ? colorScheme.onPrimaryContainer.withValues(
+                                      alpha: 0.7,
+                                    )
+                                  : colorScheme.onSurface.withValues(
+                                      alpha: 0.6,
+                                    ),
                               fontSize: 11,
                             ),
                           ),
@@ -382,9 +395,11 @@ class MessageBubble extends StatelessWidget {
                       Icon(
                         FluentIcons.shield_lock_24_filled,
                         size: 10,
-                        color: isMe 
-                          ? colorScheme.onPrimaryContainer.withValues(alpha: 0.5)
-                          : colorScheme.onSurface.withValues(alpha: 0.4),
+                        color: isMe
+                            ? colorScheme.onPrimaryContainer.withValues(
+                                alpha: 0.5,
+                              )
+                            : colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                     if (message.pqAuraHeader != null) const SizedBox(width: 4),
                     if (isMe)
@@ -393,7 +408,9 @@ class MessageBubble extends StatelessWidget {
                         size: 14,
                         color: message.isRead
                             ? (isDesktop ? Colors.blue : Colors.blueAccent)
-                            : colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
+                            : colorScheme.onPrimaryContainer.withValues(
+                                alpha: 0.6,
+                              ),
                       ),
                   ],
                 ),
@@ -417,8 +434,9 @@ class MessageBubble extends StatelessWidget {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment:
-                isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            crossAxisAlignment: isMe
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
             children: [
               bubbleWithEffect,
               // Reaction badges below the bubble
@@ -441,11 +459,7 @@ class MessageBubble extends StatelessWidget {
           isSpoiler: message.isSpoiler,
         );
       case MessageType.gif:
-        return ImageBubble(
-          message: message,
-          isMe: isMe,
-          textColor: textColor,
-        );
+        return ImageBubble(message: message, isMe: isMe, textColor: textColor);
       case MessageType.sticker:
         return SizedBox(
           width: 140,
@@ -464,11 +478,7 @@ class MessageBubble extends StatelessWidget {
           ),
         );
       case MessageType.image:
-        return ImageBubble(
-          message: message,
-          isMe: isMe,
-          textColor: textColor,
-        );
+        return ImageBubble(message: message, isMe: isMe, textColor: textColor);
       case MessageType.document:
         if (message.mediaUrl?.contains('videos') ?? false) {
           return VideoBubble(
@@ -483,11 +493,7 @@ class MessageBubble extends StatelessWidget {
           textColor: textColor,
         );
       case MessageType.voice:
-        return VoiceBubble(
-          message: message,
-          isMe: isMe,
-          textColor: textColor,
-        );
+        return VoiceBubble(message: message, isMe: isMe, textColor: textColor);
       case MessageType.postShare:
         return PostShareBubble(message: message, isMe: isMe);
       case MessageType.ripple:
@@ -521,12 +527,13 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildReactionBadges(BuildContext context, bool isMe) {
     final colorScheme = Theme.of(context).colorScheme;
-    final groupedReactions = ChatReactionsProvider(
-      messagingService: context.read<MessagingService>(),
-    ).groupReactions(
-      message.reactions,
-      null, // currentUserId not needed for display grouping
-    );
+    final groupedReactions =
+        ChatReactionsProvider(
+          messagingService: context.read<MessagingService>(),
+        ).groupReactions(
+          message.reactions,
+          null, // currentUserId not needed for display grouping
+        );
 
     if (groupedReactions.isEmpty) return const SizedBox.shrink();
 
@@ -540,59 +547,48 @@ class MessageBubble extends StatelessWidget {
         spacing: 4,
         runSpacing: 4,
         alignment: isMe ? WrapAlignment.end : WrapAlignment.start,
-        children:
-            groupedReactions.map((group) {
-              final hasCurrentUser = group.hasCurrentUserReacted;
-              return GestureDetector(
-                onTap: onReactionsTap,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color:
-                        hasCurrentUser
-                            ? colorScheme.primaryContainer.withValues(
-                              alpha: 0.8,
-                            )
-                            : colorScheme.surfaceContainerHighest.withValues(
-                              alpha: 0.9,
-                            ),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color:
-                          hasCurrentUser
-                              ? colorScheme.primary.withValues(alpha: 0.5)
-                              : colorScheme.outline.withValues(alpha: 0.2),
-                      width: hasCurrentUser ? 1.5 : 0.5,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(group.emoji, style: const TextStyle(fontSize: 14)),
-                      if (group.count > 1) ...[
-                        const SizedBox(width: 2),
-                        Text(
-                          '${group.count}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.labelSmall?.copyWith(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                hasCurrentUser
-                                    ? colorScheme.primary
-                                    : colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
+        children: groupedReactions.map((group) {
+          final hasCurrentUser = group.hasCurrentUserReacted;
+          return GestureDetector(
+            onTap: onReactionsTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: hasCurrentUser
+                    ? colorScheme.primaryContainer.withValues(alpha: 0.8)
+                    : colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.9,
+                      ),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: hasCurrentUser
+                      ? colorScheme.primary.withValues(alpha: 0.5)
+                      : colorScheme.outline.withValues(alpha: 0.2),
+                  width: hasCurrentUser ? 1.5 : 0.5,
                 ),
-              );
-            }).toList(),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(group.emoji, style: const TextStyle(fontSize: 14)),
+                  if (group.count > 1) ...[
+                    const SizedBox(width: 2),
+                    Text(
+                      '${group.count}',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: hasCurrentUser
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        }).toList(),
       ),
     );
   }

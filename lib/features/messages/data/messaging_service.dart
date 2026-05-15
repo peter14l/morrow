@@ -236,15 +236,18 @@ class MessagingService extends ChangeNotifier {
   }) async {
     if (isWhisper) {
       try {
-        await _supabase.rpc('mark_whisper_message_read', params: {
-          'msg_id': messageId,
-          'reader_id': userId,
-        });
+        await _supabase.rpc(
+          'mark_whisper_message_read',
+          params: {'msg_id': messageId, 'reader_id': userId},
+        );
       } catch (e) {
         debugPrint('[MessagingService] Error marking whisper read: $e');
       }
     }
-    return _chatMessagingService.markAsRead(messageId: messageId, userId: userId);
+    return _chatMessagingService.markAsRead(
+      messageId: messageId,
+      userId: userId,
+    );
   }
 
   /// Listens for incoming messages in a conversation.
@@ -448,11 +451,12 @@ class MessagingService extends ChangeNotifier {
           callback: (payload) => onUpdate(payload.newRecord),
         )
         .subscribe((status, [error]) {
-      if (status == RealtimeSubscribeStatus.channelError) {
-        debugPrint(
-            '[MessagingService] Message updates subscription error: $error');
-      }
-    });
+          if (status == RealtimeSubscribeStatus.channelError) {
+            debugPrint(
+              '[MessagingService] Message updates subscription error: $error',
+            );
+          }
+        });
     return channel;
   }
 

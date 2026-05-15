@@ -74,7 +74,8 @@ class VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
 
       // Pre-load the source
       if (widget.audioUrl.isNotEmpty) {
-        if (widget.audioUrl.startsWith('http') || widget.audioUrl.startsWith('https')) {
+        if (widget.audioUrl.startsWith('http') ||
+            widget.audioUrl.startsWith('https')) {
           await _audioPlayer.setSourceUrl(widget.audioUrl);
         } else {
           await _audioPlayer.setSourceDeviceFile(widget.audioUrl);
@@ -99,9 +100,10 @@ class VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
           await _audioPlayer.seek(Duration.zero);
         }
         await _audioPlayer.setPlaybackRate(_playbackSpeed);
-        
+
         Source source;
-        if (widget.audioUrl.startsWith('http') || widget.audioUrl.startsWith('https')) {
+        if (widget.audioUrl.startsWith('http') ||
+            widget.audioUrl.startsWith('https')) {
           source = UrlSource(widget.audioUrl);
         } else {
           source = DeviceFileSource(widget.audioUrl);
@@ -170,10 +172,9 @@ class VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
     return Container(
       padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 4),
       decoration: BoxDecoration(
-        color:
-            widget.isMe
-                ? widget.color.withValues(alpha: 0.12)
-                : Colors.black.withValues(alpha: 0.05),
+        color: widget.isMe
+            ? widget.color.withValues(alpha: 0.12)
+            : Colors.black.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
@@ -219,10 +220,9 @@ class VoiceMessagePlayerState extends State<VoiceMessagePlayer> {
                       _duration.inSeconds.toDouble(),
                     ),
                     min: 0,
-                    max:
-                        _duration.inSeconds > 0
-                            ? _duration.inSeconds.toDouble()
-                            : 1.0,
+                    max: _duration.inSeconds > 0
+                        ? _duration.inSeconds.toDouble()
+                        : 1.0,
                     onChangeStart: (_) => setState(() => _isDragging = true),
                     onChangeEnd: (val) {
                       _onSeek(val);

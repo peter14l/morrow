@@ -25,14 +25,14 @@ class RegisteredAccount {
   });
 
   Map<String, dynamic> toJson() => {
-        'userId': userId,
-        'email': email,
-        'username': username,
-        'fullName': fullName,
-        'avatarUrl': avatarUrl,
-        'session': session.toJson(),
-        'lastUsed': lastUsed.toIso8601String(),
-      };
+    'userId': userId,
+    'email': email,
+    'username': username,
+    'fullName': fullName,
+    'avatarUrl': avatarUrl,
+    'session': session.toJson(),
+    'lastUsed': lastUsed.toIso8601String(),
+  };
 
   factory RegisteredAccount.fromJson(Map<String, dynamic> json) =>
       RegisteredAccount(
@@ -40,9 +40,10 @@ class RegisteredAccount {
         email: json['email'] as String? ?? '',
         username: json['username'] as String? ?? 'user',
         fullName: json['fullName'] as String?,
-        avatarUrl: json['avatar_url'] as String? ?? json['avatarUrl'] as String?,
+        avatarUrl:
+            json['avatar_url'] as String? ?? json['avatarUrl'] as String?,
         session: Session.fromJson(json['session'] ?? {})!,
-        lastUsed: json['lastUsed'] != null 
+        lastUsed: json['lastUsed'] != null
             ? DateTime.parse(json['lastUsed'] as String)
             : DateTime.now(),
       );
@@ -53,21 +54,21 @@ class RegisteredAccount {
     String? avatarUrl,
     Session? session,
     DateTime? lastUsed,
-  }) =>
-      RegisteredAccount(
-        userId: userId,
-        email: email,
-        username: username ?? this.username,
-        fullName: fullName ?? this.fullName,
-        avatarUrl: avatarUrl ?? this.avatarUrl,
-        session: session ?? this.session,
-        lastUsed: lastUsed ?? this.lastUsed,
-      );
+  }) => RegisteredAccount(
+    userId: userId,
+    email: email,
+    username: username ?? this.username,
+    fullName: fullName ?? this.fullName,
+    avatarUrl: avatarUrl ?? this.avatarUrl,
+    session: session ?? this.session,
+    lastUsed: lastUsed ?? this.lastUsed,
+  );
 }
 
 /// Service to manage the registry of active user sessions on this device
 class SessionRegistryService {
-  static final SessionRegistryService _instance = SessionRegistryService._internal();
+  static final SessionRegistryService _instance =
+      SessionRegistryService._internal();
   factory SessionRegistryService() => _instance;
   SessionRegistryService._internal();
 
@@ -96,21 +97,25 @@ class SessionRegistryService {
       try {
         debugPrint('[SessionRegistry] Reading registry from storage...');
         final data = await _storage.read(key: _registryKey);
-        
+
         if (data == null) {
           debugPrint('[SessionRegistry] No registry data found');
           return [];
         }
 
         // Guard against corrupted files (e.g. file filled with zeros/nulls)
-        if (data.trim().isEmpty || data.runes.every((r) => r == 0) || data.runes.every((r) => r == 48)) {
-          debugPrint('[SessionRegistry] Detected corrupted data (zeros or empty), ignoring.');
+        if (data.trim().isEmpty ||
+            data.runes.every((r) => r == 0) ||
+            data.runes.every((r) => r == 48)) {
+          debugPrint(
+            '[SessionRegistry] Detected corrupted data (zeros or empty), ignoring.',
+          );
           return [];
         }
 
         final List<dynamic> decoded = jsonDecode(data);
         debugPrint('[SessionRegistry] Decoding ${decoded.length} accounts');
-        
+
         final List<RegisteredAccount> accounts = [];
         for (var i = 0; i < decoded.length; i++) {
           try {
@@ -119,15 +124,21 @@ class SessionRegistryService {
               accounts.add(RegisteredAccount.fromJson(item));
             }
           } catch (e) {
-            debugPrint('[SessionRegistry] ERROR parsing account at index $i: $e');
+            debugPrint(
+              '[SessionRegistry] ERROR parsing account at index $i: $e',
+            );
             // We skip this one but keep others
           }
         }
-        
-        debugPrint('[SessionRegistry] Successfully loaded ${accounts.length} accounts');
+
+        debugPrint(
+          '[SessionRegistry] Successfully loaded ${accounts.length} accounts',
+        );
         return accounts;
       } catch (e) {
-        debugPrint('[SessionRegistry] CRITICAL ERROR reading/parsing registry: $e');
+        debugPrint(
+          '[SessionRegistry] CRITICAL ERROR reading/parsing registry: $e',
+        );
         return [];
       }
     });
@@ -181,8 +192,10 @@ class SessionRegistryService {
     try {
       final data = await _storage.read(key: _registryKey);
       if (data == null) return [];
-      
-      if (data.isEmpty || data.runes.every((r) => r == 0) || data.runes.every((r) => r == 48)) {
+
+      if (data.isEmpty ||
+          data.runes.every((r) => r == 0) ||
+          data.runes.every((r) => r == 48)) {
         return [];
       }
 

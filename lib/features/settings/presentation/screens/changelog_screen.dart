@@ -61,20 +61,23 @@ class ChangelogScreen extends StatelessWidget {
                     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
                     const SizedBox(height: 24),
                     _buildVersionCard(
-                      context,
-                      version: '1.0.0+1',
-                      date: 'April 30, 2026',
-                      features: [
-                        'Initial Release - Welcome to Oasis!',
-                        'End-to-End Encrypted Messaging (Whisper Mode)',
-                        'Privacy-Centric Communities (Circles)',
-                        'Live Audio Hangouts (Spaces)',
-                        'Short-form Content Interaction (Ripples)',
-                        'Digital Wellbeing Engine',
-                        'Multi-platform Support (Android, iOS, Windows)',
-                      ],
-                      fixes: [],
-                    ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                          context,
+                          version: '1.0.0+1',
+                          date: 'April 30, 2026',
+                          features: [
+                            'Initial Release - Welcome to Oasis!',
+                            'End-to-End Encrypted Messaging (Whisper Mode)',
+                            'Privacy-Centric Communities (Circles)',
+                            'Live Audio Hangouts (Spaces)',
+                            'Short-form Content Interaction (Ripples)',
+                            'Digital Wellbeing Engine',
+                            'Multi-platform Support (Android, iOS, Windows)',
+                          ],
+                          fixes: [],
+                        )
+                        .animate()
+                        .fadeIn(duration: 400.ms)
+                        .slideY(begin: 0.1, end: 0),
                     const SizedBox(height: 100),
                   ],
                 ),

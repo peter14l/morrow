@@ -45,7 +45,9 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
         )
         .subscribe((status, [error]) {
           if (status == RealtimeSubscribeStatus.timedOut) {
-            debugPrint('[LiveLocationScreen] Realtime subscription timed out. Marker updates may be delayed.');
+            debugPrint(
+              '[LiveLocationScreen] Realtime subscription timed out. Marker updates may be delayed.',
+            );
           } else if (status == RealtimeSubscribeStatus.channelError) {
             debugPrint('[LiveLocationScreen] Realtime channel error: $error');
           }
@@ -65,7 +67,10 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
       if (locData['latitude'] != null && locData['longitude'] != null) {
         _mapController?.animateCamera(
           CameraUpdate.newLatLng(
-            LatLng(locData['latitude'] as double, locData['longitude'] as double),
+            LatLng(
+              locData['latitude'] as double,
+              locData['longitude'] as double,
+            ),
           ),
         );
       }
@@ -89,7 +94,10 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
       );
     }
 
-    final latLng = LatLng(locData['latitude'] as double, locData['longitude'] as double);
+    final latLng = LatLng(
+      locData['latitude'] as double,
+      locData['longitude'] as double,
+    );
     final isLive = locData['is_live'] == true;
 
     return Scaffold(
@@ -97,10 +105,7 @@ class _LiveLocationScreenState extends State<LiveLocationScreen> {
         title: Text(isLive ? 'Live Location' : 'Location (Ended)'),
       ),
       body: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: latLng,
-          zoom: 15,
-        ),
+        initialCameraPosition: CameraPosition(target: latLng, zoom: 15),
         onMapCreated: (controller) => _mapController = controller,
         markers: {
           Marker(

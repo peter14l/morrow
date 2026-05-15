@@ -52,12 +52,10 @@ class TextBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final color =
         textColor ??
-        (isMe
-            ? colorScheme.onPrimaryContainer
-            : colorScheme.onSurface);
+        (isMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
 
     final bool isCiphertext = !MessageTextUtils.isDisplayableCaption(content);
 
@@ -87,14 +85,11 @@ class TextBubble extends StatelessWidget {
                 color: color.withValues(alpha: 0.8),
                 fontSize: 12,
               ),
-              backgroundColor:
-                  isMe
-                      ? theme.colorScheme.primaryContainer.withValues(
-                        alpha: 0.5,
-                      )
-                      : theme.colorScheme.surfaceContainerHighest.withValues(
-                        alpha: 0.5,
-                      ),
+              backgroundColor: isMe
+                  ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
+                  : theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
               borderRadius: 12,
               removeElevation: true,
               onTap: () async {
@@ -113,10 +108,16 @@ class TextBubble extends StatelessWidget {
     return textContent;
   }
 
-  Widget _buildTextContent(BuildContext context, Color color, bool isCiphertext) {
+  Widget _buildTextContent(
+    BuildContext context,
+    Color color,
+    bool isCiphertext,
+  ) {
     final theme = Theme.of(context);
-    final String displayText = isCiphertext ? '🔒 Message encrypted' : content.trim();
-    
+    final String displayText = isCiphertext
+        ? '🔒 Message encrypted'
+        : content.trim();
+
     if (isCiphertext || displayText == '🔒 Message encrypted') {
       return Text(
         displayText,
@@ -153,29 +154,35 @@ class TextBubble extends StatelessWidget {
     for (final match in matches) {
       // Add text before spoiler
       if (match.start > lastMatchEnd) {
-        children.add(Text(
-          displayText.substring(lastMatchEnd, match.start),
-          style: theme.textTheme.bodyMedium?.copyWith(color: color),
-        ));
+        children.add(
+          Text(
+            displayText.substring(lastMatchEnd, match.start),
+            style: theme.textTheme.bodyMedium?.copyWith(color: color),
+          ),
+        );
       }
 
       // Add spoiler
-      children.add(SpoilerWidget(
-        child: Text(
-          match.group(1) ?? '',
-          style: theme.textTheme.bodyMedium?.copyWith(color: color),
+      children.add(
+        SpoilerWidget(
+          child: Text(
+            match.group(1) ?? '',
+            style: theme.textTheme.bodyMedium?.copyWith(color: color),
+          ),
         ),
-      ));
+      );
 
       lastMatchEnd = match.end;
     }
 
     // Add remaining text
     if (lastMatchEnd < displayText.length) {
-      children.add(Text(
-        displayText.substring(lastMatchEnd),
-        style: theme.textTheme.bodyMedium?.copyWith(color: color),
-      ));
+      children.add(
+        Text(
+          displayText.substring(lastMatchEnd),
+          style: theme.textTheme.bodyMedium?.copyWith(color: color),
+        ),
+      );
     }
 
     return Wrap(

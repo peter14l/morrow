@@ -39,9 +39,12 @@ class FileUtils {
       return Icons.description;
     } else if (mimeType.contains('sheet') || mimeType.contains('excel')) {
       return Icons.table_chart;
-    } else if (mimeType.contains('presentation') || mimeType.contains('powerpoint')) {
+    } else if (mimeType.contains('presentation') ||
+        mimeType.contains('powerpoint')) {
       return Icons.slideshow;
-    } else if (mimeType.contains('zip') || mimeType.contains('rar') || mimeType.contains('archive')) {
+    } else if (mimeType.contains('zip') ||
+        mimeType.contains('rar') ||
+        mimeType.contains('archive')) {
       return Icons.folder_zip;
     } else if (mimeType.contains('text/')) {
       return Icons.text_snippet;
@@ -85,7 +88,8 @@ class FileUtils {
     try {
       final filePath = imageFile.absolute.path;
       final lastIndex = filePath.lastIndexOf('.');
-      final outPath = '${filePath.substring(0, lastIndex)}_compressed${filePath.substring(lastIndex)}';
+      final outPath =
+          '${filePath.substring(0, lastIndex)}_compressed${filePath.substring(lastIndex)}';
 
       final result = await compress.FlutterImageCompress.compressAndGetFile(
         filePath,
@@ -151,7 +155,8 @@ class FileUtils {
       return Colors.blue;
     } else if (mimeType.contains('sheet') || mimeType.contains('excel')) {
       return Colors.green;
-    } else if (mimeType.contains('presentation') || mimeType.contains('powerpoint')) {
+    } else if (mimeType.contains('presentation') ||
+        mimeType.contains('powerpoint')) {
       return Colors.orange;
     } else if (mimeType.contains('zip') || mimeType.contains('rar')) {
       return const Color(0xFFF59E0B); // Amber
@@ -166,4 +171,3 @@ class FileUtils {
     }
   }
 }
-

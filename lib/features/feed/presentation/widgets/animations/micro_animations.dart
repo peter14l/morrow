@@ -340,21 +340,19 @@ class _ProgressRingPainter extends CustomPainter {
     final radius = (size.width - strokeWidth) / 2;
 
     // Background circle
-    final bgPaint =
-        Paint()
-          ..color = backgroundColor.withValues(alpha: 0.3)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth;
+    final bgPaint = Paint()
+      ..color = backgroundColor.withValues(alpha: 0.3)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth;
 
     canvas.drawCircle(center, radius, bgPaint);
 
     // Progress arc
-    final progressPaint =
-        Paint()
-          ..color = progressColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = strokeWidth
-          ..strokeCap = StrokeCap.round;
+    final progressPaint = Paint()
+      ..color = progressColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = strokeWidth
+      ..strokeCap = StrokeCap.round;
 
     final sweepAngle = 2 * math.pi * progress;
     canvas.drawArc(
@@ -434,12 +432,11 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
               begin: Alignment.centerLeft,
               end: Alignment.centerRight,
               colors: [baseColor, highlightColor, baseColor],
-              stops:
-                  [
-                    _gradientPosition.value - 0.3,
-                    _gradientPosition.value,
-                    _gradientPosition.value + 0.3,
-                  ].map((s) => s.clamp(0.0, 1.0)).toList(),
+              stops: [
+                _gradientPosition.value - 0.3,
+                _gradientPosition.value,
+                _gradientPosition.value + 0.3,
+              ].map((s) => s.clamp(0.0, 1.0)).toList(),
             ).createShader(bounds);
           },
           blendMode: BlendMode.srcATop,

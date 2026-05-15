@@ -47,13 +47,12 @@ class CommentRepositoryImpl implements CommentRepository {
         commentMap['user_avatar'] = profile['avatar_url'];
       }
 
-      final likeResponse =
-          await _supabase
-              .from(SupabaseConfig.commentLikesTable)
-              .select()
-              .eq('comment_id', commentMap['id'])
-              .eq('user_id', currentUserId)
-              .maybeSingle();
+      final likeResponse = await _supabase
+          .from(SupabaseConfig.commentLikesTable)
+          .select()
+          .eq('comment_id', commentMap['id'])
+          .eq('user_id', currentUserId)
+          .maybeSingle();
 
       commentMap['is_liked'] = likeResponse != null;
       comments.add(Comment.fromJson(commentMap));
@@ -93,13 +92,12 @@ class CommentRepositoryImpl implements CommentRepository {
         commentMap['user_avatar'] = profile['avatar_url'];
       }
 
-      final likeResponse =
-          await _supabase
-              .from(SupabaseConfig.commentLikesTable)
-              .select()
-              .eq('comment_id', commentMap['id'])
-              .eq('user_id', currentUserId)
-              .maybeSingle();
+      final likeResponse = await _supabase
+          .from(SupabaseConfig.commentLikesTable)
+          .select()
+          .eq('comment_id', commentMap['id'])
+          .eq('user_id', currentUserId)
+          .maybeSingle();
 
       commentMap['is_liked'] = likeResponse != null;
       replies.add(Comment.fromJson(commentMap));
@@ -124,10 +122,9 @@ class CommentRepositoryImpl implements CommentRepository {
       'content': content,
     });
 
-    final response =
-        await _supabase
-            .from(SupabaseConfig.commentsTable)
-            .select('''
+    final response = await _supabase
+        .from(SupabaseConfig.commentsTable)
+        .select('''
           *,
           ${SupabaseConfig.profilesTable}:user_id (
             username,
@@ -135,8 +132,8 @@ class CommentRepositoryImpl implements CommentRepository {
             avatar_url
           )
         ''')
-            .eq('id', commentId)
-            .single();
+        .eq('id', commentId)
+        .single();
 
     final commentMap = Map<String, dynamic>.from(response);
     final profile = commentMap[SupabaseConfig.profilesTable];
@@ -149,12 +146,11 @@ class CommentRepositoryImpl implements CommentRepository {
     // Trigger notifications
     try {
       if (parentCommentId == null) {
-        final postResponse =
-            await _supabase
-                .from(SupabaseConfig.postsTable)
-                .select('user_id')
-                .eq('id', postId)
-                .single();
+        final postResponse = await _supabase
+            .from(SupabaseConfig.postsTable)
+            .select('user_id')
+            .eq('id', postId)
+            .single();
 
         final postOwnerId = postResponse['user_id'] as String;
         if (postOwnerId != userId) {
@@ -167,12 +163,11 @@ class CommentRepositoryImpl implements CommentRepository {
           );
         }
       } else {
-        final parentCommentResponse =
-            await _supabase
-                .from(SupabaseConfig.commentsTable)
-                .select('user_id')
-                .eq('id', parentCommentId)
-                .single();
+        final parentCommentResponse = await _supabase
+            .from(SupabaseConfig.commentsTable)
+            .select('user_id')
+            .eq('id', parentCommentId)
+            .single();
 
         final parentCommentOwnerId = parentCommentResponse['user_id'] as String;
         if (parentCommentOwnerId != userId) {
@@ -198,12 +193,11 @@ class CommentRepositoryImpl implements CommentRepository {
     required String userId,
     required String content,
   }) async {
-    final comment =
-        await _supabase
-            .from(SupabaseConfig.commentsTable)
-            .select('user_id')
-            .eq('id', commentId)
-            .single();
+    final comment = await _supabase
+        .from(SupabaseConfig.commentsTable)
+        .select('user_id')
+        .eq('id', commentId)
+        .single();
 
     if (comment['user_id'] != userId) {
       throw Exception('Not authorized to update this comment');
@@ -214,10 +208,9 @@ class CommentRepositoryImpl implements CommentRepository {
         .update({'content': content})
         .eq('id', commentId);
 
-    final response =
-        await _supabase
-            .from(SupabaseConfig.commentsTable)
-            .select('''
+    final response = await _supabase
+        .from(SupabaseConfig.commentsTable)
+        .select('''
           *,
           ${SupabaseConfig.profilesTable}:user_id (
             username,
@@ -225,8 +218,8 @@ class CommentRepositoryImpl implements CommentRepository {
             avatar_url
           )
         ''')
-            .eq('id', commentId)
-            .single();
+        .eq('id', commentId)
+        .single();
 
     final commentMap = Map<String, dynamic>.from(response);
     final profile = commentMap[SupabaseConfig.profilesTable];
@@ -235,13 +228,12 @@ class CommentRepositoryImpl implements CommentRepository {
       commentMap['user_avatar'] = profile['avatar_url'];
     }
 
-    final likeResponse =
-        await _supabase
-            .from(SupabaseConfig.commentLikesTable)
-            .select()
-            .eq('comment_id', commentId)
-            .eq('user_id', userId)
-            .maybeSingle();
+    final likeResponse = await _supabase
+        .from(SupabaseConfig.commentLikesTable)
+        .select()
+        .eq('comment_id', commentId)
+        .eq('user_id', userId)
+        .maybeSingle();
 
     commentMap['is_liked'] = likeResponse != null;
     return Comment.fromJson(commentMap);
@@ -252,12 +244,11 @@ class CommentRepositoryImpl implements CommentRepository {
     required String commentId,
     required String userId,
   }) async {
-    final comment =
-        await _supabase
-            .from(SupabaseConfig.commentsTable)
-            .select('user_id')
-            .eq('id', commentId)
-            .single();
+    final comment = await _supabase
+        .from(SupabaseConfig.commentsTable)
+        .select('user_id')
+        .eq('id', commentId)
+        .single();
 
     if (comment['user_id'] != userId) {
       throw Exception('Not authorized to delete this comment');
@@ -313,12 +304,11 @@ class CommentRepositoryImpl implements CommentRepository {
           callback: (payload) async {
             try {
               final commentData = payload.newRecord;
-              final profile =
-                  await _supabase
-                      .from(SupabaseConfig.profilesTable)
-                      .select('username, avatar_url')
-                      .eq('id', commentData['user_id'])
-                      .single();
+              final profile = await _supabase
+                  .from(SupabaseConfig.profilesTable)
+                  .select('username, avatar_url')
+                  .eq('id', commentData['user_id'])
+                  .single();
 
               commentData['username'] = profile['username'];
               commentData['user_avatar'] = profile['avatar_url'];

@@ -15,20 +15,28 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('E2EE & Persistence Integration Test', () {
-    testWidgets('Verify Signal Protocol + Secure Storage Persistence', (tester) async {
+    testWidgets('Verify Signal Protocol + Secure Storage Persistence', (
+      tester,
+    ) async {
       // 1. Initialize Signal Identity
       final aliceIdentity = generateIdentityKeyPair();
       final aliceRegistrationId = generateRegistrationId(false);
-      
+
       final bobIdentity = generateIdentityKeyPair();
       final bobRegistrationId = generateRegistrationId(false);
 
       // 2. Setup Persistent Stores
-      // Note: We use InMemory for the protocol logic verification but verify 
+      // Note: We use InMemory for the protocol logic verification but verify
       // the storage serialization logic of PersistentSignalStore.
-      
-      final aliceStore = InMemorySignalProtocolStore(aliceIdentity, aliceRegistrationId);
-      final bobStore = InMemorySignalProtocolStore(bobIdentity, bobRegistrationId);
+
+      final aliceStore = InMemorySignalProtocolStore(
+        aliceIdentity,
+        aliceRegistrationId,
+      );
+      final bobStore = InMemorySignalProtocolStore(
+        bobIdentity,
+        bobRegistrationId,
+      );
 
       // 3. Bob generates and stores PreKeys/SignedPreKeys
       final bobSignedPreKey = generateSignedPreKey(bobIdentity, 1);
@@ -51,39 +59,67 @@ void main() {
 
       // 5. Alice builds a session
       const bobAddress = SignalProtocolAddress('bob_id', 1);
-      final aliceSessionBuilder = SessionBuilder(aliceStore, aliceStore, aliceStore, aliceStore, bobAddress);
+      final aliceSessionBuilder = SessionBuilder(
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        bobAddress,
+      );
       await aliceSessionBuilder.processPreKeyBundle(bobBundle);
 
       // 6. Alice encrypts initial message (PreKeySignalMessage)
-      final aliceCipher = SessionCipher(aliceStore, aliceStore, aliceStore, aliceStore, bobAddress);
+      final aliceCipher = SessionCipher(
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        bobAddress,
+      );
       const secret = 'Protocol established via Oasis E2EE Engine.';
-      final ciphertext = await aliceCipher.encrypt(Uint8List.fromList(utf8.encode(secret)));
+      final ciphertext = await aliceCipher.encrypt(
+        Uint8List.fromList(utf8.encode(secret)),
+      );
 
       expect(ciphertext.getType(), CiphertextMessage.prekeyType);
 
       // 7. Bob decrypts
       const aliceAddress = SignalProtocolAddress('alice_id', 1);
-      final bobCipher = SessionCipher(bobStore, bobStore, bobStore, bobStore, aliceAddress);
-      
+      final bobCipher = SessionCipher(
+        bobStore,
+        bobStore,
+        bobStore,
+        bobStore,
+        aliceAddress,
+      );
+
       final preKeyMessage = PreKeySignalMessage(ciphertext.serialize());
       final decryptedBytes = await bobCipher.decrypt(preKeyMessage);
-      
+
       expect(utf8.decode(decryptedBytes), secret);
 
       // 8. Bob replies to Alice (this should be a WhisperType message because he has Alice's session established)
       const bobReply = 'Message received and decrypted.';
-      final bobCiphertext = await bobCipher.encrypt(Uint8List.fromList(utf8.encode(bobReply)));
-      
+      final bobCiphertext = await bobCipher.encrypt(
+        Uint8List.fromList(utf8.encode(bobReply)),
+      );
+
       // Bob's message to Alice should be WhisperType (2)
       expect(bobCiphertext.getType(), CiphertextMessage.whisperType);
 
       // 9. Alice decrypts Bob's reply
-      final signalMessage = SignalMessage.fromSerialized(bobCiphertext.serialize());
-      final aliceDecryptedBytes = await aliceCipher.decryptFromSignal(signalMessage);
+      final signalMessage = SignalMessage.fromSerialized(
+        bobCiphertext.serialize(),
+      );
+      final aliceDecryptedBytes = await aliceCipher.decryptFromSignal(
+        signalMessage,
+      );
       expect(utf8.decode(aliceDecryptedBytes), bobReply);
 
       // 10. Now Alice's subsequent message MUST be WhisperType (2)
-      final aliceCiphertext2 = await aliceCipher.encrypt(Uint8List.fromList(utf8.encode('Steady state')));
+      final aliceCiphertext2 = await aliceCipher.encrypt(
+        Uint8List.fromList(utf8.encode('Steady state')),
+      );
       expect(aliceCiphertext2.getType(), CiphertextMessage.whisperType);
 
       debugPrint('✅ Signal Protocol Handshake & Ratcheting Successful');

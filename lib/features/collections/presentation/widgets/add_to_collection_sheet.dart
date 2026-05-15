@@ -28,15 +28,16 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     setState(() => _isLoading = true);
     try {
       final provider = context.read<CollectionsProvider>();
-      
+
       // We can just await the use case or method
-      final collectionsResult = await provider.getCollectionsForPostUseCase.call(widget.postId);
-      
+      final collectionsResult = await provider.getCollectionsForPostUseCase
+          .call(widget.postId);
+
       final containingCollections = collectionsResult.fold(
         onSuccess: (data) => data,
         onFailure: (_) => <CollectionEntity>[],
       );
-      
+
       final containingIds = containingCollections.map((c) => c.id).toSet();
 
       if (mounted) {
@@ -59,7 +60,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     try {
       final provider = context.read<CollectionsProvider>();
       // Get collections that were originally selected
-      final originalResult = await provider.getCollectionsForPostUseCase.call(widget.postId);
+      final originalResult = await provider.getCollectionsForPostUseCase.call(
+        widget.postId,
+      );
       final originalCollections = originalResult.fold(
         onSuccess: (data) => data,
         onFailure: (_) => <CollectionEntity>[],
@@ -69,20 +72,14 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
       // Add to new collections
       for (final collectionId in _selectedCollections) {
         if (!originalIds.contains(collectionId)) {
-          await provider.addToCollection(
-            collectionId,
-            widget.postId,
-          );
+          await provider.addToCollection(collectionId, widget.postId);
         }
       }
 
       // Remove from deselected collections
       for (final collectionId in originalIds) {
         if (!_selectedCollections.contains(collectionId)) {
-          await provider.removeFromCollection(
-            collectionId,
-            widget.postId,
-          );
+          await provider.removeFromCollection(collectionId, widget.postId);
         }
       }
 
@@ -107,45 +104,48 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
 
     final result = await showDialog<String>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('New Collection'),
-            content: TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                hintText: 'My Favorites',
-              ),
-              maxLength: 50,
-              autofocus: true,
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  if (nameController.text.trim().isNotEmpty) {
-                    Navigator.of(context).pop(nameController.text.trim());
-                  }
-                },
-                child: const Text('Create'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('New Collection'),
+        content: TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Name',
+            hintText: 'My Favorites',
           ),
+          maxLength: 50,
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.trim().isNotEmpty) {
+                Navigator.of(context).pop(nameController.text.trim());
+              }
+            },
+            child: const Text('Create'),
+          ),
+        ],
+      ),
     );
 
     if (result != null) {
-      final success = await context.read<CollectionsProvider>().createCollection(
-        name: result,
-        isPrivate: true,
-      );
+      final success = await context
+          .read<CollectionsProvider>()
+          .createCollection(name: result, isPrivate: true);
 
       if (success) {
         await _loadCollections();
         // Assume the last element is the newest
-        final newCollectionId = context.read<CollectionsProvider>().state.collections.last.id;
+        final newCollectionId = context
+            .read<CollectionsProvider>()
+            .state
+            .collections
+            .last
+            .id;
         setState(() {
           _selectedCollections.add(newCollectionId);
         });
@@ -232,10 +232,9 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
                     },
                     title: Text(collection.name),
                     subtitle: Text('${collection.itemsCount} posts'),
-                    secondary:
-                        collection.isPrivate
-                            ? const Icon(Icons.lock_outline, size: 20)
-                            : null,
+                    secondary: collection.isPrivate
+                        ? const Icon(Icons.lock_outline, size: 20)
+                        : null,
                   );
                 },
               ),
@@ -246,14 +245,13 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: _isSaving ? null : _saveChanges,
-              child:
-                  _isSaving
-                      ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                      : const Text('Save'),
+              child: _isSaving
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Save'),
             ),
           ),
         ],

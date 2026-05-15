@@ -87,69 +87,60 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(28),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: ['❤️', '😂', '🔥', '✨', '😢']
+                  .map(
+                    (emoji) => IconButton(
+                      onPressed: () {
+                        widget.onReact?.call(emoji);
+                        Navigator.pop(context);
+                      },
+                      icon: Text(emoji, style: const TextStyle(fontSize: 28)),
+                    ),
+                  )
+                  .toList(),
+            ),
+            const Divider(height: 32),
+            if (isAuthor)
+              ListTile(
+                leading: Icon(
+                  widget.item.isLocked
+                      ? FluentIcons.lock_open_24_regular
+                      : FluentIcons.lock_closed_24_regular,
+                ),
+                title: Text(widget.item.isLocked ? 'Unlock Item' : 'Lock Item'),
+                onTap: () {
+                  widget.onLock?.call(!widget.item.isLocked);
+                  Navigator.pop(context);
+                },
               ),
+            ListTile(
+              leading: const Icon(
+                FluentIcons.delete_24_regular,
+                color: Colors.red,
+              ),
+              title: const Text(
+                'Remove from Canvas',
+                style: TextStyle(color: Colors.red),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                widget.onDelete();
+              },
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children:
-                      ['❤️', '😂', '🔥', '✨', '😢']
-                          .map(
-                            (emoji) => IconButton(
-                              onPressed: () {
-                                widget.onReact?.call(emoji);
-                                Navigator.pop(context);
-                              },
-                              icon: Text(
-                                emoji,
-                                style: const TextStyle(fontSize: 28),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                ),
-                const Divider(height: 32),
-                if (isAuthor)
-                  ListTile(
-                    leading: Icon(
-                      widget.item.isLocked
-                          ? FluentIcons.lock_open_24_regular
-                          : FluentIcons.lock_closed_24_regular,
-                    ),
-                    title: Text(
-                      widget.item.isLocked ? 'Unlock Item' : 'Lock Item',
-                    ),
-                    onTap: () {
-                      widget.onLock?.call(!widget.item.isLocked);
-                      Navigator.pop(context);
-                    },
-                  ),
-                ListTile(
-                  leading: const Icon(
-                    FluentIcons.delete_24_regular,
-                    color: Colors.red,
-                  ),
-                  title: const Text(
-                    'Remove from Canvas',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    widget.onDelete();
-                  },
-                ),
-              ],
-            ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -165,7 +156,8 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
       child: Transform.scale(
         scale: widget.item.scale,
         child: GestureDetector(
-          behavior: HitTestBehavior.opaque, // Ensure it catches taps anywhere in its bounds
+          behavior: HitTestBehavior
+              .opaque, // Ensure it catches taps anywhere in its bounds
           onPanStart: _onPanStart,
           onPanUpdate: _onPanUpdate,
           onPanEnd: _onPanEnd,
@@ -177,15 +169,17 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
               // Interaction Halo & Border
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                padding: const EdgeInsets.all(8), // Increased padding for easier grabbing
+                padding: const EdgeInsets.all(
+                  8,
+                ), // Increased padding for easier grabbing
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: isBeingModifiedByOther
                         ? Colors.blue.withValues(alpha: 0.6)
                         : (_selected
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.transparent),
+                              ? Theme.of(context).colorScheme.primary
+                              : Colors.transparent),
                     width: 2.5,
                   ),
                   boxShadow: isBeingModifiedByOther
@@ -197,14 +191,16 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
                           ),
                         ]
                       : (_selected
-                          ? [
-                              BoxShadow(
-                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                                blurRadius: 15,
-                                spreadRadius: 2,
-                              )
-                            ]
-                          : []),
+                            ? [
+                                BoxShadow(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 15,
+                                  spreadRadius: 2,
+                                ),
+                              ]
+                            : []),
                 ),
                 child: _buildContent(),
               ),
@@ -215,14 +211,21 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
                   top: -20,
                   left: 0,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.blue,
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: const Text(
                       'Friend is moving this...',
-                      style: TextStyle(color: Colors.white, fontSize: 8, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -237,7 +240,9 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
                     decoration: const BoxDecoration(
                       color: Colors.amber,
                       shape: BoxShape.circle,
-                      boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
+                      boxShadow: [
+                        BoxShadow(color: Colors.black26, blurRadius: 4),
+                      ],
                     ),
                     child: const Icon(
                       FluentIcons.lock_closed_16_filled,
@@ -259,17 +264,25 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
                     alignment: WrapAlignment.center,
                     children: widget.item.reactions.entries.map((entry) {
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: Colors.white24),
-                          boxShadow: const [BoxShadow(color: Colors.black45, blurRadius: 4)],
+                          boxShadow: const [
+                            BoxShadow(color: Colors.black45, blurRadius: 4),
+                          ],
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(entry.key, style: const TextStyle(fontSize: 12)),
+                            Text(
+                              entry.key,
+                              style: const TextStyle(fontSize: 12),
+                            ),
                             const SizedBox(width: 4),
                             Text(
                               '${entry.value.length}',
@@ -339,22 +352,20 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
             child: CachedNetworkImage(
               imageUrl: widget.item.content,
               fit: BoxFit.contain,
-              placeholder:
-                  (context, url) => Container(
-                    width: 150,
-                    height: 150,
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: const Center(
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-              errorWidget:
-                  (context, url, error) => Container(
-                    width: 150,
-                    height: 150,
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    child: const Icon(Icons.broken_image_outlined),
-                  ),
+              placeholder: (context, url) => Container(
+                width: 150,
+                height: 150,
+                color: theme.colorScheme.surfaceContainerHighest,
+                child: const Center(
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                width: 150,
+                height: 150,
+                color: theme.colorScheme.surfaceContainerHighest,
+                child: const Icon(Icons.broken_image_outlined),
+              ),
             ),
           ),
         );
@@ -441,7 +452,7 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
 
       final List<String> segments = content.split(';');
       final List<DrawingPoint?> points = [];
-      
+
       final color = Color(
         int.parse('FF${widget.item.color.replaceAll('#', '')}', radix: 16),
       );
@@ -450,16 +461,18 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
         if (segment.isEmpty) continue;
         final coords = segment.split(',');
         if (coords.length < 2) continue;
-        
-        points.add(DrawingPoint(
-          point: Offset(double.parse(coords[0]), double.parse(coords[1])),
-          paint: Paint()
-            ..color = color
-            ..strokeWidth = 4.0
-            ..strokeCap = StrokeCap.round
-            ..strokeJoin = StrokeJoin.round
-            ..isAntiAlias = true,
-        ));
+
+        points.add(
+          DrawingPoint(
+            point: Offset(double.parse(coords[0]), double.parse(coords[1])),
+            paint: Paint()
+              ..color = color
+              ..strokeWidth = 4.0
+              ..strokeCap = StrokeCap.round
+              ..strokeJoin = StrokeJoin.round
+              ..isAntiAlias = true,
+          ),
+        );
       }
 
       // Add a null at the end to ensure the last path segment is drawn if needed by painter
@@ -472,7 +485,7 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
         width: w,
         height: h,
         // Add a background color during debugging if needed
-        // color: Colors.white10, 
+        // color: Colors.white10,
         child: CustomPaint(
           painter: CanvasDrawingPainter(pointsList: points),
           size: Size(w, h),
@@ -532,11 +545,10 @@ class _TrianglePainter extends CustomPainter {
   _TrianglePainter({required this.color});
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
     final path = Path();
     path.moveTo(size.width / 2, 0);
     path.lineTo(size.width, size.height);
@@ -560,11 +572,10 @@ class _LinePainter extends CustomPainter {
   _LinePainter({required this.color});
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..strokeWidth = 2
-          ..strokeCap = StrokeCap.round;
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
     canvas.drawLine(Offset.zero, Offset(size.width, size.height), paint);
   }
 

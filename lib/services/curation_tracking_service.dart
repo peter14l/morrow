@@ -54,9 +54,12 @@ class CurationTrackingService extends ChangeNotifier {
   }
 
   /// Track a visit or significant interaction with a category
-  Future<void> trackCategoryInteraction(String categoryId, {int weight = 1}) async {
+  Future<void> trackCategoryInteraction(
+    String categoryId, {
+    int weight = 1,
+  }) async {
     final db = await database;
-    
+
     final List<Map<String, dynamic>> existing = await db.query(
       'category_interactions',
       where: 'category_id = ?',
@@ -70,11 +73,14 @@ class CurationTrackingService extends ChangeNotifier {
         'last_interacted_at': DateTime.now().toIso8601String(),
       });
     } else {
-      await db.rawUpdate('''
+      await db.rawUpdate(
+        '''
         UPDATE category_interactions 
         SET interaction_count = interaction_count + ?, last_interacted_at = ?
         WHERE category_id = ?
-      ''', [weight, DateTime.now().toIso8601String(), categoryId]);
+      ''',
+        [weight, DateTime.now().toIso8601String(), categoryId],
+      );
     }
 
     notifyListeners();
@@ -83,16 +89,12 @@ class CurationTrackingService extends ChangeNotifier {
   /// Track a like on a post within a category
   Future<void> trackPostLike(String categoryId, String postId) async {
     final db = await database;
-    await db.insert(
-      'post_likes',
-      {
-        'post_id': postId,
-        'category_id': categoryId,
-        'liked_at': DateTime.now().toIso8601String(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
-    
+    await db.insert('post_likes', {
+      'post_id': postId,
+      'category_id': categoryId,
+      'liked_at': DateTime.now().toIso8601String(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+
     notifyListeners();
   }
 
@@ -100,7 +102,7 @@ class CurationTrackingService extends ChangeNotifier {
   Future<void> trackTimeSpent(String categoryId, int seconds) async {
     if (seconds <= 0) return;
     final db = await database;
-    
+
     final List<Map<String, dynamic>> existing = await db.query(
       'time_spent',
       where: 'category_id = ?',
@@ -114,11 +116,14 @@ class CurationTrackingService extends ChangeNotifier {
         'last_updated_at': DateTime.now().toIso8601String(),
       });
     } else {
-      await db.rawUpdate('''
+      await db.rawUpdate(
+        '''
         UPDATE time_spent 
         SET total_seconds = total_seconds + ?, last_updated_at = ?
         WHERE category_id = ?
-      ''', [seconds, DateTime.now().toIso8601String(), categoryId]);
+      ''',
+        [seconds, DateTime.now().toIso8601String(), categoryId],
+      );
     }
 
     notifyListeners();
@@ -127,9 +132,10 @@ class CurationTrackingService extends ChangeNotifier {
   /// Get the user's top categories based on interactions, likes, and time
   Future<List<String>> getTopCategories({int limit = 5}) async {
     final db = await database;
-    
+
     // Combined score query: Interaction: 1.0, Likes: 2.0, Time: 0.1 per sec
-    final List<Map<String, dynamic>> results = await db.rawQuery('''
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
       SELECT category_id, 
              SUM(score) as total_score
       FROM (
@@ -142,7 +148,9 @@ class CurationTrackingService extends ChangeNotifier {
       GROUP BY category_id
       ORDER BY total_score DESC
       LIMIT ?
-    ''', [limit]);
+    ''',
+      [limit],
+    );
 
     return results.map((e) => e['category_id'] as String).toList();
   }
@@ -150,14 +158,18 @@ class CurationTrackingService extends ChangeNotifier {
   /// Get summary of tracking (for transparency UI)
   Future<Map<String, dynamic>> getTrackingSummary() async {
     final db = await database;
-    
+
     final categories = await db.query('category_interactions');
-    final likesResult = await db.rawQuery('SELECT COUNT(*) as count FROM post_likes');
+    final likesResult = await db.rawQuery(
+      'SELECT COUNT(*) as count FROM post_likes',
+    );
     final likesCount = Sqflite.firstIntValue(likesResult) ?? 0;
-    
-    final timeResult = await db.rawQuery('SELECT SUM(total_seconds) as total FROM time_spent');
+
+    final timeResult = await db.rawQuery(
+      'SELECT SUM(total_seconds) as total FROM time_spent',
+    );
     final totalTime = Sqflite.firstIntValue(timeResult) ?? 0;
-    
+
     return {
       'tracked_categories': categories.length,
       'total_likes_recorded': likesCount,
@@ -171,10 +183,10 @@ class CurationTrackingService extends ChangeNotifier {
   /// Returns a list of maps formatted for the 'sync_user_analytics' RPC.
   Future<List<Map<String, dynamic>>> getSyncData() async {
     final db = await database;
-    
+
     // Get interaction counts
     final categories = await db.query('category_interactions');
-    
+
     // Get liked posts grouped by category
     final likes = await db.query('post_likes');
     final likesByCategory = <String, List<String>>{};
@@ -183,7 +195,7 @@ class CurationTrackingService extends ChangeNotifier {
       final postId = like['post_id'] as String;
       likesByCategory.putIfAbsent(categoryId, () => []).add(postId);
     }
-    
+
     // Get time spent
     final timeSpent = await db.query('time_spent');
     final timeSpentByCategory = <String, int>{};
@@ -192,7 +204,7 @@ class CurationTrackingService extends ChangeNotifier {
       final seconds = time['total_seconds'] as int;
       timeSpentByCategory[categoryId] = seconds;
     }
-    
+
     final result = <Map<String, dynamic>>[];
     for (final category in categories) {
       final categoryId = category['category_id'] as String;
@@ -203,7 +215,7 @@ class CurationTrackingService extends ChangeNotifier {
         'p_total_seconds': timeSpentByCategory[categoryId] ?? 0,
       });
     }
-    
+
     return result;
   }
 

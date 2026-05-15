@@ -16,7 +16,9 @@ class AuthRemoteDatasource {
   final AuthProvidersDelegate _authProvidersDelegate;
 
   AuthRemoteDatasource({AuthProvidersDelegate? authProvidersDelegate})
-      : _authProvidersDelegate = authProvidersDelegate ?? AuthProvidersDelegate(SupabaseService().client);
+    : _authProvidersDelegate =
+          authProvidersDelegate ??
+          AuthProvidersDelegate(SupabaseService().client);
 
   Future<String?> _getEmailFromUsername(String username) async {
     try {
@@ -239,7 +241,9 @@ class AuthRemoteDatasource {
     String email = identifier;
     try {
       if (!identifier.contains('@')) {
-        debugPrint('[AuthRemoteDatasource] Resolving username for reset: $identifier');
+        debugPrint(
+          '[AuthRemoteDatasource] Resolving username for reset: $identifier',
+        );
         final resolvedEmail = await _getEmailFromUsername(identifier);
         if (resolvedEmail == null) {
           throw const AuthException(
@@ -377,7 +381,9 @@ class AuthRemoteDatasource {
     final user = response.user;
     final session = response.session;
     if (user == null || session == null) {
-      throw Exception('Passkey registration failed: no user or session returned');
+      throw Exception(
+        'Passkey registration failed: no user or session returned',
+      );
     }
     return response;
   }
@@ -399,4 +405,3 @@ class AuthRemoteDatasource {
     );
   }
 }
-

@@ -1,4 +1,8 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:universal_io/io.dart';
+import 'package:path/path.dart' as p;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// Box names enum for type safety
 class HiveBoxes {
@@ -11,8 +15,23 @@ class HiveBoxes {
 
 class HiveService {
   static Future<void> initialize() async {
-    await Hive.initFlutter();
-    
+    if (kIsWeb) {
+      await Hive.initFlutter();
+    } else {
+      // Use Application Support directory instead of Documents on Desktop/Mobile
+      // to avoid permission issues (like Controlled Folder Access on Windows)
+      final appDir = await getApplicationSupportDirectory();
+      final hivePath = p.join(appDir.path, 'hive');
+
+      // Ensure the directory exists
+      final dir = Directory(hivePath);
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+
+      await Hive.initFlutter(hivePath);
+    }
+
     // Open boxes
     await Hive.openBox(HiveBoxes.messages);
     await Hive.openBox(HiveBoxes.feeds);

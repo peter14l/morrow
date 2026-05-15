@@ -31,7 +31,9 @@ class KeyManagementService {
   /// Derives a 32-byte key from the User ID for legacy seamless backup encryption.
   /// 🚩 CRITICAL VULNERABILITY: This method is deprecated and should NOT be used for new users.
   /// It is kept ONLY for one-time migration to PIN-based (v2) security.
-  @Deprecated('Vulnerable to userId harvesting. Use deriveSecureBackupKey instead.')
+  @Deprecated(
+    'Vulnerable to userId harvesting. Use deriveSecureBackupKey instead.',
+  )
   encrypt.Key deriveLegacyBackupKey(String userId) {
     final bytes = utf8.encode(userId);
     final digest = sha256.convert(bytes);
@@ -74,7 +76,8 @@ class KeyManagementService {
 
   /// Generates a random 24-character recovery key grouped by dashes.
   String generateRecoveryKey() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude ambiguous 0, O, 1, I
+    const chars =
+        'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Exclude ambiguous 0, O, 1, I
     final random = Random.secure();
     final buffer = StringBuffer();
 
@@ -89,8 +92,10 @@ class KeyManagementService {
   /// Derives a 32-byte AES key from a recovery key using Argon2id.
   encrypt.Key deriveRecoveryKey(String recoveryKey, String saltBase64) {
     // Normalize: remove dashes and spaces, uppercase
-    final normalized = recoveryKey.replaceAll(RegExp(r'[\s-]'), '').toUpperCase();
-    
+    final normalized = recoveryKey
+        .replaceAll(RegExp(r'[\s-]'), '')
+        .toUpperCase();
+
     // Reuse the secure derivation logic but with the recovery key as the "pin"
     return deriveSecureBackupKey(normalized, saltBase64);
   }

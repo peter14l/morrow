@@ -15,7 +15,8 @@ class RevenueCatService extends ChangeNotifier {
   Offerings? _offerings;
   Offerings? get offerings => _offerings;
 
-  bool get isPro => _customerInfo?.entitlements.active.containsKey('Oasis Pro') ?? false;
+  bool get isPro =>
+      _customerInfo?.entitlements.active.containsKey('Oasis Pro') ?? false;
 
   bool _isInitialized = false;
   bool get isInitialized => _isInitialized;
@@ -38,7 +39,7 @@ class RevenueCatService extends ChangeNotifier {
     }
 
     PurchasesConfiguration configuration = PurchasesConfiguration(apiKey);
-    
+
     // Identify user with Supabase ID if logged in
     final currentUser = Supabase.instance.client.auth.currentUser;
     if (currentUser != null) {

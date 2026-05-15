@@ -26,15 +26,14 @@ class FeedService {
       if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
-      final posts =
-          data.map((json) {
-            final map = Map<String, dynamic>.from(json as Map);
-            // Ensure field names match what Post.fromJson expects if RPC returns different names
-            if (map['comments_count'] == null && map['comments'] != null) {
-              map['comments_count'] = map['comments'];
-            }
-            return Post.fromJson(map);
-          }).toList();
+      final posts = data.map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        // Ensure field names match what Post.fromJson expects if RPC returns different names
+        if (map['comments_count'] == null && map['comments'] != null) {
+          map['comments_count'] = map['comments'];
+        }
+        return Post.fromJson(map);
+      }).toList();
 
       final isPro = SubscriptionService().isPro;
 
@@ -83,15 +82,14 @@ class FeedService {
       if (response == null) return [];
 
       final List<dynamic> data = response as List<dynamic>;
-      final posts =
-          data.map((json) {
-            final map = Map<String, dynamic>.from(json as Map);
-            // Ensure field names match what Post.fromJson expects if RPC returns different names
-            if (map['comments_count'] == null && map['comments'] != null) {
-              map['comments_count'] = map['comments'];
-            }
-            return Post.fromJson(map);
-          }).toList();
+      final posts = data.map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        // Ensure field names match what Post.fromJson expects if RPC returns different names
+        if (map['comments_count'] == null && map['comments'] != null) {
+          map['comments_count'] = map['comments'];
+        }
+        return Post.fromJson(map);
+      }).toList();
 
       final isPro = SubscriptionService().isPro;
 
@@ -133,13 +131,12 @@ class FeedService {
       // Check if like already exists to avoid duplicate key errors
       // Note: This SELECT may fail due to missing RLS SELECT policy - handle gracefully
       try {
-        final existingLike =
-            await _supabase
-                .from(SupabaseConfig.likesTable)
-                .select('id')
-                .eq('user_id', userId)
-                .eq('post_id', postId)
-                .maybeSingle();
+        final existingLike = await _supabase
+            .from(SupabaseConfig.likesTable)
+            .select('id')
+            .eq('user_id', userId)
+            .eq('post_id', postId)
+            .maybeSingle();
 
         if (existingLike != null) {
           debugPrint('Post already liked by this user');
@@ -157,12 +154,11 @@ class FeedService {
 
       // Trigger notification for post owner
       try {
-        final postResponse =
-            await _supabase
-                .from(SupabaseConfig.postsTable)
-                .select('user_id')
-                .eq('id', postId)
-                .single();
+        final postResponse = await _supabase
+            .from(SupabaseConfig.postsTable)
+            .select('user_id')
+            .eq('id', postId)
+            .single();
 
         final postOwnerId = postResponse['user_id'] as String;
 
@@ -323,7 +319,9 @@ class FeedService {
         })
         .handleError((error) {
           debugPrint('[FeedService] Watch feed posts error: $error');
-          return <Post>[]; // Return empty list on error to keep the app functional
+          return <
+            Post
+          >[]; // Return empty list on error to keep the app functional
         });
   }
 
@@ -340,12 +338,11 @@ class FeedService {
   /// Share a post (increment share count)
   Future<void> sharePost(String postId) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.postsTable)
-              .select('shares_count')
-              .eq('id', postId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.postsTable)
+          .select('shares_count')
+          .eq('id', postId)
+          .single();
 
       final currentCount = response['shares_count'] as int? ?? 0;
 

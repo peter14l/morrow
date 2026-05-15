@@ -56,22 +56,21 @@ class PulseBackgroundPainter extends CustomPainter {
       stops: const [0.0, 1.0],
     );
 
-    final paint =
-        Paint()
-          ..shader = gradient.createShader(
-            Rect.fromLTWH(0, 0, size.width, size.height),
-          );
+    final paint = Paint()
+      ..shader = gradient.createShader(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+      );
 
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
   }
 
   void _drawRadialGrid(Canvas canvas, Size size, Offset center) {
     // Faint grid lines
-    final gridPaint =
-        Paint()
-          ..color = gridColor.withValues(alpha: 0.08) // More subtle
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1;
+    final gridPaint = Paint()
+      ..color = gridColor
+          .withValues(alpha: 0.08) // More subtle
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
 
     // Draw concentric circles with slight pulsing opacity
     for (int i = 1; i <= 8; i++) {
@@ -87,20 +86,15 @@ class PulseBackgroundPainter extends CustomPainter {
       final angle = (i / 12) * 2 * pi;
       final endX = center.dx + cos(angle) * 1500;
       final endY = center.dy + sin(angle) * 1500;
-      canvas.drawLine(
-        center,
-        Offset(endX, endY),
-        gridPaint,
-      );
+      canvas.drawLine(center, Offset(endX, endY), gridPaint);
     }
   }
 
   void _drawConnections(Canvas canvas, List<Offset> nodes, Offset center) {
-    final connectionPaint =
-        Paint()
-          ..color = gridColor.withValues(alpha: 0.15)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 1.0;
+    final connectionPaint = Paint()
+      ..color = gridColor.withValues(alpha: 0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
 
     // Connect nodes that are close to each other
     // This is valid for clustered layout
@@ -159,10 +153,9 @@ class PulseBackgroundPainter extends CustomPainter {
   }
 
   void _drawCenterRipple(Canvas canvas, Offset center) {
-    final ripplePaint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2.0;
+    final ripplePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.0;
 
     final adjustedCenter = center;
 
@@ -179,11 +172,10 @@ class PulseBackgroundPainter extends CustomPainter {
   }
 
   void _drawCenterMarker(Canvas canvas, Offset center) {
-    final markerPaint =
-        Paint()
-          ..color = Colors.white.withValues(alpha: 0.9)
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
+    final markerPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.9)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
     final adjustedCenter = center;
 

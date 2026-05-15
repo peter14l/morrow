@@ -157,13 +157,17 @@ class AboutAppScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(BuildContext context, {String? title, required Widget child}) {
+  Widget _buildCard(
+    BuildContext context, {
+    String? title,
+    required Widget child,
+  }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     // Attempt to use surfaceContainerLow if available (M3), else fallback to surfaceVariant or surface
     final cardColor = colorScheme.surfaceContainerLow;
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -201,7 +205,7 @@ class AboutAppScreen extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return ListTile(
       contentPadding: EdgeInsets.zero,
       leading: Container(
@@ -236,7 +240,7 @@ class AboutAppScreen extends StatelessWidget {
   }) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return InkWell(
       onTap: () async {
         final uri = Uri.parse(url);

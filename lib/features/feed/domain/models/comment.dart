@@ -31,10 +31,15 @@ abstract class Comment with _$Comment {
     final profile = json['profiles'];
     if (profile != null && profile is Map<String, dynamic>) {
       normalized['username'] = profile['username'] ?? normalized['username'];
-      normalized['user_avatar'] = profile['avatar_url'] ?? normalized['user_avatar'];
+      normalized['user_avatar'] =
+          profile['avatar_url'] ?? normalized['user_avatar'];
     }
 
-    normalized['user_avatar'] = normalized['user_avatar'] ?? json['user_avatar'] ?? json['avatar_url'] ?? '';
+    normalized['user_avatar'] =
+        normalized['user_avatar'] ??
+        json['user_avatar'] ??
+        json['avatar_url'] ??
+        '';
     normalized['likes_count'] = json['likes_count'] ?? json['likes'] ?? 0;
     normalized['replies_count'] = json['replies_count'] ?? json['replies'] ?? 0;
     normalized['is_liked'] = json['is_liked'] ?? false;

@@ -164,19 +164,18 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
                       horizontal: 16,
                       vertical: 12,
                     ),
-                    suffixIcon:
-                        _searchController.text.isNotEmpty
-                            ? IconButton(
-                              icon: const Icon(
-                                FluentIcons.dismiss_24_regular,
-                                size: 18,
-                              ),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchResults = []);
-                              },
-                            )
-                            : null,
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(
+                              FluentIcons.dismiss_24_regular,
+                              size: 18,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => _searchResults = []);
+                            },
+                          )
+                        : null,
                   ),
                   onChanged: _searchUsers,
                 ),
@@ -186,136 +185,133 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
 
               // Search Results
               Expanded(
-                child:
-                    _isSearching
-                        ? const Center(child: CircularProgressIndicator())
-                        : _searchResults.isEmpty
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                FluentIcons.person_search_24_regular,
-                                size: 64,
+                child: _isSearching
+                    ? const Center(child: CircularProgressIndicator())
+                    : _searchResults.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              FluentIcons.person_search_24_regular,
+                              size: 64,
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              _searchController.text.isEmpty
+                                  ? 'Search for users to message'
+                                  : 'No users found',
+                              style: theme.textTheme.bodyLarge?.copyWith(
                                 color: colorScheme.onSurfaceVariant.withValues(
-                                  alpha: 0.2,
+                                  alpha: 0.6,
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                _searchController.text.isEmpty
-                                    ? 'Search for users to message'
-                                    : 'No users found',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.6),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        itemCount: _searchResults.length,
+                        itemBuilder: (context, index) {
+                          final user = _searchResults[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 2,
+                            ),
+                            child: InkWell(
+                              onTap: () => _startConversation(user),
+                              borderRadius: BorderRadius.circular(12),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
                                 ),
-                              ),
-                            ],
-                          ),
-                        )
-                        : ListView.builder(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          itemCount: _searchResults.length,
-                          itemBuilder: (context, index) {
-                            final user = _searchResults[index];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 2,
-                              ),
-                              child: InkWell(
-                                onTap: () => _startConversation(user),
-                                borderRadius: BorderRadius.circular(12),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 24,
-                                        backgroundColor:
-                                            colorScheme.primaryContainer,
-                                        backgroundImage:
-                                            user.avatarUrl != null &&
-                                                    user.avatarUrl!.isNotEmpty
-                                                ? CachedNetworkImageProvider(
-                                                  user.avatarUrl!,
-                                                )
-                                                : null,
-                                        child:
-                                            user.avatarUrl == null ||
-                                                    user.avatarUrl!.isEmpty
-                                                ? Text(
-                                                  user.username[0]
-                                                      .toUpperCase(),
-                                                  style: TextStyle(
-                                                    color:
-                                                        colorScheme
-                                                            .onPrimaryContainer,
-                                                  ),
-                                                )
-                                                : null,
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  user.username,
-                                                  style: theme
-                                                      .textTheme
-                                                      .titleMedium
-                                                      ?.copyWith(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 15,
-                                                      ),
-                                                ),
-                                                if (user.isVerified) ...[
-                                                  const SizedBox(width: 4),
-                                                  Icon(
-                                                    FluentIcons
-                                                        .checkmark_starburst_16_filled,
-                                                    size: 14,
-                                                    color: colorScheme.primary,
-                                                  ),
-                                                ],
-                                              ],
-                                            ),
-                                            if (user.fullName != null &&
-                                                user.fullName!.isNotEmpty)
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor:
+                                          colorScheme.primaryContainer,
+                                      backgroundImage:
+                                          user.avatarUrl != null &&
+                                              user.avatarUrl!.isNotEmpty
+                                          ? CachedNetworkImageProvider(
+                                              user.avatarUrl!,
+                                            )
+                                          : null,
+                                      child:
+                                          user.avatarUrl == null ||
+                                              user.avatarUrl!.isEmpty
+                                          ? Text(
+                                              user.username[0].toUpperCase(),
+                                              style: TextStyle(
+                                                color: colorScheme
+                                                    .onPrimaryContainer,
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
                                               Text(
-                                                user.fullName!,
-                                                style: theme.textTheme.bodySmall
+                                                user.username,
+                                                style: theme
+                                                    .textTheme
+                                                    .titleMedium
                                                     ?.copyWith(
-                                                      color:
-                                                          colorScheme
-                                                              .onSurfaceVariant,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 15,
                                                     ),
                                               ),
-                                          ],
-                                        ),
+                                              if (user.isVerified) ...[
+                                                const SizedBox(width: 4),
+                                                Icon(
+                                                  FluentIcons
+                                                      .checkmark_starburst_16_filled,
+                                                  size: 14,
+                                                  color: colorScheme.primary,
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                          if (user.fullName != null &&
+                                              user.fullName!.isNotEmpty)
+                                            Text(
+                                              user.fullName!,
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                        ],
                                       ),
-                                      Icon(
-                                        FluentIcons.chevron_right_24_regular,
-                                        size: 16,
-                                        color: colorScheme.onSurfaceVariant
-                                            .withValues(alpha: 0.5),
-                                      ),
-                                    ],
-                                  ),
+                                    ),
+                                    Icon(
+                                      FluentIcons.chevron_right_24_regular,
+                                      size: 16,
+                                      color: colorScheme.onSurfaceVariant
+                                          .withValues(alpha: 0.5),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            );
-                          },
-                        ),
+                            ),
+                          );
+                        },
+                      ),
               ),
             ],
           ),

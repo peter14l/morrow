@@ -14,26 +14,26 @@ class HomeArrivalService with WidgetsBindingObserver {
   HomeArrivalService._internal();
 
   static const String _keyWasAtHome = 'home_arrival_was_at_home';
-  
+
   GeofenceMonitorService? _geofenceService;
   HomeLocationService? _homeLocationService;
   PrefsStorage? _prefs;
   bool _isInitialized = false;
-  
+
   /// Callback when user arrives home (transitions from not at home to at home)
   void Function()? onHomeArrived;
 
   /// Initialize the service with required dependencies.
   void initialize() {
     if (_isInitialized) return;
-    
+
     _prefs = PrefsStorage();
     _homeLocationService = HomeLocationService(_prefs!);
     _geofenceService = GeofenceMonitorService(_homeLocationService!);
-    
+
     // Register for lifecycle events
     WidgetsBinding.instance.addObserver(this);
-    
+
     _isInitialized = true;
   }
 
@@ -54,7 +54,7 @@ class HomeArrivalService with WidgetsBindingObserver {
   /// Called when app resumes from background.
   Future<void> _onAppResumed() async {
     if (!_isInitialized) return;
-    
+
     // Check location and detect home arrival
     final position = await _geofenceService?.getCurrentPosition();
     if (position != null) {
@@ -65,15 +65,15 @@ class HomeArrivalService with WidgetsBindingObserver {
   /// Check if user has arrived home and trigger callback if transitioned.
   Future<void> _checkHomeArrival(double lat, double lon) async {
     if (!_isInitialized || _geofenceService == null) return;
-    
+
     final isNowAtHome = await _geofenceService!.isWithinGeofence(lat, lon);
     final wasAtHome = _prefs?.readBool(_keyWasAtHome) ?? false;
-    
+
     // If now at home and wasn't before, trigger callback
     if (isNowAtHome && !wasAtHome) {
       // Update state
       await _prefs?.writeBool(_keyWasAtHome, true);
-      
+
       // Trigger callback
       onHomeArrived?.call();
     } else if (!isNowAtHome) {
@@ -85,7 +85,7 @@ class HomeArrivalService with WidgetsBindingObserver {
   /// Manually check home arrival (useful for testing or manual trigger).
   Future<void> checkNow() async {
     if (!_isInitialized) return;
-    
+
     final position = await _geofenceService?.getCurrentPosition();
     if (position != null) {
       await _checkHomeArrival(position.latitude, position.longitude);

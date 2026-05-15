@@ -33,7 +33,7 @@ class _OasisProScreenState extends State<OasisProScreen> {
   void initState() {
     super.initState();
     _initPricing();
-    
+
     // Listen to Razorpay events via service
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rzp = context.read<RazorpayService>();
@@ -55,7 +55,7 @@ class _OasisProScreenState extends State<OasisProScreen> {
   void _onRazorpayUpdate() {
     if (!mounted) return;
     final rzp = context.read<RazorpayService>();
-    
+
     if (rzp.lastSuccessResponse != null) {
       _handlePaymentSuccess(rzp.lastSuccessResponse!);
     } else if (rzp.lastFailureResponse != null) {
@@ -70,7 +70,7 @@ class _OasisProScreenState extends State<OasisProScreen> {
 
     try {
       final supabase = SupabaseService().client;
-      
+
       final result = await supabase.functions.invoke(
         'verify-razorpay-payment',
         body: {
@@ -146,10 +146,9 @@ class _OasisProScreenState extends State<OasisProScreen> {
       final response = await SupabaseService().client.functions.invoke(
         'razorpay-create-order',
         body: {
-          'plan_id':
-              plan.name == 'Monthly'
-                  ? RazorpayConfig.monthlyPlanId
-                  : RazorpayConfig.annualPlanId,
+          'plan_id': plan.name == 'Monthly'
+              ? RazorpayConfig.monthlyPlanId
+              : RazorpayConfig.annualPlanId,
           'user_id': user.id,
         },
       );
@@ -171,10 +170,7 @@ class _OasisProScreenState extends State<OasisProScreen> {
         'external': {
           'wallets': ['paytm'],
         },
-        'modal': {
-          'confirm_close': true,
-          'backdropclose': false,
-        },
+        'modal': {'confirm_close': true, 'backdropclose': false},
       };
 
       if (mounted) {
@@ -194,57 +190,56 @@ class _OasisProScreenState extends State<OasisProScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => Dialog(
-            backgroundColor: Colors.black,
-            insetPadding: const EdgeInsets.all(20),
-            child: Container(
-              width: 800,
-              height: 600,
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white10),
-              ),
-              child: Column(
-                children: [
-                  AppBar(
-                    backgroundColor: Colors.white.withValues(alpha: 0.05),
-                    title: const Text(
-                      'Secure Checkout',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    leading: IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                  Expanded(
-                    child: RazorpayWindowsView(
-                      plan: plan,
-                      onSuccess: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(this.context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Payment Successful! Your Pro status will be updated shortly.',
-                            ),
-                          ),
-                        );
-                        context.read<SubscriptionService>().refresh();
-                      },
-                      onCancel: () {
-                        Navigator.pop(context);
-                        ScaffoldMessenger.of(this.context).showSnackBar(
-                          const SnackBar(content: Text('Payment Cancelled.')),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.black,
+        insetPadding: const EdgeInsets.all(20),
+        child: Container(
+          width: 800,
+          height: 600,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white10),
           ),
+          child: Column(
+            children: [
+              AppBar(
+                backgroundColor: Colors.white.withValues(alpha: 0.05),
+                title: const Text(
+                  'Secure Checkout',
+                  style: TextStyle(fontSize: 16),
+                ),
+                leading: IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              Expanded(
+                child: RazorpayWindowsView(
+                  plan: plan,
+                  onSuccess: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Payment Successful! Your Pro status will be updated shortly.',
+                        ),
+                      ),
+                    );
+                    context.read<SubscriptionService>().refresh();
+                  },
+                  onCancel: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      const SnackBar(content: Text('Payment Cancelled.')),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -252,7 +247,10 @@ class _OasisProScreenState extends State<OasisProScreen> {
     final userId = SupabaseService().client.auth.currentUser?.id;
     if (userId == null) {
       if (mounted) {
-        CustomSnackbar.showError(context, 'Please log in to upgrade to Oasis Pro.');
+        CustomSnackbar.showError(
+          context,
+          'Please log in to upgrade to Oasis Pro.',
+        );
       }
       return;
     }

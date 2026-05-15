@@ -27,19 +27,14 @@ class StoryRing extends StatelessWidget {
             decoration: BoxDecoration(
               shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
               borderRadius: isM3E ? BorderRadius.circular(24) : null,
-              gradient:
-                  storyGroup.hasUnviewed
-                      ? LinearGradient(
-                        colors: [
-                          theme.primaryColor,
-                          theme.colorScheme.secondary,
-                        ],
-                      )
-                      : null,
-              border:
-                  !storyGroup.hasUnviewed
-                      ? Border.all(color: Colors.grey.shade300, width: 2)
-                      : null,
+              gradient: storyGroup.hasUnviewed
+                  ? LinearGradient(
+                      colors: [theme.primaryColor, theme.colorScheme.secondary],
+                    )
+                  : null,
+              border: !storyGroup.hasUnviewed
+                  ? Border.all(color: Colors.grey.shade300, width: 2)
+                  : null,
             ),
             padding: const EdgeInsets.all(3),
             child: Container(
@@ -60,13 +55,12 @@ class StoryRing extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: storyGroup.avatarUrl,
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => Container(color: Colors.grey.shade200),
-                  errorWidget:
-                      (context, url, error) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(Icons.person, color: Colors.grey),
-                      ),
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey.shade200),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.person, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
@@ -81,10 +75,9 @@ class StoryRing extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight:
-                    storyGroup.hasUnviewed || isM3E
-                        ? FontWeight.w600
-                        : FontWeight.normal,
+                fontWeight: storyGroup.hasUnviewed || isM3E
+                    ? FontWeight.w600
+                    : FontWeight.normal,
               ),
             ),
           ),

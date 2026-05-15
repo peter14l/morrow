@@ -80,7 +80,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
                     if (_pageController.position.haveDimensions) {
                       offset = (_pageController.page ?? 0) - index;
                     }
-                    
+
                     final scale = 1.0 - (offset.abs() * 0.04);
                     final opacity = 1.0 - (offset.abs() * 0.3);
 

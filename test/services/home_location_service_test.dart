@@ -28,7 +28,11 @@ void main() {
     });
 
     test('setHomeLocation stores and retrieves correctly', () async {
-      await service.setHomeLocation(37.7749, -122.4194, address: 'San Francisco');
+      await service.setHomeLocation(
+        37.7749,
+        -122.4194,
+        address: 'San Francisco',
+      );
 
       final result = await service.getHomeLocation();
 
@@ -73,10 +77,10 @@ void main() {
       await service.setHomeLocation(37.7749, -122.4194);
       final first = await service.getHomeLocation();
       expect(first, isNotNull);
-      
+
       // Wait a small amount to ensure different timestamp
       await Future.delayed(const Duration(milliseconds: 10));
-      
+
       await service.setHomeLocation(37.7749, -122.4194);
       final second = await service.getHomeLocation();
       expect(second, isNotNull);

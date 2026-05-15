@@ -9,7 +9,7 @@ import 'dart:io';
 
 class SubscriptionService extends ChangeNotifier {
   static SubscriptionService? _instance;
-  
+
   final SupabaseClient? _client;
   bool _isPro = false;
   bool _isSideloaded = false;
@@ -46,7 +46,7 @@ class SubscriptionService extends ChangeNotifier {
         .from(SupabaseConfig.profilesTable)
         .update({'is_pro': status})
         .eq('id', user.id);
-    
+
     _isPro = status;
     notifyListeners();
   }
@@ -54,7 +54,7 @@ class SubscriptionService extends ChangeNotifier {
   Future<void> init() async {
     await _checkInstallationSource();
     await _updateProStatus();
-    
+
     // Listen to Auth changes
     _supabase.auth.onAuthStateChange.listen((data) {
       _updateProStatus();
@@ -78,7 +78,8 @@ class SubscriptionService extends ChangeNotifier {
 
       if (Platform.isAndroid) {
         // If installerStore is null or not 'com.android.vending', it's likely an APK
-        _isSideloaded = installerStore == null || installerStore != 'com.android.vending';
+        _isSideloaded =
+            installerStore == null || installerStore != 'com.android.vending';
       } else if (Platform.isIOS) {
         // iOS is rarely sideloaded in production, but we can check for TestFlight/AppStore
         _isSideloaded = installerStore == null;
@@ -86,8 +87,10 @@ class SubscriptionService extends ChangeNotifier {
         // Desktop is always "sideloaded" in this context (no store purchase yet)
         _isSideloaded = true;
       }
-      
-      debugPrint('Installation Source: $installerStore, isSideloaded: $_isSideloaded');
+
+      debugPrint(
+        'Installation Source: $installerStore, isSideloaded: $_isSideloaded',
+      );
     } catch (e) {
       debugPrint('Error checking installation source: $e');
       _isSideloaded = true; // Default to sideloaded for safety
@@ -106,7 +109,7 @@ class SubscriptionService extends ChangeNotifier {
         // 1. Check Auth Metadata (Secure app_metadata updated by triggers)
         final appMetadata = user.appMetadata;
         status = appMetadata['is_pro'] as bool? ?? false;
-        
+
         // 2. If metadata says false, double check the profiles table (The Source of Truth)
         if (!status) {
           try {
@@ -124,7 +127,7 @@ class SubscriptionService extends ChangeNotifier {
         }
       }
     }
-    
+
     _isPro = status;
 
     // Pitch Mode Override: Auto-grant Pro locally for demos

@@ -160,51 +160,64 @@ class _SearchScreenState extends State<SearchScreen>
     return GrayscaleDetox(
       child: AdaptiveScaffold(
         title: const Text('Search'),
-        actions: isDesktop ? [
-          material.IconButton.filledTonal(
-            icon: material.Icon(
-              _showFilters ? material.Icons.filter_list_off : material.Icons.filter_list,
-              size: 20,
-            ),
-            onPressed: () => setState(() => _showFilters = !_showFilters),
-            tooltip: _showFilters ? 'Hide Filters' : 'Show Filters',
-          ),
-        ] : null,
-        appBar: !isDesktop ? material.AppBar(
-          backgroundColor: colorScheme.surface,
-          automaticallyImplyLeading: true,
-          elevation: 0,
-          toolbarHeight: 80,
-          title: _buildSearchBox(colorScheme, isM3E),
-          actions: [
-            if (_query.isNotEmpty)
-              material.IconButton(
-                icon: const material.Icon(material.Icons.clear),
-                onPressed: () {
-                  _searchController.clear();
-                  _onSearchChanged('');
-                },
-              ),
-            const SizedBox(width: 8),
-          ],
-          bottom: material.PreferredSize(
-            preferredSize: const Size.fromHeight(60),
-            child: Padding(
-              padding: const material.EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              child: material.TabBar(
-                controller: _tabController,
-                indicator: const material.BoxDecoration(),
-                dividerColor: material.Colors.transparent,
-                labelPadding: const material.EdgeInsets.symmetric(horizontal: 4),
-                tabs: [
-                  _buildTab('People', 0, isM3E),
-                  _buildTab('Posts', 1, isM3E),
+        actions: isDesktop
+            ? [
+                material.IconButton.filledTonal(
+                  icon: material.Icon(
+                    _showFilters
+                        ? material.Icons.filter_list_off
+                        : material.Icons.filter_list,
+                    size: 20,
+                  ),
+                  onPressed: () => setState(() => _showFilters = !_showFilters),
+                  tooltip: _showFilters ? 'Hide Filters' : 'Show Filters',
+                ),
+              ]
+            : null,
+        appBar: !isDesktop
+            ? material.AppBar(
+                backgroundColor: colorScheme.surface,
+                automaticallyImplyLeading: true,
+                elevation: 0,
+                toolbarHeight: 80,
+                title: _buildSearchBox(colorScheme, isM3E),
+                actions: [
+                  if (_query.isNotEmpty)
+                    material.IconButton(
+                      icon: const material.Icon(material.Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        _onSearchChanged('');
+                      },
+                    ),
+                  const SizedBox(width: 8),
                 ],
-              ),
-            ),
-          ),
-        ) : null,
-        header: isDesktop ? _buildNewDesktopHeader(theme, colorScheme, isM3E) : null,
+                bottom: material.PreferredSize(
+                  preferredSize: const Size.fromHeight(60),
+                  child: Padding(
+                    padding: const material.EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 16,
+                    ),
+                    child: material.TabBar(
+                      controller: _tabController,
+                      indicator: const material.BoxDecoration(),
+                      dividerColor: material.Colors.transparent,
+                      labelPadding: const material.EdgeInsets.symmetric(
+                        horizontal: 4,
+                      ),
+                      tabs: [
+                        _buildTab('People', 0, isM3E),
+                        _buildTab('Posts', 1, isM3E),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+            : null,
+        header: isDesktop
+            ? _buildNewDesktopHeader(theme, colorScheme, isM3E)
+            : null,
         body: Stack(
           children: [
             isDesktop ? _buildDesktopLayout(isM3E) : _buildMobileLayout(isM3E),
@@ -215,12 +228,18 @@ class _SearchScreenState extends State<SearchScreen>
     );
   }
 
-  Widget _buildSearchBox(material.ColorScheme colorScheme, bool isM3E, {bool isPanel = false}) {
+  Widget _buildSearchBox(
+    material.ColorScheme colorScheme,
+    bool isM3E, {
+    bool isPanel = false,
+  }) {
     return Container(
       height: isPanel ? 40 : 52,
       decoration: material.BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(isM3E ? (isPanel ? 12 : 16) : (isPanel ? 20 : 26)),
+        borderRadius: BorderRadius.circular(
+          isM3E ? (isPanel ? 12 : 16) : (isPanel ? 20 : 26),
+        ),
         border: Border.all(
           color: material.Theme.of(context).dividerColor.withValues(alpha: 0.2),
         ),
@@ -263,7 +282,12 @@ class _SearchScreenState extends State<SearchScreen>
           mainAxisAlignment: material.MainAxisAlignment.end,
           primaryItems: [
             fluent.CommandBarButton(
-              icon: material.Icon(_showFilters ? material.Icons.filter_list_off : material.Icons.filter_list, size: 18),
+              icon: material.Icon(
+                _showFilters
+                    ? material.Icons.filter_list_off
+                    : material.Icons.filter_list,
+                size: 18,
+              ),
               label: Text(_showFilters ? 'Hide Filters' : 'Show Filters'),
               onPressed: () => setState(() => _showFilters = !_showFilters),
             ),
@@ -272,7 +296,10 @@ class _SearchScreenState extends State<SearchScreen>
       ),
       children: [
         Padding(
-          padding: const material.EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+          padding: const material.EdgeInsets.symmetric(
+            horizontal: 24.0,
+            vertical: 8.0,
+          ),
           child: fluent.TextBox(
             controller: _searchController,
             placeholder: 'Search for anything on Oasis...',
@@ -282,13 +309,15 @@ class _SearchScreenState extends State<SearchScreen>
               padding: material.EdgeInsets.only(left: 12.0),
               child: material.Icon(material.Icons.search, size: 20),
             ),
-            suffix: _query.isNotEmpty ? fluent.IconButton(
-              icon: const material.Icon(material.Icons.clear, size: 16),
-              onPressed: () {
-                _searchController.clear();
-                _onSearchChanged('');
-              },
-            ) : null,
+            suffix: _query.isNotEmpty
+                ? fluent.IconButton(
+                    icon: const material.Icon(material.Icons.clear, size: 16),
+                    onPressed: () {
+                      _searchController.clear();
+                      _onSearchChanged('');
+                    },
+                  )
+                : null,
           ),
         ),
         Row(
@@ -301,11 +330,16 @@ class _SearchScreenState extends State<SearchScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Type', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Type',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 12),
                     fluent.RadioGroup<String>(
                       groupValue: _selectedFilter,
-                      onChanged: (v) { if(v != null) setState(() => _selectedFilter = v); },
+                      onChanged: (v) {
+                        if (v != null) setState(() => _selectedFilter = v);
+                      },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -330,9 +364,9 @@ class _SearchScreenState extends State<SearchScreen>
                 ),
               ),
             Expanded(
-              child: _isLoading 
-                ? const Center(child: fluent.ProgressRing())
-                : _query.isEmpty
+              child: _isLoading
+                  ? const Center(child: fluent.ProgressRing())
+                  : _query.isEmpty
                   ? _buildSearchSuggestions(themeProvider.isM3EEnabled)
                   : _buildDesktopResults(themeProvider.isM3EEnabled),
             ),
@@ -355,7 +389,9 @@ class _SearchScreenState extends State<SearchScreen>
           actions: [
             material.IconButton.filledTonal(
               icon: material.Icon(
-                _showFilters ? material.Icons.filter_list_off : material.Icons.filter_list,
+                _showFilters
+                    ? material.Icons.filter_list_off
+                    : material.Icons.filter_list,
                 size: 20,
               ),
               onPressed: () => setState(() => _showFilters = !_showFilters),
@@ -401,7 +437,10 @@ class _SearchScreenState extends State<SearchScreen>
                     color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w500,
                   ),
-                  prefixIcon: const material.Icon(material.Icons.search, size: 28),
+                  prefixIcon: const material.Icon(
+                    material.Icons.search,
+                    size: 28,
+                  ),
                   suffixIcon: _query.isNotEmpty
                       ? material.IconButton(
                           icon: const material.Icon(material.Icons.clear),
@@ -453,7 +492,11 @@ class _SearchScreenState extends State<SearchScreen>
               ),
             ),
             const SizedBox(height: 24),
-            _buildSortOption('Relevance', 'relevance', material.Icons.star_outline),
+            _buildSortOption(
+              'Relevance',
+              'relevance',
+              material.Icons.star_outline,
+            ),
             _buildSortOption('Recent', 'recent', material.Icons.access_time),
             _buildSortOption('Popular', 'popular', material.Icons.trending_up),
             const SizedBox(height: 32),
@@ -507,7 +550,9 @@ class _SearchScreenState extends State<SearchScreen>
             decoration: BoxDecoration(
               border: Border(
                 right: BorderSide(
-                  color: material.Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                  color: material.Theme.of(
+                    context,
+                  ).dividerColor.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -577,7 +622,10 @@ class _SearchScreenState extends State<SearchScreen>
             children: [
               // Simple tab bar
               Padding(
-                padding: const material.EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                padding: const material.EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 8,
+                ),
                 child: Row(
                   children: [
                     Expanded(child: _buildPanelTab('People', 0, isM3E)),
@@ -890,7 +938,10 @@ class _SearchScreenState extends State<SearchScreen>
         onTap: () => setState(() => _sortBy = value),
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const material.EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          padding: const material.EdgeInsets.symmetric(
+            horizontal: 12,
+            vertical: 10,
+          ),
           decoration: material.BoxDecoration(
             color: isSelected
                 ? theme.colorScheme.primaryContainer.withValues(alpha: 0.5)
@@ -936,9 +987,10 @@ class _SearchScreenState extends State<SearchScreen>
                 padding: const material.EdgeInsets.all(16),
                 child: Text(
                   'People',
-                  style: material.Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
-                  ),
+                  style: material.Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(
+                        fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
+                      ),
                 ),
               ),
               SizedBox(height: 200, child: _buildUserList(isM3E)),
@@ -948,9 +1000,10 @@ class _SearchScreenState extends State<SearchScreen>
                 padding: const material.EdgeInsets.all(16),
                 child: Text(
                   'Posts',
-                  style: material.Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
-                  ),
+                  style: material.Theme.of(context).textTheme.titleLarge
+                      ?.copyWith(
+                        fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
+                      ),
                 ),
               ),
               _buildPostList(),
@@ -1027,7 +1080,10 @@ class _SearchScreenState extends State<SearchScreen>
                         material.Icons.article_outlined,
                         'Discover posts by keywords',
                       ),
-                      _buildSearchTip(material.Icons.tag, 'Search using hashtags'),
+                      _buildSearchTip(
+                        material.Icons.tag,
+                        'Search using hashtags',
+                      ),
                     ],
                   ),
                 ),

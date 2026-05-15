@@ -17,10 +17,9 @@ class SharedMediaEntity {
       path: json['path'] as String,
       mimeType: json['mimeType'] as String?,
       sizeInBytes: json['sizeInBytes'] as int?,
-      createdAt:
-          json['createdAt'] != null
-              ? DateTime.parse(json['createdAt'] as String)
-              : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'] as String)
+          : null,
     );
   }
 

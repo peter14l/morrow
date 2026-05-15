@@ -35,15 +35,15 @@ class CollectionsProvider extends ChangeNotifier {
     required GetCollectionDetailUseCase getCollectionDetailUseCase,
     required CheckPostInCollectionUseCase checkPostInCollectionUseCase,
     required GetCollectionsForPostUseCase getCollectionsForPostUseCase,
-  })  : _getCollectionsUseCase = getCollectionsUseCase,
-        _createCollectionUseCase = createCollectionUseCase,
-        _updateCollectionUseCase = updateCollectionUseCase,
-        _deleteCollectionUseCase = deleteCollectionUseCase,
-        _addToCollectionUseCase = addToCollectionUseCase,
-        _removeFromCollectionUseCase = removeFromCollectionUseCase,
-        _getCollectionDetailUseCase = getCollectionDetailUseCase,
-        _checkPostInCollectionUseCase = checkPostInCollectionUseCase,
-        _getCollectionsForPostUseCase = getCollectionsForPostUseCase {
+  }) : _getCollectionsUseCase = getCollectionsUseCase,
+       _createCollectionUseCase = createCollectionUseCase,
+       _updateCollectionUseCase = updateCollectionUseCase,
+       _deleteCollectionUseCase = deleteCollectionUseCase,
+       _addToCollectionUseCase = addToCollectionUseCase,
+       _removeFromCollectionUseCase = removeFromCollectionUseCase,
+       _getCollectionDetailUseCase = getCollectionDetailUseCase,
+       _checkPostInCollectionUseCase = checkPostInCollectionUseCase,
+       _getCollectionsForPostUseCase = getCollectionsForPostUseCase {
     loadCollections();
   }
 
@@ -56,19 +56,23 @@ class CollectionsProvider extends ChangeNotifier {
     _setState(_state.copyWith(status: CollectionsStatus.loading));
 
     final result = await _getCollectionsUseCase();
-    
+
     result.fold(
       onSuccess: (collections) {
-        _setState(_state.copyWith(
-          status: CollectionsStatus.success,
-          collections: collections,
-        ));
+        _setState(
+          _state.copyWith(
+            status: CollectionsStatus.success,
+            collections: collections,
+          ),
+        );
       },
       onFailure: (exception) {
-        _setState(_state.copyWith(
-          status: CollectionsStatus.failure,
-          errorMessage: exception.toString(),
-        ));
+        _setState(
+          _state.copyWith(
+            status: CollectionsStatus.failure,
+            errorMessage: exception.toString(),
+          ),
+        );
       },
     );
   }
@@ -88,9 +92,9 @@ class CollectionsProvider extends ChangeNotifier {
     result.fold(
       onSuccess: (newCollection) {
         // Optimistically add to list
-        _setState(_state.copyWith(
-          collections: [..._state.collections, newCollection],
-        ));
+        _setState(
+          _state.copyWith(collections: [..._state.collections, newCollection]),
+        );
         isSuccess = true;
       },
       onFailure: (e) {
@@ -118,8 +122,8 @@ class CollectionsProvider extends ChangeNotifier {
     result.fold(
       onSuccess: (success) {
         if (success) {
-           loadCollections(); // Reload to get updated data
-           isSuccess = true;
+          loadCollections(); // Reload to get updated data
+          isSuccess = true;
         }
       },
       onFailure: (e) => isSuccess = false,
@@ -133,9 +137,13 @@ class CollectionsProvider extends ChangeNotifier {
     result.fold(
       onSuccess: (success) {
         if (success) {
-          _setState(_state.copyWith(
-            collections: _state.collections.where((c) => c.id != collectionId).toList()
-          ));
+          _setState(
+            _state.copyWith(
+              collections: _state.collections
+                  .where((c) => c.id != collectionId)
+                  .toList(),
+            ),
+          );
           isSuccess = true;
         }
       },
@@ -167,9 +175,13 @@ class CollectionsProvider extends ChangeNotifier {
         if (success) {
           // Remove from detail list if present
           if (_state.collectionItems.any((item) => item.id == postId)) {
-            _setState(_state.copyWith(
-              collectionItems: _state.collectionItems.where((item) => item.id != postId).toList()
-            ));
+            _setState(
+              _state.copyWith(
+                collectionItems: _state.collectionItems
+                    .where((item) => item.id != postId)
+                    .toList(),
+              ),
+            );
           }
           loadCollections(); // Update counts
           isSuccess = true;
@@ -184,24 +196,30 @@ class CollectionsProvider extends ChangeNotifier {
     _setState(_state.copyWith(detailStatus: CollectionsStatus.loading));
 
     final result = await _getCollectionDetailUseCase(collectionId);
-    
+
     result.fold(
       onSuccess: (items) {
-        _setState(_state.copyWith(
-          detailStatus: CollectionsStatus.success,
-          collectionItems: items,
-        ));
+        _setState(
+          _state.copyWith(
+            detailStatus: CollectionsStatus.success,
+            collectionItems: items,
+          ),
+        );
       },
       onFailure: (e) {
-        _setState(_state.copyWith(
-          detailStatus: CollectionsStatus.failure,
-          errorMessage: e.toString(),
-        ));
+        _setState(
+          _state.copyWith(
+            detailStatus: CollectionsStatus.failure,
+            errorMessage: e.toString(),
+          ),
+        );
       },
     );
   }
 
   // To silence unused variable warnings, we can just consume them or ignore.
-  CheckPostInCollectionUseCase get checkPostInCollectionUseCase => _checkPostInCollectionUseCase;
-  GetCollectionsForPostUseCase get getCollectionsForPostUseCase => _getCollectionsForPostUseCase;
+  CheckPostInCollectionUseCase get checkPostInCollectionUseCase =>
+      _checkPostInCollectionUseCase;
+  GetCollectionsForPostUseCase get getCollectionsForPostUseCase =>
+      _getCollectionsForPostUseCase;
 }

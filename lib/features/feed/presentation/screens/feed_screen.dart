@@ -36,6 +36,7 @@ import 'package:oasis/widgets/glassmorphic_fab.dart';
 import 'package:oasis/widgets/morphing_liquid_fab.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -341,13 +342,23 @@ class _FeedScreenState extends State<FeedScreen>
     final settings = context.read<UserSettingsProvider>();
     final colorScheme = Theme.of(context).colorScheme;
 
+    final isSolid = context.shouldUseSolidBackground;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.of(context).padding.bottom),
+        padding: EdgeInsets.fromLTRB(
+          24,
+          24,
+          24,
+          24 + MediaQuery.of(context).padding.bottom,
+        ),
         decoration: BoxDecoration(
-          color: colorScheme.surface,
+          color: isSolid
+              ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+              : colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         ),
         child: Column(
@@ -460,37 +471,41 @@ class _FeedScreenState extends State<FeedScreen>
 
     return GrayscaleDetox(
       child: AdaptiveScaffold(
-      title: isDesktop ? const Text('Feed') : null,
-      actions: isDesktop ? actions : null,
-      body: Stack(
-        children: [
-          isDesktop
-              ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  children: [
-                    Expanded(child: feedContent),
-                    const SizedBox(width: 12),
-                    _showCommentPane && _selectedPostId != null
-                        ? _buildDesktopCommentPane(theme, colorScheme, isM3E)
-                        : _buildDesktopSidebar(theme, colorScheme, isM3E),
-                  ],
-                ),
-              )
-              : feedContent,
-          if (_showRipplesOverlay)
-            Positioned.fill(
-              child: motion.Animate(
-                effects: const [motion.FadeEffect()],
-                child: RipplesScreen(
-                  onExit: () => setState(() => _showRipplesOverlay = false),
+        title: isDesktop ? const Text('Feed') : null,
+        actions: isDesktop ? actions : null,
+        body: Stack(
+          children: [
+            isDesktop
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: [
+                        Expanded(child: feedContent),
+                        const SizedBox(width: 12),
+                        _showCommentPane && _selectedPostId != null
+                            ? _buildDesktopCommentPane(
+                                theme,
+                                colorScheme,
+                                isM3E,
+                              )
+                            : _buildDesktopSidebar(theme, colorScheme, isM3E),
+                      ],
+                    ),
+                  )
+                : feedContent,
+            if (_showRipplesOverlay)
+              Positioned.fill(
+                child: motion.Animate(
+                  effects: const [motion.FadeEffect()],
+                  child: RipplesScreen(
+                    onExit: () => setState(() => _showRipplesOverlay = false),
+                  ),
                 ),
               ),
-            ),
-const LockoutOverlay(pageName: 'Feed'),
-          if (_showWellbeingNudge) _buildWellbeingNudge(),
-        ],
-      ),
+            const LockoutOverlay(pageName: 'Feed'),
+            if (_showWellbeingNudge) _buildWellbeingNudge(),
+          ],
+        ),
       ),
     );
   }
@@ -604,8 +619,9 @@ const LockoutOverlay(pageName: 'Feed'),
                       ),
                       child: Text(
                         'Comments',
-                        style:
-                            fluent.FluentTheme.of(context).typography.subtitle,
+                        style: fluent.FluentTheme.of(
+                          context,
+                        ).typography.subtitle,
                       ),
                     ),
                     wrappedItem: fluent.CommandBarButton(
@@ -742,14 +758,16 @@ const LockoutOverlay(pageName: 'Feed'),
           onPressed: () => context.pushNamed('profile'),
           child: CircleAvatar(
             radius: 18,
-            backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
+            backgroundColor: colorScheme.primaryContainer.withValues(
+              alpha: 0.5,
+            ),
             backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
             child: avatarUrl == null
                 ? Icon(
-                  FluentIcons.person_24_regular,
-                  size: 20,
-                  color: colorScheme.onPrimaryContainer,
-                )
+                    FluentIcons.person_24_regular,
+                    size: 20,
+                    color: colorScheme.onPrimaryContainer,
+                  )
                 : null,
           ),
         ),
@@ -827,13 +845,12 @@ const LockoutOverlay(pageName: 'Feed'),
                   const SizedBox(width: 12),
                   Text(
                     'TRENDING',
-                    style: fluent.FluentTheme.of(
-                      context,
-                    ).typography.caption?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                      color: colorScheme.primary,
-                    ),
+                    style: fluent.FluentTheme.of(context).typography.caption
+                        ?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                          color: colorScheme.primary,
+                        ),
                   ),
                 ],
               ),
@@ -853,18 +870,21 @@ const LockoutOverlay(pageName: 'Feed'),
                   const SizedBox(width: 12),
                   Text(
                     'SUGGESTED',
-                    style: fluent.FluentTheme.of(
-                      context,
-                    ).typography.caption?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                      color: colorScheme.primary,
-                    ),
+                    style: fluent.FluentTheme.of(context).typography.caption
+                        ?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                          color: colorScheme.primary,
+                        ),
                   ),
                 ],
               ),
               const SizedBox(height: 24),
-              _buildSuggestionItem('suggested_1', 'DesignDaily', '@designdaily'),
+              _buildSuggestionItem(
+                'suggested_1',
+                'DesignDaily',
+                '@designdaily',
+              ),
               _buildSuggestionItem('suggested_2', 'TechNexus', '@technexus'),
               _buildSuggestionItem('suggested_3', 'CreativeSoul', '@creative'),
               _buildSuggestionItem('suggested_4', 'FutureVibe', '@future'),
@@ -934,7 +954,11 @@ const LockoutOverlay(pageName: 'Feed'),
                 ],
               ),
               const SizedBox(height: 24),
-              _buildSuggestionItem('suggested_1', 'DesignDaily', '@designdaily'),
+              _buildSuggestionItem(
+                'suggested_1',
+                'DesignDaily',
+                '@designdaily',
+              ),
               _buildSuggestionItem('suggested_2', 'TechNexus', '@technexus'),
               _buildSuggestionItem('suggested_3', 'CreativeSoul', '@creative'),
               _buildSuggestionItem('suggested_4', 'FutureVibe', '@future'),
@@ -963,9 +987,9 @@ const LockoutOverlay(pageName: 'Feed'),
             style: useFluent
                 ? fluent.FluentTheme.of(context).typography.caption
                 : TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontSize: 12,
-                ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
           ),
         ],
       ),
@@ -984,10 +1008,9 @@ const LockoutOverlay(pageName: 'Feed'),
               child: Container(
                 width: 36,
                 height: 36,
-                color:
-                    fluent.FluentTheme.of(
-                      context,
-                    ).accentColor.withValues(alpha: 0.1),
+                color: fluent.FluentTheme.of(
+                  context,
+                ).accentColor.withValues(alpha: 0.1),
                 child: Center(
                   child: Text(
                     name[0],
@@ -1013,40 +1036,56 @@ const LockoutOverlay(pageName: 'Feed'),
                   name,
                   style: useFluent
                       ? fluent.FluentTheme.of(context).typography.bodyStrong
-                      : const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      : const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
                 ),
                 Text(
                   handle,
                   style: useFluent
                       ? fluent.FluentTheme.of(context).typography.caption
                       : TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontSize: 11,
-                      ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11,
+                        ),
                 ),
               ],
             ),
           ),
           Consumer<ProfileProvider>(
             builder: (context, profileProvider, child) {
-              final isFollowing = profileProvider.state.following.any((p) => p.id == id);
-              
+              final isFollowing = profileProvider.state.following.any(
+                (p) => p.id == id,
+              );
+
               if (isFollowing) {
-                return useFluent 
-                  ? fluent.HyperlinkButton(onPressed: null, child: const Text('Following'))
-                  : const Text('Following', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500));
+                return useFluent
+                    ? fluent.HyperlinkButton(
+                        onPressed: null,
+                        child: const Text('Following'),
+                      )
+                    : const Text(
+                        'Following',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      );
               }
 
               return useFluent
-                ? fluent.Button(
-                    onPressed: () => _handleFollow(id),
-                    child: const Text('Follow'),
-                  )
-                : TextButton(
-                    onPressed: () => _handleFollow(id),
-                    style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-                    child: const Text('Follow'),
-                  );
+                  ? fluent.Button(
+                      onPressed: () => _handleFollow(id),
+                      child: const Text('Follow'),
+                    )
+                  : TextButton(
+                      onPressed: () => _handleFollow(id),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: const Text('Follow'),
+                    );
             },
           ),
         ],
@@ -1058,10 +1097,10 @@ const LockoutOverlay(pageName: 'Feed'),
     final currentUserId = _authService.currentUser?.id;
     if (currentUserId != null) {
       context.read<ProfileProvider>().followUser(
-            followerId: currentUserId,
-            followingId: userId,
-          );
-      
+        followerId: currentUserId,
+        followingId: userId,
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Following $userId'),

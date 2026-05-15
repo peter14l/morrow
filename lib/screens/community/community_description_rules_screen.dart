@@ -107,10 +107,7 @@ class _CommunityDescriptionRulesScreenState
               const SizedBox(height: 8),
               const Text(
                 'Set clear rules for your community to ensure a positive environment. Each rule should be on a new line.',
-                style: TextStyle(
-                  color: Color(0xFF9DA6B9),
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Color(0xFF9DA6B9), fontSize: 14),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -118,7 +115,8 @@ class _CommunityDescriptionRulesScreenState
                 maxLines: 6,
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: '1. Be respectful to others\n2. No spam or self-promotion\n3. Keep discussions on topic\n4. No hate speech or harassment',
+                  hintText:
+                      '1. Be respectful to others\n2. No spam or self-promotion\n3. Keep discussions on topic\n4. No hate speech or harassment',
                   hintStyle: const TextStyle(color: Color(0xFF9DA6B9)),
                   filled: true,
                   fillColor: const Color(0xFF282E39),

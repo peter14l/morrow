@@ -88,7 +88,8 @@ class ChatEncryptionProvider with ChangeNotifier {
   ) async {
     Message decryptedMessage = message;
     String? decryptedContent;
-    final isSender = currentUserId != null &&
+    final isSender =
+        currentUserId != null &&
         message.senderId.toLowerCase() == currentUserId.toLowerCase();
 
     // 1. Try PQ-Aura (Post-Quantum)
@@ -107,7 +108,9 @@ class ChatEncryptionProvider with ChangeNotifier {
     }
 
     // 2. Try Signal (Classical E2EE)
-    if (decryptedContent == null && !isSender && message.signalMessageType != null) {
+    if (decryptedContent == null &&
+        !isSender &&
+        message.signalMessageType != null) {
       try {
         decryptedContent = await SignalService().decryptMessage(
           message.senderId,
@@ -115,7 +118,8 @@ class ChatEncryptionProvider with ChangeNotifier {
           message.signalMessageType!,
         );
         // Ignore "Optimizing..." or "🔒" markers from Signal as success
-        if (decryptedContent.contains('🔒') || decryptedContent.contains('Optimizing')) {
+        if (decryptedContent.contains('🔒') ||
+            decryptedContent.contains('Optimizing')) {
           decryptedContent = null;
         } else {
           debugPrint('[Encryption] Decrypted with Signal');
@@ -127,11 +131,13 @@ class ChatEncryptionProvider with ChangeNotifier {
 
     // 3. Try RSA Fallback (Dual-layer for both sender and recipient)
     if (decryptedContent == null) {
-      final rsaCiphertext = isSender 
-          ? (message.pqAuraSenderPayload ?? message.signalSenderContent) 
+      final rsaCiphertext = isSender
+          ? (message.pqAuraSenderPayload ?? message.signalSenderContent)
           : (message.signalSenderContent ?? message.content);
-      
-      if (rsaCiphertext != null && message.encryptedKeys != null && message.iv != null) {
+
+      if (rsaCiphertext != null &&
+          message.encryptedKeys != null &&
+          message.iv != null) {
         try {
           decryptedContent = await _encryptionService.decryptMessage(
             rsaCiphertext,
@@ -150,9 +156,13 @@ class ChatEncryptionProvider with ChangeNotifier {
     // 4. Update message content if decrypted
     if (decryptedContent != null) {
       decryptedMessage = decryptedMessage.copyWith(content: decryptedContent);
-    } else if (message.pqAuraHeader != null || message.signalMessageType != null || (message.encryptedKeys != null && message.iv != null)) {
+    } else if (message.pqAuraHeader != null ||
+        message.signalMessageType != null ||
+        (message.encryptedKeys != null && message.iv != null)) {
       // If we failed to decrypt a known encrypted message, set placeholder
-      decryptedMessage = decryptedMessage.copyWith(content: '🔒 Message encrypted');
+      decryptedMessage = decryptedMessage.copyWith(
+        content: '🔒 Message encrypted',
+      );
     }
 
     // 5. Decrypt reply content if available (recursive-like logic)
@@ -160,8 +170,9 @@ class ChatEncryptionProvider with ChangeNotifier {
         decryptedMessage.replyToData != null) {
       final replyData = decryptedMessage.replyToData!;
       final replySenderId = replyData['sender_id'] as String?;
-      final replyEncryptedKeys =
-          replyData['encrypted_keys'] != null ? Map<String, dynamic>.from(replyData['encrypted_keys'] as Map) : null;
+      final replyEncryptedKeys = replyData['encrypted_keys'] != null
+          ? Map<String, dynamic>.from(replyData['encrypted_keys'] as Map)
+          : null;
       final replyIv = replyData['iv'] as String?;
       final replySignalType = replyData['signal_message_type'] as int?;
       final replyContent = replyData['content'] as String?;
@@ -171,11 +182,15 @@ class ChatEncryptionProvider with ChangeNotifier {
 
       if (replySenderId != null) {
         String? decryptedReply;
-        final isReplyMe = currentUserId != null &&
+        final isReplyMe =
+            currentUserId != null &&
             replySenderId.toLowerCase() == currentUserId.toLowerCase();
 
         // Try PQ-Aura for reply
-        if (replyPqaHeader != null && replyPqaPayload != null && !isReplyMe && _pqauraService.isReady) {
+        if (replyPqaHeader != null &&
+            replyPqaPayload != null &&
+            !isReplyMe &&
+            _pqauraService.isReady) {
           try {
             decryptedReply = await _pqauraService.decryptMessage(
               replySenderId,
@@ -202,8 +217,10 @@ class ChatEncryptionProvider with ChangeNotifier {
           final replyRsaCiphertext = isReplyMe
               ? replySenderContent
               : (replySenderContent ?? replyContent);
-          
-          if (replyRsaCiphertext != null && replyEncryptedKeys != null && replyIv != null) {
+
+          if (replyRsaCiphertext != null &&
+              replyEncryptedKeys != null &&
+              replyIv != null) {
             try {
               decryptedReply = await _encryptionService.decryptMessage(
                 replyRsaCiphertext,
@@ -272,10 +289,12 @@ class ChatEncryptionProvider with ChangeNotifier {
       final bubbleColorSent = sentColor.withValues(alpha: 0.9);
       final bubbleColorReceived = receivedColor.withValues(alpha: 0.85);
 
-      final textColorSent =
-          sentColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
-      final textColorReceived =
-          receivedColor.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+      final textColorSent = sentColor.computeLuminance() > 0.5
+          ? Colors.black
+          : Colors.white;
+      final textColorReceived = receivedColor.computeLuminance() > 0.5
+          ? Colors.black
+          : Colors.white;
 
       onColorsExtracted(
         bubbleColorSent,
@@ -289,8 +308,12 @@ class ChatEncryptionProvider with ChangeNotifier {
   }
 
   /// Helper method to decrypt using Signal protocol (fallback)
-  Future<Message> _decryptWithSignal(Message message, String? currentUserId) async {
-    final isSender = currentUserId != null &&
+  Future<Message> _decryptWithSignal(
+    Message message,
+    String? currentUserId,
+  ) async {
+    final isSender =
+        currentUserId != null &&
         message.senderId.toLowerCase() == currentUserId.toLowerCase();
 
     if (isSender &&

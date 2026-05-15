@@ -20,7 +20,9 @@ class PrivacyPolicyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final webDomain = AppConfig.webBaseUrl.replaceAll('https://', '').replaceAll('http://', '');
+    final webDomain = AppConfig.webBaseUrl
+        .replaceAll('https://', '')
+        .replaceAll('http://', '');
 
     return Scaffold(
       appBar: AppBar(
@@ -185,4 +187,3 @@ class PrivacyPolicyScreen extends StatelessWidget {
     );
   }
 }
-

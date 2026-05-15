@@ -53,7 +53,7 @@ class _SpoilerWidgetState extends State<SpoilerWidget> {
               child: widget.child,
             ),
           ),
-          
+
           // Overlay to make it darker and show the label
           Positioned.fill(
             child: Container(
@@ -63,7 +63,7 @@ class _SpoilerWidgetState extends State<SpoilerWidget> {
               ),
             ),
           ),
-          
+
           // Spoiler Label
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

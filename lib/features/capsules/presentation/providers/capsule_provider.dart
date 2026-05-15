@@ -97,10 +97,9 @@ class CapsuleProvider extends ChangeNotifier {
 
     try {
       final opened = await _openCapsule(capsuleId);
-      final updatedCapsules =
-          _state.capsules.map((c) {
-            return c.id == capsuleId ? opened : c;
-          }).toList();
+      final updatedCapsules = _state.capsules.map((c) {
+        return c.id == capsuleId ? opened : c;
+      }).toList();
       _state = _state.copyWith(
         capsules: updatedCapsules,
         selectedCapsule: opened,
@@ -130,4 +129,3 @@ class CapsuleProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
-

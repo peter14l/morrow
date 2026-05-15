@@ -84,7 +84,7 @@ enum UpdateStatus {
   installing,
   completed,
   failed,
-  upToDate
+  upToDate,
 }
 
 class UpdateProgress {
@@ -177,7 +177,7 @@ class UpdateService extends ChangeNotifier {
       final currentVersion = packageInfo.version;
 
       _addLog('Current version: $currentVersion');
-      
+
       final response = await http
           .get(Uri.parse(_updateCheckUrl))
           .timeout(const Duration(seconds: 10));
@@ -192,10 +192,12 @@ class UpdateService extends ChangeNotifier {
           if (Platform.isIOS) platformKey = 'ios';
 
           final platformJson = fullJson[platformKey] as Map<String, dynamic>?;
-          
+
           if (platformJson == null) {
             _addLog('No version info found for platform: $platformKey');
-            _updateState(_currentProgress.copyWith(status: UpdateStatus.upToDate));
+            _updateState(
+              _currentProgress.copyWith(status: UpdateStatus.upToDate),
+            );
             return null;
           }
 
@@ -204,21 +206,37 @@ class UpdateService extends ChangeNotifier {
           _hasChecked = true;
 
           if (updateInfo.isUpdateAvailable) {
-            _addLog('Update available for $platformKey: ${updateInfo.latestVersion}');
-            _updateState(_currentProgress.copyWith(status: UpdateStatus.available));
+            _addLog(
+              'Update available for $platformKey: ${updateInfo.latestVersion}',
+            );
+            _updateState(
+              _currentProgress.copyWith(status: UpdateStatus.available),
+            );
           } else {
             _addLog('App is up to date on $platformKey');
-            _updateState(_currentProgress.copyWith(status: UpdateStatus.upToDate));
+            _updateState(
+              _currentProgress.copyWith(status: UpdateStatus.upToDate),
+            );
           }
           return updateInfo;
         }
       } else {
         _addLog('Update check failed with status: ${response.statusCode}');
-        _updateState(_currentProgress.copyWith(status: UpdateStatus.failed, error: 'Server returned ${response.statusCode}'));
+        _updateState(
+          _currentProgress.copyWith(
+            status: UpdateStatus.failed,
+            error: 'Server returned ${response.statusCode}',
+          ),
+        );
       }
     } catch (e) {
       _addLog('Update check failed: $e');
-      _updateState(_currentProgress.copyWith(status: UpdateStatus.failed, error: e.toString()));
+      _updateState(
+        _currentProgress.copyWith(
+          status: UpdateStatus.failed,
+          error: e.toString(),
+        ),
+      );
     }
 
     _hasChecked = true;
@@ -236,9 +254,9 @@ class UpdateService extends ChangeNotifier {
       final cleanBody = body
           .replaceFirst(RegExp(r'^\s*update\s*\(\s*', multiLine: false), '')
           .replaceFirst(RegExp(r'\s*\)\s*$', multiLine: false), '');
-      
+
       if (cleanBody.trim().isEmpty) return null;
-      
+
       return jsonDecode(cleanBody) as Map<String, dynamic>;
     } catch (e) {
       debugPrint('UpdateService: Failed to parse response: $e');
@@ -248,15 +266,17 @@ class UpdateService extends ChangeNotifier {
 
   /// Download and install update
   Future<void> downloadAndInstallUpdate(UpdateInfo updateInfo) async {
-    if (_currentProgress.status == UpdateStatus.downloading || 
+    if (_currentProgress.status == UpdateStatus.downloading ||
         _currentProgress.status == UpdateStatus.installing) {
       return;
     }
 
-    _updateState(UpdateProgress(
-      status: UpdateStatus.downloading,
-      logs: ['Starting update process...'],
-    ));
+    _updateState(
+      UpdateProgress(
+        status: UpdateStatus.downloading,
+        logs: ['Starting update process...'],
+      ),
+    );
 
     try {
       // 1. Prepare download path based on platform
@@ -264,9 +284,9 @@ class UpdateService extends ChangeNotifier {
       String extension = 'apk';
       if (Platform.isWindows) extension = 'msix';
       if (Platform.isMacOS) extension = 'dmg';
-      
+
       final updatePath = '${tempDir.path}/oasis_update.$extension';
-      
+
       // Delete old update file if exists
       final oldFile = File(updatePath);
       if (await oldFile.exists()) {
@@ -289,7 +309,12 @@ class UpdateService extends ChangeNotifier {
 
       _addLog('Download completed successfully.');
       _addLog('Preparing for installation...');
-      _updateState(_currentProgress.copyWith(status: UpdateStatus.installing, progress: 1.0));
+      _updateState(
+        _currentProgress.copyWith(
+          status: UpdateStatus.installing,
+          progress: 1.0,
+        ),
+      );
 
       // 3. Install based on platform
       if (Platform.isAndroid) {
@@ -309,13 +334,20 @@ class UpdateService extends ChangeNotifier {
           updatePath,
           type: 'application/vnd.android.package-archive',
         );
-        
+
         if (result.type == ResultType.done) {
           _addLog('Please complete the installation using the system prompt.');
-          _updateState(_currentProgress.copyWith(status: UpdateStatus.completed));
+          _updateState(
+            _currentProgress.copyWith(status: UpdateStatus.completed),
+          );
         } else {
           _addLog('Installation failed: ${result.message}');
-          _updateState(_currentProgress.copyWith(status: UpdateStatus.failed, error: result.message));
+          _updateState(
+            _currentProgress.copyWith(
+              status: UpdateStatus.failed,
+              error: result.message,
+            ),
+          );
         }
       } else if (Platform.isWindows) {
         _addLog('Launching MSIX installer...');
@@ -337,10 +369,14 @@ class UpdateService extends ChangeNotifier {
         await launchDownloadUrl(updateInfo.downloadUrl);
         _updateState(_currentProgress.copyWith(status: UpdateStatus.completed));
       }
-
     } catch (e) {
       _addLog('Error during update: $e');
-      _updateState(_currentProgress.copyWith(status: UpdateStatus.failed, error: e.toString()));
+      _updateState(
+        _currentProgress.copyWith(
+          status: UpdateStatus.failed,
+          error: e.toString(),
+        ),
+      );
     }
   }
 

@@ -6,7 +6,7 @@ class FeedState {
   final bool isLoading;
   final bool isLoadingMore;
   final String? error;
-  final int offset;
+  final String? cursor;
   final bool hasMore;
 
   const FeedState({
@@ -14,7 +14,7 @@ class FeedState {
     this.isLoading = false,
     this.isLoadingMore = false,
     this.error,
-    this.offset = 0,
+    this.cursor,
     this.hasMore = true,
   });
 
@@ -23,7 +23,7 @@ class FeedState {
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
-    int? offset,
+    String? cursor,
     bool? hasMore,
   }) {
     return FeedState(
@@ -31,7 +31,7 @@ class FeedState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: error,
-      offset: offset ?? this.offset,
+      cursor: cursor ?? this.cursor,
       hasMore: hasMore ?? this.hasMore,
     );
   }

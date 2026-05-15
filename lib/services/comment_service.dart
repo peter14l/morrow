@@ -45,13 +45,12 @@ class CommentService {
         }
 
         // Check if current user has liked this comment
-        final likeResponse =
-            await _supabase
-                .from(SupabaseConfig.commentLikesTable)
-                .select()
-                .eq('comment_id', commentMap['id'])
-                .eq('user_id', currentUserId)
-                .maybeSingle();
+        final likeResponse = await _supabase
+            .from(SupabaseConfig.commentLikesTable)
+            .select()
+            .eq('comment_id', commentMap['id'])
+            .eq('user_id', currentUserId)
+            .maybeSingle();
 
         commentMap['is_liked'] = likeResponse != null;
 
@@ -99,13 +98,12 @@ class CommentService {
         }
 
         // Check if current user has liked this comment
-        final likeResponse =
-            await _supabase
-                .from(SupabaseConfig.commentLikesTable)
-                .select()
-                .eq('comment_id', commentMap['id'])
-                .eq('user_id', currentUserId)
-                .maybeSingle();
+        final likeResponse = await _supabase
+            .from(SupabaseConfig.commentLikesTable)
+            .select()
+            .eq('comment_id', commentMap['id'])
+            .eq('user_id', currentUserId)
+            .maybeSingle();
 
         commentMap['is_liked'] = likeResponse != null;
 
@@ -140,10 +138,9 @@ class CommentService {
       await _supabase.from(SupabaseConfig.commentsTable).insert(commentData);
 
       // Fetch the created comment with user details
-      final response =
-          await _supabase
-              .from(SupabaseConfig.commentsTable)
-              .select('''
+      final response = await _supabase
+          .from(SupabaseConfig.commentsTable)
+          .select('''
             *,
             ${SupabaseConfig.profilesTable}:user_id (
               username,
@@ -151,8 +148,8 @@ class CommentService {
               avatar_url
             )
           ''')
-              .eq('id', commentId)
-              .single();
+          .eq('id', commentId)
+          .single();
 
       // Transform response
       final commentMap = Map<String, dynamic>.from(response);
@@ -167,12 +164,11 @@ class CommentService {
       try {
         if (parentCommentId == null) {
           // New top-level comment: Notify post owner
-          final postResponse =
-              await _supabase
-                  .from(SupabaseConfig.postsTable)
-                  .select('user_id')
-                  .eq('id', postId)
-                  .single();
+          final postResponse = await _supabase
+              .from(SupabaseConfig.postsTable)
+              .select('user_id')
+              .eq('id', postId)
+              .single();
 
           final postOwnerId = postResponse['user_id'] as String;
 
@@ -187,12 +183,11 @@ class CommentService {
           }
         } else {
           // Reply: Notify original commenter
-          final parentCommentResponse =
-              await _supabase
-                  .from(SupabaseConfig.commentsTable)
-                  .select('user_id')
-                  .eq('id', parentCommentId)
-                  .single();
+          final parentCommentResponse = await _supabase
+              .from(SupabaseConfig.commentsTable)
+              .select('user_id')
+              .eq('id', parentCommentId)
+              .single();
 
           final parentCommentOwnerId =
               parentCommentResponse['user_id'] as String;
@@ -258,12 +253,11 @@ class CommentService {
   }) async {
     try {
       // Verify ownership
-      final comment =
-          await _supabase
-              .from(SupabaseConfig.commentsTable)
-              .select('user_id')
-              .eq('id', commentId)
-              .single();
+      final comment = await _supabase
+          .from(SupabaseConfig.commentsTable)
+          .select('user_id')
+          .eq('id', commentId)
+          .single();
 
       if (comment['user_id'] != userId) {
         throw Exception('Not authorized to delete this comment');
@@ -288,12 +282,11 @@ class CommentService {
   }) async {
     try {
       // Verify ownership
-      final comment =
-          await _supabase
-              .from(SupabaseConfig.commentsTable)
-              .select('user_id')
-              .eq('id', commentId)
-              .single();
+      final comment = await _supabase
+          .from(SupabaseConfig.commentsTable)
+          .select('user_id')
+          .eq('id', commentId)
+          .single();
 
       if (comment['user_id'] != userId) {
         throw Exception('Not authorized to update this comment');
@@ -306,10 +299,9 @@ class CommentService {
           .eq('id', commentId);
 
       // Fetch updated comment
-      final response =
-          await _supabase
-              .from(SupabaseConfig.commentsTable)
-              .select('''
+      final response = await _supabase
+          .from(SupabaseConfig.commentsTable)
+          .select('''
             *,
             ${SupabaseConfig.profilesTable}:user_id (
               username,
@@ -317,8 +309,8 @@ class CommentService {
               avatar_url
             )
           ''')
-              .eq('id', commentId)
-              .single();
+          .eq('id', commentId)
+          .single();
 
       // Transform response
       final commentMap = Map<String, dynamic>.from(response);
@@ -329,13 +321,12 @@ class CommentService {
       }
 
       // Check if current user has liked
-      final likeResponse =
-          await _supabase
-              .from(SupabaseConfig.commentLikesTable)
-              .select()
-              .eq('comment_id', commentId)
-              .eq('user_id', userId)
-              .maybeSingle();
+      final likeResponse = await _supabase
+          .from(SupabaseConfig.commentLikesTable)
+          .select()
+          .eq('comment_id', commentId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       commentMap['is_liked'] = likeResponse != null;
 
@@ -369,12 +360,11 @@ class CommentService {
               final commentData = payload.newRecord;
 
               // Fetch user details for the new comment
-              final profile =
-                  await _supabase
-                      .from(SupabaseConfig.profilesTable)
-                      .select('username, avatar_url')
-                      .eq('id', commentData['user_id'])
-                      .single();
+              final profile = await _supabase
+                  .from(SupabaseConfig.profilesTable)
+                  .select('username, avatar_url')
+                  .eq('id', commentData['user_id'])
+                  .single();
 
               commentData['username'] = profile['username'];
               commentData['user_avatar'] = profile['avatar_url'];
@@ -401,10 +391,10 @@ class CommentService {
           },
         )
         .subscribe((status, [error]) {
-      if (status == RealtimeSubscribeStatus.channelError) {
-        debugPrint('CommentService: subscribeToPostComments error: $error');
-      }
-    });
+          if (status == RealtimeSubscribeStatus.channelError) {
+            debugPrint('CommentService: subscribeToPostComments error: $error');
+          }
+        });
 
     return channel;
   }

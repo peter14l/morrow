@@ -60,10 +60,9 @@ class Hashtag {
     return Hashtag(
       tag: json['tag'] as String,
       postCount: json['post_count'] as int? ?? 0,
-      lastUsed:
-          json['last_used'] != null
-              ? DateTime.parse(json['last_used'] as String)
-              : null,
+      lastUsed: json['last_used'] != null
+          ? DateTime.parse(json['last_used'] as String)
+          : null,
     );
   }
 

@@ -38,7 +38,17 @@ class ThemeProvider with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   bool get highContrast => _highContrast;
   bool get isM3EEnabled => _isM3EEnabled;
-  bool get isM3ETransparencyDisabled => _isM3ETransparencyDisabled;
+  bool get isM3ETransparencyDisabled {
+    // Force solid backgrounds on Desktop and Web for better readability/performance
+    if (kIsWeb) return true;
+    try {
+      if (Platform.isWindows || Platform.isMacOS) return true;
+    } catch (_) {
+      // Fallback if Platform is not available
+    }
+    return _isM3ETransparencyDisabled;
+  }
+
   bool get useMaterialYou => _useMaterialYou;
   ColorPalette get colorPalette => _colorPalette;
 
@@ -46,7 +56,7 @@ class ThemeProvider with ChangeNotifier {
   bool get useFluentUI {
     // Force Material on mobile platforms and WEB
     if (kIsWeb || Platform.isAndroid || Platform.isIOS) return false;
-    
+
     // Only use Fluent UI on desktop OSs
     if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) return true;
     return false;
@@ -71,9 +81,10 @@ class ThemeProvider with ChangeNotifier {
       final client = SupabaseService().client;
       final user = client.auth.currentUser;
       if (user != null) {
-        await client.from('profiles').update({
-          'high_contrast': _highContrast,
-        }).eq('id', user.id);
+        await client
+            .from('profiles')
+            .update({'high_contrast': _highContrast})
+            .eq('id', user.id);
       }
     } catch (e) {
       debugPrint('ThemeProvider: Failed to sync to Supabase: $e');

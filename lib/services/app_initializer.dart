@@ -218,10 +218,16 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // We only handle Desktop/Web here, or fallback if native isn't available.
 
   if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
-    final String title = message.data['title'] ?? message.notification?.title ?? 'New Notification';
-    final String body = message.data['body'] ?? message.notification?.body ?? 'New Message';
-    final String? payload = message.data.isNotEmpty ? jsonEncode(message.data) : null;
-    
+    final String title =
+        message.data['title'] ??
+        message.notification?.title ??
+        'New Notification';
+    final String body =
+        message.data['body'] ?? message.notification?.body ?? 'New Message';
+    final String? payload = message.data.isNotEmpty
+        ? jsonEncode(message.data)
+        : null;
+
     // Simplified display for desktop (decryption on desktop can be added later)
     await NotificationManager.instance.showNotification(
       title: title,
@@ -262,25 +268,21 @@ class AppInitializer {
   static Future<void> runWithSentry(Future<void> Function() appRunner) async {
     debugPrint('runWithSentry: Setting up Sentry options...');
     try {
-      await SentryFlutter.init(
-        (options) {
-          debugPrint('SentryFlutter.init callback started');
-          const dsn = String.fromEnvironment('SENTRY_DSN');
-          options.dsn = dsn.isNotEmpty ? dsn : null;
-          options.tracesSampleRate = kDebugMode ? 0.2 : 0.05;
-          options.sendDefaultPii = false;
-          options.debug = false;
-          debugPrint(
-            'Sentry options configured',
-          );
-        },
-      );
+      await SentryFlutter.init((options) {
+        debugPrint('SentryFlutter.init callback started');
+        const dsn = String.fromEnvironment('SENTRY_DSN');
+        options.dsn = dsn.isNotEmpty ? dsn : null;
+        options.tracesSampleRate = kDebugMode ? 0.2 : 0.05;
+        options.sendDefaultPii = false;
+        options.debug = false;
+        debugPrint('Sentry options configured');
+      });
       debugPrint('SentryFlutter.init call completed');
     } catch (e, st) {
       debugPrint('Sentry initialization exception: $e');
       debugPrint('Stack trace: $st');
     }
-    
+
     // Run the app in the current zone
     debugPrint('Sentry appRunner triggered (in root zone)');
     await appRunner();
@@ -294,10 +296,10 @@ class AppInitializer {
         options: DefaultFirebaseOptions.currentPlatform,
       );
       FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
-      
+
       // Log app open to trigger DAU reporting
       unawaited(AppAnalytics().logAppOpen());
-      
+
       debugPrint('Firebase initialized successfully');
     } catch (e, st) {
       debugPrint('Firebase initialization failed: $e');
@@ -318,7 +320,7 @@ class AppInitializer {
 
     // --- CRITICAL PHASE: Must complete before UI shows ---
     debugPrint('STEP: Critical initialization starting...');
-    
+
     // 1. Hive & Supabase & Storage (Parallel)
     await Future.wait([
       HiveService.initialize(),
@@ -339,7 +341,7 @@ class AppInitializer {
             if (callId != null) {
               // Ensure CallService knows we are answering
               CallService.instance.setAnswering(callId);
-              
+
               Future.delayed(const Duration(milliseconds: 500), () {
                 AppRouter.router.pushNamed(
                   'active_call',
@@ -355,15 +357,15 @@ class AppInitializer {
             final callId = data['call_id'];
             if (callId != null) {
               SupabaseService().client
-                .from('calls')
-                .update({'status': 'declined'})
-                .eq('id', callId);
+                  .from('calls')
+                  .update({'status': 'declined'})
+                  .eq('id', callId);
             }
             break;
           case Event.actionCallEnded:
-             // If call was ended from native UI (e.g. Android notification)
-             CallService.instance.endCall();
-             break;
+            // If call was ended from native UI (e.g. Android notification)
+            CallService.instance.endCall();
+            break;
           default:
             break;
         }
@@ -400,19 +402,23 @@ class AppInitializer {
 
     // Windows enhancements
     if (!kIsWeb && Platform.isWindows) {
-      unawaited(DesktopWindowService.instance.initialize().then((_) async {
-        await DesktopWindowService.instance.enableCloseToTray();
-        await DesktopWindowService.instance.setWindowEffect(
-          enabled: userSettingsProvider.micaEnabled,
-          effect: userSettingsProvider.windowEffect,
-        );
-      }));
+      unawaited(
+        DesktopWindowService.instance.initialize().then((_) async {
+          await DesktopWindowService.instance.enableCloseToTray();
+          await DesktopWindowService.instance.setWindowEffect(
+            enabled: userSettingsProvider.micaEnabled,
+            effect: userSettingsProvider.windowEffect,
+          );
+        }),
+      );
     }
 
     // Wellness & tracking services - PARALLELIZE
     final screenTimeServiceFuture = ScreenTimeService.init();
     final wellnessServiceFuture = WellnessService.init();
-    final digitalWellbeingServiceFuture = DigitalWellbeingService.init(AuthService());
+    final digitalWellbeingServiceFuture = DigitalWellbeingService.init(
+      AuthService(),
+    );
     final energyMeterServiceFuture = EnergyMeterService.init();
 
     final wellnessResults = await Future.wait([
@@ -424,7 +430,8 @@ class AppInitializer {
 
     final screenTimeService = wellnessResults[0] as ScreenTimeService;
     final wellnessService = wellnessResults[1] as WellnessService;
-    final digitalWellbeingService = wellnessResults[2] as DigitalWellbeingService;
+    final digitalWellbeingService =
+        wellnessResults[2] as DigitalWellbeingService;
     final energyMeterService = wellnessResults[3] as EnergyMeterService;
 
     // Pre-initialize basic Notification manager
@@ -450,7 +457,7 @@ class AppInitializer {
           SignalService().init(),
           PQAuraService.instance.init(),
         ]).timeout(const Duration(seconds: 15));
-        
+
         razorpayService.init();
         debugPrint('Post-startup background services completed');
       } catch (e) {
@@ -495,9 +502,10 @@ class AppInitializer {
           final senderAvatar = notification.actorAvatar;
 
           String body = notification.message ?? 'New message';
-          
+
           // Decrypt body if it's an encrypted message
-          final decryptedBody = await NotificationDecryptionService().decryptNotification(notification);
+          final decryptedBody = await NotificationDecryptionService()
+              .decryptNotification(notification);
           if (decryptedBody != null) {
             body = decryptedBody;
           }
@@ -510,7 +518,8 @@ class AppInitializer {
             messageType: 'dm',
             payload: jsonEncode({
               'type': 'dm',
-              'conversation_id': notification.conversationId ?? notification.actorId,
+              'conversation_id':
+                  notification.conversationId ?? notification.actorId,
               'message_id': notification.messageId,
               'sender_id': notification.actorId,
               'sender_name': senderName,
@@ -538,7 +547,9 @@ class AppInitializer {
           value: services.authProvider,
         ),
         ChangeNotifierProvider<AuthService>.value(value: AuthService()),
-        ChangeNotifierProvider<MessagingService>(create: (_) => MessagingService()),
+        ChangeNotifierProvider<MessagingService>(
+          create: (_) => MessagingService(),
+        ),
         ChangeNotifierProvider<UserSettingsProvider>.value(
           value: services.userSettingsProvider,
         ),
@@ -622,7 +633,8 @@ class AppInitializer {
           create: (_) => VoiceTranscriptService(),
         ),
         ChangeNotifierProvider<CallService>(
-          create: (_) => AppConfig.enableCalls ? CallService() : DisabledCallService(),
+          create: (_) =>
+              AppConfig.enableCalls ? CallService() : DisabledCallService(),
         ),
         ChangeNotifierProxyProvider<CallService, CallProvider>(
           create: (context) {
@@ -630,7 +642,9 @@ class AppInitializer {
             try {
               callService = context.read<CallService>();
             } catch (e) {
-              debugPrint('CallService not found during CallProvider creation: $e');
+              debugPrint(
+                'CallService not found during CallProvider creation: $e',
+              );
               callService = DisabledCallService();
             }
 
@@ -655,4 +669,3 @@ class AppInitializer {
     initSqliteOverride();
   }
 }
-

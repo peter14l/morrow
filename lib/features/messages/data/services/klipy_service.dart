@@ -41,13 +41,18 @@ class KlipyService {
       if (_debugMode) {
         debugPrint('[Klipy] Search request: $uri');
         debugPrint('[Klipy] Search response status: ${response.statusCode}');
-        debugPrint('[Klipy] Search response body length: ${response.body.length}');
+        debugPrint(
+          '[Klipy] Search response body length: ${response.body.length}',
+        );
       }
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final Map<String, dynamic>? innerData = data['data'] as Map<String, dynamic>?;
-        final List results = (innerData != null) ? (innerData['data'] as List? ?? []) : [];
+        final Map<String, dynamic>? innerData =
+            data['data'] as Map<String, dynamic>?;
+        final List results = (innerData != null)
+            ? (innerData['data'] as List? ?? [])
+            : [];
         return KlipyResult.success(
           results.map((e) => KlipyMedia.fromJson(e)).toList(),
         );
@@ -77,19 +82,26 @@ class KlipyService {
 
     try {
       final apiKey = ChatApiConfig.klipyApiKey;
-      final uri = Uri.parse('$_baseUrl/$apiKey/gifs/trending?limit=$limit&offset=$offset');
+      final uri = Uri.parse(
+        '$_baseUrl/$apiKey/gifs/trending?limit=$limit&offset=$offset',
+      );
       final response = await http.get(uri);
 
       if (_debugMode) {
         debugPrint('[Klipy] Trending request: $uri');
         debugPrint('[Klipy] Trending response status: ${response.statusCode}');
-        debugPrint('[Klipy] Trending response body length: ${response.body.length}');
+        debugPrint(
+          '[Klipy] Trending response body length: ${response.body.length}',
+        );
       }
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        final Map<String, dynamic>? innerData = data['data'] as Map<String, dynamic>?;
-        final List results = (innerData != null) ? (innerData['data'] as List? ?? []) : [];
+        final Map<String, dynamic>? innerData =
+            data['data'] as Map<String, dynamic>?;
+        final List results = (innerData != null)
+            ? (innerData['data'] as List? ?? [])
+            : [];
         return KlipyResult.success(
           results.map((e) => KlipyMedia.fromJson(e)).toList(),
         );
@@ -136,4 +148,3 @@ class KlipyMedia {
     );
   }
 }
-

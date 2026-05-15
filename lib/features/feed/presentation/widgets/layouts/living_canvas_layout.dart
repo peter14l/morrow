@@ -9,7 +9,12 @@ import 'package:oasis/services/digital_wellbeing_service.dart';
 class LivingCanvasLayout extends StatefulWidget {
   final Future<void> Function() onRefresh;
   final Widget mobileHeader;
-  final Widget Function(dynamic post, FeedProvider provider, bool isDesktopPadding) buildPostItem;
+  final Widget Function(
+    dynamic post,
+    FeedProvider provider,
+    bool isDesktopPadding,
+  )
+  buildPostItem;
 
   const LivingCanvasLayout({
     super.key,
@@ -48,14 +53,16 @@ class _LivingCanvasLayoutState extends State<LivingCanvasLayout> {
     return Stack(
       children: [
         // The "Canvas" Background
-        Container(color: OasisColors.deep),
-        
+        Container(color: theme.scaffoldBackgroundColor),
+
         // Fiber Painter
         Positioned.fill(
           child: CustomPaint(
             painter: FiberPainter(
-              scrollOffset: _scrollController.hasClients ? _scrollController.offset : 0,
-              color: OasisColors.glow.withValues(alpha: 0.1),
+              scrollOffset: _scrollController.hasClients
+                  ? _scrollController.offset
+                  : 0,
+              color: colorScheme.primary.withValues(alpha: 0.1),
             ),
           ),
         ),
@@ -122,9 +129,7 @@ class _LivingCanvasLayoutState extends State<LivingCanvasLayout> {
         decoration: BoxDecoration(
           color: Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: OasisColors.glow.withValues(alpha: 0.1),
-          ),
+          border: Border.all(color: OasisColors.glow.withValues(alpha: 0.1)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -145,7 +150,11 @@ class _LivingCanvasLayoutState extends State<LivingCanvasLayout> {
     );
   }
 
-  Widget _buildOrganicPost(dynamic post, FeedProvider provider, bool isDesktop) {
+  Widget _buildOrganicPost(
+    dynamic post,
+    FeedProvider provider,
+    bool isDesktop,
+  ) {
     // This layout removes the "Card" container metaphor
     return Container(
       decoration: BoxDecoration(
@@ -177,18 +186,18 @@ class FiberPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final path = Path();
-    
+
     // Draw some flowing fibers that move with scroll
     for (int i = 0; i < 5; i++) {
       double xStart = size.width * (0.2 + (i * 0.15));
       double xControl = xStart + (size.width * 0.1 * (i % 2 == 0 ? 1 : -1));
-      
+
       path.moveTo(xStart, -500 + (scrollOffset * 0.2));
       path.quadraticBezierTo(
-        xControl, 
-        size.height / 2, 
-        xStart, 
-        size.height + 500 + (scrollOffset * 0.2)
+        xControl,
+        size.height / 2,
+        xStart,
+        size.height + 500 + (scrollOffset * 0.2),
       );
     }
 

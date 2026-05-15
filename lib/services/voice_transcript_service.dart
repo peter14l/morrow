@@ -21,8 +21,8 @@ class VoiceTranscript {
       text: json['text'] ?? '',
       confidence: (json['confidence'] ?? 0).toDouble(),
       language: json['language'] ?? 'en',
-      createdAt: json['created_at'] != null 
-          ? DateTime.parse(json['created_at']) 
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'])
           : DateTime.now(),
     );
   }
@@ -37,7 +37,7 @@ class VoiceTranscript {
 /// Voice message transcript service for fast, multilingual speech-to-text.
 class VoiceTranscriptService {
   final _supabase = SupabaseService().client;
-  
+
   // Client-side cache to prevent redundant API calls
   final Map<String, VoiceTranscript> _cache = {};
 
@@ -51,7 +51,7 @@ class VoiceTranscriptService {
           .select()
           .eq('message_id', messageId)
           .maybeSingle();
-      
+
       if (response != null) {
         final transcript = VoiceTranscript.fromJson(response);
         _cache[messageId] = transcript;
@@ -74,7 +74,9 @@ class VoiceTranscriptService {
     try {
       return await queueTranscription(messageId, audioUrl);
     } catch (e) {
-      debugPrint('[Transcription] Queue method failed, falling back to sync: $e');
+      debugPrint(
+        '[Transcription] Queue method failed, falling back to sync: $e',
+      );
       // Fallback to legacy sync method if queue fails
       return await transcribeVoiceMessageSync(messageId, audioUrl);
     }
@@ -91,15 +93,16 @@ class VoiceTranscriptService {
     if (userId == null) throw Exception('User not authenticated');
 
     // 1. Insert task into queue
-    final taskResponse = await _supabase.from('task_queue').insert({
-      'task_type': 'transcription',
-      'payload': {
-        'message_id': messageId,
-        'audio_url': audioUrl,
-      },
-      'user_id': userId,
-      'status': 'pending',
-    }).select().single();
+    final taskResponse = await _supabase
+        .from('task_queue')
+        .insert({
+          'task_type': 'transcription',
+          'payload': {'message_id': messageId, 'audio_url': audioUrl},
+          'user_id': userId,
+          'status': 'pending',
+        })
+        .select()
+        .single();
 
     final taskId = taskResponse['id'] as String;
 
@@ -108,16 +111,21 @@ class VoiceTranscriptService {
         .from('task_queue')
         .stream(primaryKey: ['id'])
         .eq('id', taskId)
-        .firstWhere((data) => 
-            data.isNotEmpty && 
-            (data[0]['status'] == 'completed' || data[0]['status'] == 'failed'))
+        .firstWhere(
+          (data) =>
+              data.isNotEmpty &&
+              (data[0]['status'] == 'completed' ||
+                  data[0]['status'] == 'failed'),
+        )
         .timeout(const Duration(seconds: 30));
 
     final resultData = await completion;
     final taskResult = resultData[0];
 
     if (taskResult['status'] == 'failed') {
-      throw Exception(taskResult['error'] ?? 'Task failed without error message');
+      throw Exception(
+        taskResult['error'] ?? 'Task failed without error message',
+      );
     }
 
     final transcript = VoiceTranscript.fromJson(taskResult['result']);
@@ -140,15 +148,14 @@ class VoiceTranscriptService {
         body: {
           'message_id': messageId,
           'audio_url': audioUrl,
-          'config': {
-            'multilingual': true,
-            'task': 'transcribe',
-          }
+          'config': {'multilingual': true, 'task': 'transcribe'},
         },
       );
 
       if (response.status != 200) {
-        throw Exception('Transcription service returned status ${response.status}');
+        throw Exception(
+          'Transcription service returned status ${response.status}',
+        );
       }
 
       final data = response.data as Map<String, dynamic>;
@@ -168,11 +175,12 @@ class VoiceTranscriptService {
       return transcript;
     } catch (e) {
       debugPrint('[Transcription] API Error: $e');
-      
+
       // Fast fallback for demo/dev if function isn't deployed yet
       if (kDebugMode) {
         return VoiceTranscript(
-          text: '[Service unavailable] Ensure "transcribe-voice" Edge Function is deployed.',
+          text:
+              '[Service unavailable] Ensure "transcribe-voice" Edge Function is deployed.',
           confidence: 0.0,
           language: 'en',
           createdAt: DateTime.now(),

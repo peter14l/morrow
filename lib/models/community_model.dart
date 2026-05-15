@@ -36,7 +36,9 @@ class Community {
       privacyPolicy: map['privacyPolicy'],
       moderators: List<String>.from(map['moderators'] ?? []),
       memberCount: map['memberCount'] ?? 0,
-      createdAt: DateTime.parse(map['created_at'] ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        map['created_at'] ?? DateTime.now().toIso8601String(),
+      ),
       isPrivate: map['isPrivate'] ?? false,
     );
   }

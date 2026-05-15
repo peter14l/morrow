@@ -8,24 +8,27 @@ class SettingsRemoteDatasource {
   final SupabaseClient _client;
 
   SettingsRemoteDatasource({SupabaseClient? client})
-      : _client = client ?? SupabaseService().client;
+    : _client = client ?? SupabaseService().client;
 
   Future<bool> syncSettings(UserSettingsEntity settings) async {
     final user = _client.auth.currentUser;
     if (user == null) return false;
 
     try {
-      await _client.from('profiles').update({
-        'data_saver': settings.dataSaver,
-        'font_size_factor': settings.fontSizeFactor,
-        'high_contrast': settings.highContrast,
-        'daily_limit_minutes': settings.dailyLimitMinutes,
-        'wind_down_enabled': settings.windDownEnabled,
-        'mica_enabled': settings.micaEnabled,
-        'window_effect': settings.windowEffect,
-        'font_family': settings.fontFamily,
-        'feed_layout': settings.feedLayout.name,
-      }).eq('id', user.id);
+      await _client
+          .from('profiles')
+          .update({
+            'data_saver': settings.dataSaver,
+            'font_size_factor': settings.fontSizeFactor,
+            'high_contrast': settings.highContrast,
+            'daily_limit_minutes': settings.dailyLimitMinutes,
+            'wind_down_enabled': settings.windDownEnabled,
+            'mica_enabled': settings.micaEnabled,
+            'window_effect': settings.windowEffect,
+            'font_family': settings.fontFamily,
+            'feed_layout': settings.feedLayout.name,
+          })
+          .eq('id', user.id);
       return true;
     } catch (e) {
       // Log error but don't fail the app
@@ -41,10 +44,12 @@ class SettingsRemoteDatasource {
     try {
       final data = await _client
           .from('profiles')
-          .select('data_saver, font_size_factor, high_contrast, daily_limit_minutes, wind_down_enabled, mica_enabled, window_effect, font_family, feed_layout')
+          .select(
+            'data_saver, font_size_factor, high_contrast, daily_limit_minutes, wind_down_enabled, mica_enabled, window_effect, font_family, feed_layout',
+          )
           .eq('id', user.id)
           .single();
-      
+
       return UserSettingsEntity(
         dataSaver: data['data_saver'] ?? false,
         fontSizeFactor: (data['font_size_factor'] as num?)?.toDouble() ?? 1.0,

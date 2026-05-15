@@ -250,8 +250,7 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
                     'Cancel',
                     style: TextStyle(
                       color: Colors.white,
-                      fontWeight:
-                          isM3E ? FontWeight.w800 : FontWeight.bold,
+                      fontWeight: isM3E ? FontWeight.w800 : FontWeight.bold,
                     ),
                   ),
                 ),
@@ -262,42 +261,42 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
           Expanded(
             child: _isLoading || _isSearching
                 ? const Center(
-                    child:
-                        CircularProgressIndicator(color: Colors.white),
+                    child: CircularProgressIndicator(color: Colors.white),
                   )
                 : _tracks.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No music found',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      )
-                    : ListView.builder(
-                        controller: _scrollController,
-                        itemCount: _tracks.length + 1,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 8),
-                        itemBuilder: (context, index) {
-                          if (index >= _tracks.length) {
-                            return _tracks.length >= _displayedCount
-                                ? _buildLoadMoreButton(
-                                    isM3E, colorScheme)
-                                : const SizedBox.shrink();
-                          }
-                          final track = _tracks[index];
-                          final isPlaying =
-                              _playingTrackId == track.trackId;
-                          return _buildTrackTile(
+                ? const Center(
+                    child: Text(
+                      'No music found',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    itemCount: _tracks.length + 1,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    itemBuilder: (context, index) {
+                      if (index >= _tracks.length) {
+                        return _tracks.length >= _displayedCount
+                            ? _buildLoadMoreButton(isM3E, colorScheme)
+                            : const SizedBox.shrink();
+                      }
+                      final track = _tracks[index];
+                      final isPlaying = _playingTrackId == track.trackId;
+                      return _buildTrackTile(
                             track,
                             isPlaying,
                             isM3E,
                             colorScheme,
-                          ).animate().fadeIn(
-                                duration: Duration(
-                                    milliseconds: 100 + (index * 20)),
-                              ).moveY(begin: 10, end: 0);
-                        },
-                      ),
+                          )
+                          .animate()
+                          .fadeIn(
+                            duration: Duration(
+                              milliseconds: 100 + (index * 20),
+                            ),
+                          )
+                          .moveY(begin: 10, end: 0);
+                    },
+                  ),
           ),
           const SizedBox(height: 20),
         ],
@@ -314,9 +313,7 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
       child: Row(
         children: [
           Icon(
-            _currentSearchQuery.isNotEmpty
-                ? Icons.search
-                : Icons.music_note,
+            _currentSearchQuery.isNotEmpty ? Icons.search : Icons.music_note,
             color: Colors.white54,
             size: 18,
           ),
@@ -326,8 +323,7 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
             style: TextStyle(
               color: Colors.white70,
               fontSize: 14,
-              fontWeight:
-                  isM3E ? FontWeight.w600 : FontWeight.bold,
+              fontWeight: isM3E ? FontWeight.w600 : FontWeight.bold,
             ),
           ),
           const Spacer(),
@@ -411,8 +407,7 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
   ) {
     return ListTile(
       onTap: () => _showArtworkPicker(track),
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       leading: Stack(
         alignment: Alignment.center,
         children: [
@@ -492,7 +487,8 @@ class _ArtworkPickerSheet extends StatefulWidget {
 
 class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
   String _selectedStyle = 'original';
-  double _startPositionSec = 0; // 0–15 seconds start position within 30s preview
+  double _startPositionSec =
+      0; // 0–15 seconds start position within 30s preview
   static const double _previewDurationSec = 30;
   static const double _clipDurationSec = 15;
 
@@ -538,8 +534,12 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
   }
 
   Widget _buildAlbumArtOption(
-      String id, String label, IconData icon, bool isM3E,
-      ColorScheme colorScheme) {
+    String id,
+    String label,
+    IconData icon,
+    bool isM3E,
+    ColorScheme colorScheme,
+  ) {
     final isSelected = _selectedStyle == id;
     return GestureDetector(
       onTap: () {
@@ -552,8 +552,8 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
         decoration: BoxDecoration(
           color: isSelected
               ? (isM3E
-                  ? colorScheme.primaryContainer
-                  : Colors.white.withValues(alpha: 0.1))
+                    ? colorScheme.primaryContainer
+                    : Colors.white.withValues(alpha: 0.1))
               : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(isM3E ? 16 : 12),
           border: isSelected
@@ -607,8 +607,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.white70,
                 fontSize: 12,
-                fontWeight:
-                    isSelected ? FontWeight.w600 : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
               ),
             ),
           ],
@@ -678,17 +677,17 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                     width: 48,
                     height: 48,
                     fit: BoxFit.cover,
-                    placeholder: (ctx, url) => Container(
-                      width: 48,
-                      height: 48,
-                      color: Colors.white12,
-                    ),
+                    placeholder: (ctx, url) =>
+                        Container(width: 48, height: 48, color: Colors.white12),
                     errorWidget: (ctx, url, err) => Container(
                       width: 48,
                       height: 48,
                       color: Colors.white10,
-                      child: const Icon(Icons.music_note_rounded,
-                          color: Colors.white38, size: 24),
+                      child: const Icon(
+                        Icons.music_note_rounded,
+                        color: Colors.white38,
+                        size: 24,
+                      ),
                     ),
                   ),
                 ),
@@ -702,9 +701,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontWeight: isM3E
-                              ? FontWeight.w700
-                              : FontWeight.bold,
+                          fontWeight: isM3E ? FontWeight.w700 : FontWeight.bold,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -712,7 +709,9 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                       Text(
                         widget.track.artist,
                         style: const TextStyle(
-                            color: Colors.white70, fontSize: 13),
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
                       ),
                     ],
                   ),
@@ -727,8 +726,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 15,
-                fontWeight:
-                    isM3E ? FontWeight.w600 : FontWeight.bold,
+                fontWeight: isM3E ? FontWeight.w600 : FontWeight.bold,
               ),
             ),
             const SizedBox(height: 12),
@@ -737,13 +735,15 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: artworkOptions
-                    .map((o) => _buildAlbumArtOption(
-                          o['id'] as String,
-                          o['label'] as String,
-                          o['icon'] as IconData,
-                          isM3E,
-                          colorScheme,
-                        ))
+                    .map(
+                      (o) => _buildAlbumArtOption(
+                        o['id'] as String,
+                        o['label'] as String,
+                        o['icon'] as IconData,
+                        isM3E,
+                        colorScheme,
+                      ),
+                    )
                     .toList(),
               ),
             ),
@@ -757,17 +757,14 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 15,
-                    fontWeight:
-                        isM3E ? FontWeight.w600 : FontWeight.bold,
+                    fontWeight: isM3E ? FontWeight.w600 : FontWeight.bold,
                   ),
                 ),
                 const Spacer(),
                 Text(
                   '${_formatSeconds(_startPositionSec)} – ${_formatSeconds(_startPositionSec + _clipDurationSec)}',
                   style: TextStyle(
-                    color: isM3E
-                        ? colorScheme.primary
-                        : Colors.white70,
+                    color: isM3E ? colorScheme.primary : Colors.white70,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                   ),
@@ -781,9 +778,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: _isPreviewPlaying
-                          ? (isM3E
-                              ? colorScheme.primary
-                              : Colors.white)
+                          ? (isM3E ? colorScheme.primary : Colors.white)
                           : Colors.white12,
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -792,9 +787,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                           ? Icons.stop_rounded
                           : Icons.play_arrow_rounded,
                       color: _isPreviewPlaying
-                          ? (isM3E
-                              ? colorScheme.onPrimary
-                              : Colors.black)
+                          ? (isM3E ? colorScheme.onPrimary : Colors.black)
                           : Colors.white70,
                       size: 18,
                     ),
@@ -811,17 +804,13 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
             // Trim slider
             SliderTheme(
               data: SliderThemeData(
-                activeTrackColor: isM3E
-                    ? colorScheme.primary
-                    : Colors.white,
+                activeTrackColor: isM3E ? colorScheme.primary : Colors.white,
                 inactiveTrackColor: Colors.white24,
                 thumbColor: Colors.white,
                 overlayColor: Colors.white24,
                 trackHeight: 4,
-                thumbShape: const RoundSliderThumbShape(
-                    enabledThumbRadius: 10),
-                overlayShape: const RoundSliderOverlayShape(
-                    overlayRadius: 20),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
               ),
               child: Slider(
                 value: _startPositionSec,
@@ -833,8 +822,9 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                         setState(() => _startPositionSec = val);
                         // Seek if playing
                         if (_isPreviewPlaying) {
-                          await _previewPlayer.seek(Duration(
-                              milliseconds: (val * 1000).toInt()));
+                          await _previewPlayer.seek(
+                            Duration(milliseconds: (val * 1000).toInt()),
+                          );
                         }
                       }
                     : null,
@@ -846,15 +836,18 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('0:00',
-                      style: const TextStyle(
-                          color: Colors.white38, fontSize: 10)),
-                  Text(_formatSeconds(_previewDurationSec / 2),
-                      style: const TextStyle(
-                          color: Colors.white38, fontSize: 10)),
-                  Text(_formatSeconds(_previewDurationSec),
-                      style: const TextStyle(
-                          color: Colors.white38, fontSize: 10)),
+                  Text(
+                    '0:00',
+                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                  ),
+                  Text(
+                    _formatSeconds(_previewDurationSec / 2),
+                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                  ),
+                  Text(
+                    _formatSeconds(_previewDurationSec),
+                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                  ),
                 ],
               ),
             ),
@@ -868,8 +861,7 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                       onPressed: () => widget.onSelect(
                         widget.track.copyWith(
                           artworkStyle: _selectedStyle,
-                          startPositionMs:
-                              (_startPositionSec * 1000).toInt(),
+                          startPositionMs: (_startPositionSec * 1000).toInt(),
                         ),
                       ),
                       style: FilledButton.styleFrom(
@@ -881,15 +873,16 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
                       child: const Text(
                         'Add to Story',
                         style: TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 16),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
                       ),
                     )
                   : ElevatedButton(
                       onPressed: () => widget.onSelect(
                         widget.track.copyWith(
                           artworkStyle: _selectedStyle,
-                          startPositionMs:
-                              (_startPositionSec * 1000).toInt(),
+                          startPositionMs: (_startPositionSec * 1000).toInt(),
                         ),
                       ),
                       style: ElevatedButton.styleFrom(

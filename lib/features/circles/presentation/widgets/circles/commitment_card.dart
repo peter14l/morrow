@@ -82,10 +82,9 @@ class _CommitmentCardState extends State<CommitmentCard>
             borderRadius: BorderRadius.circular(24),
             color: colorScheme.surface,
             border: Border.all(
-              color:
-                  isCompleted
-                      ? colorScheme.primary.withValues(alpha: 0.5)
-                      : colorScheme.outline.withValues(alpha: 0.15),
+              color: isCompleted
+                  ? colorScheme.primary.withValues(alpha: 0.5)
+                  : colorScheme.outline.withValues(alpha: 0.15),
               width: isCompleted ? 1.5 : 1,
             ),
           ),
@@ -123,42 +122,37 @@ class _CommitmentCardState extends State<CommitmentCard>
                           height: 32,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color:
-                                isCompleted
-                                    ? colorScheme.primary
-                                    : Colors.transparent,
+                            color: isCompleted
+                                ? colorScheme.primary
+                                : Colors.transparent,
                             border: Border.all(
-                              color:
-                                  isCompleted
-                                      ? colorScheme.primary
-                                      : colorScheme.outline.withValues(
-                                        alpha: 0.5,
-                                      ),
+                              color: isCompleted
+                                  ? colorScheme.primary
+                                  : colorScheme.outline.withValues(alpha: 0.5),
                               width: 2,
                             ),
                           ),
-                          child:
-                              isCompleted
-                                  ? const Icon(
-                                    FluentIcons.checkmark_16_filled,
-                                    size: 18,
-                                    color: Colors.white,
-                                  )
-                                  : _isHolding
-                                  ? Center(
-                                    child: SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        value: _fillController.value,
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation(
-                                          colorScheme.primary,
-                                        ),
+                          child: isCompleted
+                              ? const Icon(
+                                  FluentIcons.checkmark_16_filled,
+                                  size: 18,
+                                  color: Colors.white,
+                                )
+                              : _isHolding
+                              ? Center(
+                                  child: SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      value: _fillController.value,
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                        colorScheme.primary,
                                       ),
                                     ),
-                                  )
-                                  : const SizedBox.shrink(),
+                                  ),
+                                )
+                              : const SizedBox.shrink(),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -169,16 +163,14 @@ class _CommitmentCardState extends State<CommitmentCard>
                                 widget.commitment.title,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
-                                  decoration:
-                                      isCompleted
-                                          ? TextDecoration.lineThrough
-                                          : null,
-                                  color:
-                                      isCompleted
-                                          ? colorScheme.onSurface.withValues(
-                                            alpha: 0.5,
-                                          )
-                                          : null,
+                                  decoration: isCompleted
+                                      ? TextDecoration.lineThrough
+                                      : null,
+                                  color: isCompleted
+                                      ? colorScheme.onSurface.withValues(
+                                          alpha: 0.5,
+                                        )
+                                      : null,
                                 ),
                               ),
                               if (widget.commitment.description != null)
@@ -211,18 +203,16 @@ class _CommitmentCardState extends State<CommitmentCard>
                               _IntentChip(
                                 label: '👊',
                                 isSelected: intent == MemberIntent.inTrying,
-                                onTap:
-                                    () => widget.onSetIntent(
-                                      MemberIntent.inTrying,
-                                    ),
+                                onTap: () =>
+                                    widget.onSetIntent(MemberIntent.inTrying),
                                 activeColor: colorScheme.primary,
                               ),
                               const SizedBox(width: 8),
                               _IntentChip(
                                 label: 'Skip',
                                 isSelected: intent == MemberIntent.out,
-                                onTap:
-                                    () => widget.onSetIntent(MemberIntent.out),
+                                onTap: () =>
+                                    widget.onSetIntent(MemberIntent.out),
                                 activeColor: colorScheme.error,
                               ),
                             ],
@@ -336,24 +326,21 @@ class _IntentChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color:
-              isSelected
-                  ? activeColor.withValues(alpha: 0.15)
-                  : Colors.transparent,
+          color: isSelected
+              ? activeColor.withValues(alpha: 0.15)
+              : Colors.transparent,
           border: Border.all(
-            color:
-                isSelected
-                    ? activeColor
-                    : theme.colorScheme.outline.withValues(alpha: 0.3),
+            color: isSelected
+                ? activeColor
+                : theme.colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         child: Text(
           label,
           style: theme.textTheme.labelSmall?.copyWith(
-            color:
-                isSelected
-                    ? activeColor
-                    : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+            color: isSelected
+                ? activeColor
+                : theme.colorScheme.onSurface.withValues(alpha: 0.6),
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -382,10 +369,9 @@ class _MemberProgressRow extends StatelessWidget {
               height: 10,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    done
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outline.withValues(alpha: 0.4),
+                color: done
+                    ? theme.colorScheme.primary
+                    : theme.colorScheme.outline.withValues(alpha: 0.4),
               ),
             ),
           );

@@ -17,32 +17,30 @@ class CallRepositoryImpl implements CallRepository {
   }) async {
     final now = DateTime.now();
 
-    final response =
-        await _supabase.client
-            .from('calls')
-            .insert({
-              'conversation_id': conversationId,
-              'caller_id': callerId,
-              'receiver_id': receiverId,
-              'type': type.name,
-              'status': CallStatus.ringing.name,
-              'offer': offer,
-              'created_at': now.toIso8601String(),
-            })
-            .select()
-            .single();
+    final response = await _supabase.client
+        .from('calls')
+        .insert({
+          'conversation_id': conversationId,
+          'caller_id': callerId,
+          'receiver_id': receiverId,
+          'type': type.name,
+          'status': CallStatus.ringing.name,
+          'offer': offer,
+          'created_at': now.toIso8601String(),
+        })
+        .select()
+        .single();
 
     return CallEntity.fromJson(response);
   }
 
   @override
   Future<CallEntity?> getCall(String callId) async {
-    final response =
-        await _supabase.client
-            .from('calls')
-            .select()
-            .eq('id', callId)
-            .maybeSingle();
+    final response = await _supabase.client
+        .from('calls')
+        .select()
+        .eq('id', callId)
+        .maybeSingle();
 
     if (response == null) return null;
     return CallEntity.fromJson(response);
@@ -90,16 +88,15 @@ class CallRepositoryImpl implements CallRepository {
 
   @override
   Future<CallEntity> endCall(String callId) async {
-    final response =
-        await _supabase.client
-            .from('calls')
-            .update({
-              'status': CallStatus.ended.name,
-              'ended_at': DateTime.now().toIso8601String(),
-            })
-            .eq('id', callId)
-            .select()
-            .single();
+    final response = await _supabase.client
+        .from('calls')
+        .update({
+          'status': CallStatus.ended.name,
+          'ended_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', callId)
+        .select()
+        .single();
 
     return CallEntity.fromJson(response);
   }

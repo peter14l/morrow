@@ -993,7 +993,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           context,
           icon: material.Icons.auto_awesome_outlined,
           title: 'Liquid Glass',
-          subtitle: _getLiquidGlassModeName(userSettingsProvider.liquidGlassMode),
+          subtitle: _getLiquidGlassModeName(
+            userSettingsProvider.liquidGlassMode,
+          ),
           iconColor: material.Colors.purple,
           trailing: useFluent
               ? fluent.ComboBox<LiquidGlassMode>(

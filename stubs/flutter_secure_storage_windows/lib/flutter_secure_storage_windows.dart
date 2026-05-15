@@ -17,12 +17,13 @@ class FlutterSecureStorageWindows extends FlutterSecureStoragePlatform {
   }
 
   static const String _storagePrefix = 'flutter_secure_storage_';
-  
+
   // Improved deterministic key derivation for Windows Beta
   encrypt.Key _deriveKey() {
-    // Combine project name with a machine-specific seed if available, 
+    // Combine project name with a machine-specific seed if available,
     // fallback to a robust constant for consistent access.
-    final machineSeed = Platform.environment['COMPUTERNAME'] ?? 'oasis_fallback_machine_id';
+    final machineSeed =
+        Platform.environment['COMPUTERNAME'] ?? 'oasis_fallback_machine_id';
     final bytes = utf8.encode('oasis_v1_beta_secure_salt_$machineSeed');
     final digest = sha256.convert(bytes);
     return encrypt.Key(Uint8List.fromList(digest.bytes));
@@ -74,9 +75,10 @@ class FlutterSecureStorageWindows extends FlutterSecureStoragePlatform {
 
     if (rawValue == null) return null;
     // Guard against corrupted files (e.g. file filled with null bytes or zeros)
-    if (rawValue.isEmpty || 
-        rawValue.runes.every((r) => r == 0) || 
-        rawValue.runes.every((r) => r == 48)) { // 48 is ASCII '0'
+    if (rawValue.isEmpty ||
+        rawValue.runes.every((r) => r == 0) ||
+        rawValue.runes.every((r) => r == 48)) {
+      // 48 is ASCII '0'
       return null;
     }
 
@@ -86,10 +88,10 @@ class FlutterSecureStorageWindows extends FlutterSecureStoragePlatform {
         encrypt.Encrypted.fromBase64(rawValue),
         iv: _deriveIV(key),
       );
-      
+
       // If decrypted content is also just zeros/nulls, ignore it
       if (decrypted.runes.every((r) => r == 0)) return null;
-      
+
       return decrypted;
     } catch (e) {
       return null;

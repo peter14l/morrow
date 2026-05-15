@@ -7,11 +7,7 @@ class PrivacyHeartbeatScreen extends StatefulWidget {
   final SupabaseClient? client;
   final PrivacyAuditService? auditService;
 
-  const PrivacyHeartbeatScreen({
-    super.key,
-    this.client,
-    this.auditService,
-  });
+  const PrivacyHeartbeatScreen({super.key, this.client, this.auditService});
 
   @override
   State<PrivacyHeartbeatScreen> createState() => _PrivacyHeartbeatScreenState();
@@ -55,36 +51,34 @@ class _PrivacyHeartbeatScreenState extends State<PrivacyHeartbeatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Privacy Heartbeat'),
-      ),
+      appBar: AppBar(title: const Text('Privacy Heartbeat')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _logs.isEmpty
-              ? const Center(child: Text('No privacy logs found.'))
-              : ListView.separated(
-                  itemCount: _logs.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final log = _logs[index];
-                    final action = log['action'] as String;
-                    final resource = log['resource_type'] as String;
-                    final timestamp = log['timestamp'] != null 
-                        ? DateTime.parse(log['timestamp'] as String)
-                        : DateTime.now();
+          ? const Center(child: Text('No privacy logs found.'))
+          : ListView.separated(
+              itemCount: _logs.length,
+              separatorBuilder: (context, index) => const Divider(),
+              itemBuilder: (context, index) {
+                final log = _logs[index];
+                final action = log['action'] as String;
+                final resource = log['resource_type'] as String;
+                final timestamp = log['timestamp'] != null
+                    ? DateTime.parse(log['timestamp'] as String)
+                    : DateTime.now();
 
-                    return ListTile(
-                      leading: Icon(
-                        _getIconForAction(action),
-                        color: _getColorForAction(action),
-                      ),
-                      title: Text('$action on $resource'),
-                      subtitle: Text(
-                        DateFormat('MMM dd, yyyy HH:mm:ss').format(timestamp),
-                      ),
-                    );
-                  },
-                ),
+                return ListTile(
+                  leading: Icon(
+                    _getIconForAction(action),
+                    color: _getColorForAction(action),
+                  ),
+                  title: Text('$action on $resource'),
+                  subtitle: Text(
+                    DateFormat('MMM dd, yyyy HH:mm:ss').format(timestamp),
+                  ),
+                );
+              },
+            ),
     );
   }
 

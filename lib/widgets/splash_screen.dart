@@ -77,7 +77,9 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     // Colors extracted from app_icon.png
     const Color outerColor = Color(0xFF010D1B); // Deep navy at the edges
-    const Color innerColor = Color(0xFF0A315E); // Brighter blue glow in the center
+    const Color innerColor = Color(
+      0xFF0A315E,
+    ); // Brighter blue glow in the center
 
     return Scaffold(
       body: Container(
@@ -85,10 +87,7 @@ class _SplashScreenState extends State<SplashScreen>
           gradient: RadialGradient(
             center: Alignment.center,
             radius: 1.0,
-            colors: [
-              innerColor,
-              outerColor,
-            ],
+            colors: [innerColor, outerColor],
             stops: [0.0, 1.0],
           ),
         ),

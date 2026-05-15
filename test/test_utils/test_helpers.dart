@@ -34,7 +34,10 @@ Widget createScaffoldTestApp({
   required Widget body,
   ThemeMode themeMode = ThemeMode.dark,
 }) {
-  return createTestApp(themeMode: themeMode, child: Scaffold(body: body));
+  return createTestApp(
+    themeMode: themeMode,
+    child: Scaffold(body: body),
+  );
 }
 
 /// Pumps a widget and waits for all animations to complete

@@ -39,7 +39,7 @@ class _CapsuleViewScreenState extends State<CapsuleViewScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Colors.black,
@@ -52,7 +52,10 @@ class _CapsuleViewScreenState extends State<CapsuleViewScreen> {
         backgroundColor: Colors.black,
         appBar: AppBar(backgroundColor: Colors.transparent),
         body: const Center(
-          child: Text('Time Capsule not found', style: TextStyle(color: Colors.white54)),
+          child: Text(
+            'Time Capsule not found',
+            style: TextStyle(color: Colors.white54),
+          ),
         ),
       );
     }
@@ -62,7 +65,9 @@ class _CapsuleViewScreenState extends State<CapsuleViewScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(child: FluidMeshBackground(streakCount: isLocked ? 0 : 100)),
+          Positioned.fill(
+            child: FluidMeshBackground(streakCount: isLocked ? 0 : 100),
+          ),
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -70,37 +75,54 @@ class _CapsuleViewScreenState extends State<CapsuleViewScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    isLocked ? Icons.lock_clock_rounded : Icons.auto_awesome_rounded,
+                    isLocked
+                        ? Icons.lock_clock_rounded
+                        : Icons.auto_awesome_rounded,
                     size: 80,
                     color: isLocked ? Colors.amber : Colors.greenAccent,
                   ),
                   const SizedBox(height: 32),
                   Text(
-                    isLocked ? 'This memory is still sealed' : 'A memory has been unsealed',
-                    style: theme.textTheme.labelLarge?.copyWith(color: Colors.white70, letterSpacing: 2),
+                    isLocked
+                        ? 'This memory is still sealed'
+                        : 'A memory has been unsealed',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: Colors.white70,
+                      letterSpacing: 2,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   if (isLocked) ...[
                     Text(
                       'Unlocks on',
-                      style: theme.textTheme.bodySmall?.copyWith(color: Colors.white38),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white38,
+                      ),
                     ),
                     Text(
                       DateFormat('MMMM d, yyyy').format(_capsule!.unlockDate),
-                      style: theme.textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ] else ...[
                     Text(
                       _capsule!.content,
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.headlineSmall?.copyWith(color: Colors.white, fontStyle: FontStyle.italic),
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 48),
                   Text(
                     'Created by ${_capsule!.username}',
-                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white54),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white54,
+                    ),
                   ),
                   const SizedBox(height: 64),
                   SizedBox(

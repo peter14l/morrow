@@ -39,7 +39,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   color: colorScheme.primaryContainer.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.stars_rounded, size: 80, color: colorScheme.primary),
+                child: Icon(
+                  Icons.stars_rounded,
+                  size: 80,
+                  color: colorScheme.primary,
+                ),
               ),
               const SizedBox(height: 32),
               Text(
@@ -275,7 +279,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             child: Column(
               children: [
                 Text(
-                  _isAnnual 
+                  _isAnnual
                       ? (annualPackage?.storeProduct.priceString ?? r'$34.99')
                       : (monthlyPackage?.storeProduct.priceString ?? r'$4.99'),
                   style: theme.textTheme.displayMedium?.copyWith(
@@ -300,32 +304,33 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed:
-                  _isProcessing
-                      ? null
-                      : () async {
-                        final package = _isAnnual ? annualPackage : monthlyPackage;
-                        if (package == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Plan not available.')),
-                          );
-                          return;
-                        }
+              onPressed: _isProcessing
+                  ? null
+                  : () async {
+                      final package = _isAnnual
+                          ? annualPackage
+                          : monthlyPackage;
+                      if (package == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Plan not available.')),
+                        );
+                        return;
+                      }
 
-                        setState(() => _isProcessing = true);
-                        
-                        final success = await rcService.purchasePackage(package);
-                        
-                        setState(() => _isProcessing = false);
+                      setState(() => _isProcessing = true);
 
-                        if (success && context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Congratulations! You are now Pro.'),
-                            ),
-                          );
-                        }
-                      },
+                      final success = await rcService.purchasePackage(package);
+
+                      setState(() => _isProcessing = false);
+
+                      if (success && context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Congratulations! You are now Pro.'),
+                          ),
+                        );
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
@@ -333,23 +338,22 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child:
-                  _isProcessing
-                      ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: colorScheme.onPrimary,
-                          strokeWidth: 2,
-                        ),
-                      )
-                      : Text(
-                        _isAnnual ? 'Start Annual Pro' : 'Start Monthly Pro',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+              child: _isProcessing
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: colorScheme.onPrimary,
+                        strokeWidth: 2,
                       ),
+                    )
+                  : Text(
+                      _isAnnual ? 'Start Annual Pro' : 'Start Monthly Pro',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
             ),
           ),
 
@@ -361,7 +365,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const OasisProScreen()),
+                    MaterialPageRoute(
+                      builder: (context) => const OasisProScreen(),
+                    ),
                   );
                 },
                 icon: const Icon(Icons.payment),
@@ -414,8 +420,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      onPressed: () => launchUrl(Uri.parse(AppConfig.getWebUrl('/privacy-policy'))),
-                      child: Text('Privacy Policy', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary)),
+                      onPressed: () => launchUrl(
+                        Uri.parse(AppConfig.getWebUrl('/privacy-policy')),
+                      ),
+                      child: Text(
+                        'Privacy Policy',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                      ),
                     ),
                     Text(
                       ' • ',
@@ -424,8 +437,15 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                       ),
                     ),
                     TextButton(
-                      onPressed: () => launchUrl(Uri.parse(AppConfig.getWebUrl('/terms-of-service'))),
-                      child: Text('Terms of Service', style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.primary)),
+                      onPressed: () => launchUrl(
+                        Uri.parse(AppConfig.getWebUrl('/terms-of-service')),
+                      ),
+                      child: Text(
+                        'Terms of Service',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -557,10 +577,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         child: Text(
           text,
           style: theme.textTheme.titleSmall?.copyWith(
-            color:
-                isSelected
-                    ? colorScheme.onPrimary
-                    : colorScheme.onSurfaceVariant,
+            color: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onSurfaceVariant,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -568,4 +587,3 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     );
   }
 }
-

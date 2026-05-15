@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart' as text_bubble;
+import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart'
+    as text_bubble;
 
 /// Post share bubble — shows a post card with thumbnail + author + caption.
 /// Extracted from _buildPostShareBubble() in chat_screen.dart.
@@ -25,10 +26,9 @@ class PostShareBubble extends StatelessWidget {
     final Widget card = Container(
       constraints: const BoxConstraints(maxWidth: 280),
       decoration: BoxDecoration(
-        color:
-            isMe
-                ? colorScheme.primary.withValues(alpha: 0.15)
-                : colorScheme.surface.withValues(alpha: 0.1),
+        color: isMe
+            ? colorScheme.primary.withValues(alpha: 0.15)
+            : colorScheme.surface.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.1),
@@ -54,15 +54,14 @@ class PostShareBubble extends StatelessWidget {
                     radius: 12,
                     backgroundImage:
                         (userAvatar != null && userAvatar.isNotEmpty)
-                            ? NetworkImage(userAvatar)
-                            : null,
-                    child:
-                        (userAvatar == null || userAvatar.isEmpty)
-                            ? Text(
-                              username[0].toUpperCase(),
-                              style: const TextStyle(fontSize: 8),
-                            )
-                            : null,
+                        ? NetworkImage(userAvatar)
+                        : null,
+                    child: (userAvatar == null || userAvatar.isEmpty)
+                        ? Text(
+                            username[0].toUpperCase(),
+                            style: const TextStyle(fontSize: 8),
+                          )
+                        : null,
                   ),
                   const SizedBox(width: 8),
                   Text(

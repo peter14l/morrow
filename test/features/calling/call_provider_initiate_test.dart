@@ -82,10 +82,7 @@ class _TestableCallProvider extends ChangeNotifier {
 
   void _sync() {
     // Mirror what the real CallProvider._onCallServiceUpdate does.
-    _state = _state.copyWith(
-      isMuted: _svc.isMuted,
-      isVideoOn: _svc.isVideoOn,
-    );
+    _state = _state.copyWith(isMuted: _svc.isMuted, isVideoOn: _svc.isVideoOn);
     notifyListeners();
   }
 
@@ -128,10 +125,7 @@ class _TestableCallProvider extends ChangeNotifier {
 // Helpers
 // ---------------------------------------------------------------------------
 
-CallEntity _makeCall({
-  String id = 'call-123',
-  CallType type = CallType.voice,
-}) {
+CallEntity _makeCall({String id = 'call-123', CallType type = CallType.voice}) {
   final now = DateTime.now();
   return CallEntity(
     id: id,
@@ -175,9 +169,13 @@ void main() {
         participantIds: ['user-other'],
       );
 
-      expect(result, isNotNull,
-          reason: 'A non-null return value is required so ChatScreen can '
-              'navigate to the active_call route.');
+      expect(
+        result,
+        isNotNull,
+        reason:
+            'A non-null return value is required so ChatScreen can '
+            'navigate to the active_call route.',
+      );
       expect(result!.id, equals('call-success-1'));
     });
 
@@ -202,46 +200,53 @@ void main() {
     // ------------------------------------------------------------------
     // 3. Failure path: must return null, NOT throw
     // ------------------------------------------------------------------
-    test('returns null on failure so navigation guard is not triggered', () async {
-      fakeSvc.willThrow(Exception('Supabase unavailable'));
+    test(
+      'returns null on failure so navigation guard is not triggered',
+      () async {
+        fakeSvc.willThrow(Exception('Supabase unavailable'));
 
-      CallEntity? result;
-      // Should NOT throw – ChatScreen catches errors internally.
-      expect(
-        () async {
+        CallEntity? result;
+        // Should NOT throw – ChatScreen catches errors internally.
+        expect(() async {
           result = await provider.initiateCall(
             conversationId: 'conv-abc',
             hostId: 'user-host',
             type: CallType.voice,
             participantIds: ['user-other'],
           );
-        },
-        returnsNormally,
-      );
+        }, returnsNormally);
 
-      await Future.microtask(() {}); // let async settle
-      expect(result, isNull,
-          reason: 'Null return prevents a null-deref push to active_call route.');
-    });
+        await Future.microtask(() {}); // let async settle
+        expect(
+          result,
+          isNull,
+          reason:
+              'Null return prevents a null-deref push to active_call route.',
+        );
+      },
+    );
 
     // ------------------------------------------------------------------
     // 4. State: activeCall is set after success
     // ------------------------------------------------------------------
-    test('CallState.activeCall is populated after successful initiation', () async {
-      final expected = _makeCall(id: 'call-state-1');
-      fakeSvc.willReturn(expected);
+    test(
+      'CallState.activeCall is populated after successful initiation',
+      () async {
+        final expected = _makeCall(id: 'call-state-1');
+        fakeSvc.willReturn(expected);
 
-      await provider.initiateCall(
-        conversationId: 'conv-abc',
-        hostId: 'user-host',
-        type: CallType.voice,
-        participantIds: ['user-other'],
-      );
+        await provider.initiateCall(
+          conversationId: 'conv-abc',
+          hostId: 'user-host',
+          type: CallType.voice,
+          participantIds: ['user-other'],
+        );
 
-      expect(provider.activeCall, isNotNull);
-      expect(provider.activeCall!.id, 'call-state-1');
-      expect(provider.hasActiveCall, isTrue);
-    });
+        expect(provider.activeCall, isNotNull);
+        expect(provider.activeCall!.id, 'call-state-1');
+        expect(provider.hasActiveCall, isTrue);
+      },
+    );
 
     // ------------------------------------------------------------------
     // 5. State: activeCall stays null after failure
@@ -312,53 +317,66 @@ void main() {
     // ------------------------------------------------------------------
     // 9. Navigation guard – simulates ChatScreen logic after fix
     // ------------------------------------------------------------------
-    test('navigation guard: pushNamed is only called when result is non-null', () async {
-      // Simulate the fixed _initiateCall body:
-      //   final call = await callProvider.initiateCall(...);
-      //   if (call != null && mounted) { context.pushNamed(...); }
+    test(
+      'navigation guard: pushNamed is only called when result is non-null',
+      () async {
+        // Simulate the fixed _initiateCall body:
+        //   final call = await callProvider.initiateCall(...);
+        //   if (call != null && mounted) { context.pushNamed(...); }
 
-      final calls = _makeCall(id: 'nav-guarded');
-      fakeSvc.willReturn(calls);
+        final calls = _makeCall(id: 'nav-guarded');
+        fakeSvc.willReturn(calls);
 
-      var navigateCalled = false;
+        var navigateCalled = false;
 
-      final result = await provider.initiateCall(
-        conversationId: 'conv-abc',
-        hostId: 'user-host',
-        type: CallType.voice,
-        participantIds: ['user-other'],
-      );
+        final result = await provider.initiateCall(
+          conversationId: 'conv-abc',
+          hostId: 'user-host',
+          type: CallType.voice,
+          participantIds: ['user-other'],
+        );
 
-      // Mimic the guard in ChatScreen._initiateCall
-      if (result != null /* && mounted — always true in test */) {
-        navigateCalled = true;
-        // In the real app: context.pushNamed('active_call', pathParameters: {'callId': result.id});
-      }
+        // Mimic the guard in ChatScreen._initiateCall
+        if (result != null /* && mounted — always true in test */ ) {
+          navigateCalled = true;
+          // In the real app: context.pushNamed('active_call', pathParameters: {'callId': result.id});
+        }
 
-      expect(navigateCalled, isTrue,
-          reason: 'Calling screen should be pushed when CallEntity is returned.');
-    });
+        expect(
+          navigateCalled,
+          isTrue,
+          reason:
+              'Calling screen should be pushed when CallEntity is returned.',
+        );
+      },
+    );
 
     // ------------------------------------------------------------------
     // 10. Navigation guard – null path (failure)
     // ------------------------------------------------------------------
-    test('navigation guard: pushNamed is NOT called when result is null', () async {
-      fakeSvc.willThrow(Exception('auth error'));
+    test(
+      'navigation guard: pushNamed is NOT called when result is null',
+      () async {
+        fakeSvc.willThrow(Exception('auth error'));
 
-      var navigateCalled = false;
+        var navigateCalled = false;
 
-      final result = await provider.initiateCall(
-        conversationId: 'conv-abc',
-        hostId: 'user-host',
-        type: CallType.voice,
-        participantIds: ['user-other'],
-      );
+        final result = await provider.initiateCall(
+          conversationId: 'conv-abc',
+          hostId: 'user-host',
+          type: CallType.voice,
+          participantIds: ['user-other'],
+        );
 
-      if (result != null) navigateCalled = true;
+        if (result != null) navigateCalled = true;
 
-      expect(navigateCalled, isFalse,
-          reason: 'Navigation must be skipped when call creation fails.');
-    });
+        expect(
+          navigateCalled,
+          isFalse,
+          reason: 'Navigation must be skipped when call creation fails.',
+        );
+      },
+    );
   });
 
   // ------------------------------------------------------------------

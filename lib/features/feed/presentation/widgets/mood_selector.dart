@@ -49,60 +49,55 @@ class MoodSelector extends StatelessWidget {
         Wrap(
           spacing: 8,
           runSpacing: 8,
-          children:
-              PostMood.values.map((mood) {
-                final isSelected = selectedMood == mood;
-                return GestureDetector(
-                  onTap: () {
-                    HapticUtils.selectionClick();
-                    onMoodSelected(isSelected ? null : mood);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
+          children: PostMood.values.map((mood) {
+            final isSelected = selectedMood == mood;
+            return GestureDetector(
+              onTap: () {
+                HapticUtils.selectionClick();
+                onMoodSelected(isSelected ? null : mood);
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? colorScheme.primaryContainer
+                      : colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? colorScheme.primary
+                        : colorScheme.outline.withValues(alpha: 0.2),
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      mood.emoji,
+                      style: TextStyle(fontSize: isSelected ? 18 : 16),
                     ),
-                    decoration: BoxDecoration(
-                      color:
-                          isSelected
-                              ? colorScheme.primaryContainer
-                              : colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color:
-                            isSelected
-                                ? colorScheme.primary
-                                : colorScheme.outline.withValues(alpha: 0.2),
-                        width: isSelected ? 2 : 1,
+                    const SizedBox(width: 4),
+                    Text(
+                      mood.label,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: isSelected
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: isSelected
+                            ? FontWeight.w600
+                            : FontWeight.normal,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          mood.emoji,
-                          style: TextStyle(fontSize: isSelected ? 18 : 16),
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          mood.label,
-                          style: theme.textTheme.labelMedium?.copyWith(
-                            color:
-                                isSelected
-                                    ? colorScheme.onPrimaryContainer
-                                    : colorScheme.onSurfaceVariant,
-                            fontWeight:
-                                isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -208,21 +203,20 @@ class MoodFeedFilter extends StatelessWidget {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
-                children:
-                    PostMood.values.map((mood) {
-                      final isSelected = currentMood == mood;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(
-                          label: Text('${mood.emoji} ${mood.label}'),
-                          selected: isSelected,
-                          onSelected: (_) {
-                            HapticUtils.selectionClick();
-                            onMoodChanged(isSelected ? null : mood);
-                          },
-                        ),
-                      );
-                    }).toList(),
+                children: PostMood.values.map((mood) {
+                  final isSelected = currentMood == mood;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text('${mood.emoji} ${mood.label}'),
+                      selected: isSelected,
+                      onSelected: (_) {
+                        HapticUtils.selectionClick();
+                        onMoodChanged(isSelected ? null : mood);
+                      },
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],

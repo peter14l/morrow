@@ -31,10 +31,9 @@ class Collection {
       itemsCount: json['items_count'] as int? ?? 0,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
-      previewImages:
-          (json['preview_images'] as List<dynamic>?)
-              ?.map((e) => e as String)
-              .toList(),
+      previewImages: (json['preview_images'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
     );
   }
 

@@ -6,23 +6,16 @@ class InviteBubble extends StatelessWidget {
   final String content;
   final bool isMe;
 
-  const InviteBubble({
-    super.key,
-    required this.content,
-    required this.isMe,
-  });
+  const InviteBubble({super.key, required this.content, required this.isMe});
 
   @override
   Widget build(BuildContext context) {
     // Regex safely captures the type, id, and name.
     final match = RegExp(r'\[INVITE:(.*?):(.*?):(.*?)\]').firstMatch(content);
-    
+
     if (match == null) {
       // Fallback if parsing fails for some reason
-      return Padding(
-        padding: const EdgeInsets.all(12),
-        child: Text(content),
-      );
+      return Padding(padding: const EdgeInsets.all(12), child: Text(content));
     }
 
     final entityType = match.group(1) ?? '';
@@ -31,17 +24,21 @@ class InviteBubble extends StatelessWidget {
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final isCircle = entityType.toLowerCase() == 'circle';
     final isCanvas = entityType.toLowerCase() == 'canvas';
 
-    final title = isCircle ? 'Circle Invitation' : (isCanvas ? 'Canvas Invitation' : 'Invitation');
-    final icon = isCircle 
-        ? FluentIcons.people_team_24_regular 
-        : (isCanvas ? FluentIcons.board_24_regular : FluentIcons.mail_24_regular);
-        
-    final actionText = isCircle 
-        ? (isMe ? 'View Circle' : 'Join Circle') 
+    final title = isCircle
+        ? 'Circle Invitation'
+        : (isCanvas ? 'Canvas Invitation' : 'Invitation');
+    final icon = isCircle
+        ? FluentIcons.people_team_24_regular
+        : (isCanvas
+              ? FluentIcons.board_24_regular
+              : FluentIcons.mail_24_regular);
+
+    final actionText = isCircle
+        ? (isMe ? 'View Circle' : 'Join Circle')
         : 'View Canvas';
 
     return Container(
@@ -74,14 +71,18 @@ class InviteBubble extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: isCircle 
-                        ? Colors.blue.withValues(alpha: 0.1) 
-                        : (isCanvas ? Colors.purple.withValues(alpha: 0.1) : colorScheme.primaryContainer),
+                    color: isCircle
+                        ? Colors.blue.withValues(alpha: 0.1)
+                        : (isCanvas
+                              ? Colors.purple.withValues(alpha: 0.1)
+                              : colorScheme.primaryContainer),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
-                    icon, 
-                    color: isCircle ? Colors.blue : (isCanvas ? Colors.purple : colorScheme.primary),
+                    icon,
+                    color: isCircle
+                        ? Colors.blue
+                        : (isCanvas ? Colors.purple : colorScheme.primary),
                     size: 24,
                   ),
                 ),
@@ -113,22 +114,30 @@ class InviteBubble extends StatelessWidget {
             ),
           ),
           Divider(
-            height: 1, 
-            indent: 16, 
-            endIndent: 16, 
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3)
+            height: 1,
+            indent: 16,
+            endIndent: 16,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
           Material(
             color: Colors.transparent,
             child: InkWell(
               onTap: () {
                 if (isCircle) {
-                  context.pushNamed('join_circle', pathParameters: {'circleId': entityId});
+                  context.pushNamed(
+                    'join_circle',
+                    pathParameters: {'circleId': entityId},
+                  );
                 } else if (isCanvas) {
-                  context.pushNamed('canvas_detail', pathParameters: {'canvasId': entityId});
+                  context.pushNamed(
+                    'canvas_detail',
+                    pathParameters: {'canvasId': entityId},
+                  );
                 }
               },
-              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(20),
+              ),
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 child: Row(

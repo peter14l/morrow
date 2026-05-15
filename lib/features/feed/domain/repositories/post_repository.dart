@@ -15,7 +15,14 @@ abstract class PostRepository {
     String? communityId,
     String? mood,
     bool isSpoiler = false,
+    List<String>? collaboratorIds,
   });
+
+  /// Accept a collaboration invitation.
+  Future<void> acceptCollaboration(String postId, String userId);
+
+  /// Decline a collaboration invitation.
+  Future<void> declineCollaboration(String postId, String userId);
 
   /// Get a single post by ID with like/bookmark status.
   Future<Post> getPost(String postId, String userId);

@@ -34,7 +34,7 @@ class CapsuleFeedItem extends StatelessWidget {
                 ],
               ),
             ),
-            
+
             // Envelope Flap Lines (using CustomPaint)
             Positioned.fill(
               child: CustomPaint(
@@ -43,7 +43,7 @@ class CapsuleFeedItem extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Content (Peeking through if unlocked)
             if (!isLocked)
               Positioned.fill(
@@ -85,7 +85,7 @@ class CapsuleFeedItem extends StatelessWidget {
                   ),
                 ),
               ),
-            
+
             // Wax Seal (if locked)
             if (isLocked)
               Center(
@@ -118,7 +118,10 @@ class CapsuleFeedItem extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: OasisColors.deep.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
@@ -134,7 +137,7 @@ class CapsuleFeedItem extends StatelessWidget {
                   ],
                 ),
               ),
-            
+
             // Address Label style
             if (isLocked)
               Positioned(
@@ -195,16 +198,16 @@ class EnvelopePainter extends CustomPainter {
       ..strokeWidth = 1.5;
 
     final path = Path();
-    
+
     // Top flap lines
     path.moveTo(0, 0);
     path.lineTo(size.width / 2, size.height * 0.45);
     path.lineTo(size.width, 0);
-    
+
     // Bottom fold lines
     path.moveTo(0, size.height);
     path.lineTo(size.width * 0.4, size.height * 0.6);
-    
+
     path.moveTo(size.width, size.height);
     path.lineTo(size.width * 0.6, size.height * 0.6);
 
@@ -214,4 +217,3 @@ class EnvelopePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
-

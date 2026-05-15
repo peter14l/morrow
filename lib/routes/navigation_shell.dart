@@ -57,9 +57,7 @@ class NavigationShell extends material.StatelessWidget {
     return fluent.NavigationView(
       pane: fluent.NavigationPane(
         selected: currentIndex,
-        size: const fluent.NavigationPaneSize(
-          compactWidth: 54,
-        ),
+        size: const fluent.NavigationPaneSize(compactWidth: 54),
         onChanged: (index) => _onDestinationSelected(context, index),
         displayMode: fluent.PaneDisplayMode.auto,
         items: [
@@ -87,7 +85,10 @@ class NavigationShell extends material.StatelessWidget {
                     child: fluent.InfoBadge(
                       source: Text(
                         unreadCount > 99 ? '99+' : unreadCount.toString(),
-                        style: const TextStyle(fontSize: 8, color: material.Colors.white),
+                        style: const TextStyle(
+                          fontSize: 8,
+                          color: material.Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -104,7 +105,10 @@ class NavigationShell extends material.StatelessWidget {
                     child: fluent.InfoBadge(
                       source: Text(
                         unreadCount > 99 ? '99+' : unreadCount.toString(),
-                        style: const TextStyle(fontSize: 8, color: material.Colors.white),
+                        style: const TextStyle(
+                          fontSize: 8,
+                          color: material.Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -146,12 +150,13 @@ class NavigationShell extends material.StatelessWidget {
     bool isM3E,
     int unreadCount,
   ) {
-    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
-    
+    final liquidGlassMode = context
+        .watch<UserSettingsProvider>()
+        .liquidGlassMode;
+
     final navigationBar = material.NavigationBar(
       selectedIndex: currentIndex,
-      onDestinationSelected:
-          (index) => _onDestinationSelected(context, index),
+      onDestinationSelected: (index) => _onDestinationSelected(context, index),
       destinations: [
         const material.NavigationDestination(
           icon: material.Icon(FluentIcons.home_24_regular),
@@ -171,12 +176,16 @@ class NavigationShell extends material.StatelessWidget {
         material.NavigationDestination(
           icon: material.Badge(
             isLabelVisible: unreadCount > 0,
-            label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+            label: material.Text(
+              unreadCount > 99 ? '99+' : unreadCount.toString(),
+            ),
             child: const material.Icon(FluentIcons.chat_24_regular),
           ),
           selectedIcon: material.Badge(
             isLabelVisible: unreadCount > 0,
-            label: material.Text(unreadCount > 99 ? '99+' : unreadCount.toString()),
+            label: material.Text(
+              unreadCount > 99 ? '99+' : unreadCount.toString(),
+            ),
             child: const material.Icon(FluentIcons.chat_24_filled),
           ),
           label: 'Messages',
@@ -193,17 +202,39 @@ class NavigationShell extends material.StatelessWidget {
     if (liquidGlassMode != LiquidGlassMode.disabled) {
       return material.Scaffold(
         body: child,
-        bottomNavigationBar: _applyLiquidGlassToBottomNav(navigationBar, liquidGlassMode, theme.brightness),
+        bottomNavigationBar: _applyLiquidGlassToBottomNav(
+          navigationBar,
+          liquidGlassMode,
+          theme.brightness,
+          context,
+        ),
       );
     }
 
-    return material.Scaffold(
-      body: child,
-      bottomNavigationBar: navigationBar,
-    );
+    return material.Scaffold(body: child, bottomNavigationBar: navigationBar);
   }
 
-  Widget _applyLiquidGlassToBottomNav(Widget navBar, LiquidGlassMode mode, material.Brightness brightness) {
+  Widget _applyLiquidGlassToBottomNav(
+    Widget navBar,
+    LiquidGlassMode mode,
+    material.Brightness brightness,
+    BuildContext context,
+  ) {
+    final themeProvider = material.Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    );
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+
+    if (disableTransparency) {
+      return Container(
+        color: brightness == material.Brightness.dark
+            ? const material.Color(0xFF0D1F1A)
+            : material.Colors.white,
+        child: navBar,
+      );
+    }
+
     if (mode == LiquidGlassMode.fake) {
       return ClipRect(
         child: BackdropFilter(
@@ -211,8 +242,8 @@ class NavigationShell extends material.StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: brightness == material.Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.white.withValues(alpha: 0.3),
+                  ? material.Colors.white.withValues(alpha: 0.1)
+                  : material.Colors.white.withValues(alpha: 0.3),
             ),
             child: navBar,
           ),
@@ -226,8 +257,8 @@ class NavigationShell extends material.StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: brightness == material.Brightness.dark
-                ? Colors.white.withValues(alpha: 0.15)
-                : Colors.white.withValues(alpha: 0.4),
+                ? material.Colors.white.withValues(alpha: 0.15)
+                : material.Colors.white.withValues(alpha: 0.4),
           ),
           child: navBar,
         ),
@@ -246,8 +277,8 @@ class NavigationShell extends material.StatelessWidget {
         children: [
           material.NavigationRail(
             selectedIndex: currentIndex,
-            onDestinationSelected:
-                (index) => _onDestinationSelected(context, index),
+            onDestinationSelected: (index) =>
+                _onDestinationSelected(context, index),
             labelType: material.NavigationRailLabelType.all,
             destinations: const [
               material.NavigationRailDestination(
@@ -338,7 +369,10 @@ class UnreadMessagesBadge extends material.StatelessWidget {
                   child: fluent.InfoBadge(
                     source: Text(
                       count > 99 ? '99+' : count.toString(),
-                      style: const TextStyle(fontSize: 8, color: material.Colors.white),
+                      style: const TextStyle(
+                        fontSize: 8,
+                        color: material.Colors.white,
+                      ),
                     ),
                   ),
                 ),

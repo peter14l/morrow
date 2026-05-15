@@ -29,12 +29,16 @@ void main() {
     when(mockClient.auth).thenReturn(mockAuth);
     when(mockAuth.currentUser).thenReturn(mockUser);
     when(mockUser.id).thenReturn('test-user-id');
-    
+
     // Default mock response for fetchLogs
-    when(mockAuditService.fetchLogs('test-user-id')).thenAnswer((_) async => []);
+    when(
+      mockAuditService.fetchLogs('test-user-id'),
+    ).thenAnswer((_) async => []);
   });
 
-  testWidgets('PrivacyHeartbeatScreen renders correctly', (WidgetTester tester) async {
+  testWidgets('PrivacyHeartbeatScreen renders correctly', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(
       MaterialApp(
         home: PrivacyHeartbeatScreen(
@@ -48,16 +52,20 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('PrivacyHeartbeatScreen displays logs', (WidgetTester tester) async {
+  testWidgets('PrivacyHeartbeatScreen displays logs', (
+    WidgetTester tester,
+  ) async {
     final logs = [
       {
         'action': 'READ',
         'resource_type': 'Journal',
         'timestamp': DateTime.now().toIso8601String(),
-      }
+      },
     ];
-    
-    when(mockAuditService.fetchLogs('test-user-id')).thenAnswer((_) async => logs);
+
+    when(
+      mockAuditService.fetchLogs('test-user-id'),
+    ).thenAnswer((_) async => logs);
 
     await tester.pumpWidget(
       MaterialApp(

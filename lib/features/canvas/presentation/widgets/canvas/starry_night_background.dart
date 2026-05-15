@@ -35,14 +35,16 @@ class _StarryNightBackgroundState extends State<StarryNightBackground>
   void _generateStars() {
     final random = Random();
     for (int i = 0; i < _starCount; i++) {
-      _stars.add(StarModel(
-        x: random.nextDouble(),
-        y: random.nextDouble(),
-        size: random.nextDouble() * 2.5 + 0.5,
-        twinkleSpeed: random.nextDouble() * 2 + 1,
-        twinkleOffset: random.nextDouble() * pi * 2,
-        parallax: random.nextDouble() * 0.15 + 0.05,
-      ));
+      _stars.add(
+        StarModel(
+          x: random.nextDouble(),
+          y: random.nextDouble(),
+          size: random.nextDouble() * 2.5 + 0.5,
+          twinkleSpeed: random.nextDouble() * 2 + 1,
+          twinkleOffset: random.nextDouble() * pi * 2,
+          parallax: random.nextDouble() * 0.15 + 0.05,
+        ),
+      );
     }
   }
 
@@ -56,8 +58,10 @@ class _StarryNightBackgroundState extends State<StarryNightBackground>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(color: const Color(0xFF0F1115)), // Slightly lighter black for depth
-        
+        Container(
+          color: const Color(0xFF0F1115),
+        ), // Slightly lighter black for depth
+
         AnimatedBuilder(
           animation: _controller,
           builder: (context, _) {
@@ -71,7 +75,7 @@ class _StarryNightBackgroundState extends State<StarryNightBackground>
             );
           },
         ),
-        
+
         if (widget.child != null) widget.child!,
       ],
     );
@@ -110,18 +114,27 @@ class StarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (var star in stars) {
-      final opacity = (sin(twinkleProgress * 2 * pi * star.twinkleSpeed + star.twinkleOffset) + 1) / 2;
-      final paint = Paint()..color = Colors.white.withValues(alpha: 0.2 + (opacity * 0.8));
+      final opacity =
+          (sin(
+                twinkleProgress * 2 * pi * star.twinkleSpeed +
+                    star.twinkleOffset,
+              ) +
+              1) /
+          2;
+      final paint = Paint()
+        ..color = Colors.white.withValues(alpha: 0.2 + (opacity * 0.8));
 
       // Calculate position with 2D parallax and wrapping
-      double xPos = (star.x * size.width - (offset.dx * star.parallax)) % size.width;
-      double yPos = (star.y * size.height - (offset.dy * star.parallax)) % size.height;
-      
+      double xPos =
+          (star.x * size.width - (offset.dx * star.parallax)) % size.width;
+      double yPos =
+          (star.y * size.height - (offset.dy * star.parallax)) % size.height;
+
       if (xPos < 0) xPos += size.width;
       if (yPos < 0) yPos += size.height;
 
       canvas.drawCircle(Offset(xPos, yPos), star.size / 2, paint);
-      
+
       if (star.size > 2.0) {
         final glowPaint = Paint()
           ..color = Colors.white.withValues(alpha: opacity * 0.2)

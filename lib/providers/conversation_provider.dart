@@ -7,8 +7,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:oasis/providers/presence_provider.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
-class ConversationProvider with ChangeNotifier {
+class ConversationProvider with ChangeNotifier, SafeChangeNotifier {
   final MessagingService _messagingService = MessagingService();
   PresenceProvider? _presenceProvider;
 
@@ -18,6 +19,7 @@ class ConversationProvider with ChangeNotifier {
   String? _currentUserId;
 
   void updatePresenceProvider(PresenceProvider presenceProvider) {
+    if (isDisposed) return;
     _presenceProvider = presenceProvider;
     _setupPresenceSubscriptions();
   }
@@ -39,6 +41,7 @@ class ConversationProvider with ChangeNotifier {
 
   /// Initialize and load conversations
   Future<void> initialize(String? userId) async {
+    if (isDisposed) return;
     if (userId == null) {
       _currentUserId = null;
       _conversations = [];
@@ -53,12 +56,14 @@ class ConversationProvider with ChangeNotifier {
 
     // Load pinned IDs first
     final prefs = await SharedPreferences.getInstance();
+    if (isDisposed) return;
     final pinnedList =
         prefs.getStringList('pinned_conversations_$_currentUserId') ?? [];
     _pinnedIds = pinnedList.toSet();
 
     // Load cache first
     await _loadCachedConversations();
+    if (isDisposed) return;
 
     if (_conversations.isEmpty) {
       _isLoading = true;
@@ -66,19 +71,21 @@ class ConversationProvider with ChangeNotifier {
     }
 
     await loadConversations();
+    if (isDisposed) return;
     _setupRealtimeSubscriptions();
     _startPollingFallback();
   }
 
   /// Load conversations from cache
   Future<void> _loadCachedConversations() async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
     try {
       final prefs = await SharedPreferences.getInstance();
+      if (isDisposed) return;
       final String? cachedData = prefs.getString(
         'cached_conversations_$_currentUserId',
       );
-      if (cachedData != null) {
+      if (cachedData != null && !isDisposed) {
         final List<dynamic> decodedData = jsonDecode(cachedData);
         _conversations = decodedData.map((item) {
           final c = Conversation.fromJson(item);
@@ -103,9 +110,10 @@ class ConversationProvider with ChangeNotifier {
 
   /// Save conversations to cache
   Future<void> _saveConversationsToCache() async {
-    if (_currentUserId == null || _conversations.isEmpty) return;
+    if (_currentUserId == null || _conversations.isEmpty || isDisposed) return;
     try {
       final prefs = await SharedPreferences.getInstance();
+      if (isDisposed) return;
       final String encodedData = jsonEncode(
         _conversations.map((c) => c.toJson()).toList(),
       );
@@ -120,7 +128,7 @@ class ConversationProvider with ChangeNotifier {
 
   /// Load conversations from service
   Future<void> loadConversations({bool silent = false}) async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
 
     if (!silent && _conversations.isEmpty) {
       _isLoading = true;
@@ -131,6 +139,7 @@ class ConversationProvider with ChangeNotifier {
       final conversations = await _messagingService.getConversations(
         userId: _currentUserId!,
       );
+      if (isDisposed) return;
 
       // Ensure they are sorted by last message time
       conversations.sort((a, b) {
@@ -145,6 +154,7 @@ class ConversationProvider with ChangeNotifier {
           .map((c) => c.copyWith(isPinned: _pinnedIds.contains(c.id)))
           .toList();
       await _saveConversationsToCache();
+      if (isDisposed) return;
       _setupPresenceSubscriptions();
 
       // Setup individual subscriptions for each conversation
@@ -154,14 +164,16 @@ class ConversationProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('Error loading conversations: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      if (!isDisposed) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
   /// Setup global and conversation-specific subscriptions
   void _setupRealtimeSubscriptions() {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
 
     // Stop existing global subscription
     _conversationsSubscription?.unsubscribe();
@@ -170,6 +182,7 @@ class ConversationProvider with ChangeNotifier {
     _conversationsSubscription = _messagingService.subscribeToConversations(
       userId: _currentUserId!,
       onUpdate: (conversationId) {
+        if (isDisposed) return;
         // OPTIMIZATION: Trigger a silent, optimistic background refresh instead of a delayed blocking fetch
         _pollConversations();
       },
@@ -178,12 +191,14 @@ class ConversationProvider with ChangeNotifier {
 
   /// Listen for read receipts and typing status for a specific conversation
   void _listenToConversationDetails(String conversationId) {
-    if (_readReceiptSubscriptions.containsKey(conversationId)) return;
+    if (_readReceiptSubscriptions.containsKey(conversationId) || isDisposed)
+      return;
 
     // Subscribe to read receipts (for "Seen" status)
     final readReceiptChannel = _messagingService.subscribeToReadReceipts(
       conversationId: conversationId,
       onUpdate: (messageId, userId, readAt) {
+        if (isDisposed) return;
         _handleReadReceiptUpdate(conversationId, userId);
       },
     );
@@ -193,6 +208,7 @@ class ConversationProvider with ChangeNotifier {
     final typingChannel = _messagingService.subscribeToTypingStatus(
       conversationId: conversationId,
       onTypingUpdate: (userId, isTyping) {
+        if (isDisposed) return;
         if (userId != _currentUserId) {
           _handleTypingUpdate(conversationId, isTyping);
         }
@@ -202,7 +218,11 @@ class ConversationProvider with ChangeNotifier {
   }
 
   /// Handle read receipt updates for a specific conversation
-  Future<void> _handleReadReceiptUpdate(String conversationId, String readUserId) async {
+  Future<void> _handleReadReceiptUpdate(
+    String conversationId,
+    String readUserId,
+  ) async {
+    if (isDisposed) return;
     // Only zero out unread counts if WE read the message. If the other user reads our message,
     // our local unread count (for messages they sent us) shouldn't be cleared!
     if (readUserId == _currentUserId) {
@@ -221,11 +241,12 @@ class ConversationProvider with ChangeNotifier {
 
   /// Reload a single conversation's state
   Future<void> refreshConversation(String conversationId) async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
 
     try {
       final updatedConversation = await _messagingService
           .getConversationDetails(conversationId);
+      if (isDisposed) return;
 
       final c = updatedConversation.copyWith(
         isPinned: _pinnedIds.contains(updatedConversation.id),
@@ -256,7 +277,8 @@ class ConversationProvider with ChangeNotifier {
   }
 
   void _setupPresenceSubscriptions() {
-    if (_presenceProvider == null || _conversations.isEmpty) return;
+    if (_presenceProvider == null || _conversations.isEmpty || isDisposed)
+      return;
     for (final conversation in _conversations) {
       _presenceProvider!.subscribeToUserPresence(conversation.otherUserId);
     }
@@ -264,6 +286,7 @@ class ConversationProvider with ChangeNotifier {
 
   /// Handle typing status updates
   void _handleTypingUpdate(String conversationId, bool isTyping) {
+    if (isDisposed) return;
     final index = _conversations.indexWhere((c) => c.id == conversationId);
     if (index != -1) {
       _conversations[index] = _conversations[index].copyWith(
@@ -275,6 +298,7 @@ class ConversationProvider with ChangeNotifier {
 
   /// Manually update a conversation's last message time (useful for sender rearrangement)
   void onMessageSent(String conversationId, String content, String? type) {
+    if (isDisposed) return;
     final index = _conversations.indexWhere((c) => c.id == conversationId);
     if (index != -1) {
       final now = DateTime.now();
@@ -309,7 +333,7 @@ class ConversationProvider with ChangeNotifier {
   /// Note: This updates the conversation-level unread count. It does NOT
   /// mark individual messages as read on the server (to preserve the Peek feature behavior).
   Future<void> markAsRead(String conversationId) async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
 
     try {
       // 1. Optimistic update for responsiveness - update immediately in UI
@@ -327,10 +351,13 @@ class ConversationProvider with ChangeNotifier {
         conversationId,
         _currentUserId!,
       );
+      if (isDisposed) return;
 
       // 3. Fetch fresh state from server to ensure perfect synchronization
       final updatedConversation = await _messagingService
           .getConversationDetails(conversationId);
+      if (isDisposed) return;
+
       final c = updatedConversation.copyWith(
         isPinned: _pinnedIds.contains(updatedConversation.id),
       );
@@ -338,7 +365,7 @@ class ConversationProvider with ChangeNotifier {
       final freshIndex = _conversations.indexWhere(
         (conv) => conv.id == conversationId,
       );
-      if (freshIndex >= 0) {
+      if (freshIndex >= 0 && !isDisposed) {
         // Ensure unread count is 0 (server might have stale data)
         _conversations[freshIndex] = c.copyWith(unreadCount: 0);
         _conversations = List.from(_conversations);
@@ -352,7 +379,7 @@ class ConversationProvider with ChangeNotifier {
 
   /// Toggle pin status for a conversation
   Future<void> togglePin(String conversationId) async {
-    if (_currentUserId == null) return;
+    if (_currentUserId == null || isDisposed) return;
 
     final index = _conversations.indexWhere((c) => c.id == conversationId);
     if (index == -1) return;
@@ -372,6 +399,7 @@ class ConversationProvider with ChangeNotifier {
         _pinnedIds.remove(conversationId);
       }
       final prefs = await SharedPreferences.getInstance();
+      if (isDisposed) return;
       await prefs.setStringList(
         'pinned_conversations_$_currentUserId',
         _pinnedIds.toList(),
@@ -380,19 +408,23 @@ class ConversationProvider with ChangeNotifier {
       await _saveConversationsToCache();
     } catch (e) {
       // Revert on error
-      if (newPinnedStatus) {
-        _pinnedIds.remove(conversationId);
-      } else {
-        _pinnedIds.add(conversationId);
+      if (!isDisposed) {
+        if (newPinnedStatus) {
+          _pinnedIds.remove(conversationId);
+        } else {
+          _pinnedIds.add(conversationId);
+        }
+        _conversations[index] = conversation;
+        notifyListeners();
       }
-      _conversations[index] = conversation;
-      notifyListeners();
       debugPrint('Error toggling pin: $e');
     }
   }
 
   /// Clear all data (used during logout)
   Future<void> clear() async {
+    if (isDisposed) return;
+
     // Unsubscribe from presence
     if (_presenceProvider != null) {
       for (final conversation in _conversations) {
@@ -419,16 +451,20 @@ class ConversationProvider with ChangeNotifier {
     if (_currentUserId != null) {
       try {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.remove('cached_conversations_$_currentUserId');
+        if (!isDisposed) {
+          await prefs.remove('cached_conversations_$_currentUserId');
+        }
       } catch (e) {
         debugPrint('Error clearing cached conversations: $e');
       }
     }
 
-    _conversations = [];
-    _currentUserId = null;
-    _isLoading = false;
-    notifyListeners();
+    if (!isDisposed) {
+      _conversations = [];
+      _currentUserId = null;
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 
   @override

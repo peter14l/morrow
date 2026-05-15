@@ -15,7 +15,7 @@ class CanvasAudioService {
 
   final AudioPlayer _player1 = AudioPlayer();
   final AudioPlayer _player2 = AudioPlayer();
-  
+
   int _currentIndex = 0;
   bool _isPlaying = false;
   bool _isFirstPlay = true;
@@ -26,7 +26,7 @@ class CanvasAudioService {
     _isPlaying = true;
     _isFirstPlay = true;
     _currentIndex = 0;
-    
+
     debugPrint('CanvasAudioService: Starting ambient loop');
     await _playNext();
   }
@@ -43,7 +43,7 @@ class CanvasAudioService {
 
     try {
       debugPrint('CanvasAudioService: Playing $currentAsset');
-      
+
       // 1. Start current track
       await activePlayer.setSource(AssetSource(currentAsset));
       await activePlayer.setVolume(_isFirstPlay ? 1.0 : 1.0);
@@ -55,39 +55,45 @@ class CanvasAudioService {
       int attempts = 0;
       while (duration == null && attempts < 10 && _isPlaying) {
         duration = await activePlayer.getDuration();
-        if (duration == null) await Future.delayed(const Duration(milliseconds: 500));
+        if (duration == null)
+          await Future.delayed(const Duration(milliseconds: 500));
         attempts++;
       }
 
       if (duration != null && duration.inSeconds > 10) {
         // Start crossfade 5 seconds before the end
         final crossfadeStart = duration.inMilliseconds - 5000;
-        
+
         _crossfadeTimer?.cancel();
-        _crossfadeTimer = Timer(Duration(milliseconds: crossfadeStart), () async {
-          if (!_isPlaying) return;
-          
-          debugPrint('CanvasAudioService: Crossfading to $nextAsset');
-          
-          // Prepare next player
-          await idlePlayer.setSource(AssetSource(nextAsset));
-          await idlePlayer.setVolume(0.0);
-          await idlePlayer.resume();
+        _crossfadeTimer = Timer(
+          Duration(milliseconds: crossfadeStart),
+          () async {
+            if (!_isPlaying) return;
 
-          // Smooth transition
-          for (int i = 1; i <= 10; i++) {
-            if (!_isPlaying) break;
-            await activePlayer.setVolume(1.0 - (i / 10));
-            await idlePlayer.setVolume(i / 10);
-            await Future.delayed(const Duration(milliseconds: 500));
-          }
+            debugPrint('CanvasAudioService: Crossfading to $nextAsset');
 
-          await activePlayer.stop();
-          _currentIndex = nextIndex;
-          _playNext();
-        });
+            // Prepare next player
+            await idlePlayer.setSource(AssetSource(nextAsset));
+            await idlePlayer.setVolume(0.0);
+            await idlePlayer.resume();
+
+            // Smooth transition
+            for (int i = 1; i <= 10; i++) {
+              if (!_isPlaying) break;
+              await activePlayer.setVolume(1.0 - (i / 10));
+              await idlePlayer.setVolume(i / 10);
+              await Future.delayed(const Duration(milliseconds: 500));
+            }
+
+            await activePlayer.stop();
+            _currentIndex = nextIndex;
+            _playNext();
+          },
+        );
       } else {
-        debugPrint('CanvasAudioService: Duration unknown, using completion listener');
+        debugPrint(
+          'CanvasAudioService: Duration unknown, using completion listener',
+        );
         activePlayer.onPlayerComplete.first.then((_) {
           if (_isPlaying) {
             _currentIndex = nextIndex;

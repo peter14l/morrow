@@ -33,10 +33,9 @@ class ConversationEntity {
       otherUserName: json['other_user_name'] as String,
       otherUserAvatar: json['other_user_avatar'] as String? ?? '',
       lastMessage: json['last_message'] as String?,
-      lastMessageAt:
-          json['last_message_at'] != null
-              ? DateTime.parse(json['last_message_at'] as String)
-              : null,
+      lastMessageAt: json['last_message_at'] != null
+          ? DateTime.parse(json['last_message_at'] as String)
+          : null,
       unreadCount: json['unread_count'] as int? ?? 0,
       isPinned: json['is_pinned'] as bool? ?? false,
       isMuted: json['is_muted'] as bool? ?? false,

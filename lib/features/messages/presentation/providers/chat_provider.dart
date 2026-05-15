@@ -1107,13 +1107,13 @@ class ChatProvider with ChangeNotifier {
       final details = await _messagingService.getConversationDetails(
         conversationId,
       );
-      
+
       // Fetch participants for group support
       final participantsResponse = await SupabaseService().client
           .from('conversation_participants')
           .select('user_id')
           .eq('conversation_id', conversationId);
-      
+
       final List<String> participantIds = (participantsResponse as List)
           .map((p) => p['user_id'] as String)
           .toList();
@@ -1625,5 +1625,3 @@ class ChatProvider with ChangeNotifier {
     }
   }
 }
-
-

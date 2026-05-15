@@ -39,11 +39,11 @@ class CapsuleRemoteDatasource {
           mergedData['username'] = profileResponse['username'];
           mergedData['user_avatar'] = profileResponse['avatar_url'];
         }
-        
+
         // Recalculate is_locked based on unlock_date
         final unlockDate = DateTime.parse(mergedData['unlock_date']);
         mergedData['is_locked'] = DateTime.now().isBefore(unlockDate);
-        
+
         return TimeCapsule.fromJson(mergedData);
       }).toList();
     } catch (e) {
@@ -127,12 +127,11 @@ class CapsuleRemoteDatasource {
           .insert(capsuleData);
 
       // Fetch the created capsule
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('id', capsuleId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('id', capsuleId)
+          .single();
 
       // Fetch profile separately to avoid relationship error
       final profileResponse = await _supabase
@@ -159,16 +158,16 @@ class CapsuleRemoteDatasource {
   Future<TimeCapsule> openCapsule(String capsuleId) async {
     final capsule = await getCapsuleById(capsuleId);
     if (capsule == null) throw Exception('Capsule not found');
-    
+
     if (DateTime.now().isBefore(capsule.unlockDate)) {
       throw Exception('Capsule is still locked until ${capsule.unlockDate}');
     }
-    
+
     await _supabase
         .from(SupabaseConfig.timeCapsulesTable)
         .update({'is_locked': false})
         .eq('id', capsuleId);
-        
+
     return capsule.copyWith(isLocked: false);
   }
 
@@ -179,7 +178,9 @@ class CapsuleRemoteDatasource {
     String? mediaUrl,
     String mediaType = 'none',
   }) async {
-     throw UnimplementedError('Contribution to capsules is not yet supported in the legacy logic.');
+    throw UnimplementedError(
+      'Contribution to capsules is not yet supported in the legacy logic.',
+    );
   }
 
   /// Delete a capsule
@@ -195,4 +196,3 @@ class CapsuleRemoteDatasource {
     }
   }
 }
-

@@ -70,32 +70,25 @@ class AppButton extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: button,
-    );
+    return SizedBox(width: width, height: height, child: button);
   }
 
   Widget _buildFluentButton(BuildContext context) {
     // final fluentTheme = fluent.FluentTheme.of(context);
-    
+
     Widget child = isLoading
         ? const fluent.ProgressRing(strokeWidth: 2)
         : material.Row(
             mainAxisSize: material.MainAxisSize.min,
             mainAxisAlignment: material.MainAxisAlignment.center,
             children: [
-              if (icon != null) ...[
-                icon!,
-                const material.SizedBox(width: 8),
-              ],
+              if (icon != null) ...[icon!, const material.SizedBox(width: 8)],
               Text(text),
             ],
           );
 
     Widget button;
-    
+
     if (isOutlined) {
       button = fluent.Button(
         onPressed: disabled || isLoading ? null : onPressed,
@@ -116,11 +109,7 @@ class AppButton extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: button,
-    );
+    return SizedBox(width: width, height: height, child: button);
   }
 
   Widget _buildMaterialButtonChild(material.ThemeData theme) {
@@ -130,7 +119,9 @@ class AppButton extends StatelessWidget {
         height: 24,
         child: material.CircularProgressIndicator(
           strokeWidth: 2,
-          valueColor: material.AlwaysStoppedAnimation<material.Color>(material.Colors.white),
+          valueColor: material.AlwaysStoppedAnimation<material.Color>(
+            material.Colors.white,
+          ),
         ),
       );
     }
@@ -138,7 +129,9 @@ class AppButton extends StatelessWidget {
     final textWidget = material.Text(
       text,
       style: theme.textTheme.labelLarge?.copyWith(
-        color: textColor ?? (isOutlined ? theme.colorScheme.primary : material.Colors.white),
+        color:
+            textColor ??
+            (isOutlined ? theme.colorScheme.primary : material.Colors.white),
         fontWeight: material.FontWeight.w600,
       ),
       maxLines: 1,
@@ -148,56 +141,72 @@ class AppButton extends StatelessWidget {
     if (icon != null) {
       return material.Row(
         mainAxisSize: material.MainAxisSize.min,
-        children: [
-          icon!,
-          const material.SizedBox(width: 8),
-          textWidget,
-        ],
+        children: [icon!, const material.SizedBox(width: 8), textWidget],
       );
     }
 
     return textWidget;
   }
 
-  material.ButtonStyle _getMaterialButtonStyle(material.ThemeData theme, bool isM3E) {
+  material.ButtonStyle _getMaterialButtonStyle(
+    material.ThemeData theme,
+    bool isM3E,
+  ) {
     final colorScheme = theme.colorScheme;
     final backgroundColor = this.backgroundColor ?? colorScheme.primary;
-    final foregroundColor = textColor ?? (isOutlined ? colorScheme.primary : material.Colors.white);
-    final shape = isM3E ? const material.StadiumBorder() : material.RoundedRectangleBorder(
-              borderRadius: material.BorderRadius.circular(borderRadius),
-            );
+    final foregroundColor =
+        textColor ?? (isOutlined ? colorScheme.primary : material.Colors.white);
+    final shape = isM3E
+        ? const material.StadiumBorder()
+        : material.RoundedRectangleBorder(
+            borderRadius: material.BorderRadius.circular(borderRadius),
+          );
 
     final baseStyle = isOutlined
         ? material.OutlinedButton.styleFrom(
             foregroundColor: foregroundColor,
             backgroundColor: material.Colors.transparent,
             side: material.BorderSide(
-              color: disabled ? colorScheme.onSurface.withValues(alpha: 0.12) : colorScheme.primary,
+              color: disabled
+                  ? colorScheme.onSurface.withValues(alpha: 0.12)
+                  : colorScheme.primary,
               width: isM3E ? 2.0 : 1.5,
             ),
-            padding: padding ?? const material.EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            padding:
+                padding ??
+                const material.EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
             shape: shape,
           )
         : material.ElevatedButton.styleFrom(
             foregroundColor: foregroundColor,
-            backgroundColor: disabled ? colorScheme.onSurface.withValues(alpha: 0.12) : backgroundColor,
-            padding: padding ?? const material.EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            backgroundColor: disabled
+                ? colorScheme.onSurface.withValues(alpha: 0.12)
+                : backgroundColor,
+            padding:
+                padding ??
+                const material.EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
             shape: shape,
             elevation: isM3E ? 0 : 0,
           );
 
     return baseStyle.copyWith(
-      overlayColor: material.WidgetStateProperty.resolveWith<material.Color>(
-        (states) {
-          if (states.contains(material.WidgetState.pressed)) {
-            return foregroundColor.withValues(alpha: 0.1);
-          }
-          if (states.contains(material.WidgetState.hovered)) {
-            return foregroundColor.withValues(alpha: 0.05);
-          }
-          return material.Colors.transparent;
-        },
-      ),
+      overlayColor: material.WidgetStateProperty.resolveWith<material.Color>((
+        states,
+      ) {
+        if (states.contains(material.WidgetState.pressed)) {
+          return foregroundColor.withValues(alpha: 0.1);
+        }
+        if (states.contains(material.WidgetState.hovered)) {
+          return foregroundColor.withValues(alpha: 0.05);
+        }
+        return material.Colors.transparent;
+      }),
     );
   }
 

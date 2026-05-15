@@ -90,15 +90,9 @@ class PQAuraEncryptedMessage {
 
   PQAuraEncryptedMessage({required this.header, required this.payload});
 
-  Map<String, dynamic> toJson() => {
-        'header': '',
-        'payload': '',
-      };
+  Map<String, dynamic> toJson() => {'header': '', 'payload': ''};
 
   factory PQAuraEncryptedMessage.fromJson(Map<String, dynamic> json) {
-    return PQAuraEncryptedMessage(
-      header: Uint8List(0),
-      payload: Uint8List(0),
-    );
+    return PQAuraEncryptedMessage(header: Uint8List(0), payload: Uint8List(0));
   }
 }

@@ -59,7 +59,9 @@ class FeedProvider with ChangeNotifier {
         final cachedPosts = cached.map((e) => Post.fromJson(e)).toList();
         _state = _state.copyWith(
           posts: cachedPosts,
-          offset: cachedPosts.length,
+          cursor: cachedPosts.isNotEmpty
+              ? cachedPosts.last.timestamp.toIso8601String()
+              : null,
         );
         notifyListeners();
       }
@@ -76,16 +78,16 @@ class FeedProvider with ChangeNotifier {
 
     _state = _state.copyWith(isLoading: true, error: null);
     if (refresh) {
-      _state = _state.copyWith(offset: 0, hasMore: true);
+      _state = _state.copyWith(cursor: null, hasMore: true);
     }
     notifyListeners();
 
     try {
-      final effectiveOffset = refresh ? 0 : _state.offset;
+      final effectiveCursor = refresh ? null : _state.cursor;
       List<Post> newPosts = await _feedRepository.getUnifiedFeed(
         userId: userId,
         limit: 20,
-        offset: effectiveOffset,
+        cursor: effectiveCursor,
       );
 
       newPosts = await _injectAds(newPosts);
@@ -95,14 +97,20 @@ class FeedProvider with ChangeNotifier {
         _localDatasource.saveFeed(newPosts.map((e) => e.toJson()).toList());
       } else {
         final existingIds = _state.posts.map((p) => p.id).toSet();
-        final uniqueNewPosts = newPosts.where((p) => !existingIds.contains(p.id)).toList();
-        
-        _state = _state.copyWith(
-          posts: [..._state.posts, ...uniqueNewPosts],
-        );
+        final uniqueNewPosts = newPosts
+            .where((p) => !existingIds.contains(p.id))
+            .toList();
+
+        _state = _state.copyWith(posts: [..._state.posts, ...uniqueNewPosts]);
       }
+
+      // Filter out ad posts when determining the cursor for database pagination
+      final realPosts = _state.posts.where((p) => !p.isAd).toList();
+
       _state = _state.copyWith(
-        offset: _state.posts.length,
+        cursor: realPosts.isNotEmpty
+            ? realPosts.last.timestamp.toIso8601String()
+            : null,
         hasMore: newPosts.length >= 20,
       );
       // Track category for curation
@@ -127,12 +135,18 @@ class FeedProvider with ChangeNotifier {
       List<Post> newPosts = await _feedRepository.getUnifiedFeed(
         userId: userId,
         limit: 20,
-        offset: _state.offset,
+        cursor: _state.cursor,
       );
       newPosts = await _injectAds(newPosts);
+
+      final updatedPosts = [..._state.posts, ...newPosts];
+      final realPosts = updatedPosts.where((p) => !p.isAd).toList();
+
       _state = _state.copyWith(
-        posts: [..._state.posts, ...newPosts],
-        offset: _state.offset + newPosts.length,
+        posts: updatedPosts,
+        cursor: realPosts.isNotEmpty
+            ? realPosts.last.timestamp.toIso8601String()
+            : null,
         hasMore: newPosts.length >= 20,
       );
     } catch (e) {
@@ -176,9 +190,7 @@ class FeedProvider with ChangeNotifier {
   }) async {
     _updatePostLikeStatus(postId, true);
     notifyListeners();
-    _localDatasource.saveFeed(
-      _state.posts.map((e) => e.toJson()).toList(),
-    );
+    _localDatasource.saveFeed(_state.posts.map((e) => e.toJson()).toList());
 
     if (communityName != null && communityName.isNotEmpty) {
       _trackPostLike(postId, communityName);
@@ -200,9 +212,7 @@ class FeedProvider with ChangeNotifier {
   }) async {
     _updatePostLikeStatus(postId, false);
     notifyListeners();
-    _localDatasource.saveFeed(
-      _state.posts.map((e) => e.toJson()).toList(),
-    );
+    _localDatasource.saveFeed(_state.posts.map((e) => e.toJson()).toList());
 
     try {
       await _postRepository.unlikePost(userId: userId, postId: postId);
@@ -258,18 +268,15 @@ class FeedProvider with ChangeNotifier {
   }
 
   void addPost(Post post) {
-    _state = _state.copyWith(
-      posts: [post, ..._state.posts],
-    );
+    _state = _state.copyWith(posts: [post, ..._state.posts]);
     notifyListeners();
   }
 
   void updatePost(Post updatedPost) {
     _state = _state.copyWith(
-      posts:
-          _state.posts
-              .map((p) => p.id == updatedPost.id ? updatedPost : p)
-              .toList(),
+      posts: _state.posts
+          .map((p) => p.id == updatedPost.id ? updatedPost : p)
+          .toList(),
     );
     notifyListeners();
   }
@@ -351,7 +358,10 @@ class FeedProvider with ChangeNotifier {
         final post = newPosts[i];
         if (post.isLiked == isLiked) return;
         int newLikes = isLiked ? post.likes + 1 : post.likes - 1;
-        newPosts[i] = post.copyWith(isLiked: isLiked, likes: newLikes < 0 ? 0 : newLikes);
+        newPosts[i] = post.copyWith(
+          isLiked: isLiked,
+          likes: newLikes < 0 ? 0 : newLikes,
+        );
         break;
       }
     }
@@ -379,14 +389,19 @@ class FeedProvider with ChangeNotifier {
 
         final updatedOptions = poll.options.map((opt) {
           if (opt.id == optionId) {
-            final newVoteCount = hasVoted ? opt.voteCount + 1 : opt.voteCount - 1;
+            final newVoteCount = hasVoted
+                ? opt.voteCount + 1
+                : opt.voteCount - 1;
             return opt.copyWith(voteCount: newVoteCount < 0 ? 0 : newVoteCount);
           }
           return opt;
         }).toList();
 
-        final totalVotes = updatedOptions.fold<int>(0, (sum, opt) => sum + opt.voteCount);
-        
+        final totalVotes = updatedOptions.fold<int>(
+          0,
+          (sum, opt) => sum + opt.voteCount,
+        );
+
         final finalizedOptions = updatedOptions.map((opt) {
           return opt.copyWith(
             percentage: totalVotes > 0 ? (opt.voteCount / totalVotes) * 100 : 0,

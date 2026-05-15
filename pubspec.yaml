@@ -3,7 +3,7 @@ description: "A modern social media app for sharing moments and connecting with 
 
 publish_to: 'none' 
 
-version: 1.1.10
+version: 1.1.11
 
 environment:
   sdk: ^3.8.0
@@ -162,13 +162,14 @@ msix_config:
   publisher_display_name: OasisApp
   publisher: CN=95D0DA2B-7A5E-492D-BF38-F13FA12E0899
   identity_name: NoteSpark.OasisApp
-  msix_version: 1.1.10.0
+  msix_version: 1.1.11.0
   logo_path: assets/images/logo.png
   capabilities: internetClient, location, microphone, webcam
   architecture: x64
-  generate_certificate: true
-  install_certificate: false
-  build_windows: false
+  generate_certificate: false
+  install_certificate: true
+  certificate_path: certs/oasisapp.pfx
+  certificate_password: 2008
 
 dependency_overrides:
   fluent_ui:

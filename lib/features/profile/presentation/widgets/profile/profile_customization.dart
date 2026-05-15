@@ -40,10 +40,9 @@ class ProfileCustomization {
       musicArtist: json['music_artist'],
       currentMood: json['current_mood'],
       moodEmoji: json['mood_emoji'],
-      accentColor:
-          json['accent_color'] != null
-              ? Color(int.parse(json['accent_color'].replaceFirst('#', '0xFF')))
-              : null,
+      accentColor: json['accent_color'] != null
+          ? Color(int.parse(json['accent_color'].replaceFirst('#', '0xFF')))
+          : null,
     );
   }
 
@@ -58,10 +57,9 @@ class ProfileCustomization {
       'music_artist': musicArtist,
       'current_mood': currentMood,
       'mood_emoji': moodEmoji,
-      'accent_color':
-          accentColor != null
-              ? '#${accentColor!.toARGB32().toRadixString(16).substring(2)}'
-              : null,
+      'accent_color': accentColor != null
+          ? '#${accentColor!.toARGB32().toRadixString(16).substring(2)}'
+          : null,
     };
   }
 
@@ -278,23 +276,21 @@ class _BannerAnimationPainter extends CustomPainter {
   }
 
   void _paintGradientFlow(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..shader = LinearGradient(
-            begin: Alignment(-1 + progress * 2, 0),
-            end: Alignment(progress * 2, 0),
-            colors: [Colors.transparent, color, Colors.transparent],
-          ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+    final paint = Paint()
+      ..shader = LinearGradient(
+        begin: Alignment(-1 + progress * 2, 0),
+        end: Alignment(progress * 2, 0),
+        colors: [Colors.transparent, color, Colors.transparent],
+      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
 
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
   }
 
   void _paintWave(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 2;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
     final path = Path();
     for (var x = 0.0; x <= size.width; x += 5) {
@@ -471,66 +467,57 @@ class ProfileThemeSelector extends StatelessWidget {
         Wrap(
           spacing: 12,
           runSpacing: 12,
-          children:
-              ProfileTheme.values.map((profileTheme) {
-                final isSelected = selectedTheme == profileTheme;
-                return GestureDetector(
-                  onTap: () {
-                    HapticUtils.selectionClick();
-                    onThemeSelected(profileTheme);
-                  },
-                  child: Column(
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          gradient:
-                              profileTheme.primaryColor != null
-                                  ? LinearGradient(
-                                    colors: [
-                                      profileTheme.primaryColor!,
-                                      profileTheme.secondaryColor ??
-                                          profileTheme.primaryColor!,
-                                    ],
-                                  )
-                                  : null,
-                          color:
-                              profileTheme.primaryColor == null
-                                  ? colorScheme.surface
-                                  : null,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color:
-                                isSelected
-                                    ? colorScheme.primary
-                                    : colorScheme.outline.withValues(
-                                      alpha: 0.3,
-                                    ),
-                            width: isSelected ? 3 : 1,
-                          ),
-                        ),
-                        child:
-                            profileTheme == ProfileTheme.defaultTheme
-                                ? Icon(
-                                  Icons.auto_awesome,
-                                  color: colorScheme.onSurface,
-                                )
-                                : null,
+          children: ProfileTheme.values.map((profileTheme) {
+            final isSelected = selectedTheme == profileTheme;
+            return GestureDetector(
+              onTap: () {
+                HapticUtils.selectionClick();
+                onThemeSelected(profileTheme);
+              },
+              child: Column(
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      gradient: profileTheme.primaryColor != null
+                          ? LinearGradient(
+                              colors: [
+                                profileTheme.primaryColor!,
+                                profileTheme.secondaryColor ??
+                                    profileTheme.primaryColor!,
+                              ],
+                            )
+                          : null,
+                      color: profileTheme.primaryColor == null
+                          ? colorScheme.surface
+                          : null,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.outline.withValues(alpha: 0.3),
+                        width: isSelected ? 3 : 1,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        profileTheme.label,
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
-                        ),
-                      ),
-                    ],
+                    ),
+                    child: profileTheme == ProfileTheme.defaultTheme
+                        ? Icon(Icons.auto_awesome, color: colorScheme.onSurface)
+                        : null,
                   ),
-                );
-              }).toList(),
+                  const SizedBox(height: 4),
+                  Text(
+                    profileTheme.label,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

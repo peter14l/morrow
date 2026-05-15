@@ -71,7 +71,9 @@ class _VoiceMemoWidgetState extends State<VoiceMemoWidget>
                 shape: BoxShape.circle,
               ),
               child: Icon(
-                _isPlaying ? FluentIcons.pause_24_filled : FluentIcons.play_24_filled,
+                _isPlaying
+                    ? FluentIcons.pause_24_filled
+                    : FluentIcons.play_24_filled,
                 color: Colors.white,
                 size: 20,
               ),
@@ -129,7 +131,7 @@ class _WaveformPainter extends StatelessWidget {
           children: List.generate(25, (index) {
             // Generate some random-looking but stable heights
             final double baseHeight = 4 + (index % 5) * 3.0 + (index % 3) * 2.0;
-            final double animatedHeight = isAnimating 
+            final double animatedHeight = isAnimating
                 ? baseHeight + (sin(animation.value * 2 * 3.14159 + index) * 5)
                 : baseHeight;
 
@@ -137,8 +139,10 @@ class _WaveformPainter extends StatelessWidget {
               width: 3,
               height: animatedHeight.clamp(4, 24),
               decoration: BoxDecoration(
-                color: isAnimating 
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.8)
+                color: isAnimating
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.8)
                     : Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),

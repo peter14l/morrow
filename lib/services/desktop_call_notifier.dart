@@ -23,8 +23,8 @@ class DesktopCallNotifier {
   static final DesktopCallNotifier instance = DesktopCallNotifier._();
 
   bool get _isWindows => !kIsWeb && Platform.isWindows;
-  bool get _isMacOS  => !kIsWeb && Platform.isMacOS;
-  bool get _isLinux  => !kIsWeb && Platform.isLinux;
+  bool get _isMacOS => !kIsWeb && Platform.isMacOS;
+  bool get _isLinux => !kIsWeb && Platform.isLinux;
   bool get _supported => _isWindows || _isMacOS || _isLinux;
 
   // ---------------------------------------------------------------------------
@@ -78,7 +78,11 @@ class DesktopCallNotifier {
     String? senderId,
   }) async {
     if (_isWindows) {
-      await _showWindowsToast(callId: callId, callerName: callerName, senderId: senderId);
+      await _showWindowsToast(
+        callId: callId,
+        callerName: callerName,
+        senderId: senderId,
+      );
     } else if (_isMacOS) {
       await NotificationManager.instance.showCallNotification(
         callId: callId,

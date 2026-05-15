@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:oasis/services/presence_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 class UserPresence {
   final String status;
@@ -10,10 +11,9 @@ class UserPresence {
   UserPresence({required this.status, this.lastSeen});
 }
 
-class PresenceProvider with ChangeNotifier {
+class PresenceProvider with ChangeNotifier, SafeChangeNotifier {
   final PresenceService _presenceService = PresenceService();
   final Map<String, UserPresence> _userPresence = {};
-  bool _isDisposed = false;
 
   // Polling fallback for user presence (when realtime presence sync fails)
   Timer? _pollingTimer;
@@ -45,18 +45,21 @@ class PresenceProvider with ChangeNotifier {
       getUserPresence(userId)?.status == 'online';
 
   void subscribeToUserPresence(String userId) {
+    if (isDisposed) return;
+
     // Track user ID for polling fallback
     _trackedUserIds.add(userId);
 
     _presenceService.subscribeToUserPresence(
       userId: userId,
       onUpdate: (status, lastSeen) {
+        if (isDisposed) return;
         _userPresence[userId] = UserPresence(
           status: status,
           lastSeen: lastSeen,
         );
         _lastRealtimeUpdate[userId] = DateTime.now().toUtc();
-        _safeNotifyListeners();
+        notifyListeners();
       },
     );
 
@@ -66,15 +69,17 @@ class PresenceProvider with ChangeNotifier {
   }
 
   void updateUserPresence(String userId, String status) {
+    if (isDisposed) return;
     _presenceService.updateUserPresence(userId, status);
   }
 
   void unsubscribeFromUserPresence(String userId) {
+    if (isDisposed) return;
     _presenceService.unsubscribeFromPresence(userId);
     _userPresence.remove(userId);
     _trackedUserIds.remove(userId);
     _lastRealtimeUpdate.remove(userId);
-    _safeNotifyListeners();
+    notifyListeners();
 
     // Stop polling if no more users to track
     if (_trackedUserIds.isEmpty) {
@@ -85,20 +90,21 @@ class PresenceProvider with ChangeNotifier {
     }
   }
 
-  void _safeNotifyListeners() {
-    if (_isDisposed) return;
-
-    // Defer notification to avoid "widget tree locked" errors if called during build/dispose
-    Future.microtask(() {
-      if (!_isDisposed) {
-        notifyListeners();
-      }
-    });
+  /// Clear all presence state (used during account switching)
+  void clear() {
+    if (isDisposed) return;
+    _userPresence.clear();
+    _trackedUserIds.clear();
+    _lastRealtimeUpdate.clear();
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+    _heartbeatTimer?.cancel();
+    _heartbeatTimer = null;
+    notifyListeners();
   }
 
   @override
   void dispose() {
-    _isDisposed = true;
     _pollingTimer?.cancel();
     _pollingTimer = null;
     _heartbeatTimer?.cancel();
@@ -144,7 +150,7 @@ class PresenceProvider with ChangeNotifier {
     final now = DateTime.now().toUtc();
 
     for (final userId in userIds) {
-      if (_isDisposed) return;
+      if (isDisposed) return;
 
       // Skip polling if we got a fresh Realtime update in the last 10 seconds.
       // This prevents stale database records from flickering the UI state.
@@ -155,12 +161,14 @@ class PresenceProvider with ChangeNotifier {
 
       try {
         final result = await _presenceService.getUserStatus(userId);
+        if (isDisposed) return;
 
         if (result != null) {
           final status = result['status'] as String? ?? 'offline';
           final lastSeenStr = result['last_seen'] as String?;
-          final lastSeen =
-              lastSeenStr != null ? DateTime.parse(lastSeenStr).toUtc() : null;
+          final lastSeen = lastSeenStr != null
+              ? DateTime.parse(lastSeenStr).toUtc()
+              : null;
 
           _userPresence[userId] = UserPresence(
             status: status,
@@ -176,6 +184,6 @@ class PresenceProvider with ChangeNotifier {
         debugPrint('[PresenceProvider] Polling error for $userId: $e');
       }
     }
-    _safeNotifyListeners();
+    notifyListeners();
   }
 }

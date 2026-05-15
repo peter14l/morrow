@@ -24,6 +24,10 @@ if (Test-Path $path2) {
 }
 ''';
 
-  final result = await Process.run('powershell', ['-NoProfile', '-Command', script], runInShell: true);
+  final result = await Process.run('powershell', [
+    '-NoProfile',
+    '-Command',
+    script,
+  ], runInShell: true);
   print(result.stdout);
 }

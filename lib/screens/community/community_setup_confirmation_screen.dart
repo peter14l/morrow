@@ -97,10 +97,9 @@ class CommunitySetupConfirmationScreen extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            communityData['isPrivate']
-                                ? const Color(0xFF2E1A33)
-                                : const Color(0xFF1A2E28),
+                        color: communityData['isPrivate']
+                            ? const Color(0xFF2E1A33)
+                            : const Color(0xFF1A2E28),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
@@ -111,10 +110,9 @@ class CommunitySetupConfirmationScreen extends StatelessWidget {
                                 ? Icons.lock_outline
                                 : Icons.public,
                             size: 16,
-                            color:
-                                communityData['isPrivate']
-                                    ? const Color(0xFFD32F2F)
-                                    : const Color(0xFF4CAF50),
+                            color: communityData['isPrivate']
+                                ? const Color(0xFFD32F2F)
+                                : const Color(0xFF4CAF50),
                           ),
                           const SizedBox(width: 6),
                           Text(
@@ -122,10 +120,9 @@ class CommunitySetupConfirmationScreen extends StatelessWidget {
                                 ? 'Private Community'
                                 : 'Public Community',
                             style: TextStyle(
-                              color:
-                                  communityData['isPrivate']
-                                      ? const Color(0xFFD32F2F)
-                                      : const Color(0xFF4CAF50),
+                              color: communityData['isPrivate']
+                                  ? const Color(0xFFD32F2F)
+                                  : const Color(0xFF4CAF50),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),

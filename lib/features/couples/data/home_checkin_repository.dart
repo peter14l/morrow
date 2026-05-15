@@ -76,7 +76,8 @@ class HomeCheckinRepository {
       if (currentUser == null) return false;
 
       // Get username
-      final username = currentUser.userMetadata?['username'] ??
+      final username =
+          currentUser.userMetadata?['username'] ??
           currentUser.email?.split('@').first ??
           'Your partner';
 
@@ -134,7 +135,8 @@ class HomeCheckinRepository {
       final currentUser = client.auth.currentUser;
       if (currentUser == null) return false;
 
-      final username = currentUser.userMetadata?['username'] ??
+      final username =
+          currentUser.userMetadata?['username'] ??
           currentUser.email?.split('@').first ??
           'Your partner';
 
@@ -165,7 +167,8 @@ class HomeCheckinRepository {
       await NotificationManager.instance.showNotification(
         title: '⚠️ Check-in issue',
         body: '$username says they have NOT actually reached home',
-        payload: '{"type":"home_checkin_warning","sender_id":"${currentUser.id}"}',
+        payload:
+            '{"type":"home_checkin_warning","sender_id":"${currentUser.id}"}',
       );
 
       return true;
@@ -187,16 +190,16 @@ class HomeCheckinRepository {
     try {
       // Try using Supabase edge function
       final client = Supabase.instance.client;
-      await client.functions.invoke('send-home-checkin', body: {
-        'token': token,
-        'title': title,
-        'body': body,
-        'data': data,
-      });
+      await client.functions.invoke(
+        'send-home-checkin',
+        body: {'token': token, 'title': title, 'body': body, 'data': data},
+      );
     } catch (e) {
       // Fallback: Try sending via REST API to FCM
       // Note: This would require server-side FCM key configuration
-      debugPrint('[HomeCheckinRepository] Push send via function failed, trying REST: $e');
+      debugPrint(
+        '[HomeCheckinRepository] Push send via function failed, trying REST: $e',
+      );
     }
   }
 }

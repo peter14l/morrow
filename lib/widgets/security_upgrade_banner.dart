@@ -25,33 +25,39 @@ class _SecurityUpgradeBannerState extends State<SecurityUpgradeBanner> {
 
   @override
   Widget build(BuildContext context) {
-    if (_status == null || 
-        (_status != EncryptionStatus.needsSecurityUpgrade && 
-         _status != EncryptionStatus.needsRecoveryBackup)) {
+    if (_status == null ||
+        (_status != EncryptionStatus.needsSecurityUpgrade &&
+            _status != EncryptionStatus.needsRecoveryBackup)) {
       return const SizedBox.shrink();
     }
 
     final theme = Theme.of(context);
     final isRecoveryOnly = _status == EncryptionStatus.needsRecoveryBackup;
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isRecoveryOnly 
+        color: isRecoveryOnly
             ? Colors.orange.withValues(alpha: 0.9)
             : theme.colorScheme.primaryContainer.withValues(alpha: 0.9),
         border: Border(
           bottom: BorderSide(
-            color: isRecoveryOnly ? Colors.orange : theme.colorScheme.primary.withValues(alpha: 0.2),
+            color: isRecoveryOnly
+                ? Colors.orange
+                : theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
         ),
       ),
       child: Row(
         children: [
           Icon(
-            isRecoveryOnly ? Icons.warning_amber_rounded : Icons.security_rounded,
-            color: isRecoveryOnly ? Colors.black87 : theme.colorScheme.onPrimaryContainer,
+            isRecoveryOnly
+                ? Icons.warning_amber_rounded
+                : Icons.security_rounded,
+            color: isRecoveryOnly
+                ? Colors.black87
+                : theme.colorScheme.onPrimaryContainer,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -59,18 +65,24 @@ class _SecurityUpgradeBannerState extends State<SecurityUpgradeBanner> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isRecoveryOnly ? 'Complete Backup Setup' : 'Upgrade Chat Security',
+                  isRecoveryOnly
+                      ? 'Complete Backup Setup'
+                      : 'Upgrade Chat Security',
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: isRecoveryOnly ? Colors.black87 : theme.colorScheme.onPrimaryContainer,
+                    color: isRecoveryOnly
+                        ? Colors.black87
+                        : theme.colorScheme.onPrimaryContainer,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 Text(
-                  isRecoveryOnly 
-                      ? 'Protect your account with a recovery key.' 
+                  isRecoveryOnly
+                      ? 'Protect your account with a recovery key.'
                       : 'Set a PIN to secure your chat backups.',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: isRecoveryOnly ? Colors.black87 : theme.colorScheme.onPrimaryContainer,
+                    color: isRecoveryOnly
+                        ? Colors.black87
+                        : theme.colorScheme.onPrimaryContainer,
                   ),
                 ),
               ],
@@ -84,7 +96,9 @@ class _SecurityUpgradeBannerState extends State<SecurityUpgradeBanner> {
             child: Text(
               isRecoveryOnly ? 'SETUP NOW' : 'UPGRADE',
               style: TextStyle(
-                color: isRecoveryOnly ? Colors.black : theme.colorScheme.onPrimaryContainer,
+                color: isRecoveryOnly
+                    ? Colors.black
+                    : theme.colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -94,4 +108,3 @@ class _SecurityUpgradeBannerState extends State<SecurityUpgradeBanner> {
     );
   }
 }
-

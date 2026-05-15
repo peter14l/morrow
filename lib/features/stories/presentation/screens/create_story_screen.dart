@@ -136,28 +136,44 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: isM3E ? colorScheme.surface : Colors.grey[900],
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isM3E ? 24 : 16)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
+        ),
         title: Text(
           'Discard media?',
           style: TextStyle(color: isM3E ? colorScheme.onSurface : Colors.white),
         ),
         content: Text(
           'If you go back now, you will lose any changes you\'ve made.',
-          style: TextStyle(color: isM3E ? colorScheme.onSurfaceVariant : Colors.white70),
+          style: TextStyle(
+            color: isM3E ? colorScheme.onSurfaceVariant : Colors.white70,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => context.pop(false),
-            child: Text('Cancel', style: TextStyle(color: isM3E ? colorScheme.onSurface : Colors.white)),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color: isM3E ? colorScheme.onSurface : Colors.white,
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => context.pop(true),
-            child: Text('Discard', style: TextStyle(color: isM3E ? colorScheme.error : Colors.redAccent, fontWeight: FontWeight.bold)),
+            child: Text(
+              'Discard',
+              style: TextStyle(
+                color: isM3E ? colorScheme.error : Colors.redAccent,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+
   final List<Map<String, dynamic>> _filterPresets = [
     {
       'name': 'Normal',
@@ -392,12 +408,14 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       description,
       ResolutionPreset.high,
       enableAudio: true,
-      imageFormatGroup: Platform.isIOS ? ImageFormatGroup.bgra8888 : ImageFormatGroup.jpeg,
+      imageFormatGroup: Platform.isIOS
+          ? ImageFormatGroup.bgra8888
+          : ImageFormatGroup.jpeg,
     );
-    
+
     try {
       await newController.initialize();
-      
+
       if (!mounted) {
         await newController.dispose();
         return;
@@ -453,19 +471,19 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           setState(() {
             _layoutImages[slot] = file;
           });
-          
+
           // Check if all slots are full
           bool allFull = true;
           int slotsNeeded = 4; // Default for 2x2
           if (_layoutStyle == 1 || _layoutStyle == 2) slotsNeeded = 2;
-          
+
           for (int i = 0; i < slotsNeeded; i++) {
             if (_layoutImages[i] == null) {
               allFull = false;
               break;
             }
           }
-          
+
           if (allFull) {
             // Move to edit mode with the composite
             _finishLayout();
@@ -487,8 +505,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
     } catch (e) {
       debugPrint('Capture error: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Capture failed: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Capture failed: $e')));
       }
     }
   }
@@ -540,7 +559,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         _isRecordingVideo = true;
         _recordingSeconds = 0;
       });
-      
+
       final bool isBoomerang = _activeTool == 'boomerang';
       final int maxSeconds = isBoomerang ? 2 : 30;
 
@@ -564,7 +583,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       final xfile = await _cameraController!.stopVideoRecording();
       HapticUtils.mediumImpact();
       final videoFile = File(xfile.path);
-      
+
       _videoController?.dispose();
       _videoController = VideoPlayerController.file(videoFile)
         ..initialize().then((_) {
@@ -597,7 +616,10 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
     });
     HapticUtils.selectionClick();
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (t) {
-      if (!mounted) { t.cancel(); return; }
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
       final next = (_handsFreeCountdown ?? 0) - 1;
       if (next <= 0) {
         t.cancel();
@@ -614,16 +636,18 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
   void dispose() {
     _recordingTimer?.cancel();
     _countdownTimer?.cancel();
-    
+
     // Safety for CameraX disposal issues
     final controller = _cameraController;
     _cameraController = null;
     _isCameraInitialized = false;
-    
+
     if (controller != null) {
       controller.dispose().catchError((e) {
         if (e is PlatformException && e.code == 'IllegalStateException') {
-          debugPrint('Suppressed known CameraX release error during dispose: $e');
+          debugPrint(
+            'Suppressed known CameraX release error during dispose: $e',
+          );
         } else {
           debugPrint('Camera dispose error: $e');
         }
@@ -754,21 +778,20 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       }
 
       // Prepare interactive metadata for text layers
-      final interactiveMetadata =
-          _texts
-              .map(
-                (t) => {
-                  'type': 'text',
-                  'data': {
-                    'text': t.text,
-                    'color': '#${t.color.toARGB32().toRadixString(16)}',
-                    'background_mode': t.backgroundMode,
-                  },
-                  'x': t.position.dx / MediaQuery.of(context).size.width,
-                  'y': t.position.dy / MediaQuery.of(context).size.height,
-                },
-              )
-              .toList();
+      final interactiveMetadata = _texts
+          .map(
+            (t) => {
+              'type': 'text',
+              'data': {
+                'text': t.text,
+                'color': '#${t.color.toARGB32().toRadixString(16)}',
+                'background_mode': t.backgroundMode,
+              },
+              'x': t.position.dx / MediaQuery.of(context).size.width,
+              'y': t.position.dy / MediaQuery.of(context).size.height,
+            },
+          )
+          .toList();
 
       interactiveMetadata.add({
         'type': 'story_settings',
@@ -782,16 +805,15 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         file: finalFile,
         mediaType: _mediaType,
         musicId: _selectedMusic?.trackId,
-        musicMetadata:
-            _selectedMusic != null
-                ? {
-                  ..._selectedMusic!.toJson(),
-                  'music_position': {
-                    'x': _musicPosition.dx,
-                    'y': _musicPosition.dy,
-                  },
-                }
-                : null,
+        musicMetadata: _selectedMusic != null
+            ? {
+                ..._selectedMusic!.toJson(),
+                'music_position': {
+                  'x': _musicPosition.dx,
+                  'y': _musicPosition.dy,
+                },
+              }
+            : null,
         interactiveMetadata: interactiveMetadata,
       );
 
@@ -844,13 +866,12 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
     setState(() {
       final newText = StoryText(
         text: _captionController.text.trim(),
-        position:
-            _editingTextIndex != null
-                ? _texts[_editingTextIndex!].position
-                : Offset(
-                  MediaQuery.of(context).size.width / 2,
-                  MediaQuery.of(context).size.height / 2.5,
-                ),
+        position: _editingTextIndex != null
+            ? _texts[_editingTextIndex!].position
+            : Offset(
+                MediaQuery.of(context).size.width / 2,
+                MediaQuery.of(context).size.height / 2.5,
+              ),
         color: _textColor,
         backgroundMode: _textBackgroundMode,
         fontIndex: _selectedFontIndex,
@@ -921,13 +942,13 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           canPop: !(_selectedFile != null || _isCanvasMode),
           onPopInvokedWithResult: (didPop, result) async {
             if (didPop) return;
-            
+
             if (_isDrawingMode) {
               setState(() => _isDrawingMode = false);
             } else if (_isFilterPickerVisible) {
               setState(() => _isFilterPickerVisible = false);
             } else if (_isCaptionVisible) {
-               _finishTextEditing();
+              _finishTextEditing();
             } else {
               final discard = await _showDiscardDialog();
               if (discard == true) {
@@ -961,7 +982,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                                 ? Container(
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
-                                        colors: _canvasGradients[_canvasColorIndex],
+                                        colors:
+                                            _canvasGradients[_canvasColorIndex],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
@@ -973,345 +995,357 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                                     ),
                                     child:
                                         _mediaType == 'video' &&
-                                                _videoController != null &&
-                                                _videoController!.value.isInitialized
-                                            ? FittedBox(
-                                      fit: BoxFit.cover,
-                                      child: SizedBox(
-                                        width:
-                                            _videoController!.value.size.width,
-                                        height:
-                                            _videoController!.value.size.height,
-                                        child: VideoPlayer(_videoController!),
-                                      ),
-                                    )
-                                    : Image.file(
-                                      _selectedFile!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        debugPrint(
-                                          'Error loading story image: $error',
-                                        );
-                                        return Container(
-                                          color: Colors.black,
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Icon(
-                                                  Icons.broken_image_outlined,
-                                                  size: 64,
-                                                  color: Colors.white
-                                                      .withValues(alpha: 0.5),
-                                                ),
-                                                const SizedBox(height: 16),
-                                                Text(
-                                                  'Failed to load image',
-                                                  style: TextStyle(
-                                                    color: Colors.white
-                                                        .withValues(alpha: 0.7),
-                                                    fontSize: 16,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 8),
-                                                TextButton.icon(
-                                                  onPressed: () {
-                                                    setState(
-                                                      () =>
-                                                          _selectedFile = null,
-                                                    );
-                                                  },
-                                                  icon: const Icon(
-                                                    Icons.refresh,
-                                                    color: Colors.white,
-                                                  ),
-                                                  label: const Text(
-                                                    'Choose different',
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
+                                            _videoController != null &&
+                                            _videoController!
+                                                .value
+                                                .isInitialized
+                                        ? FittedBox(
+                                            fit: BoxFit.cover,
+                                            child: SizedBox(
+                                              width: _videoController!
+                                                  .value
+                                                  .size
+                                                  .width,
+                                              height: _videoController!
+                                                  .value
+                                                  .size
+                                                  .height,
+                                              child: VideoPlayer(
+                                                _videoController!,
+                                              ),
                                             ),
+                                          )
+                                        : Image.file(
+                                            _selectedFile!,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              debugPrint(
+                                                'Error loading story image: $error',
+                                              );
+                                              return Container(
+                                                color: Colors.black,
+                                                child: Center(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons
+                                                            .broken_image_outlined,
+                                                        size: 64,
+                                                        color: Colors.white
+                                                            .withValues(
+                                                              alpha: 0.5,
+                                                            ),
+                                                      ),
+                                                      const SizedBox(
+                                                        height: 16,
+                                                      ),
+                                                      Text(
+                                                        'Failed to load image',
+                                                        style: TextStyle(
+                                                          color: Colors.white
+                                                              .withValues(
+                                                                alpha: 0.7,
+                                                              ),
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 8),
+                                                      TextButton.icon(
+                                                        onPressed: () {
+                                                          setState(
+                                                            () =>
+                                                                _selectedFile =
+                                                                    null,
+                                                          );
+                                                        },
+                                                        icon: const Icon(
+                                                          Icons.refresh,
+                                                          color: Colors.white,
+                                                        ),
+                                                        label: const Text(
+                                                          'Choose different',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
-                                        );
-                                      },
-                                    ),
-                          ),
-                        ),
-
-                        // Music Sticker (Draggable)
-                        if (_selectedMusic != null)
-                          Positioned(
-                            left:
-                                _musicPosition.dx *
-                                    MediaQuery.of(context).size.width -
-                                60,
-                            top:
-                                _musicPosition.dy *
-                                    MediaQuery.of(context).size.height -
-                                30,
-                            child: GestureDetector(
-                              onTap:
-                                  () => setState(() => _selectedMusic = null),
-                              onPanStart: (_) {
-                                HapticFeedback.selectionClick();
-                              },
-                              onPanUpdate: (details) {
-                                setState(() {
-                                  final screenWidth =
-                                      MediaQuery.of(context).size.width;
-                                  final screenHeight =
-                                      MediaQuery.of(context).size.height;
-                                  _musicPosition = Offset(
-                                    (_musicPosition.dx +
-                                            details.delta.dx / screenWidth)
-                                        .clamp(0.1, 0.9),
-                                    (_musicPosition.dy +
-                                            details.delta.dy / screenHeight)
-                                        .clamp(0.1, 0.9),
-                                  );
-                                });
-                              },
-                              onPanEnd: (_) {
-                                HapticFeedback.lightImpact();
-                              },
-                              child: _buildMusicStickerWidget(_selectedMusic!),
-                            ),
+                                  ),
                           ),
 
-                        Positioned.fill(
-                          child: CustomPaint(
-                            painter: DrawingPainter(
-                              strokes: _strokes,
-                              currentStroke: _currentStroke,
-                            ),
-                            size: Size.infinite,
-                          ),
-                        ),
-                        ..._texts.asMap().entries.map((entry) {
-                          final i = entry.key;
-                          final t = entry.value;
-                          final themeProvider = Provider.of<ThemeProvider>(
-                            context,
-                            listen: false,
-                          );
-                          final isM3E = themeProvider.isM3EEnabled;
-                          return Positioned(
-                            left: t.position.dx - 100,
-                            top: t.position.dy - 25,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (_isDraggingText) return;
-                                setState(() {
-                                  _editingTextIndex = i;
-                                  _captionController.text = t.text;
-                                  _textColor = t.color;
-                                  _textBackgroundMode = t.backgroundMode;
-                                  _selectedFontIndex = t.fontIndex;
-                                  _isCaptionVisible = true;
-                                });
-                              },
-                              onPanStart: (_) {
-                                setState(() => _isDraggingText = true);
-                                HapticFeedback.selectionClick();
-                              },
-                              onPanUpdate: (details) {
-                                setState(() {
-                                  t.position += details.delta;
-                                  final screenWidth =
-                                      MediaQuery.of(context).size.width;
-                                  final screenHeight =
-                                      MediaQuery.of(context).size.height;
-                                  final trashPos = Offset(
-                                    screenWidth / 2,
-                                    screenHeight - 100,
-                                  );
-                                  final distance =
-                                      (t.position - trashPos).distance;
-                                  if (distance < 120 && !_isTextOverTrash) {
-                                    _isTextOverTrash = true;
-                                    HapticFeedback.mediumImpact();
-                                  } else if (distance >= 120 &&
-                                      _isTextOverTrash) {
-                                    _isTextOverTrash = false;
-                                  }
-                                });
-                              },
-                              onPanEnd: (_) {
-                                if (_isTextOverTrash) {
+                          // Music Sticker (Draggable)
+                          if (_selectedMusic != null)
+                            Positioned(
+                              left:
+                                  _musicPosition.dx *
+                                      MediaQuery.of(context).size.width -
+                                  60,
+                              top:
+                                  _musicPosition.dy *
+                                      MediaQuery.of(context).size.height -
+                                  30,
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _selectedMusic = null),
+                                onPanStart: (_) {
+                                  HapticFeedback.selectionClick();
+                                },
+                                onPanUpdate: (details) {
                                   setState(() {
-                                    _texts.removeAt(i);
+                                    final screenWidth = MediaQuery.of(
+                                      context,
+                                    ).size.width;
+                                    final screenHeight = MediaQuery.of(
+                                      context,
+                                    ).size.height;
+                                    _musicPosition = Offset(
+                                      (_musicPosition.dx +
+                                              details.delta.dx / screenWidth)
+                                          .clamp(0.1, 0.9),
+                                      (_musicPosition.dy +
+                                              details.delta.dy / screenHeight)
+                                          .clamp(0.1, 0.9),
+                                    );
                                   });
-                                  HapticFeedback.heavyImpact();
-                                }
-                                setState(() {
-                                  _isDraggingText = false;
-                                  _isTextOverTrash = false;
-                                });
-                              },
-                              child: AnimatedScale(
-                                duration: const Duration(milliseconds: 100),
-                                scale:
-                                    _isDraggingText && _isTextOverTrash
+                                },
+                                onPanEnd: (_) {
+                                  HapticFeedback.lightImpact();
+                                },
+                                child: _buildMusicStickerWidget(
+                                  _selectedMusic!,
+                                ),
+                              ),
+                            ),
+
+                          Positioned.fill(
+                            child: CustomPaint(
+                              painter: DrawingPainter(
+                                strokes: _strokes,
+                                currentStroke: _currentStroke,
+                              ),
+                              size: Size.infinite,
+                            ),
+                          ),
+                          ..._texts.asMap().entries.map((entry) {
+                            final i = entry.key;
+                            final t = entry.value;
+                            final themeProvider = Provider.of<ThemeProvider>(
+                              context,
+                              listen: false,
+                            );
+                            final isM3E = themeProvider.isM3EEnabled;
+                            return Positioned(
+                              left: t.position.dx - 100,
+                              top: t.position.dy - 25,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (_isDraggingText) return;
+                                  setState(() {
+                                    _editingTextIndex = i;
+                                    _captionController.text = t.text;
+                                    _textColor = t.color;
+                                    _textBackgroundMode = t.backgroundMode;
+                                    _selectedFontIndex = t.fontIndex;
+                                    _isCaptionVisible = true;
+                                  });
+                                },
+                                onPanStart: (_) {
+                                  setState(() => _isDraggingText = true);
+                                  HapticFeedback.selectionClick();
+                                },
+                                onPanUpdate: (details) {
+                                  setState(() {
+                                    t.position += details.delta;
+                                    final screenWidth = MediaQuery.of(
+                                      context,
+                                    ).size.width;
+                                    final screenHeight = MediaQuery.of(
+                                      context,
+                                    ).size.height;
+                                    final trashPos = Offset(
+                                      screenWidth / 2,
+                                      screenHeight - 100,
+                                    );
+                                    final distance =
+                                        (t.position - trashPos).distance;
+                                    if (distance < 120 && !_isTextOverTrash) {
+                                      _isTextOverTrash = true;
+                                      HapticFeedback.mediumImpact();
+                                    } else if (distance >= 120 &&
+                                        _isTextOverTrash) {
+                                      _isTextOverTrash = false;
+                                    }
+                                  });
+                                },
+                                onPanEnd: (_) {
+                                  if (_isTextOverTrash) {
+                                    setState(() {
+                                      _texts.removeAt(i);
+                                    });
+                                    HapticFeedback.heavyImpact();
+                                  }
+                                  setState(() {
+                                    _isDraggingText = false;
+                                    _isTextOverTrash = false;
+                                  });
+                                },
+                                child: AnimatedScale(
+                                  duration: const Duration(milliseconds: 100),
+                                  scale: _isDraggingText && _isTextOverTrash
+                                      ? 0.5
+                                      : 1.0,
+                                  child: Opacity(
+                                    opacity: _isDraggingText && _isTextOverTrash
                                         ? 0.5
                                         : 1.0,
-                                child: Opacity(
-                                  opacity:
-                                      _isDraggingText && _isTextOverTrash
-                                          ? 0.5
-                                          : 1.0,
-                                  child: Container(
-                                    width: 200,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                      vertical: 6,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          t.backgroundMode == 1
-                                              ? t.color.withValues(alpha: 0.9)
-                                              : (t.backgroundMode == 2
+                                    child: Container(
+                                      width: 200,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: t.backgroundMode == 1
+                                            ? t.color.withValues(alpha: 0.9)
+                                            : (t.backgroundMode == 2
                                                   ? Colors.black54
                                                   : Colors.transparent),
-                                      borderRadius: BorderRadius.circular(
-                                        isM3E ? 16 : 8,
+                                        borderRadius: BorderRadius.circular(
+                                          isM3E ? 16 : 8,
+                                        ),
                                       ),
-                                    ),
-                                    child: Text(
-                                      t.text,
-                                      textAlign: t.align,
-                                      style: TextStyle(
-                                        color:
-                                            t.backgroundMode == 1
-                                                ? (t.color.computeLuminance() >
+                                      child: Text(
+                                        t.text,
+                                        textAlign: t.align,
+                                        style: TextStyle(
+                                          color: t.backgroundMode == 1
+                                              ? (t.color.computeLuminance() >
                                                         0.5
                                                     ? Colors.black
                                                     : Colors.white)
-                                                : t.color,
-                                        fontSize: 28,
-                                        fontWeight:
-                                            isM3E
-                                                ? FontWeight.w900
-                                                : FontWeight.bold,
-                                        letterSpacing: isM3E ? -0.5 : 0,
-                                        fontFamily:
-                                            _fontStyles[t
-                                                    .fontIndex]['fontFamily']
-                                                as String?,
+                                              : t.color,
+                                          fontSize: 28,
+                                          fontWeight: isM3E
+                                              ? FontWeight.w900
+                                              : FontWeight.bold,
+                                          letterSpacing: isM3E ? -0.5 : 0,
+                                          fontFamily:
+                                              _fontStyles[t
+                                                      .fontIndex]['fontFamily']
+                                                  as String?,
+                                        ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
-                      ] else
-                        _buildEmptyState(),
-                    ],
-                  ),
-                ),
-              ),
-
-              // ── Drawing INTERACTION Layer ──
-              if (_selectedFile != null && _isDrawingMode)
-                Positioned.fill(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onPanStart: (details) {
-                      setState(() {
-                        _currentStroke = [
-                          DrawingPoint(
-                            details.localPosition,
-                            Paint()
-                              ..color =
-                                  _isEraserMode
-                                      ? Colors.transparent
-                                      : _selectedColor
-                              ..strokeWidth =
-                                  _isEraserMode ? 30.0 : _strokeWidth
-                              ..strokeCap = StrokeCap.round
-                              ..blendMode =
-                                  _isEraserMode
-                                      ? BlendMode.clear
-                                      : BlendMode.srcOver
-                              ..style = PaintingStyle.stroke
-                              ..isAntiAlias = true,
-                          ),
-                        ];
-                      });
-                    },
-                    onPanUpdate: (details) {
-                      setState(() {
-                        _currentStroke.add(
-                          DrawingPoint(
-                            details.localPosition,
-                            Paint()
-                              ..color =
-                                  _isEraserMode
-                                      ? Colors.transparent
-                                      : _selectedColor
-                              ..strokeWidth =
-                                  _isEraserMode ? 30.0 : _strokeWidth
-                              ..strokeCap = StrokeCap.round
-                              ..blendMode =
-                                  _isEraserMode
-                                      ? BlendMode.clear
-                                      : BlendMode.srcOver
-                              ..style = PaintingStyle.stroke
-                              ..isAntiAlias = true,
-                          ),
-                        );
-                      });
-                    },
-                    onPanEnd: (details) {
-                      setState(() {
-                        _strokes.add(List.from(_currentStroke));
-                        _currentStroke = [];
-                      });
-                    },
-                  ),
-                ),
-
-              // ── UI Overlays ──
-              if (_selectedFile != null) ...[
-                _buildCinematicGradients(),
-                if (_isDraggingText)
-                  Positioned.fill(
-                    child: IgnorePointer(
-                      child: AnimatedOpacity(
-                        opacity: 0.4,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(color: Colors.black),
-                      ),
+                            );
+                          }),
+                        ] else
+                          _buildEmptyState(),
+                      ],
                     ),
                   ),
-                if (!_isCaptionVisible &&
-                    !_isDrawingMode &&
-                    !_isFilterPickerVisible &&
-                    !_isDraggingText)
-                  _buildSideToolbar(),
-                _buildTopToolbar(),
-                if (_isFilterPickerVisible) _buildFilterPicker(),
-                if (_isCaptionVisible) _buildTextEditor(),
-                if (!_isCaptionVisible && !_isDrawingMode && !_isDraggingText)
-                  _buildBottomActionBar(),
-                if (_isDrawingMode) _buildDrawingTools(),
-                _buildTrashArea(),
-              ],
+                ),
 
-              // Close button now integrated into empty state layout
-            ],
+                // ── Drawing INTERACTION Layer ──
+                if (_selectedFile != null && _isDrawingMode)
+                  Positioned.fill(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onPanStart: (details) {
+                        setState(() {
+                          _currentStroke = [
+                            DrawingPoint(
+                              details.localPosition,
+                              Paint()
+                                ..color = _isEraserMode
+                                    ? Colors.transparent
+                                    : _selectedColor
+                                ..strokeWidth = _isEraserMode
+                                    ? 30.0
+                                    : _strokeWidth
+                                ..strokeCap = StrokeCap.round
+                                ..blendMode = _isEraserMode
+                                    ? BlendMode.clear
+                                    : BlendMode.srcOver
+                                ..style = PaintingStyle.stroke
+                                ..isAntiAlias = true,
+                            ),
+                          ];
+                        });
+                      },
+                      onPanUpdate: (details) {
+                        setState(() {
+                          _currentStroke.add(
+                            DrawingPoint(
+                              details.localPosition,
+                              Paint()
+                                ..color = _isEraserMode
+                                    ? Colors.transparent
+                                    : _selectedColor
+                                ..strokeWidth = _isEraserMode
+                                    ? 30.0
+                                    : _strokeWidth
+                                ..strokeCap = StrokeCap.round
+                                ..blendMode = _isEraserMode
+                                    ? BlendMode.clear
+                                    : BlendMode.srcOver
+                                ..style = PaintingStyle.stroke
+                                ..isAntiAlias = true,
+                            ),
+                          );
+                        });
+                      },
+                      onPanEnd: (details) {
+                        setState(() {
+                          _strokes.add(List.from(_currentStroke));
+                          _currentStroke = [];
+                        });
+                      },
+                    ),
+                  ),
+
+                // ── UI Overlays ──
+                if (_selectedFile != null) ...[
+                  _buildCinematicGradients(),
+                  if (_isDraggingText)
+                    Positioned.fill(
+                      child: IgnorePointer(
+                        child: AnimatedOpacity(
+                          opacity: 0.4,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(color: Colors.black),
+                        ),
+                      ),
+                    ),
+                  if (!_isCaptionVisible &&
+                      !_isDrawingMode &&
+                      !_isFilterPickerVisible &&
+                      !_isDraggingText)
+                    _buildSideToolbar(),
+                  _buildTopToolbar(),
+                  if (_isFilterPickerVisible) _buildFilterPicker(),
+                  if (_isCaptionVisible) _buildTextEditor(),
+                  if (!_isCaptionVisible && !_isDrawingMode && !_isDraggingText)
+                    _buildBottomActionBar(),
+                  if (_isDrawingMode) _buildDrawingTools(),
+                  _buildTrashArea(),
+                ],
+
+                // Close button now integrated into empty state layout
+              ],
+            ),
           ),
-        ),
-      );
-    }, // End LayoutBuilder
+        );
+      }, // End LayoutBuilder
     );
   }
 
@@ -1331,10 +1365,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 duration: const Duration(milliseconds: 150),
                 padding: EdgeInsets.all(_isTextOverTrash ? 25 : 18),
                 decoration: BoxDecoration(
-                  color:
-                      _isTextOverTrash
-                          ? Colors.red.withValues(alpha: 0.9)
-                          : Colors.black45,
+                  color: _isTextOverTrash
+                      ? Colors.red.withValues(alpha: 0.9)
+                      : Colors.black45,
                   shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
                   borderRadius: isM3E ? BorderRadius.circular(24) : null,
                   border: Border.all(
@@ -1394,7 +1427,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         fit: StackFit.expand,
         children: [
           // 1. Camera Preview Layer
-          if (_isCameraAvailable && _isCameraInitialized && _cameraController != null)
+          if (_isCameraAvailable &&
+              _isCameraInitialized &&
+              _cameraController != null)
             Positioned.fill(
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
@@ -1403,14 +1438,15 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     final size = constraints.biggest;
                     // For portrait, the camera preview aspect ratio is height/width (e.g., 1.77)
                     // We need to scale it to cover the screen
-                    var scale = 1 / (_cameraController!.value.aspectRatio * size.aspectRatio);
+                    var scale =
+                        1 /
+                        (_cameraController!.value.aspectRatio *
+                            size.aspectRatio);
                     if (scale < 1) scale = 1 / scale;
-                    
+
                     return Transform.scale(
                       scale: scale,
-                      child: Center(
-                        child: CameraPreview(_cameraController!),
-                      ),
+                      child: Center(child: CameraPreview(_cameraController!)),
                     );
                   },
                 ),
@@ -1423,7 +1459,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.photo_library_outlined, size: 64, color: Colors.white54),
+                    Icon(
+                      Icons.photo_library_outlined,
+                      size: 64,
+                      color: Colors.white54,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       'Select an image to start',
@@ -1444,7 +1484,10 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [Colors.purple.withValues(alpha: 0.8), Colors.orange.withValues(alpha: 0.8)],
+                    colors: [
+                      Colors.purple.withValues(alpha: 0.8),
+                      Colors.orange.withValues(alpha: 0.8),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -1452,12 +1495,16 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 child: const Center(
                   child: Text(
                     'Tap to type',
-                    style: TextStyle(color: Colors.white54, fontSize: 24, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
             ),
-            
+
           if (_activeTool == 'layout')
             Positioned.fill(
               child: Stack(
@@ -1522,7 +1569,10 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
               right: 0,
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(20),
@@ -1530,9 +1580,19 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.all_inclusive_rounded, color: Colors.white, size: 16),
+                      Icon(
+                        Icons.all_inclusive_rounded,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                       SizedBox(width: 8),
-                      Text('Boomerang', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                      Text(
+                        'Boomerang',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1550,7 +1610,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   label: 'Create',
                   isActive: _activeTool == 'create',
                   onTap: () {
-                    setState(() => _activeTool = _activeTool == 'create' ? 'none' : 'create');
+                    setState(
+                      () => _activeTool = _activeTool == 'create'
+                          ? 'none'
+                          : 'create',
+                    );
                   },
                   isM3E: isM3E,
                   colorScheme: colorScheme,
@@ -1562,7 +1626,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     label: 'Boomerang',
                     isActive: _activeTool == 'boomerang',
                     onTap: () {
-                      setState(() => _activeTool = _activeTool == 'boomerang' ? 'none' : 'boomerang');
+                      setState(
+                        () => _activeTool = _activeTool == 'boomerang'
+                            ? 'none'
+                            : 'boomerang',
+                      );
                     },
                     isM3E: isM3E,
                     colorScheme: colorScheme,
@@ -1573,7 +1641,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     label: 'Layout',
                     isActive: _activeTool == 'layout',
                     onTap: () {
-                      setState(() => _activeTool = _activeTool == 'layout' ? 'none' : 'layout');
+                      setState(
+                        () => _activeTool = _activeTool == 'layout'
+                            ? 'none'
+                            : 'layout',
+                      );
                     },
                     isM3E: isM3E,
                     colorScheme: colorScheme,
@@ -1584,7 +1656,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     label: 'Hands-free',
                     isActive: _activeTool == 'handsfree',
                     onTap: () {
-                      setState(() => _activeTool = _activeTool == 'handsfree' ? 'none' : 'handsfree');
+                      setState(
+                        () => _activeTool = _activeTool == 'handsfree'
+                            ? 'none'
+                            : 'handsfree',
+                      );
                     },
                     isM3E: isM3E,
                     colorScheme: colorScheme,
@@ -1604,27 +1680,39 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.settings_outlined, color: Colors.white, size: 28),
+                    icon: const Icon(
+                      Icons.settings_outlined,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                     onPressed: () {},
                   ),
                   const Spacer(),
                   if (_isCameraAvailable)
                     IconButton(
                       icon: Icon(
-                        _isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                        _isFlashOn
+                            ? Icons.flash_on_rounded
+                            : Icons.flash_off_rounded,
                         color: Colors.white,
                         size: 28,
                       ),
                       onPressed: () async {
                         if (_cameraController == null) return;
-                        final newMode = _isFlashOn ? FlashMode.off : FlashMode.torch;
+                        final newMode = _isFlashOn
+                            ? FlashMode.off
+                            : FlashMode.torch;
                         await _cameraController!.setFlashMode(newMode);
                         setState(() => _isFlashOn = !_isFlashOn);
                       },
                     ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.close_rounded, color: Colors.white, size: 32),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                     onPressed: () => context.pop(),
                   ),
                 ],
@@ -1651,7 +1739,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       borderRadius: BorderRadius.circular(8),
                       // Fake gallery thumbnail for preview
                       image: const DecorationImage(
-                        image: CachedNetworkImageProvider('https://picsum.photos/100'),
+                        image: CachedNetworkImageProvider(
+                          'https://picsum.photos/100',
+                        ),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -1668,8 +1758,13 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                         _capturePhoto();
                       }
                     },
-                    onLongPress: (_activeTool == 'create' || _activeTool == 'layout') ? null : _startVideoRecording,
-                    onLongPressUp: _isRecordingVideo ? _stopVideoRecording : null,
+                    onLongPress:
+                        (_activeTool == 'create' || _activeTool == 'layout')
+                        ? null
+                        : _startVideoRecording,
+                    onLongPressUp: _isRecordingVideo
+                        ? _stopVideoRecording
+                        : null,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       width: _isRecordingVideo ? 100 : 80,
@@ -1678,8 +1773,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: _isRecordingVideo ? Colors.red : Colors.white, 
-                          width: _isRecordingVideo ? 8 : 4
+                          color: _isRecordingVideo ? Colors.red : Colors.white,
+                          width: _isRecordingVideo ? 8 : 4,
                         ),
                       ),
                       child: Container(
@@ -1687,19 +1782,31 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                           color: _isRecordingVideo ? Colors.red : Colors.white,
                           shape: BoxShape.circle,
                         ),
-                        child: _isRecordingVideo 
-                          ? Center(child: Text('$_recordingSeconds', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))
-                          : null,
+                        child: _isRecordingVideo
+                            ? Center(
+                                child: Text(
+                                  '$_recordingSeconds',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              )
+                            : null,
                       ),
                     ),
                   )
-                else 
+                else
                   const SizedBox(width: 80),
 
                 // Flip Camera
                 if (_isCameraAvailable)
                   IconButton(
-                    icon: const Icon(Icons.flip_camera_ios_rounded, color: Colors.white, size: 32),
+                    icon: const Icon(
+                      Icons.flip_camera_ios_rounded,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                     onPressed: () {
                       HapticUtils.lightImpact();
                       setState(() => _isFrontCamera = !_isFrontCamera);
@@ -1736,24 +1843,28 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           curve: Curves.fastOutSlowIn,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isActive 
-                ? colorScheme.primary 
+            color: isActive
+                ? colorScheme.primary
                 : colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(24),
-            boxShadow: isActive ? [
-              BoxShadow(
-                color: colorScheme.primary.withValues(alpha: 0.3),
-                blurRadius: 12,
-                spreadRadius: 2,
-              )
-            ] : [],
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: colorScheme.primary.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : [],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
-                icon, 
-                color: isActive ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                icon,
+                color: isActive
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
                 size: 26,
               ),
               if (label.isNotEmpty) ...[
@@ -1761,7 +1872,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 Text(
                   label,
                   style: TextStyle(
-                    color: isActive ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                    color: isActive
+                        ? colorScheme.onPrimary
+                        : colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.w900, // Extra bold for M3E
                     letterSpacing: -0.2,
@@ -1779,16 +1892,13 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       onTap: onTap,
       child: Column(
         children: [
-          _buildBlurButton(
-            icon: icon, 
-            onTap: onTap,
-          ),
+          _buildBlurButton(icon: icon, onTap: onTap),
           if (label.isNotEmpty) ...[
             const SizedBox(height: 6),
             Text(
               label,
               style: const TextStyle(
-                color: Colors.white, 
+                color: Colors.white,
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
                 shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
@@ -1819,27 +1929,23 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     ),
                     const Spacer(),
                     GestureDetector(
-                      onTap:
-                          () => setState(
-                            () =>
-                                _textBackgroundMode =
-                                    (_textBackgroundMode + 1) % 3,
-                          ),
+                      onTap: () => setState(
+                        () =>
+                            _textBackgroundMode = (_textBackgroundMode + 1) % 3,
+                      ),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color:
-                              _textBackgroundMode > 0
-                                  ? Colors.white
-                                  : Colors.white10,
+                          color: _textBackgroundMode > 0
+                              ? Colors.white
+                              : Colors.white10,
                           borderRadius: BorderRadius.circular(isM3E ? 12 : 8),
                         ),
                         child: Icon(
                           Icons.format_color_text_rounded,
-                          color:
-                              _textBackgroundMode > 0
-                                  ? Colors.black
-                                  : Colors.white,
+                          color: _textBackgroundMode > 0
+                              ? Colors.black
+                              : Colors.white,
                         ),
                       ),
                     ),
@@ -1872,12 +1978,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     fontSize: 36,
                     fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
                     letterSpacing: isM3E ? -1.0 : 0,
-                    backgroundColor:
-                        _textBackgroundMode == 1
-                            ? Colors.white
-                            : (_textBackgroundMode == 2
-                                ? Colors.black54
-                                : null),
+                    backgroundColor: _textBackgroundMode == 1
+                        ? Colors.white
+                        : (_textBackgroundMode == 2 ? Colors.black54 : null),
                   ),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
@@ -1905,27 +2008,25 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: Colors.primaries.length,
-        itemBuilder:
-            (context, index) => GestureDetector(
-              onTap: () => setState(() => _textColor = Colors.primaries[index]),
-              child: Container(
-                width: 30,
-                height: 30,
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  color: Colors.primaries[index],
-                  shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-                  borderRadius: isM3E ? BorderRadius.circular(8) : null,
-                  border: Border.all(
-                    color:
-                        _textColor == Colors.primaries[index]
-                            ? Colors.white
-                            : Colors.transparent,
-                    width: 2,
-                  ),
-                ),
+        itemBuilder: (context, index) => GestureDetector(
+          onTap: () => setState(() => _textColor = Colors.primaries[index]),
+          child: Container(
+            width: 30,
+            height: 30,
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              color: Colors.primaries[index],
+              shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+              borderRadius: isM3E ? BorderRadius.circular(8) : null,
+              border: Border.all(
+                color: _textColor == Colors.primaries[index]
+                    ? Colors.white
+                    : Colors.transparent,
+                width: 2,
               ),
             ),
+          ),
+        ),
       ),
     );
   }
@@ -2006,10 +2107,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                                   : 12, // M3E Large (16dp) vs M3 Medium (12dp)
                             ),
                             border: Border.all(
-                              color:
-                                  isSelected
-                                      ? Colors.white
-                                      : Colors.transparent,
+                              color: isSelected
+                                  ? Colors.white
+                                  : Colors.transparent,
                               width: 3,
                             ),
                           ),
@@ -2042,15 +2142,15 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                           style: TextStyle(
                             color: isSelected ? Colors.white : Colors.white60,
                             fontSize: 12,
-                            fontWeight:
-                                isSelected
-                                    ? (isM3E
-                                        ? FontWeight
+                            fontWeight: isSelected
+                                ? (isM3E
+                                      ? FontWeight
                                             .w600 // M3E uses Medium (500-600)
-                                        : FontWeight.bold)
-                                    : FontWeight.normal,
-                            letterSpacing:
-                                isM3E ? -0.5 : 0, // M3E tighter spacing
+                                      : FontWeight.bold)
+                                : FontWeight.normal,
+                            letterSpacing: isM3E
+                                ? -0.5
+                                : 0, // M3E tighter spacing
                           ),
                         ),
                       ],
@@ -2118,14 +2218,11 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           if (isM3E) ...[
             const SizedBox(width: 12),
             _buildBlurButton(
-              icon:
-                  _shareToCloseFriends
-                      ? Icons.stars_rounded
-                      : Icons.star_border_rounded,
-              onTap:
-                  () => setState(
-                    () => _shareToCloseFriends = !_shareToCloseFriends,
-                  ),
+              icon: _shareToCloseFriends
+                  ? Icons.stars_rounded
+                  : Icons.star_border_rounded,
+              onTap: () =>
+                  setState(() => _shareToCloseFriends = !_shareToCloseFriends),
             ),
           ],
           const Spacer(),
@@ -2137,10 +2234,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
             )
           else
             _buildCircleActionButton(
-              icon:
-                  _isUploading
-                      ? Icons.hourglass_empty
-                      : Icons.chevron_right_rounded,
+              icon: _isUploading
+                  ? Icons.hourglass_empty
+                  : Icons.chevron_right_rounded,
               onTap: _isUploading ? () {} : _createStory,
             ),
         ],
@@ -2183,7 +2279,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                   icon: Icons.color_lens_rounded,
                   onTap: () {
                     setState(() {
-                      _canvasColorIndex = (_canvasColorIndex + 1) % _canvasGradients.length;
+                      _canvasColorIndex =
+                          (_canvasColorIndex + 1) % _canvasGradients.length;
                     });
                     HapticUtils.lightImpact();
                   },
@@ -2291,32 +2388,29 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         itemCount: Colors.primaries.length,
-        itemBuilder:
-            (context, index) => GestureDetector(
-              onTap:
-                  () => setState(() {
-                    _selectedColor = Colors.primaries[index];
-                    _isEraserMode = false;
-                  }),
-              child: Container(
-                width: 30,
-                height: 30,
-                margin: const EdgeInsets.symmetric(horizontal: 5),
-                decoration: BoxDecoration(
-                  color: Colors.primaries[index],
-                  shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-                  borderRadius: isM3E ? BorderRadius.circular(8) : null,
-                  border: Border.all(
-                    color:
-                        _selectedColor == Colors.primaries[index] &&
-                                !_isEraserMode
-                            ? Colors.white
-                            : Colors.transparent,
-                    width: 2,
-                  ),
-                ),
+        itemBuilder: (context, index) => GestureDetector(
+          onTap: () => setState(() {
+            _selectedColor = Colors.primaries[index];
+            _isEraserMode = false;
+          }),
+          child: Container(
+            width: 30,
+            height: 30,
+            margin: const EdgeInsets.symmetric(horizontal: 5),
+            decoration: BoxDecoration(
+              color: Colors.primaries[index],
+              shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+              borderRadius: isM3E ? BorderRadius.circular(8) : null,
+              border: Border.all(
+                color:
+                    _selectedColor == Colors.primaries[index] && !_isEraserMode
+                    ? Colors.white
+                    : Colors.transparent,
+                width: 2,
               ),
             ),
+          ),
+        ),
       ),
     );
   }
@@ -2437,7 +2531,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
           onPressed: onTap,
           icon: Icon(icon, color: colorScheme.onPrimaryContainer, size: 22),
           style: IconButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
         ),
       );
@@ -2449,9 +2545,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
       height: 48,
       child: Material(
         color: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
@@ -2628,10 +2722,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 14,
-                      fontWeight:
-                          isM3E
-                              ? FontWeight.w600
-                              : FontWeight.bold, // M3E Medium
+                      fontWeight: isM3E
+                          ? FontWeight.w600
+                          : FontWeight.bold, // M3E Medium
                       letterSpacing: isM3E ? -0.5 : 0,
                     ),
                   ),
@@ -2640,10 +2733,9 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                     style: TextStyle(
                       color: Colors.black.withValues(alpha: 0.7),
                       fontSize: 12,
-                      fontWeight:
-                          isM3E
-                              ? FontWeight.w400
-                              : FontWeight.normal, // M3E body weight
+                      fontWeight: isM3E
+                          ? FontWeight.w400
+                          : FontWeight.normal, // M3E body weight
                     ),
                   ),
                 ],

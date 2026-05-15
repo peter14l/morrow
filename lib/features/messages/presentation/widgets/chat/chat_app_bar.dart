@@ -111,7 +111,11 @@ class ChatAppBar extends StatelessWidget {
                             },
                             child: (otherUserAvatar ?? '').isEmpty
                                 ? Icon(
-                                    context.read<ChatProvider>().state.conversationType == 'group'
+                                    context
+                                                .read<ChatProvider>()
+                                                .state
+                                                .conversationType ==
+                                            'group'
                                         ? Icons.group
                                         : Icons.person,
                                     color: colorScheme.onPrimaryContainer,
@@ -121,7 +125,11 @@ class ChatAppBar extends StatelessWidget {
                           ),
                           Consumer<PresenceProvider>(
                             builder: (context, presenceProvider, child) {
-                              if (context.read<ChatProvider>().state.conversationType == 'group') {
+                              if (context
+                                      .read<ChatProvider>()
+                                      .state
+                                      .conversationType ==
+                                  'group') {
                                 return const SizedBox.shrink();
                               }
                               final isOnline =
@@ -161,70 +169,86 @@ class ChatAppBar extends StatelessWidget {
                                 fontSize: isDesktop ? 15 : 14,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: -0.2,
-                                color: backgroundUrl != null ? Colors.white : null,
+                                color: backgroundUrl != null
+                                    ? Colors.white
+                                    : null,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             Consumer2<PresenceProvider, ChatProvider>(
-                              builder: (context, presenceProvider, chatProvider, child) {
-                                final presence = otherUserId != null
-                                    ? presenceProvider.getUserPresence(
-                                        otherUserId!,
-                                      )
-                                    : null;
-                                final isOnline = presence?.status == 'online';
-                                final isPQ = chatProvider.isQuantumSecure;
+                              builder:
+                                  (
+                                    context,
+                                    presenceProvider,
+                                    chatProvider,
+                                    child,
+                                  ) {
+                                    final presence = otherUserId != null
+                                        ? presenceProvider.getUserPresence(
+                                            otherUserId!,
+                                          )
+                                        : null;
+                                    final isOnline =
+                                        presence?.status == 'online';
+                                    final isPQ = chatProvider.isQuantumSecure;
 
-                                return Row(
-                                  children: [
-                                    if (isEncryptionReady) ...[
-                                      Icon(
-                                        isPQ 
-                                          ? FluentIcons.shield_lock_24_filled 
-                                          : FluentIcons.lock_closed_12_filled,
-                                        size: 10,
-                                        color: isPQ 
-                                          ? Colors.cyanAccent 
-                                          : (backgroundUrl != null
-                                            ? Colors.white70
-                                            : colorScheme.primary.withValues(
-                                                alpha: 0.7,
-                                              )),
-                                      ),
-                                      const SizedBox(width: 4),
-                                    ],
-                                    if (isPQ) ...[
-                                      Text(
-                                        'Quantum',
-                                        style: theme.textTheme.bodySmall?.copyWith(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.cyanAccent,
-                                          letterSpacing: 0.5,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                    ],
-                                    Text(
-                                      isOnline ? 'Online' : 'Offline',
-                                      style: theme.textTheme.bodySmall
-                                          ?.copyWith(
-                                            color: isOnline
-                                                ? Colors.green.withValues(
-                                                    alpha: 0.8,
-                                                  )
+                                    return Row(
+                                      children: [
+                                        if (isEncryptionReady) ...[
+                                          Icon(
+                                            isPQ
+                                                ? FluentIcons
+                                                      .shield_lock_24_filled
+                                                : FluentIcons
+                                                      .lock_closed_12_filled,
+                                            size: 10,
+                                            color: isPQ
+                                                ? Colors.cyanAccent
                                                 : (backgroundUrl != null
-                                                    ? Colors.white60
-                                                    : colorScheme.onSurfaceVariant
-                                                      .withValues(alpha: 0.7)),
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w500,
+                                                      ? Colors.white70
+                                                      : colorScheme.primary
+                                                            .withValues(
+                                                              alpha: 0.7,
+                                                            )),
                                           ),
-                                    ),
-                                  ],
-                                );
-                              },
+                                          const SizedBox(width: 4),
+                                        ],
+                                        if (isPQ) ...[
+                                          Text(
+                                            'Quantum',
+                                            style: theme.textTheme.bodySmall
+                                                ?.copyWith(
+                                                  fontSize: 9,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.cyanAccent,
+                                                  letterSpacing: 0.5,
+                                                ),
+                                          ),
+                                          const SizedBox(width: 6),
+                                        ],
+                                        Text(
+                                          isOnline ? 'Online' : 'Offline',
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color: isOnline
+                                                    ? Colors.green.withValues(
+                                                        alpha: 0.8,
+                                                      )
+                                                    : (backgroundUrl != null
+                                                          ? Colors.white60
+                                                          : colorScheme
+                                                                .onSurfaceVariant
+                                                                .withValues(
+                                                                  alpha: 0.7,
+                                                                )),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                        ),
+                                      ],
+                                    );
+                                  },
                             ),
                           ],
                         ),
@@ -325,7 +349,8 @@ class ChatAppBar extends StatelessWidget {
                       : null,
                   child: (otherUserAvatar ?? '').isEmpty
                       ? Text(
-                          (otherUserName.isNotEmpty ? otherUserName[0] : 'U').toUpperCase(),
+                          (otherUserName.isNotEmpty ? otherUserName[0] : 'U')
+                              .toUpperCase(),
                           style: TextStyle(
                             color: colorScheme.onPrimaryContainer,
                             fontSize: 14,
@@ -335,7 +360,8 @@ class ChatAppBar extends StatelessWidget {
                 ),
                 Consumer<PresenceProvider>(
                   builder: (context, presenceProvider, child) {
-                    final isOnline = otherUserId != null &&
+                    final isOnline =
+                        otherUserId != null &&
                         presenceProvider.isUserOnline(otherUserId!);
                     return Positioned(
                       right: 0,
@@ -393,8 +419,9 @@ class ChatAppBar extends StatelessWidget {
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: isOnline
                                   ? Colors.green.withValues(alpha: 0.8)
-                                  : colorScheme.onSurfaceVariant
-                                      .withValues(alpha: 0.7),
+                                  : colorScheme.onSurfaceVariant.withValues(
+                                      alpha: 0.7,
+                                    ),
                               fontSize: 10,
                               fontWeight: FontWeight.w500,
                             ),
@@ -462,7 +489,7 @@ class _FloatingContainer extends StatelessWidget {
   final String? backgroundUrl;
 
   const _FloatingContainer({
-    required this.child, 
+    required this.child,
     required this.isCircular,
     this.backgroundUrl,
   });
@@ -470,12 +497,14 @@ class _FloatingContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+    final liquidGlassMode = context
+        .watch<UserSettingsProvider>()
+        .liquidGlassMode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Base container with or without liquid glass
     Container container;
-    
+
     if (liquidGlassMode != LiquidGlassMode.disabled) {
       // Enhanced liquid glass effect
       container = Container(
@@ -515,7 +544,7 @@ class _FloatingContainer extends StatelessWidget {
       // Default glassmorphic (fake glass) - original behavior
       container = Container(
         decoration: BoxDecoration(
-          color: backgroundUrl != null 
+          color: backgroundUrl != null
               ? Colors.black.withValues(alpha: 0.3)
               : colorScheme.surface.withValues(alpha: 0.6),
           borderRadius: isCircular
@@ -537,7 +566,7 @@ class _FloatingContainer extends StatelessWidget {
         ),
       );
     }
-    
+
     return container;
   }
 }

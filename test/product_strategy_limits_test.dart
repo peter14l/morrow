@@ -11,7 +11,7 @@ void main() {
         isPro: false,
         createdAt: DateTime.now(),
       );
-      
+
       final proUser = UserProfileEntity(
         id: '2',
         username: 'pro',
@@ -27,7 +27,7 @@ void main() {
     test('Canvas limit calculation logic', () {
       final List<String> canvases = ['c1', 'c2'];
       const bool isPro = false;
-      
+
       bool canCreateMore(List<String> list, bool pro) {
         if (!pro && list.length >= 2) return false;
         return true;

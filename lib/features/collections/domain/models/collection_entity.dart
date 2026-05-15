@@ -51,14 +51,14 @@ class CollectionEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-        id,
-        userId,
-        name,
-        description,
-        isPrivate,
-        itemsCount,
-        createdAt,
-        updatedAt,
-        previewImages,
-      ];
+    id,
+    userId,
+    name,
+    description,
+    isPrivate,
+    itemsCount,
+    createdAt,
+    updatedAt,
+    previewImages,
+  ];
 }

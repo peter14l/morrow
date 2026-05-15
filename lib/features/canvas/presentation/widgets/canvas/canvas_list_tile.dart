@@ -65,7 +65,7 @@ class CanvasListTile extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(isM3E ? 12 : 100),
+                  borderRadius: isM3E ? BorderRadius.circular(12) : null,
                   shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
                 ),
                 child: const Icon(

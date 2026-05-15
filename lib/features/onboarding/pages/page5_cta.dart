@@ -28,16 +28,22 @@ class Page5CTA extends StatelessWidget {
             .fadeIn(),
         const SizedBox(height: 20),
         Text(
-          "You're home.",
-          style: OasisTextStyles.onboardingHeadline.copyWith(fontSize: 52),
-        ).animate(target: isActive ? 1 : 0).fadeIn(delay: 300.ms).slideY(begin: 0.08),
+              "You're home.",
+              style: OasisTextStyles.onboardingHeadline.copyWith(fontSize: 52),
+            )
+            .animate(target: isActive ? 1 : 0)
+            .fadeIn(delay: 300.ms)
+            .slideY(begin: 0.08),
         const SizedBox(height: 12),
         SizedBox(
           width: MediaQuery.of(context).size.width * 0.75,
           child: Text(
             'No noise. No performance. Just you and the people who matter.',
             textAlign: TextAlign.center,
-            style: OasisTextStyles.onboardingSubtitle.copyWith(fontSize: 16, height: 1.65),
+            style: OasisTextStyles.onboardingSubtitle.copyWith(
+              fontSize: 16,
+              height: 1.65,
+            ),
           ),
         ).animate(target: isActive ? 1 : 0).fadeIn(delay: 500.ms),
         const Spacer(),
@@ -46,10 +52,13 @@ class Page5CTA extends StatelessWidget {
           child: Column(
             children: [
               _PrimaryButton(
-                onTap: onComplete,
-                label: 'Create Your Oasis',
-                icon: Icons.auto_awesome,
-              ).animate(target: isActive ? 1 : 0).scale(delay: 700.ms, curve: Curves.elasticOut).fadeIn(delay: 700.ms),
+                    onTap: onComplete,
+                    label: 'Create Your Oasis',
+                    icon: Icons.auto_awesome,
+                  )
+                  .animate(target: isActive ? 1 : 0)
+                  .scale(delay: 700.ms, curve: Curves.elasticOut)
+                  .fadeIn(delay: 700.ms),
               const SizedBox(height: 12),
               _SecondaryButton(
                 onTap: onSignIn,
@@ -133,10 +142,7 @@ class _PrimaryButtonState extends State<_PrimaryButton> {
             children: [
               Icon(widget.icon, color: OasisColors.deep, size: 18),
               const SizedBox(width: 8),
-              Text(
-                widget.label,
-                style: OasisTextStyles.ctaLabel,
-              ),
+              Text(widget.label, style: OasisTextStyles.ctaLabel),
             ],
           ),
         ),

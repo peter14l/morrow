@@ -35,10 +35,9 @@ class CreatorAnalyticsService {
       final totalEngagements = totalLikes + totalComments + totalShares;
       final followerCount = followersResponse.length;
 
-      final engagementRate =
-          followerCount > 0 && totalPosts > 0
-              ? (totalEngagements / (followerCount * totalPosts)) * 100
-              : 0.0;
+      final engagementRate = followerCount > 0 && totalPosts > 0
+          ? (totalEngagements / (followerCount * totalPosts)) * 100
+          : 0.0;
 
       return CreatorStats(
         followerCount: followerCount,
@@ -203,9 +202,8 @@ class CreatorAnalyticsService {
       }
 
       // Get top locations
-      final sortedLocations =
-          locationCounts.entries.toList()
-            ..sort((a, b) => b.value.compareTo(a.value));
+      final sortedLocations = locationCounts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
 
       final topLocations = Map.fromEntries(sortedLocations.take(10));
 
@@ -269,20 +267,23 @@ class CreatorAnalyticsService {
         'image': ContentTypeStats(
           count: imagePostsCount,
           totalEngagement: imageEngagement,
-          avgEngagement:
-              imagePostsCount > 0 ? imageEngagement / imagePostsCount : 0,
+          avgEngagement: imagePostsCount > 0
+              ? imageEngagement / imagePostsCount
+              : 0,
         ),
         'video': ContentTypeStats(
           count: videoPostsCount,
           totalEngagement: videoEngagement,
-          avgEngagement:
-              videoPostsCount > 0 ? videoEngagement / videoPostsCount : 0,
+          avgEngagement: videoPostsCount > 0
+              ? videoEngagement / videoPostsCount
+              : 0,
         ),
         'text': ContentTypeStats(
           count: textPostsCount,
           totalEngagement: textEngagement,
-          avgEngagement:
-              textPostsCount > 0 ? textEngagement / textPostsCount : 0,
+          avgEngagement: textPostsCount > 0
+              ? textEngagement / textPostsCount
+              : 0,
         ),
       };
     } catch (e) {

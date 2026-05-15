@@ -24,7 +24,7 @@ class MediaRetentionService {
   /// Check if media should be retained based on user tier
   bool shouldRetainMedia(DateTime mediaCreatedAt) {
     final subscriptionService = SubscriptionService();
-    
+
     // Pro users have unlimited retention
     if (subscriptionService.isPro) {
       return true;
@@ -40,7 +40,7 @@ class MediaRetentionService {
   /// Returns the number of files deleted
   Future<int> cleanupExpiredMedia() async {
     final subscriptionService = SubscriptionService();
-    
+
     // Pro users don't need cleanup
     if (subscriptionService.isPro) {
       debugPrint('[MediaRetentionService] Pro user - skipping cleanup');
@@ -52,7 +52,7 @@ class MediaRetentionService {
     try {
       final supabase = SupabaseService().client;
       final userId = supabase.auth.currentUser?.id;
-      
+
       if (userId == null) {
         debugPrint('[MediaRetentionService] No authenticated user');
         return 0;
@@ -85,7 +85,9 @@ class MediaRetentionService {
         }
       }
 
-      debugPrint('[MediaRetentionService] Deleted $deletedCount expired media files');
+      debugPrint(
+        '[MediaRetentionService] Deleted $deletedCount expired media files',
+      );
       return deletedCount;
     } catch (e) {
       debugPrint('[MediaRetentionService] Cleanup error: $e');
@@ -104,8 +106,12 @@ class MediaRetentionService {
       if (pathSegments.length >= 2) {
         // Extract type and fileId from URL path
         // URL format: https://.../bucket/type/userId/filename
-        final type = pathSegments.length > 2 ? pathSegments[pathSegments.length - 3] : 'images';
-        final userId = pathSegments.length > 1 ? pathSegments[pathSegments.length - 2] : '';
+        final type = pathSegments.length > 2
+            ? pathSegments[pathSegments.length - 3]
+            : 'images';
+        final userId = pathSegments.length > 1
+            ? pathSegments[pathSegments.length - 2]
+            : '';
         final fileName = pathSegments.last;
         final fileId = '$userId/$fileName';
 
@@ -124,14 +130,14 @@ class MediaRetentionService {
   /// Get remaining days for a media file (null if Pro or doesn't exist)
   int? getRemainingDays(DateTime mediaCreatedAt) {
     final subscriptionService = SubscriptionService();
-    
+
     if (subscriptionService.isPro) {
       return null; // Unlimited
     }
 
     final expiresAt = mediaCreatedAt.add(const Duration(days: 30));
     final remaining = expiresAt.difference(DateTime.now()).inDays;
-    
+
     return remaining > 0 ? remaining : 0;
   }
 
@@ -144,7 +150,7 @@ class MediaRetentionService {
   /// Get retention status for display
   String getRetentionStatus(DateTime mediaCreatedAt) {
     final subscriptionService = SubscriptionService();
-    
+
     if (subscriptionService.isPro) {
       return 'Unlimited (Pro)';
     }

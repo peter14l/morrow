@@ -7,10 +7,11 @@ import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/ripples/domain/models/ripple_entity.dart';
 import 'package:oasis/features/ripples/domain/repositories/ripple_repository.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 export 'package:oasis/features/profile/presentation/providers/profile_state.dart';
 
-class ProfileProvider with ChangeNotifier {
+class ProfileProvider with ChangeNotifier, SafeChangeNotifier {
   final ProfileRepository _profileRepository;
   final PostRepository _postRepository;
   final RippleRepository _rippleRepository;
@@ -37,27 +38,34 @@ class ProfileProvider with ChangeNotifier {
        _rippleRepository = rippleRepository;
 
   Future<void> loadCurrentProfile(String userId) async {
+    if (isDisposed) return;
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners();
 
     try {
       final profile = await _profileRepository.getProfile(userId);
+      if (isDisposed) return;
       _state = _state.copyWith(currentProfile: profile);
     } catch (e) {
+      if (isDisposed) return;
       _state = _state.copyWith(error: e.toString());
       debugPrint('[ProfileProvider] Error loading current profile: $e');
     } finally {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
+      if (!isDisposed) {
+        _state = _state.copyWith(isLoading: false);
+        notifyListeners();
+      }
     }
   }
 
   Future<void> loadProfile(String userId, String currentUserId) async {
+    if (isDisposed) return;
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners();
 
     try {
       final profile = await _profileRepository.getProfile(userId);
+      if (isDisposed) return;
       _state = _state.copyWith(viewedProfile: profile);
 
       if (userId != currentUserId) {
@@ -65,14 +73,18 @@ class ProfileProvider with ChangeNotifier {
           followerId: currentUserId,
           followingId: userId,
         );
+        if (isDisposed) return;
         _state = _state.copyWith(isFollowing: following);
       }
     } catch (e) {
+      if (isDisposed) return;
       _state = _state.copyWith(error: e.toString());
       debugPrint('[ProfileProvider] Error loading profile: $e');
     } finally {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
+      if (!isDisposed) {
+        _state = _state.copyWith(isLoading: false);
+        notifyListeners();
+      }
     }
   }
 
@@ -87,6 +99,7 @@ class ProfileProvider with ChangeNotifier {
     String? avatarFilePath,
     String? bannerFilePath,
   }) async {
+    if (isDisposed) return;
     _state = _state.copyWith(isLoading: true, error: null);
     notifyListeners();
 
@@ -102,14 +115,18 @@ class ProfileProvider with ChangeNotifier {
         avatarFilePath: avatarFilePath,
         bannerFilePath: bannerFilePath,
       );
+      if (isDisposed) return;
       _state = _state.copyWith(currentProfile: profile);
     } catch (e) {
+      if (isDisposed) rethrow;
       _state = _state.copyWith(error: e.toString());
       debugPrint('[ProfileProvider] Error updating profile: $e');
       rethrow;
     } finally {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
+      if (!isDisposed) {
+        _state = _state.copyWith(isLoading: false);
+        notifyListeners();
+      }
     }
   }
 
@@ -117,13 +134,14 @@ class ProfileProvider with ChangeNotifier {
     required String followerId,
     required String followingId,
   }) async {
+    if (isDisposed) return;
     try {
       final isPrivate = _state.viewedProfile?.isPrivate ?? false;
-      
+
       if (isPrivate) {
         _state = _state.copyWith(hasSentRequest: true);
         notifyListeners();
-        
+
         await _profileRepository.sendFollowRequest(
           followerId: followerId,
           followingId: followingId,
@@ -159,6 +177,7 @@ class ProfileProvider with ChangeNotifier {
         followingId: followingId,
       );
     } catch (e) {
+      if (isDisposed) rethrow;
       if (_state.viewedProfile?.isPrivate ?? false) {
         _state = _state.copyWith(hasSentRequest: false);
       } else {
@@ -211,11 +230,13 @@ class ProfileProvider with ChangeNotifier {
     required String followerId,
     required String followingId,
   }) async {
+    if (isDisposed) return;
     try {
       final hasSent = await _profileRepository.hasSentFollowRequest(
         followerId: followerId,
         followingId: followingId,
       );
+      if (isDisposed) return;
       _state = _state.copyWith(hasSentRequest: hasSent);
       notifyListeners();
     } catch (e) {
@@ -227,6 +248,7 @@ class ProfileProvider with ChangeNotifier {
     required String followerId,
     required String followingId,
   }) async {
+    if (isDisposed) return;
     try {
       _state = _state.copyWith(isFollowing: false);
       if (_state.viewedProfile != null) {
@@ -246,6 +268,7 @@ class ProfileProvider with ChangeNotifier {
         followingId: followingId,
       );
     } catch (e) {
+      if (isDisposed) rethrow;
       _state = _state.copyWith(isFollowing: true);
       if (_state.viewedProfile != null) {
         _state = _state.copyWith(
@@ -261,24 +284,28 @@ class ProfileProvider with ChangeNotifier {
   }
 
   Future<void> loadFollowers(String userId) async {
+    if (isDisposed) return;
     try {
       final followers = await _profileRepository.getFollowers(userId: userId);
+      if (isDisposed) return;
       _state = _state.copyWith(followers: followers);
       notifyListeners();
     } catch (e) {
       debugPrint('[ProfileProvider] Error loading followers: $e');
-      rethrow;
+      if (!isDisposed) rethrow;
     }
   }
 
   Future<void> loadFollowing(String userId) async {
+    if (isDisposed) return;
     try {
       final following = await _profileRepository.getFollowing(userId: userId);
+      if (isDisposed) return;
       _state = _state.copyWith(following: following);
       notifyListeners();
     } catch (e) {
       debugPrint('[ProfileProvider] Error loading following: $e');
-      rethrow;
+      if (!isDisposed) rethrow;
     }
   }
 
@@ -313,12 +340,14 @@ class ProfileProvider with ChangeNotifier {
     required String userId,
     required bool isPrivate,
   }) async {
+    if (isDisposed) return;
     try {
       await _profileRepository.updatePrivacy(
         userId: userId,
         isPrivate: isPrivate,
       );
 
+      if (isDisposed) return;
       if (_state.currentProfile != null) {
         _state = _state.copyWith(
           currentProfile: _state.currentProfile!.copyWith(isPrivate: isPrivate),
@@ -327,11 +356,12 @@ class ProfileProvider with ChangeNotifier {
       }
     } catch (e) {
       debugPrint('[ProfileProvider] Error updating privacy: $e');
-      rethrow;
+      if (!isDisposed) rethrow;
     }
   }
 
   void clearViewedProfile() {
+    if (isDisposed) return;
     _state = _state.copyWith(viewedProfile: null, isFollowing: false);
     notifyListeners();
   }
@@ -345,18 +375,23 @@ class ProfileProvider with ChangeNotifier {
     required String user2Id,
   }) async {
     try {
-      return await _messagingService.getOrCreateConversation(
+      final conversationId = await _messagingService.getOrCreateConversation(
         user1Id: user1Id,
         user2Id: user2Id,
       );
+      return conversationId;
     } catch (e) {
-      _state = _state.copyWith(error: e.toString());
+      if (!isDisposed) {
+        _state = _state.copyWith(error: e.toString());
+        notifyListeners();
+      }
       debugPrint('[ProfileProvider] Error getting/creating conversation: $e');
       rethrow;
     }
   }
 
   void clear() {
+    if (isDisposed) return;
     _state = const ProfileState();
     notifyListeners();
   }

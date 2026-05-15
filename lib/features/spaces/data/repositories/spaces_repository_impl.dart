@@ -15,13 +15,12 @@ class SpacesRepositoryImpl implements SpacesRepository {
 
   @override
   Future<void> updateBadgeCount(String tabId, int count) async {
-    final tabs =
-        _appShell.tabs.map((tab) {
-          if (tab.id == tabId) {
-            return tab.copyWith(badgeCount: count);
-          }
-          return tab;
-        }).toList();
+    final tabs = _appShell.tabs.map((tab) {
+      if (tab.id == tabId) {
+        return tab.copyWith(badgeCount: count);
+      }
+      return tab;
+    }).toList();
     _appShell = _appShell.copyWith(tabs: tabs);
   }
 
@@ -33,10 +32,9 @@ class SpacesRepositoryImpl implements SpacesRepository {
     );
     _appShell = _appShell.copyWith(
       currentRoute: tab.route,
-      tabs:
-          _appShell.tabs
-              .map((t) => t.copyWith(isSelected: t.id == tabId))
-              .toList(),
+      tabs: _appShell.tabs
+          .map((t) => t.copyWith(isSelected: t.id == tabId))
+          .toList(),
     );
     _tabController.add(tab);
   }

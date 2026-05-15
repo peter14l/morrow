@@ -165,12 +165,9 @@ class _ShareToChatModalState extends State<ShareToChatModal> {
     final colorScheme = theme.colorScheme;
     final conversations = context.watch<ConversationProvider>().conversations;
 
-    final filteredConversations =
-        conversations.where((c) {
-          return c.otherUserName.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          );
-        }).toList();
+    final filteredConversations = conversations.where((c) {
+      return c.otherUserName.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
@@ -229,40 +226,36 @@ class _ShareToChatModalState extends State<ShareToChatModal> {
           ),
           const SizedBox(height: 12),
           Expanded(
-            child:
-                filteredConversations.isEmpty
-                    ? Center(
-                      child: Text(
-                        'No conversations found',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+            child: filteredConversations.isEmpty
+                ? Center(
+                    child: Text(
+                      'No conversations found',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                    )
-                    : ListView.builder(
-                      itemCount: filteredConversations.length,
-                      itemBuilder: (context, index) {
-                        final conv = filteredConversations[index];
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage:
-                                conv.otherUserAvatar.isNotEmpty
-                                    ? NetworkImage(conv.otherUserAvatar)
-                                    : null,
-                            child:
-                                conv.otherUserAvatar.isEmpty
-                                    ? Text(conv.otherUserName[0].toUpperCase())
-                                    : null,
-                          ),
-                          title: Text(conv.otherUserName),
-                          onTap:
-                              _isSending
-                                  ? null
-                                  : () => _shareToConversation(conv),
-                          trailing: const Icon(Icons.send_rounded),
-                        );
-                      },
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: filteredConversations.length,
+                    itemBuilder: (context, index) {
+                      final conv = filteredConversations[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: conv.otherUserAvatar.isNotEmpty
+                              ? NetworkImage(conv.otherUserAvatar)
+                              : null,
+                          child: conv.otherUserAvatar.isEmpty
+                              ? Text(conv.otherUserName[0].toUpperCase())
+                              : null,
+                        ),
+                        title: Text(conv.otherUserName),
+                        onTap: _isSending
+                            ? null
+                            : () => _shareToConversation(conv),
+                        trailing: const Icon(Icons.send_rounded),
+                      );
+                    },
+                  ),
           ),
         ],
       ),

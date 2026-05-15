@@ -11,7 +11,12 @@ import 'package:oasis/services/digital_wellbeing_service.dart';
 class SpatialGliderLayout extends StatefulWidget {
   final Future<void> Function() onRefresh;
   final Widget mobileHeader;
-  final Widget Function(dynamic post, FeedProvider provider, bool isDesktopPadding) buildPostItem;
+  final Widget Function(
+    dynamic post,
+    FeedProvider provider,
+    bool isDesktopPadding,
+  )
+  buildPostItem;
 
   const SpatialGliderLayout({
     super.key,
@@ -24,7 +29,8 @@ class SpatialGliderLayout extends StatefulWidget {
   State<SpatialGliderLayout> createState() => _SpatialGliderLayoutState();
 }
 
-class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTickerProviderStateMixin {
+class _SpatialGliderLayoutState extends State<SpatialGliderLayout>
+    with SingleTickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   late AnimationController _bgAnimationController;
 
@@ -35,7 +41,7 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTi
       vsync: this,
       duration: const Duration(seconds: 20),
     )..repeat();
-    
+
     _scrollController.addListener(() {
       setState(() {}); // Rebuild for parallax calculations
     });
@@ -69,7 +75,7 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTi
                   ),
                   radius: 1.5,
                   colors: [
-                    OasisColors.deep.withValues(alpha: 0.8),
+                    theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
                     Colors.black,
                   ],
                 ),
@@ -93,7 +99,9 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTi
                   floating: true,
                 ),
 
-              SliverToBoxAdapter(child: _buildFeedInfoBanner(context, colorScheme)),
+              SliverToBoxAdapter(
+                child: _buildFeedInfoBanner(context, colorScheme),
+              ),
 
               Consumer<FeedProvider>(
                 builder: (context, provider, _) {
@@ -114,7 +122,12 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTi
                       mainAxisSpacing: 40,
                       crossAxisSpacing: 40,
                       itemBuilder: (context, index) {
-                        return _buildGliderItem(posts[index], provider, isDesktop, index);
+                        return _buildGliderItem(
+                          posts[index],
+                          provider,
+                          isDesktop,
+                          index,
+                        );
                       },
                       childCount: posts.length,
                     ),
@@ -163,15 +176,27 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout> with SingleTi
     );
   }
 
-  Widget _buildGliderItem(dynamic post, FeedProvider provider, bool isDesktop, int index) {
+  Widget _buildGliderItem(
+    dynamic post,
+    FeedProvider provider,
+    bool isDesktop,
+    int index,
+  ) {
     // Parallax & Depth logic - create a more 'spatial' feeling
-    double scrollOffset = _scrollController.hasClients ? _scrollController.offset : 0.0;
-    
+    double scrollOffset = _scrollController.hasClients
+        ? _scrollController.offset
+        : 0.0;
+
     double horizontalShift = 0;
     if (!isDesktop) {
       final itemPosition = (index * 400.0) - scrollOffset;
-      horizontalShift = (index % 2 == 0 ? 1 : -1) * 20.0 * 
-          (1.0 - (itemPosition / MediaQuery.of(context).size.height).clamp(-1.0, 1.0).abs());
+      horizontalShift =
+          (index % 2 == 0 ? 1 : -1) *
+          20.0 *
+          (1.0 -
+              (itemPosition / MediaQuery.of(context).size.height)
+                  .clamp(-1.0, 1.0)
+                  .abs());
     }
 
     return Transform.translate(

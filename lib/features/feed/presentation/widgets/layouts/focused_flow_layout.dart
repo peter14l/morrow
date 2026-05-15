@@ -11,7 +11,12 @@ import 'package:oasis/services/digital_wellbeing_service.dart';
 class FocusedFlowLayout extends StatefulWidget {
   final Future<void> Function() onRefresh;
   final Widget mobileHeader;
-  final Widget Function(dynamic post, FeedProvider provider, bool isDesktopPadding) buildPostItem;
+  final Widget Function(
+    dynamic post,
+    FeedProvider provider,
+    bool isDesktopPadding,
+  )
+  buildPostItem;
 
   const FocusedFlowLayout({
     super.key,
@@ -61,14 +66,19 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
         }
 
         // Get dominant color or image for background of current page
-        final int currentIndex = _currentPage.round().clamp(0, posts.length - 1);
+        final int currentIndex = _currentPage.round().clamp(
+          0,
+          posts.length - 1,
+        );
         final currentPost = posts[currentIndex];
-        
-        Color bgBaseColor = OasisColors.deep;
+
+        Color bgBaseColor = theme.scaffoldBackgroundColor;
         if (currentPost.dominantColor != null) {
           try {
             final colorStr = currentPost.dominantColor!.replaceAll('#', '');
-            bgBaseColor = Color(int.parse('FF$colorStr', radix: 16)).withValues(alpha: 0.3);
+            bgBaseColor = Color(
+              int.parse('FF$colorStr', radix: 16),
+            ).withValues(alpha: 0.3);
           } catch (_) {}
         }
 
@@ -81,10 +91,7 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    bgBaseColor,
-                    OasisColors.deep,
-                  ],
+                  colors: [bgBaseColor, theme.scaffoldBackgroundColor],
                 ),
               ),
               child: BackdropFilter(
@@ -105,11 +112,17 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
               },
               itemBuilder: (context, index) {
                 final post = posts[index];
-                
+
                 // Calculate scale and opacity based on distance from current page
                 double relativePosition = index - _currentPage;
-                double scale = (1 - (relativePosition.abs() * 0.2)).clamp(0.8, 1.0);
-                double opacity = (1 - (relativePosition.abs() * 0.5)).clamp(0.4, 1.0);
+                double scale = (1 - (relativePosition.abs() * 0.2)).clamp(
+                  0.8,
+                  1.0,
+                );
+                double opacity = (1 - (relativePosition.abs() * 0.5)).clamp(
+                  0.4,
+                  1.0,
+                );
 
                 return Center(
                   child: Opacity(
@@ -123,7 +136,11 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
                         ),
                         child: SingleChildScrollView(
                           physics: const NeverScrollableScrollPhysics(),
-                          child: widget.buildPostItem(post, provider, isDesktop),
+                          child: widget.buildPostItem(
+                            post,
+                            provider,
+                            isDesktop,
+                          ),
                         ),
                       ),
                     ),
@@ -142,7 +159,9 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).padding.top,
+                      ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -159,7 +178,7 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
                   ],
                 ),
               ),
-            
+
             // Helpful hint
             Positioned(
               bottom: 40,

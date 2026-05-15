@@ -21,8 +21,22 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
   final List<UserProfileEntity> _selectedMembers = [];
 
   static const _emojis = [
-    '🌊', '🔥', '⚡', '🌿', '🎯', '💫', '🦋', '✨', 
-    '🌙', '☀️', '🏔️', '🌺', '🎸', '📚', '🧠', '💪',
+    '🌊',
+    '🔥',
+    '⚡',
+    '🌿',
+    '🎯',
+    '💫',
+    '🦋',
+    '✨',
+    '🌙',
+    '☀️',
+    '🏔️',
+    '🌺',
+    '🎸',
+    '📚',
+    '🧠',
+    '💪',
   ];
 
   @override
@@ -59,7 +73,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
         emoji: _selectedEmoji,
         memberIds: memberIds,
       );
-      
+
       if (!mounted) return;
 
       if (circle != null) {
@@ -70,14 +84,18 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
       } else {
         final error = context.read<CircleProvider>().error;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(error ?? 'Failed to create circle. Please try again.')),
+          SnackBar(
+            content: Text(
+              error ?? 'Failed to create circle. Please try again.',
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -138,7 +156,9 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                           ? colorScheme.primary.withValues(alpha: 0.2)
                           : colorScheme.surface,
                       border: Border.all(
-                        color: isSelected ? colorScheme.primary : Colors.transparent,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : Colors.transparent,
                         width: 2,
                       ),
                     ),
@@ -177,7 +197,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Selected members horizontal list
             if (_selectedMembers.isNotEmpty)
               SizedBox(
@@ -194,10 +214,14 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundImage: member.avatarUrl != null 
-                                  ? CachedNetworkImageProvider(member.avatarUrl!) 
+                              backgroundImage: member.avatarUrl != null
+                                  ? CachedNetworkImageProvider(
+                                      member.avatarUrl!,
+                                    )
                                   : null,
-                              child: member.avatarUrl == null ? Text(member.username[0].toUpperCase()) : null,
+                              child: member.avatarUrl == null
+                                  ? Text(member.username[0].toUpperCase())
+                                  : null,
                             ),
                             const SizedBox(height: 4),
                             SizedBox(
@@ -222,7 +246,11 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                                 color: colorScheme.error,
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.close, size: 12, color: Colors.white),
+                              child: const Icon(
+                                Icons.close,
+                                size: 12,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -233,7 +261,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
               ),
 
             const SizedBox(height: 16),
-            
+
             // Following list for selection
             Consumer<ProfileProvider>(
               builder: (context, profileProvider, child) {
@@ -241,22 +269,30 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                 if (following.isEmpty) {
                   return Text(
                     'Follow some people to invite them to your circle!',
-                    style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontStyle: FontStyle.italic,
+                    ),
                   );
                 }
 
                 return Container(
                   height: 300,
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.1),
+                    color: colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.1,
+                    ),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: ListView.builder(
                     itemCount: following.length,
                     itemBuilder: (context, index) {
                       final profile = following[index];
-                      final isSelected = _selectedMembers.any((m) => m.id == profile.id);
+                      final isSelected = _selectedMembers.any(
+                        (m) => m.id == profile.id,
+                      );
 
                       return CheckboxListTile(
                         value: isSelected,
@@ -264,10 +300,12 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                         title: Text(profile.username),
                         secondary: CircleAvatar(
                           radius: 16,
-                          backgroundImage: profile.avatarUrl != null 
-                              ? CachedNetworkImageProvider(profile.avatarUrl!) 
+                          backgroundImage: profile.avatarUrl != null
+                              ? CachedNetworkImageProvider(profile.avatarUrl!)
                               : null,
-                          child: profile.avatarUrl == null ? Text(profile.username[0].toUpperCase()) : null,
+                          child: profile.avatarUrl == null
+                              ? Text(profile.username[0].toUpperCase())
+                              : null,
                         ),
                       );
                     },
@@ -286,13 +324,18 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                     ? const SizedBox(
                         width: 18,
                         height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Icon(FluentIcons.checkmark_circle_24_regular),
                 label: Text(_isLoading ? 'Creating...' : 'Create Circle'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                 ),
               ),
             ),

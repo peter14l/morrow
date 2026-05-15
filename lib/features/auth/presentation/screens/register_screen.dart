@@ -69,12 +69,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // --- NEW: Security PIN Setup for E2E Encryption ---
         if (mounted) {
           final pinSuccess = await SecurityPinSheet.show(
-            context, 
-            EncryptionStatus.needsSetup
+            context,
+            EncryptionStatus.needsSetup,
           );
-          
+
           if (pinSuccess != true) {
-            // If they cancel PIN setup, we still let them in, but they'll 
+            // If they cancel PIN setup, we still let them in, but they'll
             // see the "Upgrade Security" banner later.
             debugPrint('User skipped initial PIN setup.');
           }
@@ -89,26 +89,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             await showDialog(
               context: context,
               barrierDismissible: false,
-              builder:
-                  (context) => AlertDialog(
-                    title: const Text('Verify Your Email'),
-                    content: Text(
-                      'A verification email has been sent to ${user.email}. '
-                      'Please verify your email to continue using the app. '
-                      'You can verify later from your profile settings.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          if (mounted) {
-                            context.go('/feed');
-                          }
-                        },
-                        child: const Text('Continue to App'),
-                      ),
-                    ],
+              builder: (context) => AlertDialog(
+                title: const Text('Verify Your Email'),
+                content: Text(
+                  'A verification email has been sent to ${user.email}. '
+                  'Please verify your email to continue using the app. '
+                  'You can verify later from your profile settings.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      if (mounted) {
+                        context.go('/feed');
+                      }
+                    },
+                    child: const Text('Continue to App'),
                   ),
+                ],
+              ),
             );
           }
         } catch (e) {
@@ -127,7 +126,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Registration successful! Check your email for verification, and also check your spam folder.'),
+              content: Text(
+                'Registration successful! Check your email for verification, and also check your spam folder.',
+              ),
             ),
           );
           context.go('/login');
@@ -141,11 +142,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         // Log specific error for debugging
         debugPrint('[RegisterScreen] Detailed error message: $errorMessage');
-        
+
         // Handle specific SMTP failure from Supabase
         if (errorMessage.contains('Error sending confirmation email')) {
-          errorMessage = 'The app failed to send a verification email. Please check the email address or try again later.';
-          
+          errorMessage =
+              'The app failed to send a verification email. Please check the email address or try again later.';
+
           // Provide additional help in a dialog if it's a known configuration issue
           showDialog(
             context: context,
@@ -305,10 +307,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 16),
               // --- Terms and Conditions Checkbox ---
               material.Theme(
-                data: theme.copyWith(unselectedWidgetColor: colorScheme.onSurfaceVariant),
+                data: theme.copyWith(
+                  unselectedWidgetColor: colorScheme.onSurfaceVariant,
+                ),
                 child: CheckboxListTile(
                   value: _hasAcceptedTerms,
-                  onChanged: (val) => setState(() => _hasAcceptedTerms = val ?? false),
+                  onChanged: (val) =>
+                      setState(() => _hasAcceptedTerms = val ?? false),
                   controlAffinity: ListTileControlAffinity.leading,
                   contentPadding: EdgeInsets.zero,
                   activeColor: colorScheme.primary,
@@ -353,7 +358,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 16),
               AppButton.primary(
                 text: 'Sign up with Password',
-                onPressed: (_isLoading || !_hasAcceptedTerms) ? null : _register,
+                onPressed: (_isLoading || !_hasAcceptedTerms)
+                    ? null
+                    : _register,
                 isLoading: _isLoading,
               ),
 

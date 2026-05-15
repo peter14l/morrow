@@ -11,76 +11,110 @@ class CircleRemoteDatasource {
 
   Future<List<Map<String, dynamic>>> fetchUserCircles(String userId) async {
     try {
-      debugPrint('[CircleRemoteDatasource] fetchUserCircles START for userId: $userId');
-      
+      debugPrint(
+        '[CircleRemoteDatasource] fetchUserCircles START for userId: $userId',
+      );
+
       // Step 1: Query circles where the user is a member or the creator
       // We use a join with circle_members!inner to find circles the user is in.
       // We also fetch all members and their profiles in the same query.
       // NOTE: We must explicitly list columns for the profiles join due to security hardening.
-      const profileColumns = 'id, username, full_name, avatar_url, is_verified, xp, level';
-      
+      const profileColumns =
+          'id, username, full_name, avatar_url, is_verified, xp, level';
+
       final response = await _supabase
           .from('circles')
-          .select('*, circle_members!inner(user_id), all_members:circle_members(user_id, profiles:user_id($profileColumns))')
+          .select(
+            '*, circle_members!inner(user_id), all_members:circle_members(user_id, profiles:user_id($profileColumns))',
+          )
           .eq('circle_members.user_id', userId)
           .order('created_at', ascending: false);
 
       if (response == null) {
-        debugPrint('[CircleRemoteDatasource] fetchUserCircles: response was null');
+        debugPrint(
+          '[CircleRemoteDatasource] fetchUserCircles: response was null',
+        );
         return [];
       }
 
       final List<dynamic> rows = response as List<dynamic>;
-      debugPrint('[CircleRemoteDatasource] fetchUserCircles: found ${rows.length} circles');
+      debugPrint(
+        '[CircleRemoteDatasource] fetchUserCircles: found ${rows.length} circles',
+      );
 
       final List<Map<String, dynamic>> results = [];
-      
+
       for (final row in rows) {
         try {
-          final circleMap = Map<String, dynamic>.from(row as Map<String, dynamic>);
-          
+          final circleMap = Map<String, dynamic>.from(
+            row as Map<String, dynamic>,
+          );
+
           // Extract members from the 'all_members' join
-          final allMemberRows = (circleMap['all_members'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-          
+          final allMemberRows =
+              (circleMap['all_members'] as List?)
+                  ?.cast<Map<String, dynamic>>() ??
+              [];
+
           circleMap['member_ids'] = allMemberRows
               .map((m) => m['user_id']?.toString())
               .whereType<String>()
               .toList();
-              
+
           circleMap['members'] = allMemberRows
               .map((m) => m['profiles'])
               .where((p) => p != null)
               .cast<Map<String, dynamic>>()
               .toList();
-          
+
           // Cleanup internal join fields
           circleMap.remove('circle_members');
           circleMap.remove('all_members');
-          
+
           results.add(circleMap);
         } catch (e) {
-          debugPrint('[CircleRemoteDatasource] Error processing circle row: $e');
+          debugPrint(
+            '[CircleRemoteDatasource] Error processing circle row: $e',
+          );
         }
       }
 
-      // Fallback: If no circles found by membership, check if the user created any 
+      // Fallback: If no circles found by membership, check if the user created any
       // (This helps if membership record creation failed but circle creation succeeded)
       if (results.isEmpty) {
-        debugPrint('[CircleRemoteDatasource] No circles found by membership, checking created_by...');
+        debugPrint(
+          '[CircleRemoteDatasource] No circles found by membership, checking created_by...',
+        );
         final createdResponse = await _supabase
             .from('circles')
-            .select('*, all_members:circle_members(user_id, profiles:user_id(*))')
+            .select(
+              '*, all_members:circle_members(user_id, profiles:user_id(*))',
+            )
             .eq('created_by', userId)
             .order('created_at', ascending: false);
-            
+
         if (createdResponse != null && (createdResponse as List).isNotEmpty) {
-          debugPrint('[CircleRemoteDatasource] Found ${(createdResponse as List).length} circles by created_by fallback');
+          debugPrint(
+            '[CircleRemoteDatasource] Found ${(createdResponse as List).length} circles by created_by fallback',
+          );
           for (final row in (createdResponse as List)) {
-             try {
-              final circleMap = Map<String, dynamic>.from(row as Map<String, dynamic>);
-              final allMemberRows = (circleMap['all_members'] as List?)?.cast<Map<String, dynamic>>() ?? [];
-              circleMap['member_ids'] = allMemberRows.map((m) => m['user_id']?.toString()).whereType<String>().toList();
-              circleMap['members'] = allMemberRows.map((m) => m['profiles']).where((p) => p != null).cast<Map<String, dynamic>>().toList();
+            try {
+              final circleMap = Map<String, dynamic>.from(
+                row as Map<String, dynamic>,
+              );
+              final allMemberRows =
+                  (circleMap['all_members'] as List?)
+                      ?.cast<Map<String, dynamic>>() ??
+                  [];
+              circleMap['member_ids'] = allMemberRows
+                  .map((m) => m['user_id']?.toString())
+                  .whereType<String>()
+                  .toList();
+              circleMap['members'] = allMemberRows
+                  .map((m) => m['profiles'])
+                  .where((p) => p != null)
+                  .cast<Map<String, dynamic>>()
+                  .toList();
               circleMap.remove('all_members');
               results.add(circleMap);
             } catch (_) {}
@@ -98,21 +132,24 @@ class CircleRemoteDatasource {
 
   Future<Map<String, dynamic>> getCircle(String circleId) async {
     try {
-      const profileColumns = 'id, username, full_name, avatar_url, is_verified, xp, level';
-      final response =
-          await _supabase
-              .from('circles')
-              .select('*, circle_members(user_id, profiles:user_id($profileColumns))')
-              .eq('id', circleId)
-              .single();
+      const profileColumns =
+          'id, username, full_name, avatar_url, is_verified, xp, level';
+      final response = await _supabase
+          .from('circles')
+          .select(
+            '*, circle_members(user_id, profiles:user_id($profileColumns))',
+          )
+          .eq('id', circleId)
+          .single();
 
       final circleMap = Map<String, dynamic>.from(response);
       final memberRows =
           (circleMap['circle_members'] as List?)
               ?.cast<Map<String, dynamic>>() ??
           [];
-      circleMap['member_ids'] =
-          memberRows.map((m) => m['user_id'] as String).toList();
+      circleMap['member_ids'] = memberRows
+          .map((m) => m['user_id'] as String)
+          .toList();
       circleMap['members'] = memberRows
           .map((m) => m['profiles'])
           .where((p) => p != null)
@@ -163,7 +200,7 @@ class CircleRemoteDatasource {
       for (final memberId in memberIds) {
         // Skip notifying yourself
         if (memberId == createdBy) continue;
-        
+
         await _supabase.from('notifications').insert({
           'user_id': memberId,
           'actor_id': createdBy,
@@ -243,12 +280,11 @@ class CircleRemoteDatasource {
 
   Future<void> deletePost(String postId, String userId) async {
     try {
-      final post =
-          await _supabase
-              .from('posts')
-              .select('user_id, image_url')
-              .eq('id', postId)
-              .single();
+      final post = await _supabase
+          .from('posts')
+          .select('user_id, image_url')
+          .eq('id', postId)
+          .single();
 
       if (post['user_id'] != userId) {
         throw Exception('Not authorized to delete this post');
@@ -282,32 +318,45 @@ class CircleRemoteDatasource {
   }) async {
     try {
       // ignore: avoid_print
-      print('>>> getCircleFeed START: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
-      debugPrint('[CircleRemoteDatasource] getCircleFeed: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset');
-      
+      print(
+        '>>> getCircleFeed START: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset',
+      );
+      debugPrint(
+        '[CircleRemoteDatasource] getCircleFeed: circleId=$circleId, userId=$userId, limit=$limit, offset=$offset',
+      );
+
       // Try RPC first
-      var response = await _supabase.rpc('get_circle_feed', params: {
-        'p_user_id': userId,
-        'in_circle_id': circleId,  // Fixed: renamed parameter in SQL
-        'p_limit': limit,
-        'p_offset': offset,
-      });
+      var response = await _supabase.rpc(
+        'get_circle_feed',
+        params: {
+          'p_user_id': userId,
+          'in_circle_id': circleId, // Fixed: renamed parameter in SQL
+          'p_limit': limit,
+          'p_offset': offset,
+        },
+      );
 
       // If RPC returns empty, fallback to direct query
       if (response == null || (response as List).isEmpty) {
-        debugPrint('[CircleRemoteDatasource] RPC returned empty, trying direct query...');
-        
+        debugPrint(
+          '[CircleRemoteDatasource] RPC returned empty, trying direct query...',
+        );
+
         // Debug: First check if ANY posts exist in the table for this user
         final allUserPosts = await _supabase
             .from('posts')
             .select('id, circle_id, content')
             .eq('user_id', userId);
-            
-        debugPrint('[CircleRemoteDatasource] All user posts count: ${(allUserPosts as List).length}');
+
+        debugPrint(
+          '[CircleRemoteDatasource] All user posts count: ${(allUserPosts as List).length}',
+        );
         if ((allUserPosts as List).isNotEmpty) {
-          debugPrint('[CircleRemoteDatasource] User post circle_ids: ${allUserPosts.map((p) => p['circle_id']).toList()}');
+          debugPrint(
+            '[CircleRemoteDatasource] User post circle_ids: ${allUserPosts.map((p) => p['circle_id']).toList()}',
+          );
         }
-        
+
         // Direct query as fallback - bypass RPC to avoid potential RPC issues
         // Use range() for pagination instead of limit/offset separately
         final start = offset;
@@ -319,8 +368,10 @@ class CircleRemoteDatasource {
             .eq('circle_id', circleId)
             .order('created_at', ascending: false)
             .range(start, end);
-            
-        debugPrint('[CircleRemoteDatasource] Direct query returned: ${(directResponse as List).length} posts');
+
+        debugPrint(
+          '[CircleRemoteDatasource] Direct query returned: ${(directResponse as List).length} posts',
+        );
         response = directResponse;
       }
 
@@ -329,22 +380,31 @@ class CircleRemoteDatasource {
         return [];
       }
 
-      final List<Map<String, dynamic>> posts = (response as List).cast<Map<String, dynamic>>();
-      debugPrint('[CircleRemoteDatasource] getCircleFeed: returned ${posts.length} posts for circle $circleId');
-      
+      final List<Map<String, dynamic>> posts = (response as List)
+          .cast<Map<String, dynamic>>();
+      debugPrint(
+        '[CircleRemoteDatasource] getCircleFeed: returned ${posts.length} posts for circle $circleId',
+      );
+
       // Log first post's circle_id to verify posts have circle_id set
       if (posts.isNotEmpty) {
-        debugPrint('[CircleRemoteDatasource] First post circle_id: ${posts.first['circle_id']}');
+        debugPrint(
+          '[CircleRemoteDatasource] First post circle_id: ${posts.first['circle_id']}',
+        );
       }
-      
+
       // ignore: avoid_print
-      print('>>> getCircleFeed RESULT: ${posts.length} posts for circle $circleId');
-      
+      print(
+        '>>> getCircleFeed RESULT: ${posts.length} posts for circle $circleId',
+      );
+
       return posts;
     } catch (e, stack) {
       // ignore: avoid_print
       print('>>> getCircleFeed ERROR: $e');
-      debugPrint('[CircleRemoteDatasource] getCircleFeed error: $e, stack: $stack');
+      debugPrint(
+        '[CircleRemoteDatasource] getCircleFeed error: $e, stack: $stack',
+      );
       return [];
     }
   }
@@ -395,11 +455,15 @@ class CircleRemoteDatasource {
         });
 
         if (poll['options'] != null) {
-          final options = (poll['options'] as List).map((opt) => {
-            'poll_id': pollId,
-            'option_text': opt['text'],
-            'option_order': opt['order'],
-          }).toList();
+          final options = (poll['options'] as List)
+              .map(
+                (opt) => {
+                  'poll_id': pollId,
+                  'option_text': opt['text'],
+                  'option_order': opt['order'],
+                },
+              )
+              .toList();
           await _supabase.from('poll_options').insert(options);
         }
       }
@@ -424,11 +488,12 @@ class CircleRemoteDatasource {
       final postMap = Map<String, dynamic>.from(response);
       final profile = postMap['profiles'];
       if (profile != null) {
-        postMap['username'] = profile['username'] ?? profile['full_name'] ?? 'User';
+        postMap['username'] =
+            profile['username'] ?? profile['full_name'] ?? 'User';
         postMap['user_avatar'] = profile['avatar_url'] ?? '';
         postMap['is_verified'] = profile['is_verified'] ?? false;
       }
-      
+
       // Ensure circle_id is preserved in the map (select * should include it)
       postMap['circle_id'] = postMap['circle_id'] ?? circleId;
       postMap['storage_provider'] = postMap['storage_provider'] ?? 'supabase';

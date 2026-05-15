@@ -35,17 +35,15 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
 
       // Get cached feed data size
       final feedJson = prefs.getString('cached_feed');
-      _imageSize =
-          feedJson != null
-              ? (feedJson.length / (1024 * 1024)).clamp(0, 45.2)
-              : 0;
+      _imageSize = feedJson != null
+          ? (feedJson.length / (1024 * 1024)).clamp(0, 45.2)
+          : 0;
 
       // Get cached stories data size
       final storiesJson = prefs.getString('cached_stories');
-      _otherSize =
-          storiesJson != null
-              ? (storiesJson.length / (1024 * 1024)).clamp(0, 5.4)
-              : 0;
+      _otherSize = storiesJson != null
+          ? (storiesJson.length / (1024 * 1024)).clamp(0, 5.4)
+          : 0;
 
       // Placeholder for video cache (would need actual file system access)
       _videoSize =
@@ -67,24 +65,23 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Clear Cache'),
-            content: const Text(
-              'This will clear all cached data including images, stories, and feed content. You will need to re-download content when browsing.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Clear'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Clear Cache'),
+        content: const Text(
+          'This will clear all cached data including images, stories, and feed content. You will need to re-download content when browsing.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Clear'),
+          ),
+        ],
+      ),
     );
 
     if (confirmed != true) return;
@@ -169,14 +166,13 @@ class _StorageUsageScreenState extends State<StorageUsageScreen> {
         const SizedBox(height: 32),
         ElevatedButton.icon(
           onPressed: _isClearing ? null : _clearCache,
-          icon:
-              _isClearing
-                  ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                  : const Icon(Icons.delete_sweep_outlined),
+          icon: _isClearing
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Icon(Icons.delete_sweep_outlined),
           label: Text(_isClearing ? 'Clearing...' : 'Clear All Cache'),
           style: ElevatedButton.styleFrom(
             backgroundColor: colorScheme.errorContainer,

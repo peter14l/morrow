@@ -22,10 +22,9 @@ class RippleRemoteDatasource {
     final path = '$userId/$fileId';
 
     // Temporary: Upload to Supabase instead of Backblaze
-    await _supabase.storage.from(SupabaseConfig.ripplesVideosBucket).upload(
-      path,
-      file,
-    );
+    await _supabase.storage
+        .from(SupabaseConfig.ripplesVideosBucket)
+        .upload(path, file);
 
     return _supabase.storage
         .from(SupabaseConfig.ripplesVideosBucket)
@@ -91,26 +90,28 @@ class RippleRemoteDatasource {
     String? caption,
     bool isPrivate = false,
   }) async {
-    final data =
-        await _supabase
-            .from(SupabaseConfig.ripplesTable)
-            .insert({
-              'user_id': userId,
-              'video_url': videoUrl,
-              'thumbnail_url': thumbnailUrl,
-              'caption': caption,
-              'is_private': isPrivate,
-              'storage_provider': 'supabase', // Mark as supabase for now
-            })
-            .select()
-            .single();
+    final data = await _supabase
+        .from(SupabaseConfig.ripplesTable)
+        .insert({
+          'user_id': userId,
+          'video_url': videoUrl,
+          'thumbnail_url': thumbnailUrl,
+          'caption': caption,
+          'is_private': isPrivate,
+          'storage_provider': 'supabase', // Mark as supabase for now
+        })
+        .select()
+        .single();
 
     return RippleEntity.fromJson(data);
   }
 
   /// Deletes a ripple by ID.
   Future<void> deleteRipple(String rippleId) async {
-    await _supabase.from(SupabaseConfig.ripplesTable).delete().eq('id', rippleId);
+    await _supabase
+        .from(SupabaseConfig.ripplesTable)
+        .delete()
+        .eq('id', rippleId);
   }
 
   /// Likes a ripple.
@@ -165,16 +166,11 @@ class RippleRemoteDatasource {
     required String userId,
     required String content,
   }) async {
-    final data =
-        await _supabase
-            .from(SupabaseConfig.rippleCommentsTable)
-            .insert({
-              'ripple_id': rippleId,
-              'user_id': userId,
-              'content': content,
-            })
-            .select()
-            .single();
+    final data = await _supabase
+        .from(SupabaseConfig.rippleCommentsTable)
+        .insert({'ripple_id': rippleId, 'user_id': userId, 'content': content})
+        .select()
+        .single();
 
     return RippleCommentEntity.fromJson(data);
   }
@@ -183,7 +179,9 @@ class RippleRemoteDatasource {
   Future<List<RippleCommentEntity>> getComments(String rippleId) async {
     final response = await _supabase
         .from(SupabaseConfig.rippleCommentsTable)
-        .select('*, ${SupabaseConfig.profilesTable}:user_id(username, avatar_url)')
+        .select(
+          '*, ${SupabaseConfig.profilesTable}:user_id(username, avatar_url)',
+        )
         .eq('ripple_id', rippleId)
         .order('created_at', ascending: true);
 
@@ -194,10 +192,9 @@ class RippleRemoteDatasource {
   Future<RippleEntity?> getRippleById(String rippleId) async {
     final userId = _supabase.auth.currentUser?.id;
 
-    final response =
-        await _supabase
-            .from(SupabaseConfig.ripplesTable)
-            .select('''
+    final response = await _supabase
+        .from(SupabaseConfig.ripplesTable)
+        .select('''
           *,
           ${SupabaseConfig.profilesTable}:user_id (
             username,
@@ -211,8 +208,8 @@ class RippleRemoteDatasource {
             user_id
           )
         ''')
-            .eq('id', rippleId)
-            .maybeSingle();
+        .eq('id', rippleId)
+        .maybeSingle();
 
     if (response == null) return null;
 
@@ -258,15 +255,19 @@ class RippleRemoteDatasource {
 
     for (var item in data) {
       if (item[SupabaseConfig.ripplesTable] != null) {
-        final ripple = Map<String, dynamic>.from(item[SupabaseConfig.ripplesTable]);
-        
+        final ripple = Map<String, dynamic>.from(
+          item[SupabaseConfig.ripplesTable],
+        );
+
         // Process likes/saves for the ripple
         final likes = ripple[SupabaseConfig.rippleLikesTable] as List<dynamic>?;
-        ripple['is_liked'] = likes != null && likes.any((l) => l['user_id'] == userId);
+        ripple['is_liked'] =
+            likes != null && likes.any((l) => l['user_id'] == userId);
         ripple.remove(SupabaseConfig.rippleLikesTable);
 
         final saves = ripple[SupabaseConfig.rippleSavesTable] as List<dynamic>?;
-        ripple['is_saved'] = saves != null && saves.any((s) => s['user_id'] == userId);
+        ripple['is_saved'] =
+            saves != null && saves.any((s) => s['user_id'] == userId);
         ripple.remove(SupabaseConfig.rippleSavesTable);
 
         ripplesData.add(ripple);

@@ -15,12 +15,15 @@ void main() {
       // This is a smoke test to ensure the API works without crashing
       // Actual native notification display cannot be tested in pure unit tests
       await notificationManager.initialize();
-      
-      expect(() => notificationManager.showNotification(
-        title: 'Test',
-        body: 'Body',
-        senderAvatar: 'https://example.com/avatar.png',
-      ), returnsNormally);
+
+      expect(
+        () => notificationManager.showNotification(
+          title: 'Test',
+          body: 'Body',
+          senderAvatar: 'https://example.com/avatar.png',
+        ),
+        returnsNormally,
+      );
     });
   });
 }

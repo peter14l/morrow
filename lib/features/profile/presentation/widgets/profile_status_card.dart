@@ -45,7 +45,11 @@ class ProfileStatusCard extends StatelessWidget {
         children: [
           _buildStatusRow(
             context,
-            icon: profile.moodEmoji ?? (profile.pulseStatus != null ? _getPulseEmoji(profile.pulseStatus!) : '✨'),
+            icon:
+                profile.moodEmoji ??
+                (profile.pulseStatus != null
+                    ? _getPulseEmoji(profile.pulseStatus!)
+                    : '✨'),
             title: profile.pulseText ?? profile.currentMood ?? 'Set your vibe',
             subtitle: 'Daily Pulse',
             onTap: onPulseTap,
@@ -61,7 +65,9 @@ class ProfileStatusCard extends StatelessWidget {
                 child: _buildCompactStatus(
                   context,
                   icon: FluentIcons.shapes_24_regular,
-                  label: profile.hasActiveCozyStatus ? profile.cozyStatus! : 'Cozy Mode',
+                  label: profile.hasActiveCozyStatus
+                      ? profile.cozyStatus!
+                      : 'Cozy Mode',
                   isActive: profile.hasActiveCozyStatus,
                   onTap: onCozyTap,
                   activeColor: Colors.orange.shade400,
@@ -71,7 +77,9 @@ class ProfileStatusCard extends StatelessWidget {
               Expanded(
                 child: _buildCompactStatus(
                   context,
-                  icon: profile.fortressMode ? FluentIcons.shield_lock_24_filled : FluentIcons.shield_24_regular,
+                  icon: profile.fortressMode
+                      ? FluentIcons.shield_lock_24_filled
+                      : FluentIcons.shield_24_regular,
                   label: profile.fortressMode ? 'Fortress On' : 'Fortress',
                   isActive: profile.fortressMode,
                   onTap: onFortressTap,
@@ -103,16 +111,13 @@ class ProfileStatusCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isActive 
+              color: isActive
                   ? theme.colorScheme.primary.withValues(alpha: 0.15)
                   : theme.colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Center(
-              child: Text(
-                icon,
-                style: const TextStyle(fontSize: 24),
-              ),
+              child: Text(icon, style: const TextStyle(fontSize: 24)),
             ),
           ),
           const SizedBox(width: 16),
@@ -124,7 +129,9 @@ class ProfileStatusCard extends StatelessWidget {
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: isActive ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                    color: isActive
+                        ? theme.colorScheme.onSurface
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.8),
                   ),
                 ),
                 Text(
@@ -163,12 +170,14 @@ class ProfileStatusCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
-          color: isActive 
+          color: isActive
               ? activeColor.withValues(alpha: 0.2)
-              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              : theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isActive 
+            color: isActive
                 ? activeColor.withValues(alpha: 0.4)
                 : theme.colorScheme.outlineVariant,
           ),
@@ -178,7 +187,9 @@ class ProfileStatusCard extends StatelessWidget {
             Icon(
               icon,
               size: 18,
-              color: isActive ? activeColor : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              color: isActive
+                  ? activeColor
+                  : theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -186,7 +197,9 @@ class ProfileStatusCard extends StatelessWidget {
                 label,
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: isActive ? FontWeight.w900 : FontWeight.bold,
-                  color: isActive ? activeColor : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: isActive
+                      ? activeColor
+                      : theme.colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,

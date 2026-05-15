@@ -37,14 +37,16 @@ class TextParser {
             text: matchedText,
             style:
                 hashtagStyle ??
-                const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () {
-                    if (onHashtagTap != null) {
-                      onHashtagTap(matchedText.substring(1)); // Remove #
-                    }
-                  },
+                const TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                if (onHashtagTap != null) {
+                  onHashtagTap(matchedText.substring(1)); // Remove #
+                }
+              },
           ),
         );
       } else if (isMention) {
@@ -53,14 +55,16 @@ class TextParser {
             text: matchedText,
             style:
                 mentionStyle ??
-                const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () {
-                    if (onMentionTap != null) {
-                      onMentionTap(matchedText.substring(1)); // Remove @
-                    }
-                  },
+                const TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.w600,
+                ),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () {
+                if (onMentionTap != null) {
+                  onMentionTap(matchedText.substring(1)); // Remove @
+                }
+              },
           ),
         );
       }

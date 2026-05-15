@@ -72,7 +72,7 @@ class InfiniteCardStack extends StatelessWidget {
     // The input list is items. The first item is items[0].
     // So items[0] should be rendered last in the Stack.
     // And to make a fan, we calculate an angle for each item.
-    
+
     return GestureDetector(
       onTap: () => _openPreview(context),
       child: Container(
@@ -94,20 +94,27 @@ class InfiniteCardStack extends StatelessWidget {
             // Let's spread them symmetrically.
             // Middle index is (length - 1) / 2
             final middleIndex = (displayItems.length - 1) / 2.0;
-            final positionOffset = itemIndex - middleIndex; // e.g. -2, -1, 0, 1, 2
-            
+            final positionOffset =
+                itemIndex - middleIndex; // e.g. -2, -1, 0, 1, 2
+
             const double angleStep = 0.15; // roughly 8.5 degrees
             final double angle = positionOffset * angleStep;
-            
+
             // We can also lower the outer cards a bit or let rotation handle it
             // rotation with Alignment.bottomCenter naturally lowers the top edges.
-            
-            final bool isBackmost = index == 0; // The first one rendered is the furthest back
-            final int? addCount = isBackmost && extraCount > 0 ? extraCount : null;
+
+            final bool isBackmost =
+                index == 0; // The first one rendered is the furthest back
+            final int? addCount = isBackmost && extraCount > 0
+                ? extraCount
+                : null;
 
             return Transform.rotate(
               angle: angle,
-              alignment: const Alignment(0, 0.8), // Rotates around a point near the bottom
+              alignment: const Alignment(
+                0,
+                0.8,
+              ), // Rotates around a point near the bottom
               child: _buildCardVisually(
                 item: item,
                 width: width - 40,
@@ -148,7 +155,9 @@ class InfiniteCardStack extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
                   child: CachedNetworkImage(
                     imageUrl: item.content,
                     fit: BoxFit.cover,
@@ -166,7 +175,9 @@ class InfiniteCardStack extends StatelessWidget {
                   Container(
                     decoration: const BoxDecoration(
                       color: Colors.black54,
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(10),
+                      ),
                     ),
                     child: Center(
                       child: Text(
@@ -248,7 +259,9 @@ class _SwipeableCardStackState extends State<_SwipeableCardStack> {
 
   void _onPanEnd(DragEndDetails details) {
     // Determine if it was dragged far enough right (or left/up/down)
-    if (_dragOffset.dx > 100 || _dragOffset.dx < -100 || _dragOffset.dy.abs() > 100) {
+    if (_dragOffset.dx > 100 ||
+        _dragOffset.dx < -100 ||
+        _dragOffset.dy.abs() > 100) {
       _moveToBack();
     } else {
       // Return to center
@@ -292,10 +305,16 @@ class _SwipeableCardStackState extends State<_SwipeableCardStack> {
     );
   }
 
-  Widget _buildInteractiveCard(CanvasItemEntity item, int indexFromFront, bool isTop) {
-    final double scale = isTop ? 1.0 : (1.0 - (indexFromFront * 0.05)).clamp(0.8, 1.0);
+  Widget _buildInteractiveCard(
+    CanvasItemEntity item,
+    int indexFromFront,
+    bool isTop,
+  ) {
+    final double scale = isTop
+        ? 1.0
+        : (1.0 - (indexFromFront * 0.05)).clamp(0.8, 1.0);
     final double topPadding = indexFromFront * 16.0;
-    final double rotation = indexFromFront * 0.02; 
+    final double rotation = indexFromFront * 0.02;
 
     final Widget card = Container(
       width: widget.width,
@@ -315,7 +334,9 @@ class _SwipeableCardStackState extends State<_SwipeableCardStack> {
         children: [
           Expanded(
             child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
               child: CachedNetworkImage(
                 imageUrl: item.content,
                 fit: BoxFit.cover,
@@ -350,7 +371,9 @@ class _SwipeableCardStackState extends State<_SwipeableCardStack> {
 
     if (isTop) {
       return AnimatedPositioned(
-        duration: _isDragging ? Duration.zero : const Duration(milliseconds: 300),
+        duration: _isDragging
+            ? Duration.zero
+            : const Duration(milliseconds: 300),
         curve: Curves.easeOutBack,
         left: _dragOffset.dx,
         top: _dragOffset.dy + topPadding,
@@ -370,10 +393,7 @@ class _SwipeableCardStackState extends State<_SwipeableCardStack> {
         child: AnimatedScale(
           duration: const Duration(milliseconds: 400),
           scale: scale,
-          child: Transform.rotate(
-            angle: rotation,
-            child: card,
-          ),
+          child: Transform.rotate(angle: rotation, child: card),
         ),
       );
     }

@@ -35,10 +35,10 @@ abstract class Conversation with _$Conversation {
   ) {
     final Map<String, dynamic> normalized = Map.from(json);
     final isGroup = json['type'] == 'group';
-    
+
     normalized['type'] = json['type'] ?? 'direct';
     normalized['other_user_id'] = json['other_user_id'] ?? '';
-    
+
     if (isGroup) {
       normalized['other_user_name'] = json['name'] ?? 'Group';
       normalized['other_user_avatar'] = json['image_url'] ?? '';
@@ -48,7 +48,7 @@ abstract class Conversation with _$Conversation {
       normalized['other_user_avatar'] =
           json['other_user_avatar'] ?? json['other_user_avatar_url'] ?? '';
     }
-    
+
     normalized['whisper_mode'] =
         json['whisper_mode'] ?? (json['is_whisper_mode'] == true ? 1 : 0);
     return normalized;

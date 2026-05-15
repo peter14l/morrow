@@ -8,7 +8,8 @@ class ScatteredPolaroidSpread extends StatefulWidget {
   const ScatteredPolaroidSpread({super.key, required this.items});
 
   @override
-  State<ScatteredPolaroidSpread> createState() => _ScatteredPolaroidSpreadState();
+  State<ScatteredPolaroidSpread> createState() =>
+      _ScatteredPolaroidSpreadState();
 }
 
 class _ScatteredPolaroidSpreadState extends State<ScatteredPolaroidSpread>
@@ -29,10 +30,12 @@ class _ScatteredPolaroidSpreadState extends State<ScatteredPolaroidSpread>
     final random = math.Random(widget.items.first.id.hashCode);
     for (int i = 0; i < widget.items.length; i++) {
       _rotations.add((random.nextDouble() - 0.5) * 0.4); // Random rotation
-      _offsets.add(Offset(
-        (random.nextDouble() - 0.5) * 30, // Random X offset
-        (random.nextDouble() - 0.5) * 30, // Random Y offset
-      ));
+      _offsets.add(
+        Offset(
+          (random.nextDouble() - 0.5) * 30, // Random X offset
+          (random.nextDouble() - 0.5) * 30, // Random Y offset
+        ),
+      );
     }
   }
 
@@ -65,37 +68,52 @@ class _ScatteredPolaroidSpreadState extends State<ScatteredPolaroidSpread>
             width: double.infinity,
             child: Stack(
               alignment: Alignment.center,
-              children: List.generate(widget.items.length, (index) {
-                final item = widget.items[index];
-                
-                // Fan out logic
-                double fanRotation = 0;
-                Offset fanOffset = Offset.zero;
-                
-                if (widget.items.length > 1) {
-                  const double fanRange = 0.8; // Total arc
-                  final double step = fanRange / (widget.items.length - 1);
-                  fanRotation = -fanRange/2 + (index * step);
-                  fanOffset = Offset(
-                    math.sin(fanRotation) * 120,
-                    -math.cos(fanRotation) * 40 + 40,
-                  );
-                }
+              children:
+                  List.generate(widget.items.length, (index) {
+                        final item = widget.items[index];
 
-                final currentRotation = uiLerp(_rotations[index], fanRotation, _controller.value);
-                final currentOffset = Offset(
-                  uiLerp(_offsets[index].dx, fanOffset.dx, _controller.value),
-                  uiLerp(_offsets[index].dy, fanOffset.dy, _controller.value),
-                );
+                        // Fan out logic
+                        double fanRotation = 0;
+                        Offset fanOffset = Offset.zero;
 
-                return Transform.translate(
-                  offset: currentOffset,
-                  child: Transform.rotate(
-                    angle: currentRotation,
-                    child: _PolaroidFrame(imageUrl: item.content),
-                  ),
-                );
-              }).reversed.toList(), // Reverse so first item is on top when collapsed
+                        if (widget.items.length > 1) {
+                          const double fanRange = 0.8; // Total arc
+                          final double step =
+                              fanRange / (widget.items.length - 1);
+                          fanRotation = -fanRange / 2 + (index * step);
+                          fanOffset = Offset(
+                            math.sin(fanRotation) * 120,
+                            -math.cos(fanRotation) * 40 + 40,
+                          );
+                        }
+
+                        final currentRotation = uiLerp(
+                          _rotations[index],
+                          fanRotation,
+                          _controller.value,
+                        );
+                        final currentOffset = Offset(
+                          uiLerp(
+                            _offsets[index].dx,
+                            fanOffset.dx,
+                            _controller.value,
+                          ),
+                          uiLerp(
+                            _offsets[index].dy,
+                            fanOffset.dy,
+                            _controller.value,
+                          ),
+                        );
+
+                        return Transform.translate(
+                          offset: currentOffset,
+                          child: Transform.rotate(
+                            angle: currentRotation,
+                            child: _PolaroidFrame(imageUrl: item.content),
+                          ),
+                        );
+                      }).reversed
+                      .toList(), // Reverse so first item is on top when collapsed
             ),
           );
         },

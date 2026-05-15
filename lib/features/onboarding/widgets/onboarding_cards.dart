@@ -74,12 +74,12 @@ class TimeCapsuleCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(2),
                 ),
               ).animate().scaleX(
-                    begin: 0,
-                    duration: 1400.ms,
-                    delay: 600.ms,
-                    curve: Curves.easeOut,
-                    alignment: Alignment.centerLeft,
-                  ),
+                begin: 0,
+                duration: 1400.ms,
+                delay: 600.ms,
+                curve: Curves.easeOut,
+                alignment: Alignment.centerLeft,
+              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -108,7 +108,9 @@ class TimeCapsuleCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'From your Circle',
-                style: OasisTextStyles.onboardingSubtitle.copyWith(fontSize: 11),
+                style: OasisTextStyles.onboardingSubtitle.copyWith(
+                  fontSize: 11,
+                ),
               ),
             ],
           ),
@@ -138,20 +140,33 @@ class CanvasMockup extends StatelessWidget {
             size: const Size(double.infinity, double.infinity),
             painter: _DotGridPainter(),
           ),
-          
+
           // Item A — Photo block (top-left)
           Positioned(
             top: 20,
             left: 20,
-            child: _CanvasItem(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.image_outlined, color: OasisColors.glow, size: 24),
-                  Text('Kyoto Trip', style: OasisTextStyles.onboardingSubtitle.copyWith(fontSize: 9)),
-                ],
-              ),
-            ).animate().scale(begin: const Offset(0.8, 0.8), delay: 300.ms).fadeIn(delay: 300.ms),
+            child:
+                _CanvasItem(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.image_outlined,
+                            color: OasisColors.glow,
+                            size: 24,
+                          ),
+                          Text(
+                            'Kyoto Trip',
+                            style: OasisTextStyles.onboardingSubtitle.copyWith(
+                              fontSize: 9,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    .animate()
+                    .scale(begin: const Offset(0.8, 0.8), delay: 300.ms)
+                    .fadeIn(delay: 300.ms),
           ),
 
           // Item B — Text sticky (center-right)
@@ -184,28 +199,48 @@ class CanvasMockup extends StatelessWidget {
                 const Icon(Icons.mic_none, color: OasisColors.glow, size: 14),
                 const SizedBox(width: 4),
                 // Using placeholder for WaveformBars here
-                const Text('|||||', style: TextStyle(color: OasisColors.glow, letterSpacing: 1)),
+                const Text(
+                  '|||||',
+                  style: TextStyle(color: OasisColors.glow, letterSpacing: 1),
+                ),
                 const SizedBox(width: 4),
-                Text('0:32', style: OasisTextStyles.onboardingSubtitle.copyWith(fontSize: 11)),
+                Text(
+                  '0:32',
+                  style: OasisTextStyles.onboardingSubtitle.copyWith(
+                    fontSize: 11,
+                  ),
+                ),
               ],
             ).animate().fadeIn(delay: 700.ms),
           ),
-          
+
           // Item E — Milestone badge (bottom-center)
           Positioned(
             bottom: 20,
             left: 80,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: OasisColors.sand,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Text(
-                '🎉 1 Year Together',
-                style: TextStyle(color: OasisColors.deep, fontSize: 10, fontWeight: FontWeight.bold),
-              ),
-            ).animate().scale(begin: Offset.zero, delay: 1100.ms, curve: Curves.elasticOut),
+            child:
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: OasisColors.sand,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Text(
+                    '🎉 1 Year Together',
+                    style: TextStyle(
+                      color: OasisColors.deep,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ).animate().scale(
+                  begin: Offset.zero,
+                  delay: 1100.ms,
+                  curve: Curves.elasticOut,
+                ),
           ),
         ],
       ),
@@ -224,6 +259,7 @@ class _DotGridPainter extends CustomPainter {
       }
     }
   }
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

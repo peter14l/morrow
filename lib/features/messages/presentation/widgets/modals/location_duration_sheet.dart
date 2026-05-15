@@ -57,7 +57,9 @@ class LocationDurationSheet extends StatelessWidget {
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close_rounded, size: 20),
                       style: IconButton.styleFrom(
-                        backgroundColor: colorScheme.onSurface.withAlpha((255 * 0.05).toInt()),
+                        backgroundColor: colorScheme.onSurface.withAlpha(
+                          (255 * 0.05).toInt(),
+                        ),
                       ),
                     ),
                   ],
@@ -94,7 +96,11 @@ class LocationDurationSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildDurationOption(BuildContext context, String title, Duration duration) {
+  Widget _buildDurationOption(
+    BuildContext context,
+    String title,
+    Duration duration,
+  ) {
     final theme = Theme.of(context);
     return InkWell(
       onTap: () {
@@ -106,7 +112,9 @@ class LocationDurationSheet extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: theme.colorScheme.surfaceVariant.withAlpha((255 * 0.5).toInt()),
+          color: theme.colorScheme.surfaceVariant.withAlpha(
+            (255 * 0.5).toInt(),
+          ),
         ),
         child: Row(
           children: [
@@ -114,7 +122,9 @@ class LocationDurationSheet extends StatelessWidget {
             const SizedBox(width: 16),
             Text(
               title,
-              style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),

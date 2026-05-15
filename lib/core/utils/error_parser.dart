@@ -13,12 +13,13 @@ class ErrorParser {
     } else if (error is PlatformException) {
       return error.message ?? 'A system error occurred.';
     }
-    
+
     final errorString = error.toString().toLowerCase();
-    if (errorString.contains('network') || errorString.contains('xmlhttprequest')) {
+    if (errorString.contains('network') ||
+        errorString.contains('xmlhttprequest')) {
       return 'Connection failed. Please try again later.';
     }
-    
+
     return 'Something went wrong. Please try again.';
   }
 

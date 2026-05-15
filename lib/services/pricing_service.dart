@@ -20,26 +20,14 @@ class PricingPlan {
 
 class PricingService {
   static final Map<Currency, Map<String, dynamic>> _pricingData = {
-    Currency.usd: {
-      'symbol': '\$',
-      'monthly': 4.99,
-      'annual': 34.99,
-    },
+    Currency.usd: {'symbol': '\$', 'monthly': 4.99, 'annual': 34.99},
     Currency.inr: {
       'symbol': '₹',
       'monthly': 5.0, // Testing price
       'annual': 50.0, // Testing price
     },
-    Currency.eur: {
-      'symbol': '€',
-      'monthly': 4.99,
-      'annual': 34.99,
-    },
-    Currency.gbp: {
-      'symbol': '£',
-      'monthly': 4.49,
-      'annual': 31.99,
-    },
+    Currency.eur: {'symbol': '€', 'monthly': 4.99, 'annual': 34.99},
+    Currency.gbp: {'symbol': '£', 'monthly': 4.49, 'annual': 31.99},
   };
 
   static final Map<String, Currency> _countryToCurrency = {
@@ -55,29 +43,33 @@ class PricingService {
   static Future<Currency> detectPPP() async {
     // Priority 1: System Hardware Locale (Highly resistant to VPN)
     final systemCurrency = detectCurrency();
-    
+
     try {
       // Priority 2: IP-based detection (Used for validation)
       final response = await http
           .get(Uri.parse('https://ipapi.co/json/'))
           .timeout(const Duration(seconds: 3));
-          
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final ipCountryCode = data['country_code']?.toString().toUpperCase();
-        
-        // Validation: If IP country doesn't match System Locale, 
+
+        // Validation: If IP country doesn't match System Locale,
         // it's likely a VPN. Default to USD for safety.
-        final systemCountryCode = PlatformDispatcher.instance.locale.countryCode?.toUpperCase();
-        
+        final systemCountryCode = PlatformDispatcher.instance.locale.countryCode
+            ?.toUpperCase();
+
         if (ipCountryCode != null && systemCountryCode != null) {
           if (ipCountryCode != systemCountryCode) {
-            debugPrint('VPN Detected! IP: $ipCountryCode vs Locale: $systemCountryCode. Defaulting to USD.');
+            debugPrint(
+              'VPN Detected! IP: $ipCountryCode vs Locale: $systemCountryCode. Defaulting to USD.',
+            );
             return Currency.usd;
           }
         }
 
-        if (ipCountryCode != null && _countryToCurrency.containsKey(ipCountryCode)) {
+        if (ipCountryCode != null &&
+            _countryToCurrency.containsKey(ipCountryCode)) {
           return _countryToCurrency[ipCountryCode]!;
         }
       }
@@ -92,15 +84,15 @@ class PricingService {
   static Currency detectCurrency() {
     try {
       // First check if we have a valid country code from the system locale
-      final countryCode =
-          PlatformDispatcher.instance.locale.countryCode?.toUpperCase();
+      final countryCode = PlatformDispatcher.instance.locale.countryCode
+          ?.toUpperCase();
       if (countryCode != null && _countryToCurrency.containsKey(countryCode)) {
         return _countryToCurrency[countryCode]!;
       }
 
       // Additional check for common European countries that might not be in our explicit map
-      final languageCode =
-          PlatformDispatcher.instance.locale.languageCode.toLowerCase();
+      final languageCode = PlatformDispatcher.instance.locale.languageCode
+          .toLowerCase();
       if (['de', 'fr', 'it', 'es', 'nl', 'be', 'at'].contains(languageCode)) {
         return Currency.eur;
       }

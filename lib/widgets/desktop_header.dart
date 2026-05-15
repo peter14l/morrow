@@ -93,34 +93,30 @@ class DesktopHeader extends StatelessWidget {
     );
 
     return ClipRRect(
-      child:
-          disableTransparency
-              ? Container(
+      child: disableTransparency
+          ? Container(
+              width: double.infinity,
+              color: theme.scaffoldBackgroundColor,
+              child: MaxWidthContainer(
+                maxWidth: maxWidth ?? ResponsiveLayout.maxContentWidth,
+                child: headerContent,
+              ),
+            )
+          : BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: Container(
                 width: double.infinity,
-                color: theme.scaffoldBackgroundColor,
+                color: micaEnabled
+                    ? (theme.brightness == Brightness.dark
+                          ? Colors.black.withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.2))
+                    : theme.scaffoldBackgroundColor.withValues(alpha: 0.7),
                 child: MaxWidthContainer(
                   maxWidth: maxWidth ?? ResponsiveLayout.maxContentWidth,
                   child: headerContent,
                 ),
-              )
-              : BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                child: Container(
-                  width: double.infinity,
-                  color:
-                      micaEnabled
-                          ? (theme.brightness == Brightness.dark
-                              ? Colors.black.withValues(alpha: 0.2)
-                              : Colors.white.withValues(alpha: 0.2))
-                          : theme.scaffoldBackgroundColor.withValues(
-                            alpha: 0.7,
-                          ),
-                  child: MaxWidthContainer(
-                    maxWidth: maxWidth ?? ResponsiveLayout.maxContentWidth,
-                    child: headerContent,
-                  ),
-                ),
               ),
+            ),
     );
   }
 }

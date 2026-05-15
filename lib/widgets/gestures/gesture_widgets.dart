@@ -73,8 +73,9 @@ class _SwipeableMessageState extends State<SwipeableMessage>
       onHorizontalDragUpdate: _handleDragUpdate,
       onHorizontalDragEnd: _handleDragEnd,
       child: Stack(
-        alignment:
-            widget.isOwnMessage ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: widget.isOwnMessage
+            ? Alignment.centerRight
+            : Alignment.centerLeft,
         children: [
           // Reply icon behind the message
           Positioned(
@@ -269,42 +270,39 @@ class LongPressQuickActions extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surface,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(20),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: colorScheme.outline.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: colorScheme.outline.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ...actions.map(
-                  (action) => ListTile(
-                    leading: Icon(action.icon, color: action.color),
-                    title: Text(action.label),
-                    onTap: () {
-                      HapticUtils.selectionClick();
-                      Navigator.pop(context);
-                      action.onTap();
-                    },
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
+            const SizedBox(height: 16),
+            ...actions.map(
+              (action) => ListTile(
+                leading: Icon(action.icon, color: action.color),
+                title: Text(action.label),
+                onTap: () {
+                  HapticUtils.selectionClick();
+                  Navigator.pop(context);
+                  action.onTap();
+                },
+              ),
             ),
-          ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
     );
   }
 }

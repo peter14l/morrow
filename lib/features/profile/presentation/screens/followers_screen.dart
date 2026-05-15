@@ -67,7 +67,10 @@ class _FollowersScreenState extends State<FollowersScreen>
         title: const Text('Connections'),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Followers'), Tab(text: 'Following')],
+          tabs: const [
+            Tab(text: 'Followers'),
+            Tab(text: 'Following'),
+          ],
         ),
       ),
       body: Consumer<ProfileProvider>(
@@ -89,9 +92,9 @@ class _FollowersScreenState extends State<FollowersScreen>
 
     return ResponsiveLayout.isDesktop(context)
         ? MaxWidthContainer(
-          maxWidth: ResponsiveLayout.maxContentWidth,
-          child: content,
-        )
+            maxWidth: ResponsiveLayout.maxContentWidth,
+            child: content,
+          )
         : content;
   }
 
@@ -136,14 +139,12 @@ class _FollowersScreenState extends State<FollowersScreen>
       child: ListTile(
         leading: CircleAvatar(
           radius: 24,
-          backgroundImage:
-              user.avatarUrl != null && user.avatarUrl!.isNotEmpty
-                  ? CachedNetworkImageProvider(user.avatarUrl!)
-                  : null,
-          child:
-              user.avatarUrl == null || user.avatarUrl!.isEmpty
-                  ? Text(user.username[0].toUpperCase())
-                  : null,
+          backgroundImage: user.avatarUrl != null && user.avatarUrl!.isNotEmpty
+              ? CachedNetworkImageProvider(user.avatarUrl!)
+              : null,
+          child: user.avatarUrl == null || user.avatarUrl!.isEmpty
+              ? Text(user.username[0].toUpperCase())
+              : null,
         ),
         title: Row(
           children: [
@@ -159,17 +160,15 @@ class _FollowersScreenState extends State<FollowersScreen>
             ],
           ],
         ),
-        subtitle:
-            user.fullName != null && user.fullName!.isNotEmpty
-                ? Text(user.fullName!)
-                : null,
-        trailing:
-            user.id != widget.userId
-                ? OutlinedButton(
-                  onPressed: () => context.push('/profile/${user.id}'),
-                  child: const Text('View'),
-                )
-                : null,
+        subtitle: user.fullName != null && user.fullName!.isNotEmpty
+            ? Text(user.fullName!)
+            : null,
+        trailing: user.id != widget.userId
+            ? OutlinedButton(
+                onPressed: () => context.push('/profile/${user.id}'),
+                child: const Text('View'),
+              )
+            : null,
         onTap: () => context.push('/profile/${user.id}'),
       ),
     );

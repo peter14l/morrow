@@ -99,15 +99,13 @@ class EnergyMeterState {
   factory EnergyMeterState.fromJson(Map<String, dynamic> json) {
     return EnergyMeterState(
       currentEnergy: (json['currentEnergy'] as num?)?.toDouble() ?? maxEnergy,
-      lastInteraction:
-          json['lastInteraction'] != null
-              ? DateTime.parse(json['lastInteraction'] as String)
-              : DateTime.now(),
+      lastInteraction: json['lastInteraction'] != null
+          ? DateTime.parse(json['lastInteraction'] as String)
+          : DateTime.now(),
       interactionsToday: json['interactionsToday'] as int? ?? 0,
-      dayStart:
-          json['dayStart'] != null
-              ? DateTime.parse(json['dayStart'] as String)
-              : DateTime.now(),
+      dayStart: json['dayStart'] != null
+          ? DateTime.parse(json['dayStart'] as String)
+          : DateTime.now(),
     );
   }
 

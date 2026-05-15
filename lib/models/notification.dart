@@ -103,7 +103,7 @@ class AppNotification {
 
   String get displayTitle {
     if (title != null && title!.isNotEmpty) return title!;
-    
+
     switch (type) {
       case 'dm':
         return actorName ?? 'New Message';
@@ -160,4 +160,3 @@ class AppNotification {
     }
   }
 }
-

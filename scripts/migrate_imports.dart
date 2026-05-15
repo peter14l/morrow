@@ -66,13 +66,19 @@ void main() async {
     final newLines = <String>[];
 
     for (var line in lines) {
-      if (!line.trim().startsWith('import') && !line.trim().startsWith('export')) {
+      if (!line.trim().startsWith('import') &&
+          !line.trim().startsWith('export')) {
         newLines.add(line);
         continue;
       }
 
       // Extract path within quotes
-      final RegExp quoteExp = RegExp(r"['""]([^'""]+)['"']');
+      final RegExp quoteExp = RegExp(
+        r"['"
+        "]([^'"
+        "]+)['"
+        ']',
+      );
       final match = quoteExp.firstMatch(line);
       if (match == null) {
         newLines.add(line);
@@ -83,8 +89,11 @@ void main() async {
       String absoluteResolvedPath = '';
 
       if (importPath.startsWith('package:oasis/')) {
-        absoluteResolvedPath = p.normalize(p.join('lib', importPath.substring('package:oasis/'.length)));
-      } else if (importPath.startsWith('dart:') || importPath.startsWith('package:')) {
+        absoluteResolvedPath = p.normalize(
+          p.join('lib', importPath.substring('package:oasis/'.length)),
+        );
+      } else if (importPath.startsWith('dart:') ||
+          importPath.startsWith('package:')) {
         // External package, do nothing
       } else {
         // Relative import
@@ -95,21 +104,23 @@ void main() async {
       if (absoluteResolvedPath.isNotEmpty) {
         // Check if it matches any old duplicate
         final matchedOldPath = duplicates.keys.cast<String?>().firstWhere(
-            (old) => p.equals(old!, absoluteResolvedPath),
-            orElse: () => null);
+          (old) => p.equals(old!, absoluteResolvedPath),
+          orElse: () => null,
+        );
 
         if (matchedOldPath != null) {
           final newPath = duplicates[matchedOldPath]!;
           // Construct the new package import
-          final newPackagePath = 'package:oasis/${p.split(newPath).skip(1).join('/')}'; // skip 'lib'
-          
+          final newPackagePath =
+              'package:oasis/${p.split(newPath).skip(1).join('/')}'; // skip 'lib'
+
           final newLine = line.replaceFirst(importPath, newPackagePath);
           newLines.add(newLine);
           fileModified = true;
           continue;
         }
       }
-      
+
       newLines.add(line);
     }
 

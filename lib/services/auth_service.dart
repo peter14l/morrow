@@ -1,5 +1,6 @@
 import 'package:oasis/core/config/app_config.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer' as developer;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,9 @@ import 'package:oasis/features/circles/presentation/providers/circle_provider.da
 import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:oasis/providers/community_provider.dart';
+import 'package:oasis/providers/presence_provider.dart';
+import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
+import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/services/revenuecat_service.dart';
 
@@ -29,7 +33,7 @@ class AuthService with ChangeNotifier {
   static final AuthService _instance = AuthService._internal();
   SupabaseClient get _supabase => SupabaseService().client;
   final NotificationService _notificationService = NotificationService();
-  
+
   final AccountRegistryManager _accountRegistry = AccountRegistryManager();
   final EncryptionProvisioner _encryptionProvisioner = EncryptionProvisioner();
   final ProfileManager _profileManager = ProfileManager();
@@ -40,13 +44,14 @@ class AuthService with ChangeNotifier {
   bool _isAddingAccount = false;
   String? _lastUserId;
 
-  List<RegisteredAccount> get registeredAccounts => _accountRegistry.registeredAccounts;
+  List<RegisteredAccount> get registeredAccounts =>
+      _accountRegistry.registeredAccounts;
 
   factory AuthService() {
     return _instance;
   }
 
-  /// Call this before starting an "Add Account" flow to prevent 
+  /// Call this before starting an "Add Account" flow to prevent
   /// the auth state listener from interfering with the registry.
   void setAddingAccount(bool value) {
     debugPrint('[AuthService] setAddingAccount: $value');
@@ -60,39 +65,53 @@ class AuthService with ChangeNotifier {
     _accountRegistry.loadRegistry();
 
     // Listen to auth state changes
-    _authStateSubscription = _supabase.auth.onAuthStateChange.listen((data) async {
+    _authStateSubscription = _supabase.auth.onAuthStateChange.listen((
+      data,
+    ) async {
       debugPrint('[AuthService] Auth state change: ${data.event}');
-      
-      if (_isSwitchingAccount) {
-        debugPrint('[AuthService] Skipping registry sync: switch in progress');
-        return;
-      }
 
       final Session? session = data.session;
-      
+
+      if (_isSwitchingAccount) {
+        if (session != null) {
+          debugPrint(
+            '[AuthService] Switch in progress, but active session found. Syncing...',
+          );
+        } else {
+          debugPrint(
+            '[AuthService] Skipping registry sync: switch in progress and no session',
+          );
+          return;
+        }
+      }
+
       if (session != null) {
         _lastUserId = session.user.id;
-        debugPrint('[AuthService] Active session found for user: ${session.user.id}. Syncing...');
-        
+        debugPrint(
+          '[AuthService] Active session found for user: ${session.user.id}. Syncing...',
+        );
+
         // Reset adding account flag if we found a session
         if (_isAddingAccount) {
           debugPrint('[AuthService] Resetting _isAddingAccount to false');
           _isAddingAccount = false;
         }
-        
+
         // Sync to registry
         await _accountRegistry.syncCurrentSessionToRegistry(session);
-        
+
         // Sync RevenueCat
         if (RevenueCatService().isInitialized) {
           RevenueCatService().identify(session.user.id);
         }
-        
+
         // Update services that depend on the active user
         _notificationService.updateFcmToken(session.user.id);
         _encryptionProvisioner.provisionEncryptionKeys();
       } else {
-        debugPrint('[AuthService] No active session (logged out or transitioning)');
+        debugPrint(
+          '[AuthService] No active session (logged out or transitioning)',
+        );
         _lastUserId = null;
         // Log out of RevenueCat if no session
         if (RevenueCatService().isInitialized) {
@@ -103,7 +122,9 @@ class AuthService with ChangeNotifier {
     });
 
     _accountRegistry.addListener(() {
-      debugPrint('[AuthService] Registry updated. Count: ${_accountRegistry.registeredAccounts.length}');
+      debugPrint(
+        '[AuthService] Registry updated. Count: ${_accountRegistry.registeredAccounts.length}',
+      );
       notifyListeners();
     });
   }
@@ -111,34 +132,62 @@ class AuthService with ChangeNotifier {
   /// Switch to a different logged-in account
   Future<void> switchAccount(BuildContext context, String userId) async {
     if (_isSwitchingAccount) return;
-    
-    final account = _accountRegistry.getAccount(userId);
-    final refreshToken = account.session.refreshToken;
 
-    if (refreshToken == null) {
-      throw Exception('Cannot switch account: No refresh token found.');
-    }
+    final account = _accountRegistry.getAccount(userId);
+    final session = account.session;
 
     try {
       _isSwitchingAccount = true;
       resetProviders(context);
-      
+
       // CRITICAL: Reset encryption services before switching session
       EncryptionService().reset();
       await SignalService().clearData();
-      
-      // Use recoverSession which is more robust for switching via refresh token
-      await _supabase.auth.setSession(refreshToken);
-      
+
+      // We use recoverSession with the full session JSON.
+      // This is much more robust than just the refresh token because it includes
+      // the access token (for instant reuse if valid) and user metadata.
+      final sessionJson = jsonEncode(session.toJson());
+      final response = await _supabase.auth.recoverSession(sessionJson);
+
+      if (response.session != null) {
+        // Immediately sync the new session (which might have a new refresh token)
+        await _accountRegistry.syncCurrentSessionToRegistry(response.session!);
+      } else {
+        throw const AuthException('Failed to recover session');
+      }
+
+      await _accountRegistry.markAsUsed(userId);
+
       // Brief delay to allow Supabase internal state to settle
       await Future.delayed(const Duration(milliseconds: 300));
-      
-      await _accountRegistry.markAsUsed(userId);
-      
+
       _encryptionProvisioner.provisionEncryptionKeys();
       _notificationService.updateFcmToken(userId);
 
       notifyListeners();
+    } on AuthException catch (e) {
+      debugPrint('[AuthService] Auth error switching account: ${e.message}');
+      if (e.message.contains('refresh_token_not_found') ||
+          e.message.contains('Invalid Refresh Token')) {
+        debugPrint(
+          '[AuthService] Refresh token is invalid. Removing account from registry.',
+        );
+        await _accountRegistry.removeAccount(userId);
+
+        // Fallback: Try to switch to the first remaining account, or sign out
+        if (registeredAccounts.isNotEmpty) {
+          debugPrint(
+            '[AuthService] Attempting fallback to ${registeredAccounts.first.username}',
+          );
+          await switchAccount(context, registeredAccounts.first.userId);
+        } else {
+          debugPrint('[AuthService] No accounts left. Signing out.');
+          await signOut();
+        }
+        return;
+      }
+      rethrow;
     } catch (e) {
       debugPrint('[AuthService] ERROR switching account: $e');
       rethrow;
@@ -154,10 +203,15 @@ class AuthService with ChangeNotifier {
     context.read<CanvasProvider>().clear();
     context.read<NotificationProvider>().clear();
     context.read<CommunityProvider>().clear();
-    
-    // Also reset feed if available
+    context.read<PresenceProvider>().clear();
+    context.read<CallProvider>().clear();
+
+    // Also reset feed and ripples if available
     try {
       context.read<FeedProvider>().clear();
+    } catch (_) {}
+    try {
+      context.read<RipplesProvider>().clear();
     } catch (_) {}
   }
 
@@ -204,9 +258,14 @@ class AuthService with ChangeNotifier {
     String email,
     String password,
   ) async {
-    final response = await _providersDelegate.signInWithEmailAndPassword(email, password);
+    final response = await _providersDelegate.signInWithEmailAndPassword(
+      email,
+      password,
+    );
     if (response.user == null) {
-      throw const AuthException('Failed to sign in. Please check your credentials.');
+      throw const AuthException(
+        'Failed to sign in. Please check your credentials.',
+      );
     }
 
     _encryptionProvisioner.provisionEncryptionKeys();
@@ -236,11 +295,13 @@ class AuthService with ChangeNotifier {
 
       // CRITICAL FIX: If we are already logged in (adding an account),
       // we MUST sign out locally before signing up a new user.
-      // Otherwise, Supabase might use the current session's context 
+      // Otherwise, Supabase might use the current session's context
       // for the verification email or user metadata.
       if (_supabase.auth.currentSession != null) {
-        debugPrint('[AuthService] Existing session found during signup. Signing out locally first.');
-        // We use a local signout to clear the client state without invalidating the 
+        debugPrint(
+          '[AuthService] Existing session found during signup. Signing out locally first.',
+        );
+        // We use a local signout to clear the client state without invalidating the
         // session on the server for other potential devices/sessions.
         await _supabase.auth.signOut(scope: SignOutScope.local);
       }
@@ -283,7 +344,8 @@ class AuthService with ChangeNotifier {
     await _providersDelegate.signInWithGoogle(forceSignIn: forceSignIn);
 
     final user = _supabase.auth.currentUser;
-    if (user == null) throw const AuthException('Failed to sign in with Google');
+    if (user == null)
+      throw const AuthException('Failed to sign in with Google');
 
     // Handle profile creation if needed
     await _ensureProfileExists(user);
@@ -317,14 +379,19 @@ class AuthService with ChangeNotifier {
     }
 
     if (profile == null) {
-      final String rawUsername = user.userMetadata?['preferred_username'] ??
+      final String rawUsername =
+          user.userMetadata?['preferred_username'] ??
           user.userMetadata?['name'] ??
           user.email?.split('@')[0] ??
           'user_${user.id.substring(0, 8)}';
 
-      String sanitizedUsername = rawUsername.toLowerCase().replaceAll(RegExp(r'[^a-z0-9_]'), '_');
+      String sanitizedUsername = rawUsername.toLowerCase().replaceAll(
+        RegExp(r'[^a-z0-9_]'),
+        '_',
+      );
       if (sanitizedUsername.length < 3) sanitizedUsername += '_user';
-      if (sanitizedUsername.length > 30) sanitizedUsername = sanitizedUsername.substring(0, 30);
+      if (sanitizedUsername.length > 30)
+        sanitizedUsername = sanitizedUsername.substring(0, 30);
 
       final existing = await _supabase
           .from(SupabaseConfig.profilesTable)
@@ -333,7 +400,9 @@ class AuthService with ChangeNotifier {
           .maybeSingle();
 
       if (existing != null) {
-        sanitizedUsername += DateTime.now().millisecondsSinceEpoch.toString().substring(10);
+        sanitizedUsername += DateTime.now().millisecondsSinceEpoch
+            .toString()
+            .substring(10);
       }
 
       await _profileManager.createUserProfile(
@@ -378,12 +447,16 @@ class AuthService with ChangeNotifier {
   Future<void> signOut({BuildContext? context}) async {
     try {
       final currentUserId = _supabase.auth.currentUser?.id;
-      
+
       // If we have a context and other accounts, switch instead of full signout
       if (context != null && currentUserId != null) {
-        final otherAccounts = registeredAccounts.where((a) => a.userId != currentUserId).toList();
+        final otherAccounts = registeredAccounts
+            .where((a) => a.userId != currentUserId)
+            .toList();
         if (otherAccounts.isNotEmpty) {
-          debugPrint('[AuthService] Signing out current account and switching to ${otherAccounts.first.username}');
+          debugPrint(
+            '[AuthService] Signing out current account and switching to ${otherAccounts.first.username}',
+          );
           // Remove current account from registry first
           await _accountRegistry.removeAccount(currentUserId);
           // Then switch to the next available account
@@ -415,8 +488,15 @@ class AuthService with ChangeNotifier {
   }
 
   // Pass-through methods to Managers
-  Future<void> updateProfile({String? username, String? displayName, String? avatarUrl}) =>
-      _profileManager.updateProfile(username: username, displayName: displayName, avatarUrl: avatarUrl);
+  Future<void> updateProfile({
+    String? username,
+    String? displayName,
+    String? avatarUrl,
+  }) => _profileManager.updateProfile(
+    username: username,
+    displayName: displayName,
+    avatarUrl: avatarUrl,
+  );
 
   Future<String> uploadProfilePicture(String filePath) =>
       _profileManager.uploadProfilePicture(filePath);
@@ -429,8 +509,10 @@ class AuthService with ChangeNotifier {
 
   // Auth Utilities
   Future<void> sendPasswordResetEmail(String email) async {
-    await _supabase.auth.resetPasswordForEmail(email,
-        redirectTo: AppConfig.getWebUrl('/auth/reset-password'));
+    await _supabase.auth.resetPasswordForEmail(
+      email,
+      redirectTo: AppConfig.getWebUrl('/auth/reset-password'),
+    );
   }
 
   Future<void> updatePassword(String newPassword) async {
@@ -448,7 +530,8 @@ class AuthService with ChangeNotifier {
     return app_models.AppUser(
       id: user.id,
       email: user.email ?? '',
-      username: userMetadata['username'] as String? ??
+      username:
+          userMetadata['username'] as String? ??
           user.email?.split('@')[0] ??
           'user_${user.id.substring(0, 8)}',
       displayName: userMetadata['full_name'] as String?,
@@ -459,4 +542,3 @@ class AuthService with ChangeNotifier {
     );
   }
 }
-

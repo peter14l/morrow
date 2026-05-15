@@ -43,7 +43,8 @@ class ChatSettingsProvider with ChangeNotifier {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final bgKey = 'chat_bg_$conversationId';
-    _lastActiveWhisperMode = prefs.getInt('chat_last_whisper_$conversationId') ?? 1;
+    _lastActiveWhisperMode =
+        prefs.getInt('chat_last_whisper_$conversationId') ?? 1;
 
     String? bgUrl = prefs.getString(bgKey);
 
@@ -70,7 +71,7 @@ class ChatSettingsProvider with ChangeNotifier {
             .eq('conversation_id', conversationId)
             .eq('user_id', currentUserId)
             .maybeSingle();
-        
+
         if (response != null) {
           final modeStr = response['whisper_mode'] as String?;
           if (modeStr == 'INSTANT') {
@@ -126,7 +127,7 @@ class ChatSettingsProvider with ChangeNotifier {
     Function(String)? onError,
   }) {
     final oldMode = currentWhisperMode ?? _whisperMode;
-    
+
     // Toggle logic: OFF <-> Last Active
     int newMode = oldMode == 0 ? _lastActiveWhisperMode : 0;
 
@@ -149,14 +150,14 @@ class ChatSettingsProvider with ChangeNotifier {
   /// Sets a specific whisper mode.
   Future<void> setWhisperMode(int mode) async {
     if (mode == _whisperMode) return;
-    
+
     _whisperMode = mode;
     if (mode > 0) {
       _lastActiveWhisperMode = mode;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('chat_last_whisper_$conversationId', mode);
     }
-    
+
     _ephemeralDuration = mode == 1 ? 0 : 86400;
     notifyListeners();
 
@@ -188,20 +189,20 @@ class ChatSettingsProvider with ChangeNotifier {
 
       if (cachedData != null) {
         final List<dynamic> decoded = jsonDecode(cachedData);
-        final List<Message> cachedMessages =
-            decoded.map((json) => Message.fromJson(json)).toList();
+        final List<Message> cachedMessages = decoded
+            .map((json) => Message.fromJson(json))
+            .toList();
 
         // Filter out expired ephemeral messages from cache
         final now = DateTime.now();
-        final filtered =
-            cachedMessages.where((m) {
-              if (!m.isEphemeral) return true;
-              if (m.ephemeralDuration == 0 && m.readAt != null) return false;
-              if (m.expiresAt != null && now.isAfter(m.expiresAt!)) {
-                return false;
-              }
-              return true;
-            }).toList();
+        final filtered = cachedMessages.where((m) {
+          if (!m.isEphemeral) return true;
+          if (m.ephemeralDuration == 0 && m.readAt != null) return false;
+          if (m.expiresAt != null && now.isAfter(m.expiresAt!)) {
+            return false;
+          }
+          return true;
+        }).toList();
 
         if (filtered.isNotEmpty) {
           onMessagesLoaded(filtered);
@@ -220,11 +221,10 @@ class ChatSettingsProvider with ChangeNotifier {
       final String cacheKey = 'chat_messages_$conversationId';
 
       // Don't cache ephemeral messages that have already been read
-      final toCache =
-          messages
-              .where((m) => !m.isEphemeral || m.readAt == null)
-              .take(50)
-              .toList();
+      final toCache = messages
+          .where((m) => !m.isEphemeral || m.readAt == null)
+          .take(50)
+          .toList();
 
       if (toCache.isNotEmpty) {
         final String encoded = jsonEncode(

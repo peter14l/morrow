@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/services/wellness_service.dart';
-import 'package:oasis/services/auth_service.dart';
+import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
-import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'dart:ui';
 
 class WellnessCenterScreen extends StatelessWidget {
@@ -54,6 +53,8 @@ class WellnessCenterScreen extends StatelessWidget {
           ),
           children: [
             _buildSessionCard(context, wellbeing),
+            const SizedBox(height: 24),
+            _buildFocusSessionCard(context, wellness),
             const SizedBox(height: 24),
             _buildLockoutSection(context, wellbeing, isPro),
             const SizedBox(height: 24),
@@ -133,6 +134,150 @@ class WellnessCenterScreen extends StatelessWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFocusSessionCard(
+    BuildContext context,
+    WellnessService wellness,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final isActive = wellness.isFocusSessionActive;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: isActive ? 0.5 : 0.1),
+          width: isActive ? 2 : 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isActive ? Icons.timer_rounded : Icons.timer_outlined,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Focus Session',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              if (isActive)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    'ACTIVE',
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          if (isActive) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: wellness.focusProgress,
+                minHeight: 8,
+                backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Goal: ${wellness.focusTargetMinutes} minutes',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () => wellness.stopFocusSession(completed: false),
+                  icon: const Icon(Icons.stop_rounded, size: 18),
+                  label: const Text('End Early'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: colorScheme.error,
+                  ),
+                ),
+              ],
+            ),
+          ] else ...[
+            Text(
+              'Lock yourself into deep focus. Browsing distracting features will penalize your XP.',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [25, 45, 60, 90].map((mins) {
+                return InkWell(
+                  onTap: () => wellness.startFocusSession(mins),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.5,
+                        ),
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          '$mins',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          'min',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
@@ -288,7 +433,8 @@ class WellnessCenterScreen extends StatelessWidget {
     if (isActive) {
       final minutes = wellness.zenRemainingSeconds ~/ 60;
       final seconds = wellness.zenRemainingSeconds % 60;
-      subtitle = 'Active - ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      subtitle =
+          'Active - ${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
     }
 
     return Row(
@@ -302,13 +448,13 @@ class WellnessCenterScreen extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: isActive 
-                    ? color.withValues(alpha: 0.1) 
+                color: isActive
+                    ? color.withValues(alpha: 0.1)
                     : colorScheme.surfaceContainerHigh,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: isActive 
-                      ? color.withValues(alpha: 0.5) 
+                  color: isActive
+                      ? color.withValues(alpha: 0.5)
                       : colorScheme.outlineVariant.withValues(alpha: 0.5),
                   width: isActive ? 2 : 1,
                 ),
@@ -321,7 +467,10 @@ class WellnessCenterScreen extends StatelessWidget {
                       children: [
                         Icon(Icons.spa_rounded, color: color, size: 28),
                         const SizedBox(height: 16),
-                        const Text('Zen Mode', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Zen Mode',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         Text(
                           subtitle,
                           style: TextStyle(
@@ -345,7 +494,11 @@ class WellnessCenterScreen extends StatelessWidget {
                             color: color,
                             backgroundColor: color.withValues(alpha: 0.2),
                           ),
-                          Icon(Icons.self_improvement_rounded, color: color, size: 20),
+                          Icon(
+                            Icons.self_improvement_rounded,
+                            color: color,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),
@@ -358,7 +511,10 @@ class WellnessCenterScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildConsolidatedFeatures(BuildContext context, WellnessService wellness) {
+  Widget _buildConsolidatedFeatures(
+    BuildContext context,
+    WellnessService wellness,
+  ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -388,9 +544,13 @@ class WellnessCenterScreen extends StatelessWidget {
           _buildListTile(
             context,
             'Sleep Wind-down',
-            wellness.isWindDownActive ? 'Wind-down active' : 'Prepare for a restful night',
+            wellness.isWindDownActive
+                ? 'Wind-down active'
+                : 'Prepare for a restful night',
             Icons.nights_stay_rounded,
-            wellness.isWindDownActive ? Colors.indigo : Colors.indigo.withValues(alpha: 0.5),
+            wellness.isWindDownActive
+                ? Colors.indigo
+                : Colors.indigo.withValues(alpha: 0.5),
             () => wellness.setWindDownEnabled(!wellness.windDownEnabled),
           ),
           Divider(
@@ -399,14 +559,21 @@ class WellnessCenterScreen extends StatelessWidget {
             color: colorScheme.outlineVariant.withValues(alpha: 0.3),
           ),
           SwitchListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 24,
+              vertical: 8,
+            ),
             secondary: Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: Colors.green.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.phone_enabled_rounded, color: Colors.green, size: 22),
+              child: const Icon(
+                Icons.phone_enabled_rounded,
+                color: Colors.green,
+                size: 22,
+              ),
             ),
             title: const Text(
               'Allow Calls in Zen',
@@ -414,7 +581,10 @@ class WellnessCenterScreen extends StatelessWidget {
             ),
             subtitle: Text(
               'Incoming calls will still ring',
-              style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+              style: TextStyle(
+                fontSize: 12,
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
             value: wellness.allowCallsDuringZen,
             onChanged: (v) => wellness.setAllowCallsDuringZen(v),

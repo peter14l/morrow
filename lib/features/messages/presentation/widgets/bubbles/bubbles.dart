@@ -9,3 +9,4 @@ export 'video_bubble.dart';
 export 'voice_bubble.dart';
 export 'location_bubble.dart';
 export 'invite_bubble.dart';
+export 'collaboration_request_bubble.dart';

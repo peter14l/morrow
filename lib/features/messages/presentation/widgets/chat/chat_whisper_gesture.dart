@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 
-typedef WhisperDragBuilder = Widget Function(
-  BuildContext context,
-  double dragProgress,
-  double dragOffset,
-);
+typedef WhisperDragBuilder =
+    Widget Function(
+      BuildContext context,
+      double dragProgress,
+      double dragOffset,
+    );
 
 /// Whisper mode drag gesture (Instagram-style).
 /// Dragging up past a threshold toggles the mode.
@@ -39,7 +40,7 @@ class _ChatWhisperGestureState extends State<ChatWhisperGesture> {
     setState(() {
       _dragOffset -= details.primaryDelta!;
       if (_dragOffset < 0) _dragOffset = 0;
-      
+
       _dragProgress = (_dragOffset / _dragThreshold).clamp(0.0, 1.0);
 
       if (_dragProgress >= 1.0 && !_triggered) {

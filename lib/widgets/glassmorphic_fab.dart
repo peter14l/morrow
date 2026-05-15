@@ -28,11 +28,11 @@ class GlassmorphicFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     // Check liquid glass setting
     final settings = context.watch<UserSettingsProvider>();
     final liquidGlassMode = settings.liquidGlassMode;
-    
+
     Widget fab;
     // Use liquid glass if enabled (real or fake)
     if (liquidGlassMode != LiquidGlassMode.disabled) {
@@ -43,10 +43,7 @@ class GlassmorphicFAB extends StatelessWidget {
     }
 
     if (tooltip != null) {
-      return Tooltip(
-        message: tooltip!,
-        child: fab,
-      );
+      return Tooltip(message: tooltip!, child: fab);
     }
 
     return fab;
@@ -83,9 +80,10 @@ class GlassmorphicFAB extends StatelessWidget {
 
   Widget _buildLiquidGlassFAB(BuildContext context, LiquidGlassMode mode) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = color ?? 
-        (isDark 
-            ? Colors.white.withValues(alpha: 0.15) 
+    final baseColor =
+        color ??
+        (isDark
+            ? Colors.white.withValues(alpha: 0.15)
             : Colors.white.withValues(alpha: 0.3));
 
     if (mode == LiquidGlassMode.fake) {

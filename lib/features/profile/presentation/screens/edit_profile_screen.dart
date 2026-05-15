@@ -125,25 +125,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               children: [
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage:
-                      _newAvatar != null
-                          ? FileImage(File(_newAvatar!.path))
-                          : (profile?.avatarUrl != null &&
-                                      profile!.avatarUrl!.isNotEmpty
-                                  ? CachedNetworkImageProvider(
-                                    profile.avatarUrl!,
-                                  )
-                                  : null)
-                              as ImageProvider?,
+                  backgroundImage: _newAvatar != null
+                      ? FileImage(File(_newAvatar!.path))
+                      : (profile?.avatarUrl != null &&
+                                    profile!.avatarUrl!.isNotEmpty
+                                ? CachedNetworkImageProvider(profile.avatarUrl!)
+                                : null)
+                            as ImageProvider?,
                   child:
                       _newAvatar == null &&
-                              (profile?.avatarUrl == null ||
-                                  profile!.avatarUrl!.isEmpty)
-                          ? Text(
-                            profile?.username[0].toUpperCase() ?? 'U',
-                            style: theme.textTheme.headlineLarge,
-                          )
-                          : null,
+                          (profile?.avatarUrl == null ||
+                              profile!.avatarUrl!.isEmpty)
+                      ? Text(
+                          profile?.username[0].toUpperCase() ?? 'U',
+                          style: theme.textTheme.headlineLarge,
+                        )
+                      : null,
                 ),
                 Positioned(
                   bottom: 0,
@@ -295,20 +292,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child:
-                    _isLoading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Text(
-                          'Save Changes',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
                         ),
+                      )
+                    : const Text(
+                        'Save Changes',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
               ),
             ),
           ],
@@ -317,7 +313,44 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
 
     if (isDesktop) {
-      return Material(color: Colors.transparent, child: formContent);
+      return Material(
+        color: Colors.transparent,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back),
+                    onPressed: () => context.pop(),
+                    tooltip: 'Back to Profile',
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    'Edit Profile',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Container(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: formContent,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return Scaffold(
@@ -326,14 +359,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _saveProfile,
-            child:
-                _isLoading
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                    : const Text('Save'),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
           ),
         ],
       ),

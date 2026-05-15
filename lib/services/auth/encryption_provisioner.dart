@@ -10,9 +10,11 @@ class EncryptionProvisioner {
       final encryptionService = EncryptionService();
       // Reset the service state first to ensure we check the new user's keys
       encryptionService.reset();
-      
+
       final status = await encryptionService.init();
-      debugPrint('[EncryptionProvisioner] Initialized status for current user: $status');
+      debugPrint(
+        '[EncryptionProvisioner] Initialized status for current user: $status',
+      );
 
       // We DO NOT call setupEncryption() here anymore.
       // Automatic v1 setup is disabled to ensure users are prompted for a PIN (v2)

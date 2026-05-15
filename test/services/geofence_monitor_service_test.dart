@@ -82,16 +82,25 @@ void main() {
       });
 
       test('custom radius can be set', () {
-        final customService = GeofenceMonitorService(homeLocationService, radius: 50);
+        final customService = GeofenceMonitorService(
+          homeLocationService,
+          radius: 50,
+        );
         expect(customService.radius, equals(50));
       });
 
       test('changing radius affects geofence check', () async {
         await homeLocationService.setHomeLocation(37.7749, -122.4194);
 
-        final smallRadiusService = GeofenceMonitorService(homeLocationService, radius: 10);
+        final smallRadiusService = GeofenceMonitorService(
+          homeLocationService,
+          radius: 10,
+        );
         // 50m away - within 100m but not within 10m
-        final result = await smallRadiusService.isWithinGeofence(37.7754, -122.4198);
+        final result = await smallRadiusService.isWithinGeofence(
+          37.7754,
+          -122.4198,
+        );
 
         expect(result, isFalse);
       });

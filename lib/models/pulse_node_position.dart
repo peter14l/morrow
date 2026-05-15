@@ -73,10 +73,9 @@ class PulseNodePosition {
 
     // Cluster center position (hexagonal packing)
     final clusterAngle = (clusterIndex * (pi / 3)) % (2 * pi);
-    final clusterDistance =
-        clusterIndex == 0
-            ? 0.0
-            : clusterSpacing * sqrt(clusterIndex.toDouble());
+    final clusterDistance = clusterIndex == 0
+        ? 0.0
+        : clusterSpacing * sqrt(clusterIndex.toDouble());
 
     // Position within cluster (circular arrangement)
     final inClusterAngle =

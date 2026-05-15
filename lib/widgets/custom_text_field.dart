@@ -96,10 +96,15 @@ class CustomTextField extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isM3E = Provider.of<ThemeProvider>(context).isM3EEnabled;
     final isMobile = ResponsiveLayout.isMobile(context);
-    
-    final effectiveFillColor = fillColor ?? (isM3E ? colorScheme.primary.withValues(alpha: 0.05) : theme.inputDecorationTheme.fillColor);
+
+    final effectiveFillColor =
+        fillColor ??
+        (isM3E
+            ? colorScheme.primary.withValues(alpha: 0.05)
+            : theme.inputDecorationTheme.fillColor);
     final effectiveTextColor = textColor ?? colorScheme.onSurface;
-    final effectiveHintColor = hintColor ?? colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+    final effectiveHintColor =
+        hintColor ?? colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
     final effectiveRadius = borderRadius ?? (isM3E ? 24.0 : 16.0);
 
     return Container(
@@ -123,9 +128,7 @@ class CustomTextField extends StatelessWidget {
         onChanged: onChanged,
         initialValue: initialValue,
         enabled: enabled,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: effectiveTextColor,
-        ),
+        style: theme.textTheme.bodyLarge?.copyWith(color: effectiveTextColor),
         decoration: material.InputDecoration(
           labelText: label,
           hintText: hint,
@@ -138,32 +141,45 @@ class CustomTextField extends StatelessWidget {
           filled: true,
           fillColor: effectiveFillColor,
           isDense: isDense,
-          prefixIcon: prefix ?? (prefixIcon != null
-              ? material.Icon(
-                  prefixIcon,
-                  color: effectiveHintColor,
-                )
-              : null),
+          prefixIcon:
+              prefix ??
+              (prefixIcon != null
+                  ? material.Icon(prefixIcon, color: effectiveHintColor)
+                  : null),
           prefixIconConstraints: prefixIconConstraints,
           suffixIcon: suffix ?? suffixIcon,
           suffixIconConstraints: suffixIconConstraints,
-          border: border ?? material.OutlineInputBorder(
-            borderRadius: material.BorderRadius.circular(effectiveRadius),
-            borderSide: isM3E 
-              ? material.BorderSide(color: colorScheme.primary.withValues(alpha: 0.1))
-              : material.BorderSide.none,
-          ),
-          enabledBorder: enabledBorder ?? material.OutlineInputBorder(
-            borderRadius: material.BorderRadius.circular(effectiveRadius),
-            borderSide: isM3E 
-              ? material.BorderSide(color: colorScheme.primary.withValues(alpha: 0.1))
-              : material.BorderSide.none,
-          ),
-          focusedBorder: focusedBorder ?? material.OutlineInputBorder(
-            borderRadius: material.BorderRadius.circular(effectiveRadius),
-            borderSide: material.BorderSide(color: colorScheme.primary, width: 2),
-          ),
-          contentPadding: contentPadding ??
+          border:
+              border ??
+              material.OutlineInputBorder(
+                borderRadius: material.BorderRadius.circular(effectiveRadius),
+                borderSide: isM3E
+                    ? material.BorderSide(
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                      )
+                    : material.BorderSide.none,
+              ),
+          enabledBorder:
+              enabledBorder ??
+              material.OutlineInputBorder(
+                borderRadius: material.BorderRadius.circular(effectiveRadius),
+                borderSide: isM3E
+                    ? material.BorderSide(
+                        color: colorScheme.primary.withValues(alpha: 0.1),
+                      )
+                    : material.BorderSide.none,
+              ),
+          focusedBorder:
+              focusedBorder ??
+              material.OutlineInputBorder(
+                borderRadius: material.BorderRadius.circular(effectiveRadius),
+                borderSide: material.BorderSide(
+                  color: colorScheme.primary,
+                  width: 2,
+                ),
+              ),
+          contentPadding:
+              contentPadding ??
               material.EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: isMobile ? 12 : 16,
@@ -178,14 +194,17 @@ class CustomTextField extends StatelessWidget {
     final isM3E = Provider.of<ThemeProvider>(context).isM3EEnabled;
     final theme = material.Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     final effectiveRadius = borderRadius ?? (isM3E ? 12.0 : 8.0);
-    final effectiveFillColor = fillColor ?? (isM3E ? colorScheme.primary.withValues(alpha: 0.05) : null);
-    
+    final effectiveFillColor =
+        fillColor ??
+        (isM3E ? colorScheme.primary.withValues(alpha: 0.05) : null);
+
     // Check if we should hide the border (e.g. when used inside another decorated container)
-    final hideBorder = border == material.InputBorder.none || 
-                      enabledBorder == material.InputBorder.none || 
-                      focusedBorder == material.InputBorder.none;
+    final hideBorder =
+        border == material.InputBorder.none ||
+        enabledBorder == material.InputBorder.none ||
+        focusedBorder == material.InputBorder.none;
 
     return Container(
       margin: margin ?? const material.EdgeInsets.only(bottom: 8),
@@ -208,21 +227,29 @@ class CustomTextField extends StatelessWidget {
           onTap: onTap,
           onChanged: onChanged,
           enabled: enabled,
-          prefix: prefixIcon != null ? material.Padding(
-            padding: const material.EdgeInsets.only(left: 8.0),
-            child: material.Icon(prefixIcon, size: 16),
-          ) : null,
+          prefix: prefixIcon != null
+              ? material.Padding(
+                  padding: const material.EdgeInsets.only(left: 8.0),
+                  child: material.Icon(prefixIcon, size: 16),
+                )
+              : null,
           suffix: suffixIcon,
-          padding: (contentPadding as material.EdgeInsets?) ?? const material.EdgeInsets.all(8.0),
-          decoration: fluent.WidgetStatePropertyAll(hideBorder 
-            ? fluent.BoxDecoration(
-                color: effectiveFillColor,
-                border: const fluent.Border(), // Empty border to hide it
-              )
-            : fluent.BoxDecoration(
-                color: effectiveFillColor,
-                borderRadius: material.BorderRadius.circular(effectiveRadius),
-              )),
+          padding:
+              (contentPadding as material.EdgeInsets?) ??
+              const material.EdgeInsets.all(8.0),
+          decoration: fluent.WidgetStatePropertyAll(
+            hideBorder
+                ? fluent.BoxDecoration(
+                    color: effectiveFillColor,
+                    border: const fluent.Border(), // Empty border to hide it
+                  )
+                : fluent.BoxDecoration(
+                    color: effectiveFillColor,
+                    borderRadius: material.BorderRadius.circular(
+                      effectiveRadius,
+                    ),
+                  ),
+          ),
         ),
       ),
     );
@@ -247,7 +274,8 @@ extension CustomTextFieldExtension on CustomTextField {
       prefixIcon: material.Icons.email_outlined,
       keyboardType: material.TextInputType.emailAddress,
       textInputAction: textInputAction ?? material.TextInputAction.next,
-      validator: validator ??
+      validator:
+          validator ??
           (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your email';
@@ -284,7 +312,8 @@ extension CustomTextFieldExtension on CustomTextField {
       prefixIcon: material.Icons.lock_outline,
       obscureText: obscureText,
       textInputAction: textInputAction ?? material.TextInputAction.done,
-      validator: validator ??
+      validator:
+          validator ??
           (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your password';
@@ -297,7 +326,9 @@ extension CustomTextFieldExtension on CustomTextField {
       onFieldSubmitted: onFieldSubmitted,
       suffixIcon: material.IconButton(
         icon: material.Icon(
-          obscureText ? material.Icons.visibility_off : material.Icons.visibility,
+          obscureText
+              ? material.Icons.visibility_off
+              : material.Icons.visibility,
           color: const material.Color(0xFF9DA6B9),
         ),
         onPressed: onToggleVisibility,
@@ -320,7 +351,8 @@ extension CustomTextFieldExtension on CustomTextField {
       prefixIcon: material.Icons.person_outline,
       textInputAction: textInputAction ?? material.TextInputAction.next,
       textCapitalization: material.TextCapitalization.words,
-      validator: validator ??
+      validator:
+          validator ??
           (value) {
             if (value == null || value.isEmpty) {
               return 'Please enter your name';

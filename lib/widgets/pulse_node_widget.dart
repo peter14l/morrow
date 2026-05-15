@@ -54,12 +54,16 @@ class _PulseNodeWidgetState extends State<PulseNodeWidget>
       vsync: this,
     )..repeat(reverse: true);
 
-    _floatAnimation = Tween<Offset>(
-      begin: const Offset(0, -5),
-      end: const Offset(0, 5),
-    ).animate(
-      CurvedAnimation(parent: _floatController, curve: Curves.easeInOutSine),
-    );
+    _floatAnimation =
+        Tween<Offset>(
+          begin: const Offset(0, -5),
+          end: const Offset(0, 5),
+        ).animate(
+          CurvedAnimation(
+            parent: _floatController,
+            curve: Curves.easeInOutSine,
+          ),
+        );
   }
 
   @override
@@ -126,10 +130,11 @@ class _PulseNodeWidgetState extends State<PulseNodeWidget>
                           ],
                         ),
                         border: Border.all(
-                          color:
-                              hasHighEngagement
-                                  ? Colors.amber.withValues(alpha: 0.6)
-                                  : theme.colorScheme.primary.withValues(alpha: 0.5),
+                          color: hasHighEngagement
+                              ? Colors.amber.withValues(alpha: 0.6)
+                              : theme.colorScheme.primary.withValues(
+                                  alpha: 0.5,
+                                ),
                           width: hasHighEngagement ? 3 : 2,
                         ),
                       ),
@@ -146,18 +151,16 @@ class _PulseNodeWidgetState extends State<PulseNodeWidget>
                             fit: BoxFit.cover,
                             width: 80,
                             height: 80,
-                            placeholder:
-                                (context, url) => Container(
-                                  color:
-                                      theme.colorScheme.surfaceContainerHighest,
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
+                            placeholder: (context, url) => Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                            errorWidget:
-                                (context, url, error) => _buildFallbackOrb(),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                _buildFallbackOrb(),
                           ),
                         ),
                       )
@@ -174,18 +177,18 @@ class _PulseNodeWidgetState extends State<PulseNodeWidget>
                           height: 16,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color:
-                                hasHighEngagement ? Colors.amber : Colors.red,
+                            color: hasHighEngagement
+                                ? Colors.amber
+                                : Colors.red,
                             border: Border.all(color: Colors.white, width: 2),
                           ),
-                          child:
-                              hasHighEngagement
-                                  ? const Icon(
-                                    Icons.star,
-                                    size: 10,
-                                    color: Colors.white,
-                                  )
-                                  : null,
+                          child: hasHighEngagement
+                              ? const Icon(
+                                  Icons.star,
+                                  size: 10,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                       ),
                   ],

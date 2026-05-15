@@ -83,7 +83,8 @@ class Mica extends StatelessWidget {
   Widget build(BuildContext context) {
     assert(debugCheckHasFluentTheme(context));
     final theme = FluentTheme.of(context);
-    var boxColor = backgroundColor ??
+    var boxColor =
+        backgroundColor ??
         (type == MicaType.alt
             ? theme.micaAltBackgroundColor
             : theme.micaBackgroundColor);

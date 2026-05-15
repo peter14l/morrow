@@ -82,19 +82,20 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
 
   void _initializeGyroscope() {
     // Throttle gyroscope updates to 30 FPS
-    _gyroscopeSubscription = gyroscopeEventStream(
-      samplingPeriod: const Duration(milliseconds: 33),
-    ).listen((GyroscopeEvent event) {
-      if (mounted) {
-        setState(() {
-          // Convert gyroscope rotation to parallax offset
-          _gyroscopeOffset = Offset(
-            (_gyroscopeOffset.dx + event.y * 0.5).clamp(-20.0, 20.0),
-            (_gyroscopeOffset.dy + event.x * 0.5).clamp(-20.0, 20.0),
-          );
+    _gyroscopeSubscription =
+        gyroscopeEventStream(
+          samplingPeriod: const Duration(milliseconds: 33),
+        ).listen((GyroscopeEvent event) {
+          if (mounted) {
+            setState(() {
+              // Convert gyroscope rotation to parallax offset
+              _gyroscopeOffset = Offset(
+                (_gyroscopeOffset.dx + event.y * 0.5).clamp(-20.0, 20.0),
+                (_gyroscopeOffset.dy + event.x * 0.5).clamp(-20.0, 20.0),
+              );
+            });
+          }
         });
-      }
-    });
   }
 
   void _onTransformChanged() {
@@ -124,14 +125,14 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
     if (_nodePositions.isEmpty || _nodePositions.length != posts.length) {
       _nodePositions = {};
       for (int i = 0; i < posts.length; i++) {
-        _nodePositions[posts[i]
-            .id] = PulseNodePosition.generateClusteredPosition(
-          index: i,
-          postTimestamp: posts[i].timestamp,
-          clusterSize: 8,
-          clusterRadius: 120.0,
-          clusterSpacing: 250.0,
-        );
+        _nodePositions[posts[i].id] =
+            PulseNodePosition.generateClusteredPosition(
+              index: i,
+              postTimestamp: posts[i].timestamp,
+              clusterSize: 8,
+              clusterRadius: 120.0,
+              clusterSpacing: 250.0,
+            );
       }
     }
   }
@@ -187,14 +188,13 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
           }
 
           // Prepare node positions for connections
-          final connectionNodes =
-              _nodePositions.values
-                  .map(
-                    (pos) =>
-                        pos.toCartesian() +
-                        Offset(size.width * 2.5, size.height * 2.5),
-                  )
-                  .toList();
+          final connectionNodes = _nodePositions.values
+              .map(
+                (pos) =>
+                    pos.toCartesian() +
+                    Offset(size.width * 2.5, size.height * 2.5),
+              )
+              .toList();
 
           return EnergyMeterWidget(
             showLabel: true,
@@ -360,7 +360,10 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
                           Align(
                             alignment: Alignment.topRight,
                             child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.white),
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                              ),
                               onPressed: _closeExpandedPost,
                             ),
                           ),
@@ -371,23 +374,41 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
                               child: PostCard(
                                 post: post,
                                 onLike: () {
-                                  final userId = context.read<AuthService>().currentUser?.id;
+                                  final userId = context
+                                      .read<AuthService>()
+                                      .currentUser
+                                      ?.id;
                                   if (userId == null) return;
 
                                   if (post.isLiked) {
-                                    feedProvider.unlikePost(userId: userId, postId: post.id);
+                                    feedProvider.unlikePost(
+                                      userId: userId,
+                                      postId: post.id,
+                                    );
                                   } else {
-                                    feedProvider.likePost(userId: userId, postId: post.id);
+                                    feedProvider.likePost(
+                                      userId: userId,
+                                      postId: post.id,
+                                    );
                                   }
                                 },
                                 onBookmark: () {
-                                  final userId = context.read<AuthService>().currentUser?.id;
+                                  final userId = context
+                                      .read<AuthService>()
+                                      .currentUser
+                                      ?.id;
                                   if (userId == null) return;
 
                                   if (post.isBookmarked) {
-                                    feedProvider.unbookmarkPost(userId: userId, postId: post.id);
+                                    feedProvider.unbookmarkPost(
+                                      userId: userId,
+                                      postId: post.id,
+                                    );
                                   } else {
-                                    feedProvider.bookmarkPost(userId: userId, postId: post.id);
+                                    feedProvider.bookmarkPost(
+                                      userId: userId,
+                                      postId: post.id,
+                                    );
                                   }
                                 },
                                 onComment: () {
@@ -396,11 +417,17 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
                                     isScrollControlled: true,
                                     useRootNavigator: true,
                                     backgroundColor: Colors.transparent,
-                                    builder: (context) => CommentsModal(postId: post.id),
+                                    builder: (context) =>
+                                        CommentsModal(postId: post.id),
                                   );
-                                },                                onShare: () {
-                                  final deepLink = AppConfig.getWebUrl('/post/${post.id}');
-                                  Share.share('Check out this post on Oasis! $deepLink');
+                                },
+                                onShare: () {
+                                  final deepLink = AppConfig.getWebUrl(
+                                    '/post/${post.id}',
+                                  );
+                                  Share.share(
+                                    'Check out this post on Oasis! $deepLink',
+                                  );
                                 },
                               ),
                             ),

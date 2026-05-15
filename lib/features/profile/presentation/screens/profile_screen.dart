@@ -70,9 +70,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         } else if (currentUserId != null) {
           context.read<ProfileProvider>().loadProfile(targetId, currentUserId);
           context.read<ProfileProvider>().checkFollowRequestStatus(
-                followerId: currentUserId,
-                followingId: targetId,
-              );
+            followerId: currentUserId,
+            followingId: targetId,
+          );
         }
       });
     }
@@ -117,17 +117,24 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  Future<void> _handleMessage(String currentUserId, String targetId, UserProfileEntity? profile) async {
+  Future<void> _handleMessage(
+    String currentUserId,
+    String targetId,
+    UserProfileEntity? profile,
+  ) async {
     try {
       final conversationId = await context
           .read<ProfileProvider>()
           .getOrCreateConversation(user1Id: currentUserId, user2Id: targetId);
       if (mounted) {
-        context.push('/messages/$conversationId', extra: {
-          'otherUserId': targetId,
-          'otherUserName': profile?.username,
-          'otherUserAvatar': profile?.avatarUrl,
-        });
+        context.push(
+          '/messages/$conversationId',
+          extra: {
+            'otherUserId': targetId,
+            'otherUserName': profile?.username,
+            'otherUserAvatar': profile?.avatarUrl,
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -178,9 +185,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         }
 
         if (useFluent) {
-          final isPrivateAndNotFollowing = !isOwnProfile && 
-                                          profile.isPrivate && 
-                                          !profileProvider.isFollowing;
+          final isPrivateAndNotFollowing =
+              !isOwnProfile &&
+              profile.isPrivate &&
+              !profileProvider.isFollowing;
           return Material(
             color: Colors.transparent,
             child: _buildFluentProfile(
@@ -194,26 +202,31 @@ class _ProfileScreenState extends State<ProfileScreen>
           );
         }
 
-        final isPrivateAndNotFollowing = !isOwnProfile && 
-                                        profile.isPrivate && 
-                                        !profileProvider.isFollowing;
+        final isPrivateAndNotFollowing =
+            !isOwnProfile && profile.isPrivate && !profileProvider.isFollowing;
 
         if (isDesktop) {
           return Material(
             type: MaterialType.transparency,
-            child: _buildDesktopLayout(
-              profile,
-              theme,
-              colorScheme,
-              profileProvider,
-              userId,
-              isM3E,
-              disableTransparency,
-              isPrivateAndNotFollowing,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: ResponsiveLayout.maxContentWidth,
+                ),
+                child: _buildDesktopLayout(
+                  profile,
+                  theme,
+                  colorScheme,
+                  profileProvider,
+                  userId,
+                  isM3E,
+                  disableTransparency,
+                  isPrivateAndNotFollowing,
+                ),
+              ),
             ),
           );
         }
-
         return _buildMobileLayout(
           profile,
           theme,
@@ -238,7 +251,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     return fluent.ScaffoldPage(
       header: fluent.PageHeader(
         title: fluent.HoverButton(
-          onPressed: isOwnProfile ? () => AccountSwitcherSheet.show(context) : null,
+          onPressed: isOwnProfile
+              ? () => AccountSwitcherSheet.show(context)
+              : null,
           builder: (context, states) {
             return Row(
               mainAxisSize: MainAxisSize.min,
@@ -252,9 +267,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                   Icon(
                     fluent.FluentIcons.chevron_down,
                     size: 12,
-                    color: states.contains(WidgetState.hovered) 
-                      ? fluent.FluentTheme.of(context).accentColor 
-                      : null,
+                    color: states.contains(WidgetState.hovered)
+                        ? fluent.FluentTheme.of(context).accentColor
+                        : null,
                   ),
                 ],
               ],
@@ -277,7 +292,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                 final shareText = isOwnProfile
                     ? 'Check out my profile on Oasis!'
                     : 'Check out ${profile.username} on Oasis!';
-                final profileUrl = AppConfig.getWebUrl('/profile/${profile.id}');
+                final profileUrl = AppConfig.getWebUrl(
+                  '/profile/${profile.id}',
+                );
                 Share.share('$shareText\n$profileUrl');
               },
             ),
@@ -289,14 +306,23 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 1000),
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Hero Header Section
-                  _buildFluentHeroHeader(profile, themeProvider, colorScheme, profileProvider, userId),
+                  _buildFluentHeroHeader(
+                    profile,
+                    themeProvider,
+                    colorScheme,
+                    profileProvider,
+                    userId,
+                  ),
                   const SizedBox(height: 48),
-                  
+
                   // Content Pivot
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,8 +343,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                         _buildPrivateAccountNotice(isFluent: true)
                       else
                         _pivotIndex == 0
-                            ? _buildFluentPostsGrid(_userPosts, userId, themeProvider.isM3EEnabled)
-                            : _buildFluentMixedGrid(_savedPosts, _savedRipples, userId, themeProvider.isM3EEnabled),
+                            ? _buildFluentPostsGrid(
+                                _userPosts,
+                                userId,
+                                themeProvider.isM3EEnabled,
+                              )
+                            : _buildFluentMixedGrid(
+                                _savedPosts,
+                                _savedRipples,
+                                userId,
+                                themeProvider.isM3EEnabled,
+                              ),
                     ],
                   ),
                 ],
@@ -390,35 +425,32 @@ class _ProfileScreenState extends State<ProfileScreen>
             builder: (context, states) {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                transform:
-                    states.contains(WidgetState.hovered)
-                        ? (Matrix4.identity()..scale(1.02))
-                        : Matrix4.identity(),
+                transform: states.contains(WidgetState.hovered)
+                    ? (Matrix4.identity()..scale(1.02))
+                    : Matrix4.identity(),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.05),
                   borderRadius: borderRadius,
-                  border:
-                      states.contains(WidgetState.hovered)
-                          ? Border.all(
-                            color: fluent.FluentTheme.of(context).accentColor,
-                            width: 2,
-                          )
-                          : null,
+                  border: states.contains(WidgetState.hovered)
+                      ? Border.all(
+                          color: fluent.FluentTheme.of(context).accentColor,
+                          width: 2,
+                        )
+                      : null,
                 ),
                 child: ClipRRect(
                   borderRadius: borderRadius,
-                  child:
-                      post.imageUrl != null
-                          ? CachedNetworkImage(
-                            imageUrl: post.imageUrl!,
-                            fit: BoxFit.cover,
-                          )
-                          : const Center(
-                            child: Icon(
-                              fluent.FluentIcons.text_document,
-                              size: 20,
-                            ),
+                  child: post.imageUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: post.imageUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      : const Center(
+                          child: Icon(
+                            fluent.FluentIcons.text_document,
+                            size: 20,
                           ),
+                        ),
                 ),
               );
             },
@@ -426,28 +458,23 @@ class _ProfileScreenState extends State<ProfileScreen>
         } else {
           final ripple = data as RippleEntity;
           return fluent.HoverButton(
-            onPressed:
-                () => context.push(
-                  '/ripples',
-                  extra: {'initialRippleId': ripple.id},
-                ),
+            onPressed: () =>
+                context.push('/ripples', extra: {'initialRippleId': ripple.id}),
             builder: (context, states) {
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                transform:
-                    states.contains(WidgetState.hovered)
-                        ? (Matrix4.identity()..scale(1.02))
-                        : Matrix4.identity(),
+                transform: states.contains(WidgetState.hovered)
+                    ? (Matrix4.identity()..scale(1.02))
+                    : Matrix4.identity(),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.05),
                   borderRadius: borderRadius,
-                  border:
-                      states.contains(WidgetState.hovered)
-                          ? Border.all(
-                            color: fluent.FluentTheme.of(context).accentColor,
-                            width: 2,
-                          )
-                          : null,
+                  border: states.contains(WidgetState.hovered)
+                      ? Border.all(
+                          color: fluent.FluentTheme.of(context).accentColor,
+                          width: 2,
+                        )
+                      : null,
                 ),
                 child: ClipRRect(
                   borderRadius: borderRadius,
@@ -457,9 +484,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                       CachedNetworkImage(
                         imageUrl: ripple.thumbnailUrl ?? '',
                         fit: BoxFit.cover,
-                        errorWidget:
-                            (context, url, error) =>
-                                Container(color: Colors.grey.shade900),
+                        errorWidget: (context, url, error) =>
+                            Container(color: Colors.grey.shade900),
                       ),
                       const Center(
                         child: Icon(
@@ -488,16 +514,24 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(fluent.FluentIcons.lock, size: 48, color: theme.typography.body?.color?.withValues(alpha: 0.5)),
+              Icon(
+                fluent.FluentIcons.lock,
+                size: 48,
+                color: theme.typography.body?.color?.withValues(alpha: 0.5),
+              ),
               const SizedBox(height: 16),
               Text(
                 'This account is private',
-                style: theme.typography.subtitle?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.typography.subtitle?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               Text(
                 'Follow this account to see their posts',
-                style: theme.typography.body?.copyWith(color: theme.typography.body?.color?.withValues(alpha: 0.6)),
+                style: theme.typography.body?.copyWith(
+                  color: theme.typography.body?.color?.withValues(alpha: 0.6),
+                ),
               ),
             ],
           ),
@@ -512,16 +546,24 @@ class _ProfileScreenState extends State<ProfileScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.lock_outline_rounded, size: 48, color: theme.colorScheme.onSurface.withValues(alpha: 0.5)),
+            Icon(
+              Icons.lock_outline_rounded,
+              size: 48,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               'This account is private',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               'Follow this account to see their posts',
-              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.6)),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
             ),
           ],
         ),
@@ -532,7 +574,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget _buildFluentTabItem(String label, int index) {
     final isSelected = _pivotIndex == index;
     final theme = fluent.FluentTheme.of(context);
-    
+
     return fluent.HoverButton(
       onPressed: () => setState(() => _pivotIndex = index),
       builder: (context, states) {
@@ -540,14 +582,17 @@ class _ProfileScreenState extends State<ProfileScreen>
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+              padding: const EdgeInsets.symmetric(
+                vertical: 8.0,
+                horizontal: 4.0,
+              ),
               child: Text(
                 label,
                 style: theme.typography.body?.copyWith(
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  color: isSelected 
-                    ? theme.accentColor 
-                    : theme.typography.body?.color?.withValues(alpha: 0.6),
+                  color: isSelected
+                      ? theme.accentColor
+                      : theme.typography.body?.color?.withValues(alpha: 0.6),
                 ),
               ),
             ),
@@ -574,14 +619,14 @@ class _ProfileScreenState extends State<ProfileScreen>
     String? userId,
   ) {
     final isM3E = themeProvider.isM3EEnabled;
-    
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Large Avatar with Fluent Styling
         _buildFluentAvatar(profile, colorScheme, isM3E),
         const SizedBox(width: 48),
-        
+
         // Profile Info
         Expanded(
           child: Column(
@@ -589,9 +634,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             children: [
               Text(
                 profile.fullName ?? profile.username,
-                style: fluent.FluentTheme.of(context).typography.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: fluent.FluentTheme.of(
+                  context,
+                ).typography.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
@@ -616,16 +661,20 @@ class _ProfileScreenState extends State<ProfileScreen>
                   (profile.website != null && profile.website!.isNotEmpty)) ...[
                 Row(
                   children: [
-                    if (profile.location != null && profile.location!.isNotEmpty) ...[
+                    if (profile.location != null &&
+                        profile.location!.isNotEmpty) ...[
                       const Icon(fluent.FluentIcons.location_dot, size: 12),
                       const SizedBox(width: 4),
                       Text(
                         profile.location!,
-                        style: fluent.FluentTheme.of(context).typography.caption,
+                        style: fluent.FluentTheme.of(
+                          context,
+                        ).typography.caption,
                       ),
                       const SizedBox(width: 16),
                     ],
-                    if (profile.website != null && profile.website!.isNotEmpty) ...[
+                    if (profile.website != null &&
+                        profile.website!.isNotEmpty) ...[
                       const Icon(fluent.FluentIcons.link, size: 12),
                       const SizedBox(width: 4),
                       fluent.HyperlinkButton(
@@ -642,7 +691,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 const SizedBox(height: 16),
               ],
-              
+
               // Stats
               Row(
                 children: [
@@ -651,19 +700,21 @@ class _ProfileScreenState extends State<ProfileScreen>
                   _buildFluentStatItem(
                     '${profile.safeFollowersCount}',
                     'followers',
-                    onTap: () => context.push('/profile/${profile.id}/followers'),
+                    onTap: () =>
+                        context.push('/profile/${profile.id}/followers'),
                   ),
                   const SizedBox(width: 32),
                   _buildFluentStatItem(
                     '${profile.followingCount}',
                     'following',
-                    onTap: () => context.push('/profile/${profile.id}/following'),
+                    onTap: () =>
+                        context.push('/profile/${profile.id}/following'),
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Actions
               _buildFluentActionButtons(
                 profile,
@@ -675,7 +726,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ],
           ),
         ),
-        
+
         // Optional Wellness Summary on the right
         if (isOwnProfile) ...[
           const SizedBox(width: 48),
@@ -705,7 +756,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         ],
       ),
       child: ClipRRect(
-        borderRadius: isM3E ? BorderRadius.circular(32) : BorderRadius.circular(90),
+        borderRadius: isM3E
+            ? BorderRadius.circular(32)
+            : BorderRadius.circular(90),
         child: profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
             ? CachedNetworkImage(
                 imageUrl: profile.avatarUrl!,
@@ -729,7 +782,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildFluentStatItem(String value, String label, {VoidCallback? onTap}) {
+  Widget _buildFluentStatItem(
+    String value,
+    String label, {
+    VoidCallback? onTap,
+  }) {
     final theme = fluent.FluentTheme.of(context);
     return fluent.HoverButton(
       onPressed: onTap,
@@ -740,7 +797,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               value,
               style: theme.typography.subtitle?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: states.contains(WidgetState.hovered) ? theme.accentColor : null,
+                color: states.contains(WidgetState.hovered)
+                    ? theme.accentColor
+                    : null,
               ),
             ),
             Text(
@@ -785,15 +844,23 @@ class _ProfileScreenState extends State<ProfileScreen>
           onPressed: () {
             if (currentUserId != null) {
               if (profileProvider.isFollowing) {
-                profileProvider.unfollowUser(followerId: currentUserId, followingId: profile.id);
+                profileProvider.unfollowUser(
+                  followerId: currentUserId,
+                  followingId: profile.id,
+                );
               } else {
-                profileProvider.followUser(followerId: currentUserId, followingId: profile.id);
+                profileProvider.followUser(
+                  followerId: currentUserId,
+                  followingId: profile.id,
+                );
               }
             }
           },
           style: fluent.ButtonStyle(
             backgroundColor: profileProvider.isFollowing
-                ? fluent.WidgetStateProperty.all(fluent.FluentTheme.of(context).cardColor)
+                ? fluent.WidgetStateProperty.all(
+                    fluent.FluentTheme.of(context).cardColor,
+                  )
                 : null,
           ),
           child: Padding(
@@ -821,7 +888,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       decoration: BoxDecoration(
         color: fluent.FluentTheme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: fluent.FluentTheme.of(context).resources.dividerStrokeColorDefault),
+        border: Border.all(
+          color: fluent.FluentTheme.of(
+            context,
+          ).resources.dividerStrokeColorDefault,
+        ),
       ),
       child: Column(
         children: [
@@ -837,9 +908,9 @@ class _ProfileScreenState extends State<ProfileScreen>
           const SizedBox(height: 16),
           Text(
             'Level ${profile.level}',
-            style: fluent.FluentTheme.of(context).typography.body?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+            style: fluent.FluentTheme.of(
+              context,
+            ).typography.body?.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
@@ -856,7 +927,11 @@ class _ProfileScreenState extends State<ProfileScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(fluent.FluentIcons.photo_collection, size: 48, color: Colors.grey),
+            const Icon(
+              fluent.FluentIcons.photo_collection,
+              size: 48,
+              color: Colors.grey,
+            ),
             const SizedBox(height: 16),
             Text(
               'No posts yet',
@@ -879,20 +954,27 @@ class _ProfileScreenState extends State<ProfileScreen>
       itemCount: posts.length,
       itemBuilder: (context, index) {
         final post = posts[index];
-        final borderRadius = isM3E ? BorderRadius.circular(16) : BorderRadius.circular(8);
+        final borderRadius = isM3E
+            ? BorderRadius.circular(16)
+            : BorderRadius.circular(8);
 
         return fluent.HoverButton(
           onPressed: () => context.push('/post/${post.id}'),
           builder: (context, states) {
             return AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              transform: states.contains(WidgetState.hovered) ? (Matrix4.identity()..scale(1.02)) : Matrix4.identity(),
+              transform: states.contains(WidgetState.hovered)
+                  ? (Matrix4.identity()..scale(1.02))
+                  : Matrix4.identity(),
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.05),
                 borderRadius: borderRadius,
-                border: states.contains(WidgetState.hovered) 
-                  ? Border.all(color: fluent.FluentTheme.of(context).accentColor, width: 2)
-                  : null,
+                border: states.contains(WidgetState.hovered)
+                    ? Border.all(
+                        color: fluent.FluentTheme.of(context).accentColor,
+                        width: 2,
+                      )
+                    : null,
               ),
               child: ClipRRect(
                 borderRadius: borderRadius,
@@ -901,7 +983,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                         imageUrl: post.imageUrl!,
                         fit: BoxFit.cover,
                       )
-                    : const Center(child: Icon(fluent.FluentIcons.text_document, size: 20)),
+                    : const Center(
+                        child: Icon(fluent.FluentIcons.text_document, size: 20),
+                      ),
               ),
             );
           },
@@ -920,10 +1004,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool disableTransparency,
     bool isPrivateAndNotFollowing,
   ) {
-    final desktopBgColor =
-        disableTransparency
-            ? colorScheme.surface
-            : colorScheme.surface.withValues(alpha: 0.15);
+    final desktopBgColor = disableTransparency
+        ? colorScheme.surface
+        : colorScheme.surface.withValues(alpha: 0.15);
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -931,13 +1014,26 @@ class _ProfileScreenState extends State<ProfileScreen>
         decoration: BoxDecoration(
           color: desktopBgColor,
           borderRadius: BorderRadius.circular(isM3E ? 32 : 12),
-          border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.05)),
+          border: Border.all(
+            color: colorScheme.onSurface.withValues(alpha: 0.05),
+          ),
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(isM3E ? 32 : 12),
-          child:
-              disableTransparency
-                  ? _buildDesktopContent(
+          child: disableTransparency
+              ? _buildDesktopContent(
+                  profile,
+                  theme,
+                  colorScheme,
+                  profileProvider,
+                  userId,
+                  isM3E,
+                  disableTransparency,
+                  isPrivateAndNotFollowing,
+                )
+              : BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: _buildDesktopContent(
                     profile,
                     theme,
                     colorScheme,
@@ -946,20 +1042,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                     isM3E,
                     disableTransparency,
                     isPrivateAndNotFollowing,
-                  )
-                  : BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: _buildDesktopContent(
-                      profile,
-                      theme,
-                      colorScheme,
-                      profileProvider,
-                      userId,
-                      isM3E,
-                      disableTransparency,
-                      isPrivateAndNotFollowing,
-                    ),
                   ),
+                ),
         ),
       ),
     );
@@ -1016,7 +1100,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
                           color: theme.brightness == Brightness.dark
-                              ? colorScheme.surfaceContainerLow.withValues(alpha: 0.5)
+                              ? colorScheme.surfaceContainerLow.withValues(
+                                  alpha: 0.5,
+                                )
                               : colorScheme.surfaceContainerLow,
                           borderRadius: BorderRadius.circular(isM3E ? 32 : 16),
                           border: Border.all(
@@ -1063,7 +1149,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                               controller: _tabController,
                               children: [
                                 _buildPostsTab(userId, true, isM3E),
-                                if (isOwnProfile) _buildSavedTab(userId, true, isM3E),
+                                if (isOwnProfile)
+                                  _buildSavedTab(userId, true, isM3E),
                               ],
                             ),
                     ),
@@ -1225,7 +1312,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
           ),
-        
+
         // Location and Website
         if (profile.location != null && profile.location!.isNotEmpty)
           Padding(
@@ -1253,7 +1340,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               },
             ),
           ),
-        
+
         const SizedBox(height: 16),
         WellnessBadge(xp: profile.safeXp),
       ],
@@ -1593,9 +1680,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             ? colorScheme.surfaceContainerLow.withValues(alpha: 0.5)
             : colorScheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(isM3E ? 32 : 16),
-        border: Border.all(
-          color: colorScheme.onSurface.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
         boxShadow: [
           if (theme.brightness == Brightness.light)
             BoxShadow(
@@ -1630,7 +1715,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                         height: 90,
                         color: colorScheme.surface,
                         child:
-                            profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty
+                            profile.avatarUrl != null &&
+                                profile.avatarUrl!.isNotEmpty
                             ? CachedNetworkImage(
                                 imageUrl: profile.avatarUrl!,
                                 fit: BoxFit.cover,
@@ -1656,7 +1742,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                         decoration: BoxDecoration(
                           color: colorScheme.primary,
                           borderRadius: BorderRadius.circular(isM3E ? 8 : 12),
-                          border: Border.all(color: colorScheme.surface, width: 2),
+                          border: Border.all(
+                            color: colorScheme.surface,
+                            width: 2,
+                          ),
                         ),
                         child: const Text(
                           'PRO',
@@ -1698,7 +1787,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ],
           ),
-          
+
           if (profile.bio != null && profile.bio!.isNotEmpty) ...[
             const SizedBox(height: 20),
             Text(
@@ -1709,7 +1798,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
           ],
-          
+
           if ((profile.location != null && profile.location!.isNotEmpty) ||
               (profile.website != null && profile.website!.isNotEmpty)) ...[
             const SizedBox(height: 16),
@@ -1753,9 +1842,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                   builder: (context, snapshot) {
                     final usage = snapshot.data ?? Duration.zero;
                     final settings = context.read<UserSettingsProvider>();
-                    final dailyLimit = settings.dailyLimitMinutes > 0 ? settings.dailyLimitMinutes : 60;
-                    final progress = (usage.inMinutes / dailyLimit).clamp(0.0, 1.0);
-                    
+                    final dailyLimit = settings.dailyLimitMinutes > 0
+                        ? settings.dailyLimitMinutes
+                        : 60;
+                    final progress = (usage.inMinutes / dailyLimit).clamp(
+                      0.0,
+                      1.0,
+                    );
+
                     return Center(
                       child: SessionDial(
                         progress: progress,
@@ -1795,9 +1889,9 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: Text(
               text,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: onTap != null 
-                  ? colorScheme.primary 
-                  : colorScheme.onSurface.withValues(alpha: 0.6),
+                color: onTap != null
+                    ? colorScheme.primary
+                    : colorScheme.onSurface.withValues(alpha: 0.6),
                 fontWeight: onTap != null ? FontWeight.bold : FontWeight.w500,
               ),
               maxLines: 1,
@@ -1910,52 +2004,52 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
                 )
               : profileProvider.isFollowing
-                    ? OutlinedButton(
-                        onPressed: () {
-                          if (currentUserId != null) {
-                            profileProvider.unfollowUser(
-                              followerId: currentUserId,
-                              followingId: profile.id,
-                            );
-                          }
-                        },
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radius),
-                          ),
-                        ),
-                        child: const Text('Following'),
-                      )
-                    : profileProvider.state.hasSentRequest
-                    ? OutlinedButton(
-                        onPressed: null,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radius),
-                          ),
-                        ),
-                        child: const Text('Requested'),
-                      )
-                    : FilledButton(
-                        onPressed: () {
-                          if (currentUserId != null) {
-                            profileProvider.followUser(
-                              followerId: currentUserId,
-                              followingId: profile.id,
-                            );
-                          }
-                        },
-                        style: FilledButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(radius),
-                          ),
-                        ),
-                        child: const Text('Follow'),
-                      ),
+              ? OutlinedButton(
+                  onPressed: () {
+                    if (currentUserId != null) {
+                      profileProvider.unfollowUser(
+                        followerId: currentUserId,
+                        followingId: profile.id,
+                      );
+                    }
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(radius),
+                    ),
+                  ),
+                  child: const Text('Following'),
+                )
+              : profileProvider.state.hasSentRequest
+              ? OutlinedButton(
+                  onPressed: null,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(radius),
+                    ),
+                  ),
+                  child: const Text('Requested'),
+                )
+              : FilledButton(
+                  onPressed: () {
+                    if (currentUserId != null) {
+                      profileProvider.followUser(
+                        followerId: currentUserId,
+                        followingId: profile.id,
+                      );
+                    }
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: colorScheme.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(radius),
+                    ),
+                  ),
+                  child: const Text('Follow'),
+                ),
         ),
         const SizedBox(width: 12),
         if (!isOwnProfile && currentUserId != null) ...[
@@ -2088,23 +2182,23 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               child: ClipRRect(
                 borderRadius: borderRadius,
-                child:
-                    post.imageUrl != null
-                        ? Hero(
-                          tag: 'post_${post.id}',
-                          child: CachedNetworkImage(
-                            imageUrl: post.imageUrl!,
-                            fit: BoxFit.cover,
-                          ),
-                        )
-                        : const Center(child: Icon(Icons.text_fields, size: 20)),
+                child: post.imageUrl != null
+                    ? Hero(
+                        tag: 'post_${post.id}',
+                        child: CachedNetworkImage(
+                          imageUrl: post.imageUrl!,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : const Center(child: Icon(Icons.text_fields, size: 20)),
               ),
             ),
           );
         } else {
           final ripple = data as RippleEntity;
           return GestureDetector(
-            onTap: () => context.push('/ripples', extra: {'initialRippleId': ripple.id}),
+            onTap: () =>
+                context.push('/ripples', extra: {'initialRippleId': ripple.id}),
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.black.withValues(alpha: 0.05),
@@ -2118,7 +2212,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                     CachedNetworkImage(
                       imageUrl: ripple.thumbnailUrl ?? '',
                       fit: BoxFit.cover,
-                      errorWidget: (context, url, error) => Container(color: Colors.grey.shade900),
+                      errorWidget: (context, url, error) =>
+                          Container(color: Colors.grey.shade900),
                     ),
                     const Center(
                       child: Icon(

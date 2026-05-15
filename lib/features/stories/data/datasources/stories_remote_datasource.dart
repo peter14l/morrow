@@ -62,27 +62,26 @@ class StoriesRemoteDatasource {
     final now = DateTime.now();
     final expiresAt = now.add(const Duration(hours: 24));
 
-    final response =
-        await _supabase
-            .from('stories')
-            .insert({
-              'user_id': userId,
-              'media_url': mediaUrl,
-              'media_type': mediaType,
-              'thumbnail_url': thumbnailUrl,
-              'caption': caption,
-              'duration': duration,
-              'created_at': now.toIso8601String(),
-              'expires_at': expiresAt.toIso8601String(),
-            })
-            .select('''
+    final response = await _supabase
+        .from('stories')
+        .insert({
+          'user_id': userId,
+          'media_url': mediaUrl,
+          'media_type': mediaType,
+          'thumbnail_url': thumbnailUrl,
+          'caption': caption,
+          'duration': duration,
+          'created_at': now.toIso8601String(),
+          'expires_at': expiresAt.toIso8601String(),
+        })
+        .select('''
       *,
       profiles:user_id (
         username,
         avatar_url
       )
     ''')
-            .single();
+        .single();
 
     final storyData = Map<String, dynamic>.from(response);
     final profile = storyData['profiles'];
@@ -143,12 +142,11 @@ class StoriesRemoteDatasource {
   Future<bool> deleteStory(String storyId, String userId) async {
     try {
       // Get story to verify ownership and get media URL
-      final story =
-          await _supabase
-              .from('stories')
-              .select('media_url, user_id')
-              .eq('id', storyId)
-              .single();
+      final story = await _supabase
+          .from('stories')
+          .select('media_url, user_id')
+          .eq('id', storyId)
+          .single();
 
       if (story['user_id'] != userId) {
         throw Exception('Not authorized');

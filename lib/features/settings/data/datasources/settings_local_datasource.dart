@@ -17,7 +17,7 @@ class SettingsLocalDatasource {
   Future<UserSettingsEntity> getSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       final layoutName = prefs.getString(_feedLayoutKey);
       final feedLayout = FeedLayoutType.values.firstWhere(
         (e) => e.name == layoutName,
@@ -43,7 +43,7 @@ class SettingsLocalDatasource {
   Future<bool> saveSettings(UserSettingsEntity settings) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      
+
       await Future.wait([
         prefs.setBool(_dataSaverKey, settings.dataSaver),
         prefs.setDouble(_fontSizeFactorKey, settings.fontSizeFactor),
@@ -55,7 +55,7 @@ class SettingsLocalDatasource {
         prefs.setString(_fontFamilyKey, settings.fontFamily),
         prefs.setString(_feedLayoutKey, settings.feedLayout.name),
       ]);
-      
+
       return true;
     } catch (e) {
       throw StorageException('Failed to save settings', code: e.toString());

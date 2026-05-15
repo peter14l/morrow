@@ -35,7 +35,7 @@ class AppConfig {
   static String get updateCheckUrl {
     const fromEnv = String.fromEnvironment('UPDATE_CHECK_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
-    
+
     if (kDebugMode) return 'http://localhost:3000/api/check-update';
     return '';
   }

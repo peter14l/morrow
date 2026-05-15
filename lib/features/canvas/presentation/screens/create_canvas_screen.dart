@@ -84,9 +84,9 @@ class _CreateCanvasScreenState extends State<CreateCanvasScreen> {
         );
       } else if (canvasProvider.error == 'FREE_LIMIT_REACHED') {
         canvasProvider.clearError();
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (context) => const SubscriptionScreen()));
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -128,10 +128,9 @@ class _CreateCanvasScreenState extends State<CreateCanvasScreen> {
           children: [
             // ── Preview ──────────────────────────────────────────────
             _CanvasPreview(
-              title:
-                  _titleController.text.isEmpty
-                      ? 'My Canvas'
-                      : _titleController.text,
+              title: _titleController.text.isEmpty
+                  ? 'My Canvas'
+                  : _titleController.text,
               color: _selectedColor,
               memberCount: 1,
             ),
@@ -169,38 +168,35 @@ class _CreateCanvasScreenState extends State<CreateCanvasScreen> {
             Wrap(
               spacing: 12,
               runSpacing: 12,
-              children:
-                  _coverColors.map((hex) {
-                    final isSelected = hex == _selectedColor;
-                    final color = _hexToColor(hex);
-                    return GestureDetector(
-                      onTap: () => setState(() => _selectedColor = hex),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 180),
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: color,
-                          border: Border.all(
-                            color:
-                                isSelected ? Colors.white : Colors.transparent,
-                            width: 3,
-                          ),
-                          boxShadow:
-                              isSelected
-                                  ? [
-                                    BoxShadow(
-                                      color: color.withValues(alpha: 0.6),
-                                      blurRadius: 8,
-                                      spreadRadius: 1,
-                                    ),
-                                  ]
-                                  : null,
-                        ),
+              children: _coverColors.map((hex) {
+                final isSelected = hex == _selectedColor;
+                final color = _hexToColor(hex);
+                return GestureDetector(
+                  onTap: () => setState(() => _selectedColor = hex),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color,
+                      border: Border.all(
+                        color: isSelected ? Colors.white : Colors.transparent,
+                        width: 3,
                       ),
-                    );
-                  }).toList(),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.6),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
 
             // ── Mode selection ───────────────────────────────────────
@@ -288,14 +284,14 @@ class _CreateCanvasScreenState extends State<CreateCanvasScreen> {
                       secondary: CircleAvatar(
                         backgroundImage:
                             friend.avatarUrl != null &&
-                                    friend.avatarUrl!.isNotEmpty
-                                ? NetworkImage(friend.avatarUrl!)
-                                : null,
+                                friend.avatarUrl!.isNotEmpty
+                            ? NetworkImage(friend.avatarUrl!)
+                            : null,
                         child:
                             friend.avatarUrl == null ||
-                                    friend.avatarUrl!.isEmpty
-                                ? Text(friend.username[0].toUpperCase())
-                                : null,
+                                friend.avatarUrl!.isEmpty
+                            ? Text(friend.username[0].toUpperCase())
+                            : null,
                       ),
                       value: isSelected,
                       onChanged: (val) {
@@ -318,17 +314,16 @@ class _CreateCanvasScreenState extends State<CreateCanvasScreen> {
               width: double.infinity,
               child: FilledButton.icon(
                 onPressed: _isLoading ? null : _create,
-                icon:
-                    _isLoading
-                        ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                        : const Icon(FluentIcons.whiteboard_24_regular),
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(FluentIcons.whiteboard_24_regular),
                 label: Text(_isLoading ? 'Creating...' : 'Create Canvas'),
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
@@ -372,16 +367,14 @@ class _ModeCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color:
-              isSelected
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.surfaceContainerHighest,
+          color: isSelected
+              ? theme.colorScheme.primary
+              : theme.colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color:
-                isSelected
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline.withValues(alpha: 0.1),
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outline.withValues(alpha: 0.1),
             width: 2,
           ),
         ),
@@ -389,19 +382,17 @@ class _ModeCard extends StatelessWidget {
           children: [
             Icon(
               icon,
-              color:
-                  isSelected
-                      ? Colors.white
-                      : theme.colorScheme.onSurfaceVariant,
+              color: isSelected
+                  ? Colors.white
+                  : theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 8),
             Text(
               title,
               style: theme.textTheme.titleSmall?.copyWith(
-                color:
-                    isSelected
-                        ? Colors.white
-                        : theme.colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? Colors.white
+                    : theme.colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),

@@ -34,7 +34,9 @@ class MessageReactionPicker extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -50,7 +52,11 @@ class MessageReactionPicker extends StatelessWidget {
                   emojiViewConfig: EmojiViewConfig(
                     backgroundColor: Colors.transparent,
                     columns: 7,
-                    emojiSizeMax: 32 * (defaultTargetPlatform == TargetPlatform.iOS ? 1.30 : 1.0),
+                    emojiSizeMax:
+                        32 *
+                        (defaultTargetPlatform == TargetPlatform.iOS
+                            ? 1.30
+                            : 1.0),
                   ),
                   categoryViewConfig: const CategoryViewConfig(
                     backgroundColor: Colors.transparent,

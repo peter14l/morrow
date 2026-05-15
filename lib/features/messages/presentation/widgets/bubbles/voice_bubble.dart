@@ -72,7 +72,8 @@ class _VoiceBubbleState extends State<VoiceBubble> {
     setState(() => _isDownloading = true);
 
     try {
-      final encryptedKeys = widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
+      final encryptedKeys =
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
       final iv = widget.message.shareData?['media_iv'] as String?;
 
       if (encryptedKeys == null || iv == null) {
@@ -97,9 +98,9 @@ class _VoiceBubbleState extends State<VoiceBubble> {
       debugPrint('[VoiceBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to download audio: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to download audio: $e')));
       }
     }
   }
@@ -136,9 +137,9 @@ class _VoiceBubbleState extends State<VoiceBubble> {
     } catch (e) {
       if (mounted) {
         setState(() => _isTranscribing = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Transcription failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Transcription failed: $e')));
       }
     }
   }
@@ -149,18 +150,20 @@ class _VoiceBubbleState extends State<VoiceBubble> {
     final colorScheme = theme.colorScheme;
     final color =
         widget.textColor ??
-        (widget.isMe
-            ? colorScheme.onPrimaryContainer
-            : colorScheme.onSurface);
+        (widget.isMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
 
-    final isEncrypted = widget.message.shareData?['media_keys'] != null && widget.message.shareData?['media_iv'] != null;
+    final isEncrypted =
+        widget.message.shareData?['media_keys'] != null &&
+        widget.message.shareData?['media_iv'] != null;
 
     if (widget.message.isUploading || (_localPath == null && isEncrypted)) {
       return Container(
         width: 200,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: widget.isMe ? Colors.black.withValues(alpha: 0.1) : colorScheme.surfaceVariant.withValues(alpha: 0.5),
+          color: widget.isMe
+              ? Colors.black.withValues(alpha: 0.1)
+              : colorScheme.surfaceVariant.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,
@@ -195,22 +198,36 @@ class _VoiceBubbleState extends State<VoiceBubble> {
                   const SizedBox(height: 4),
                   Text(
                     'Sending... ${(widget.message.uploadProgress * 100).toInt()}%',
-                    style: theme.textTheme.labelSmall?.copyWith(color: color.withValues(alpha: 0.7)),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: color.withValues(alpha: 0.7),
+                    ),
                   ),
                 ] else if (_localPath == null && isEncrypted) ...[
                   InkWell(
-
                     onTap: _downloadMedia,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 4),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _isDownloading 
-                            ? const SizedBox(width: 12, height: 12, child: CircularProgressIndicator(strokeWidth: 2))
-                            : Icon(Icons.download, size: 14, color: color),
+                          _isDownloading
+                              ? const SizedBox(
+                                  width: 12,
+                                  height: 12,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Icon(Icons.download, size: 14, color: color),
                           const SizedBox(width: 6),
-                          Text(_isDownloading ? 'Downloading...' : 'Download Voice', style: theme.textTheme.labelSmall?.copyWith(color: color)),
+                          Text(
+                            _isDownloading
+                                ? 'Downloading...'
+                                : 'Download Voice',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: color,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -231,8 +248,9 @@ class _VoiceBubbleState extends State<VoiceBubble> {
     }
 
     return Column(
-      crossAxisAlignment:
-          widget.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      crossAxisAlignment: widget.isMe
+          ? CrossAxisAlignment.end
+          : CrossAxisAlignment.start,
       children: [
         VoiceMessagePlayer(
           audioUrl: _localPath!,
@@ -255,7 +273,9 @@ class _VoiceBubbleState extends State<VoiceBubble> {
               children: [
                 Text(
                   _transcript!.text,
-                  textDirection: _transcript!.isRTL ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _transcript!.isRTL
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: color.withValues(alpha: 0.8),
                     fontStyle: FontStyle.italic,
@@ -297,11 +317,17 @@ class _VoiceBubbleState extends State<VoiceBubble> {
                         height: 12,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.grey,
+                          ),
                         ),
                       )
                     else
-                      Icon(Icons.translate_rounded, size: 12, color: color.withValues(alpha: 0.5)),
+                      Icon(
+                        Icons.translate_rounded,
+                        size: 12,
+                        color: color.withValues(alpha: 0.5),
+                      ),
                     const SizedBox(width: 6),
                     Text(
                       _isTranscribing ? 'Transcribing...' : 'Transcribe',

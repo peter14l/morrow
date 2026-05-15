@@ -37,9 +37,9 @@ class StoryViewersSheet extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 'Story Activity',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               if (isLoading)

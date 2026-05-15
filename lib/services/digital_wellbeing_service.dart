@@ -143,6 +143,32 @@ class DigitalWellbeingService extends ChangeNotifier {
   int get ripplesSeconds => _ripplesSeconds;
   int get totalSeconds => _feedSeconds + _ripplesSeconds;
 
+  // --- UI Decay Nudges ---
+
+  double get saturationFactor {
+    final total = totalSeconds;
+    final threshold = lockoutThresholdMinutes * 60;
+
+    // Start desaturating at 80% of threshold
+    if (total < threshold * 0.8) return 1.0;
+
+    // Linearly decrease from 1.0 to 0.2
+    final progress = (total - (threshold * 0.8)) / (threshold * 0.2);
+    return (1.0 - (progress * 0.8)).clamp(0.2, 1.0);
+  }
+
+  double get blurSigma {
+    final total = totalSeconds;
+    final threshold = lockoutThresholdMinutes * 60;
+
+    // Start blurring at 90% of threshold
+    if (total < threshold * 0.9) return 0.0;
+
+    // Linearly increase from 0 to 3.0
+    final progress = (total - (threshold * 0.9)) / (threshold * 0.1);
+    return (progress * 3.0).clamp(0.0, 3.0);
+  }
+
   bool _isUserPro() {
     return SubscriptionService().isPro;
   }

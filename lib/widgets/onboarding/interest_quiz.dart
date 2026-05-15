@@ -267,33 +267,35 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
           padding: const material.EdgeInsets.symmetric(vertical: 16),
           child: useFluent
               ? fluent.PipsPager(
-                numberOfPages: 2,
-                currentIndex: _currentStep,
-                onPageChanged: (index) => setState(() => _currentStep = index),
-              )
+                  numberOfPages: 2,
+                  currentIndex: _currentStep,
+                  onPageChanged: (index) =>
+                      setState(() => _currentStep = index),
+                )
               : material.Row(
-                mainAxisAlignment: material.MainAxisAlignment.center,
-                children: List.generate(2, (index) {
-                  return material.Container(
-                    width: 8,
-                    height: 8,
-                    margin: const material.EdgeInsets.symmetric(horizontal: 4),
-                    decoration: material.BoxDecoration(
-                      shape: material.BoxShape.circle,
-                      color: _currentStep == index
-                          ? theme.colorScheme.primary
-                          : theme.colorScheme.primary.withValues(alpha: 0.2),
-                    ),
-                  );
-                }),
-              ),
+                  mainAxisAlignment: material.MainAxisAlignment.center,
+                  children: List.generate(2, (index) {
+                    return material.Container(
+                      width: 8,
+                      height: 8,
+                      margin: const material.EdgeInsets.symmetric(
+                        horizontal: 4,
+                      ),
+                      decoration: material.BoxDecoration(
+                        shape: material.BoxShape.circle,
+                        color: _currentStep == index
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.primary.withValues(alpha: 0.2),
+                      ),
+                    );
+                  }),
+                ),
         ),
 
         material.Expanded(
-          child:
-              _currentStep == 0
-                  ? _buildCategorySelection(theme, useFluent, fluentTheme)
-                  : _buildSubcategorySelection(theme, useFluent, fluentTheme),
+          child: _currentStep == 0
+              ? _buildCategorySelection(theme, useFluent, fluentTheme)
+              : _buildSubcategorySelection(theme, useFluent, fluentTheme),
         ),
 
         // Navigation buttons
@@ -304,33 +306,33 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
               if (_currentStep > 0)
                 useFluent
                     ? fluent.Button(
-                      onPressed: () => setState(() => _currentStep = 0),
-                      child: const material.Text('Back'),
-                    )
+                        onPressed: () => setState(() => _currentStep = 0),
+                        child: const material.Text('Back'),
+                      )
                     : material.OutlinedButton(
-                      onPressed: () => setState(() => _currentStep = 0),
-                      child: const material.Text('Back'),
-                    ),
+                        onPressed: () => setState(() => _currentStep = 0),
+                        child: const material.Text('Back'),
+                      ),
               const material.Spacer(),
               useFluent
                   ? fluent.FilledButton(
-                    onPressed:
-                        _currentStep == 0 && _selectedCategories.isNotEmpty
-                            ? () => setState(() => _currentStep = 1)
-                            : _currentStep == 1
-                            ? _complete
-                            : null,
-                    child: material.Text(_currentStep == 0 ? 'Next' : 'Done'),
-                  )
+                      onPressed:
+                          _currentStep == 0 && _selectedCategories.isNotEmpty
+                          ? () => setState(() => _currentStep = 1)
+                          : _currentStep == 1
+                          ? _complete
+                          : null,
+                      child: material.Text(_currentStep == 0 ? 'Next' : 'Done'),
+                    )
                   : material.FilledButton(
-                    onPressed:
-                        _currentStep == 0 && _selectedCategories.isNotEmpty
-                            ? () => setState(() => _currentStep = 1)
-                            : _currentStep == 1
-                            ? _complete
-                            : null,
-                    child: material.Text(_currentStep == 0 ? 'Next' : 'Done'),
-                  ),
+                      onPressed:
+                          _currentStep == 0 && _selectedCategories.isNotEmpty
+                          ? () => setState(() => _currentStep = 1)
+                          : _currentStep == 1
+                          ? _complete
+                          : null,
+                      child: material.Text(_currentStep == 0 ? 'Next' : 'Done'),
+                    ),
             ],
           ),
         ),
@@ -365,77 +367,73 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
           material.Wrap(
             spacing: 12,
             runSpacing: 12,
-            children:
-                InterestCategories.all.map((category) {
-                  final isSelected = _selectedCategories.contains(category.id);
-                  final cardChild = material.Padding(
-                    padding: const material.EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
+            children: InterestCategories.all.map((category) {
+              final isSelected = _selectedCategories.contains(category.id);
+              final cardChild = material.Padding(
+                padding: const material.EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: material.Row(
+                  mainAxisSize: material.MainAxisSize.min,
+                  children: [
+                    material.Text(
+                      category.emoji,
+                      style: const material.TextStyle(fontSize: 20),
                     ),
-                    child: material.Row(
-                      mainAxisSize: material.MainAxisSize.min,
-                      children: [
-                        material.Text(
-                          category.emoji,
-                          style: const material.TextStyle(fontSize: 20),
-                        ),
-                        const material.SizedBox(width: 8),
-                        material.Text(
-                          category.name,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            fontWeight:
-                                isSelected
-                                    ? material.FontWeight.bold
-                                    : material.FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-
-                  if (useFluent) {
-                    return fluent.Card(
-                      padding: material.EdgeInsets.zero,
-                      backgroundColor:
-                          isSelected
-                              ? category.color.withValues(alpha: 0.1)
-                              : fluentTheme?.cardColor,
-                      borderColor: isSelected ? category.color : null,
-                      child: material.InkWell(
-                        onTap: () => _toggleCategory(category.id),
-                        borderRadius: material.BorderRadius.circular(8),
-                        child: cardChild,
+                    const material.SizedBox(width: 8),
+                    material.Text(
+                      category.name,
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        fontWeight: isSelected
+                            ? material.FontWeight.bold
+                            : material.FontWeight.normal,
                       ),
-                    );
-                  }
+                    ),
+                  ],
+                ),
+              );
 
-                  return material.Material(
-                    color: Colors.transparent,
-                    child: material.InkWell(
-                      onTap: () => _toggleCategory(category.id),
+              if (useFluent) {
+                return fluent.Card(
+                  padding: material.EdgeInsets.zero,
+                  backgroundColor: isSelected
+                      ? category.color.withValues(alpha: 0.1)
+                      : fluentTheme?.cardColor,
+                  borderColor: isSelected ? category.color : null,
+                  child: material.InkWell(
+                    onTap: () => _toggleCategory(category.id),
+                    borderRadius: material.BorderRadius.circular(8),
+                    child: cardChild,
+                  ),
+                );
+              }
+
+              return material.Material(
+                color: Colors.transparent,
+                child: material.InkWell(
+                  onTap: () => _toggleCategory(category.id),
+                  borderRadius: material.BorderRadius.circular(16),
+                  child: material.Container(
+                    decoration: material.BoxDecoration(
+                      color: isSelected
+                          ? category.color.withValues(alpha: 0.1)
+                          : theme.colorScheme.surfaceContainerLow,
                       borderRadius: material.BorderRadius.circular(16),
-                      child: material.Container(
-                        decoration: material.BoxDecoration(
-                          color:
-                              isSelected
-                                  ? category.color.withValues(alpha: 0.1)
-                                  : theme.colorScheme.surfaceContainerLow,
-                          borderRadius: material.BorderRadius.circular(16),
-                          border: material.Border.all(
-                            color:
-                                isSelected
-                                    ? category.color
-                                    : theme.colorScheme.outlineVariant
-                                        .withValues(alpha: 0.5),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: cardChild,
+                      border: material.Border.all(
+                        color: isSelected
+                            ? category.color
+                            : theme.colorScheme.outlineVariant.withValues(
+                                alpha: 0.5,
+                              ),
+                        width: 1.5,
                       ),
                     ),
-                  );
-                }).toList(),
+                    child: cardChild,
+                  ),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ),
@@ -447,10 +445,9 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
     bool useFluent,
     fluent.FluentThemeData? fluentTheme,
   ) {
-    final selectedCategoryList =
-        InterestCategories.all
-            .where((c) => _selectedCategories.contains(c.id))
-            .toList();
+    final selectedCategoryList = InterestCategories.all
+        .where((c) => _selectedCategories.contains(c.id))
+        .toList();
 
     return material.ListView.builder(
       padding: const material.EdgeInsets.all(16),
@@ -490,7 +487,10 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
             children: [
               material.Row(
                 children: [
-                  material.Text(category.emoji, style: const material.TextStyle(fontSize: 18)),
+                  material.Text(
+                    category.emoji,
+                    style: const material.TextStyle(fontSize: 18),
+                  ),
                   const material.SizedBox(width: 8),
                   material.Text(
                     category.name,
@@ -504,16 +504,15 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
               material.Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children:
-                    category.subcategories.map((sub) {
-                      final isSelected = selectedSubs.contains(sub);
-                      return material.FilterChip(
-                        label: material.Text(sub),
-                        selected: isSelected,
-                        selectedColor: category.color.withValues(alpha: 0.3),
-                        onSelected: (_) => _toggleSubcategory(category.id, sub),
-                      );
-                    }).toList(),
+                children: category.subcategories.map((sub) {
+                  final isSelected = selectedSubs.contains(sub);
+                  return material.FilterChip(
+                    label: material.Text(sub),
+                    selected: isSelected,
+                    selectedColor: category.color.withValues(alpha: 0.3),
+                    onSelected: (_) => _toggleSubcategory(category.id, sub),
+                  );
+                }).toList(),
               ),
             ],
           ),

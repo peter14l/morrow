@@ -99,7 +99,7 @@ class _DissolvePainter extends CustomPainter {
       ..strokeWidth = 1.0;
 
     final random = Random(seed);
-    
+
     // Draw subtle grainy dots over the area
     // This is a simple CPU-based grain. For high performance/density, a fragment shader is better.
     // But for small chat bubbles, this is fine.
@@ -107,15 +107,11 @@ class _DissolvePainter extends CustomPainter {
     for (int i = 0; i < dotCount; i++) {
       final x = random.nextDouble() * size.width;
       final y = random.nextDouble() * size.height;
-      
+
       // Only draw if it's 'dissolving' at this point
       // We simulate a noise threshold
       if (random.nextDouble() < 0.2 + (progress * 0.1)) {
-        canvas.drawPoints(
-          ui.PointMode.points,
-          [Offset(x, y)],
-          paint,
-        );
+        canvas.drawPoints(ui.PointMode.points, [Offset(x, y)], paint);
       }
     }
   }

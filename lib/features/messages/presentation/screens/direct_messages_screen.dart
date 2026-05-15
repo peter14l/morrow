@@ -87,7 +87,8 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
       // Unfocus on pause/inactive to prevent keyboard sync issues on Windows
       FocusManager.instance.primaryFocus?.unfocus();
       _refreshTimer?.cancel();
@@ -115,8 +116,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     final provider = Provider.of<ConversationProvider>(context, listen: false);
     final convId = widget.initialConversationId!;
 
-    final realConv =
-        provider.conversations.where((c) => c.id == convId).firstOrNull;
+    final realConv = provider.conversations
+        .where((c) => c.id == convId)
+        .firstOrNull;
     if (realConv != null) {
       setState(() => _selectedConversation = realConv);
       return;
@@ -278,10 +280,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                     ? FluentIcons.pin_off_24_regular
                     : FluentIcons.pin_24_regular,
                 size: 20,
-                color:
-                    conversation.isPinned
-                        ? Colors.redAccent
-                        : colorScheme.onSurfaceVariant,
+                color: conversation.isPinned
+                    ? Colors.redAccent
+                    : colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 12),
               Text(conversation.isPinned ? 'Unfavorite' : 'Add to Favorites'),
@@ -421,7 +422,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                 borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
                 border: isM3E
                     ? Border.all(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
                         width: 1,
                       )
                     : Border.all(color: Colors.white.withValues(alpha: 0.05)),
@@ -449,7 +452,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                 borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
                 border: isM3E
                     ? Border.all(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                        color: colorScheme.outlineVariant.withValues(
+                          alpha: 0.3,
+                        ),
                         width: 1,
                       )
                     : Border.all(color: Colors.white.withValues(alpha: 0.05)),
@@ -488,7 +493,14 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             ),
           ),
         ],
-        body: _buildFluentDesktopContent(context, isM3E, theme),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxWidth: ResponsiveLayout.maxContentWidth,
+            ),
+            child: _buildFluentDesktopContent(context, isM3E, theme),
+          ),
+        ),
       );
     }
 
@@ -514,17 +526,24 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             ),
             const Divider(height: 1),
             Expanded(
-              child: Stack(
-                children: [
-                  desktopContent,
-                  if (_previewConversation != null)
-                    _StealthPreviewPopup(
-                      conversation: _previewConversation!,
-                      position: _previewPosition,
-                      onDismiss: _hideStealthPreview,
-                      decryptedMessages: _previewDecryptedMessages,
-                    ),
-                ],
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: ResponsiveLayout.maxContentWidth,
+                  ),
+                  child: Stack(
+                    children: [
+                      desktopContent,
+                      if (_previewConversation != null)
+                        _StealthPreviewPopup(
+                          conversation: _previewConversation!,
+                          position: _previewPosition,
+                          onDismiss: _hideStealthPreview,
+                          decryptedMessages: _previewDecryptedMessages,
+                        ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -574,7 +593,11 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     );
   }
 
-  Widget _buildFluentDesktopContent(BuildContext context, bool isM3E, ThemeData theme) {
+  Widget _buildFluentDesktopContent(
+    BuildContext context,
+    bool isM3E,
+    ThemeData theme,
+  ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
     final fluentTheme = fluent.FluentTheme.of(context);
@@ -589,19 +612,14 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
               width: 320,
               decoration: BoxDecoration(
                 border: Border(
-                  right: BorderSide(
-                    color: dividerColor,
-                    width: 1,
-                  ),
+                  right: BorderSide(color: dividerColor, width: 1),
                 ),
               ),
               child: _buildConversationList(isDesktop: true),
             ),
-            
+
             // Pane 2: Chat
-            Expanded(
-              child: _buildChatPane(isM3E, theme),
-            ),
+            Expanded(child: _buildChatPane(isM3E, theme)),
 
             // Pane 3: Details (Integrated)
             if (_selectedConversation != null && _showDetails)
@@ -609,10 +627,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                 width: 350,
                 decoration: BoxDecoration(
                   border: Border(
-                    left: BorderSide(
-                      color: dividerColor,
-                      width: 1,
-                    ),
+                    left: BorderSide(color: dividerColor, width: 1),
                   ),
                 ),
                 child: _buildDetailsPane(),
@@ -640,10 +655,12 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    Icons.chat_bubble_outline,
-                    size: 80,
-                    color: Colors.white.withValues(alpha: 0.05),
-                  ).animate(onPlay: (c) => c.repeat()).shimmer(duration: 3.seconds),
+                        Icons.chat_bubble_outline,
+                        size: 80,
+                        color: Colors.white.withValues(alpha: 0.05),
+                      )
+                      .animate(onPlay: (c) => c.repeat())
+                      .shimmer(duration: 3.seconds),
                   const SizedBox(height: 16),
                   Text(
                     'SELECT A CONVERSATION',
@@ -663,7 +680,8 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
               otherUserAvatar: _selectedConversation!.otherUserAvatar,
               otherUserId: _selectedConversation!.otherUserId,
               isDetailsOpen: _showDetails,
-              onDetailsToggle: () => setState(() => _showDetails = !_showDetails),
+              onDetailsToggle: () =>
+                  setState(() => _showDetails = !_showDetails),
               bgOpacity: _bgOpacity,
               bgBrightness: _bgBrightness,
             ),
@@ -706,17 +724,20 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
           // if (_useMockData) ..._generateMockConversations(),
         ];
 
-        final List<Conversation> filteredConversations =
-            allConversations.where((c) {
-              final query = _searchQuery.toLowerCase();
-              return c.otherUserName.toLowerCase().contains(query) ||
-                  (c.lastMessage?.toLowerCase().contains(query) ?? false);
-            }).toList();
+        final List<Conversation> filteredConversations = allConversations.where(
+          (c) {
+            final query = _searchQuery.toLowerCase();
+            return c.otherUserName.toLowerCase().contains(query) ||
+                (c.lastMessage?.toLowerCase().contains(query) ?? false);
+          },
+        ).toList();
 
-        final pinnedConversations =
-            filteredConversations.where((c) => c.isPinned).toList();
-        final regularConversations =
-            filteredConversations.where((c) => !c.isPinned).toList();
+        final pinnedConversations = filteredConversations
+            .where((c) => c.isPinned)
+            .toList();
+        final regularConversations = filteredConversations
+            .where((c) => !c.isPinned)
+            .toList();
 
         final themeProvider = Provider.of<ThemeProvider>(context);
         final useFluent = themeProvider.useFluentUI;
@@ -738,28 +759,39 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                             controller: _searchController,
                             focusNode: _searchFocusNode,
                             placeholder: 'Search...',
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             prefix: const Padding(
                               padding: EdgeInsets.only(left: 12),
                               child: Icon(fluent.FluentIcons.search, size: 12),
                             ),
                             suffix: _searchController.text.isNotEmpty
                                 ? fluent.IconButton(
-                                    icon: const Icon(fluent.FluentIcons.chrome_close, size: 8),
+                                    icon: const Icon(
+                                      fluent.FluentIcons.chrome_close,
+                                      size: 8,
+                                    ),
                                     onPressed: () {
                                       _searchController.clear();
                                       setState(() => _searchQuery = '');
                                     },
                                   )
                                 : null,
-                            onChanged: (val) => setState(() => _searchQuery = val),
-                            decoration: fluent.WidgetStateProperty.resolveWith((states) {
+                            onChanged: (val) =>
+                                setState(() => _searchQuery = val),
+                            decoration: fluent.WidgetStateProperty.resolveWith((
+                              states,
+                            ) {
                               return fluent.BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.85),
                                 borderRadius: BorderRadius.circular(32),
                                 border: Border.all(
                                   color: states.contains(WidgetState.focused)
-                                      ? fluent.FluentTheme.of(context).accentColor
+                                      ? fluent.FluentTheme.of(
+                                          context,
+                                        ).accentColor
                                       : Colors.white.withValues(alpha: 0.1),
                                   width: 1.0,
                                 ),
@@ -770,9 +802,8 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                       : Container(
                           height: 46,
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withValues(
-                              alpha: 0.3,
-                            ),
+                            color: colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(32),
                             border: Border.all(
                               color: colorScheme.outlineVariant.withValues(
@@ -785,7 +816,8 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                             focusNode: _searchFocusNode,
                             hint: 'Search...',
                             prefixIcon: Icons.search_rounded,
-                            onChanged: (val) => setState(() => _searchQuery = val),
+                            onChanged: (val) =>
+                                setState(() => _searchQuery = val),
                             fillColor: Colors.transparent,
                             borderRadius: 32,
                             margin: EdgeInsets.zero,
@@ -840,8 +872,8 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                     child: _BentoPinnedGrid(
                       conversations: pinnedConversations,
                       onTap: (c) => _handleConversationTap(c, isDesktop),
-                      isSelected:
-                          (c) => isDesktop && _selectedConversation?.id == c.id,
+                      isSelected: (c) =>
+                          isDesktop && _selectedConversation?.id == c.id,
                       conversationSizes: _conversationSizes,
                       onToggleSize: _toggleSize,
                       onTogglePin: _togglePin,
@@ -869,18 +901,16 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                   child: Wrap(
                     spacing: 20,
                     runSpacing: 24,
-                    children:
-                        regularConversations
-                            .map(
-                              (c) => _FloatingBubble(
-                                key: ValueKey(c.id),
-                                conversation: c,
-                                onTap:
-                                    () => _handleConversationTap(c, isDesktop),
-                                onLongPress: _handleLongPressBubble,
-                              ),
-                            )
-                            .toList(),
+                    children: regularConversations
+                        .map(
+                          (c) => _FloatingBubble(
+                            key: ValueKey(c.id),
+                            conversation: c,
+                            onTap: () => _handleConversationTap(c, isDesktop),
+                            onLongPress: _handleLongPressBubble,
+                          ),
+                        )
+                        .toList(),
                   ),
                 ),
               ),
@@ -963,7 +993,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     FocusManager.instance.primaryFocus?.unfocus();
 
     final vaultService = Provider.of<VaultService>(context, listen: false);
-    
+
     // Ensure vault service is initialized
     await vaultService.isReady;
 
@@ -1028,32 +1058,31 @@ class _BentoPinnedGrid extends StatelessWidget {
       crossAxisCount: 4,
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,
-      children:
-          conversations.map((conversation) {
-            final sizeTier = conversationSizes[conversation.id] ?? 0;
-            int crossAxis = 2;
-            int mainAxis = 1;
-            if (sizeTier == 1) {
-              mainAxis = 2;
-            } else if (sizeTier == 2) {
-              crossAxis = 4;
-            }
-            return StaggeredGridTile.count(
-              crossAxisCellCount: crossAxis,
-              mainAxisCellCount: mainAxis,
-              child: _BentoItem(
-                key: ValueKey(conversation.id),
-                conversation: conversation,
-                onTap: () => onTap(conversation),
-                onLongPress: () => onToggleSize(conversation.id),
-                onTogglePin: () => onTogglePin(conversation.id),
-                selected: isSelected(conversation),
-                isLarge: mainAxis > 1,
-                isWide: crossAxis > 2,
-                isEditing: isEditing,
-              ),
-            );
-          }).toList(),
+      children: conversations.map((conversation) {
+        final sizeTier = conversationSizes[conversation.id] ?? 0;
+        int crossAxis = 2;
+        int mainAxis = 1;
+        if (sizeTier == 1) {
+          mainAxis = 2;
+        } else if (sizeTier == 2) {
+          crossAxis = 4;
+        }
+        return StaggeredGridTile.count(
+          crossAxisCellCount: crossAxis,
+          mainAxisCellCount: mainAxis,
+          child: _BentoItem(
+            key: ValueKey(conversation.id),
+            conversation: conversation,
+            onTap: () => onTap(conversation),
+            onLongPress: () => onToggleSize(conversation.id),
+            onTogglePin: () => onTogglePin(conversation.id),
+            selected: isSelected(conversation),
+            isLarge: mainAxis > 1,
+            isWide: crossAxis > 2,
+            isEditing: isEditing,
+          ),
+        );
+      }).toList(),
     );
   }
 }
@@ -1083,52 +1112,65 @@ class _BentoItem extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final vibeColor = _getVibeColor(conversation.otherUserName);
-    
+
     // Vault check
     final vault = context.watch<VaultService>();
-    final isLocked = vault.isInVaultSync(conversation.id) && !vault.isItemUnlocked(conversation.id);
-    
-    debugPrint('BentoItem(${conversation.otherUserName}): isLocked=$isLocked, lastMsg=${conversation.lastMessage?.length} chars');
+    final isLocked =
+        vault.isInVaultSync(conversation.id) &&
+        !vault.isItemUnlocked(conversation.id);
+
+    debugPrint(
+      'BentoItem(${conversation.otherUserName}): isLocked=$isLocked, lastMsg=${conversation.lastMessage?.length} chars',
+    );
 
     // Current user ID for 'You: ' prefix
-    final currentUserId = AppRouter.rootNavigatorKey.currentContext?.read<ConversationProvider>().conversations.where((c) => c.id == conversation.id).firstOrNull?.lastMessageSenderId == AuthService().currentUser?.id ? AuthService().currentUser?.id : null;
+    final currentUserId =
+        AppRouter.rootNavigatorKey.currentContext
+                ?.read<ConversationProvider>()
+                .conversations
+                .where((c) => c.id == conversation.id)
+                .firstOrNull
+                ?.lastMessageSenderId ==
+            AuthService().currentUser?.id
+        ? AuthService().currentUser?.id
+        : null;
 
     return GestureDetector(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          onSecondaryTapDown: (details) {
-            // Desktop right-click support
-            _showBentoMenu(context, details.globalPosition);
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color:
-                    selected
-                        ? colorScheme.primary
-                        : colorScheme.outlineVariant.withValues(alpha: 0.2),
-                width: selected ? 2 : 1,
-              ),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  vibeColor.withValues(alpha: 0.12),
-                  vibeColor.withValues(alpha: 0.04),
-                ],
-              ),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -15,
-                      right: -15,
-                      child: Container(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      onSecondaryTapDown: (details) {
+        // Desktop right-click support
+        _showBentoMenu(context, details.globalPosition);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected
+                ? colorScheme.primary
+                : colorScheme.outlineVariant.withValues(alpha: 0.2),
+            width: selected ? 2 : 1,
+          ),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              vibeColor.withValues(alpha: 0.12),
+              vibeColor.withValues(alpha: 0.04),
+            ],
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -15,
+                  right: -15,
+                  child:
+                      Container(
                             width: isWide ? 150 : 80,
                             height: 80,
                             decoration: BoxDecoration(
@@ -1147,211 +1189,198 @@ class _BentoItem extends StatelessWidget {
                             end: const Offset(1.2, 1.2),
                             duration: 3.seconds,
                           ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child:
-                          isLarge
-                              ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Consumer<PresenceProvider>(
-                                        builder:
-                                            (
-                                              context,
-                                              provider,
-                                              child,
-                                            ) => _PresenceRipple(
-                                              active: conversation.type == 'direct' && provider.isUserOnline(
-                                                conversation.otherUserId,
-                                              ),
-                                              child: CircleAvatar(
-                                                radius: 20,
-                                                backgroundImage:
-                                                    conversation
-                                                            .otherUserAvatar
-                                                            .isNotEmpty
-                                                        ? CachedNetworkImageProvider(
-                                                          conversation
-                                                              .otherUserAvatar,
-                                                        )
-                                                        : null,
-                                                onBackgroundImageError: (exception, stackTrace) {
-                                                  debugPrint('Avatar image error: $exception');
-                                                },
-                                                child:
-                                                    conversation
-                                                            .otherUserAvatar
-                                                            .isEmpty
-                                                        ? (conversation.type == 'group'
-                                                            ? const Icon(Icons.group, size: 20)
-                                                            : Text(
-                                                              conversation
-                                                                  .otherUserName.isNotEmpty
-                                                                  ? conversation.otherUserName[0].toUpperCase()
-                                                                  : 'U',
-                                                              style:
-                                                                  const TextStyle(
-                                                                    fontSize: 12,
-                                                                  ),
-                                                            ))
-                                                        : null,
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: isLarge
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Consumer<PresenceProvider>(
+                                  builder: (context, provider, child) =>
+                                      _PresenceRipple(
+                                        active:
+                                            conversation.type == 'direct' &&
+                                            provider.isUserOnline(
+                                              conversation.otherUserId,
+                                            ),
+                                        child: CircleAvatar(
+                                          radius: 20,
+                                          backgroundImage:
+                                              conversation
+                                                  .otherUserAvatar
+                                                  .isNotEmpty
+                                              ? CachedNetworkImageProvider(
+                                                  conversation.otherUserAvatar,
+                                                )
+                                              : null,
+                                          onBackgroundImageError:
+                                              (exception, stackTrace) {
+                                                debugPrint(
+                                                  'Avatar image error: $exception',
+                                                );
+                                              },
+                                          child:
+                                              conversation
+                                                  .otherUserAvatar
+                                                  .isEmpty
+                                              ? (conversation.type == 'group'
+                                                    ? const Icon(
+                                                        Icons.group,
+                                                        size: 20,
+                                                      )
+                                                    : Text(
+                                                        conversation
+                                                                .otherUserName
+                                                                .isNotEmpty
+                                                            ? conversation
+                                                                  .otherUserName[0]
+                                                                  .toUpperCase()
+                                                            : 'U',
+                                                        style: const TextStyle(
+                                                          fontSize: 12,
+                                                        ),
+                                                      ))
+                                              : null,
+                                        ),
+                                      ),
+                                ),
+                                if (conversation.unreadCount > 0)
+                                  UnreadBadgeWidget(
+                                    count: conversation.unreadCount,
+                                  ),
+                              ],
+                            ),
+                            const Spacer(),
+                            Text(
+                              conversation.otherUserName,
+                              style: theme.textTheme.titleSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 14,
+                                height: 1.1,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              isLocked
+                                  ? 'Locked bubble'
+                                  : conversation.getLastMessageDisplay(
+                                      currentUserId,
+                                    ),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: colorScheme.onSurfaceVariant.withValues(
+                                  alpha: 0.6,
+                                ),
+                                fontSize: 10,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        )
+                      : Row(
+                          children: [
+                            Consumer<PresenceProvider>(
+                              builder: (context, provider, child) =>
+                                  _PresenceRipple(
+                                    active: provider.isUserOnline(
+                                      conversation.otherUserId,
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 16,
+                                      backgroundImage:
+                                          conversation
+                                              .otherUserAvatar
+                                              .isNotEmpty
+                                          ? CachedNetworkImageProvider(
+                                              conversation.otherUserAvatar,
+                                            )
+                                          : null,
+                                      child: conversation.otherUserName.isEmpty
+                                          ? const Text('')
+                                          : Text(
+                                              conversation.otherUserName[0]
+                                                  .toUpperCase(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
                                               ),
                                             ),
-                                      ),
-                                      if (conversation.unreadCount > 0)
-                                        UnreadBadgeWidget(
-                                          count: conversation.unreadCount,
-                                        ),
-                                    ],
+                                    ),
                                   ),
-                                  const Spacer(),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Text(
                                     conversation.otherUserName,
-                                    style: theme.textTheme.titleSmall?.copyWith(
+                                    style: theme.textTheme.labelLarge?.copyWith(
                                       color: colorScheme.onSurface,
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 14,
-                                      height: 1.1,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 13,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  Text(
-                                    isLocked
-                                        ? 'Locked bubble'
-                                        : conversation.getLastMessageDisplay(
-                                          currentUserId,
-                                        ),
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colorScheme.onSurfaceVariant
-                                          .withValues(alpha: 0.6),
-                                      fontSize: 10,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              )
-                              : Row(
-                                children: [
-                                  Consumer<PresenceProvider>(
-                                    builder:
-                                        (
-                                          context,
-                                          provider,
-                                          child,
-                                        ) => _PresenceRipple(
-                                          active: provider.isUserOnline(
-                                            conversation.otherUserId,
+                                  if (isWide)
+                                    Text(
+                                      isLocked
+                                          ? 'Locked bubble'
+                                          : conversation.getLastMessageDisplay(
+                                              currentUserId,
+                                            ),
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            fontSize: 10,
+                                            color: colorScheme.onSurfaceVariant
+                                                .withValues(alpha: 0.6),
                                           ),
-                                          child: CircleAvatar(
-                                            radius: 16,
-                                            backgroundImage:
-                                                conversation
-                                                        .otherUserAvatar
-                                                        .isNotEmpty
-                                                    ? CachedNetworkImageProvider(
-                                                      conversation
-                                                          .otherUserAvatar,
-                                                    )
-                                                    : null,
-                                            child:
-                                                conversation
-                                                        .otherUserName
-                                                        .isEmpty
-                                                    ? const Text('')
-                                                    : Text(
-                                                      conversation
-                                                          .otherUserName[0]
-                                                          .toUpperCase(),
-                                                      style: const TextStyle(
-                                                        fontSize: 10,
-                                                      ),
-                                                    ),
-                                          ),
-                                        ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          conversation.otherUserName,
-                                          style: theme.textTheme.labelLarge
-                                              ?.copyWith(
-                                                color: colorScheme.onSurface,
-                                                fontWeight: FontWeight.w800,
-                                                fontSize: 13,
-                                              ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        if (isWide)
-                                          Text(
-                                            isLocked
-                                                ? 'Locked bubble'
-                                                : conversation
-                                                    .getLastMessageDisplay(
-                                                      currentUserId,
-                                                    ),
-                                            style: theme.textTheme.bodySmall
-                                                ?.copyWith(
-                                                  fontSize: 10,
-                                                  color: colorScheme
-                                                      .onSurfaceVariant
-                                                      .withValues(alpha: 0.6),
-                                                ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  if (conversation.unreadCount > 0)
-                                    UnreadBadgeWidget(
-                                      count: conversation.unreadCount,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                 ],
                               ),
-                    ),
-                    if (isEditing)
-                      Positioned(
-                        top: 4,
-                        right: 4,
-                        child: GestureDetector(
-                          onTap: onTogglePin,
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: colorScheme.errorContainer.withAlpha(200),
-                              shape: BoxShape.circle,
                             ),
-                            child: Icon(
-                              Icons.close_rounded,
-                              size: 16,
-                              color: colorScheme.onErrorContainer,
-                            ),
-                          ),
+                            if (conversation.unreadCount > 0)
+                              UnreadBadgeWidget(
+                                count: conversation.unreadCount,
+                              ),
+                          ],
+                        ),
+                ),
+                if (isEditing)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: GestureDetector(
+                      onTap: onTogglePin,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: colorScheme.errorContainer.withAlpha(200),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.close_rounded,
+                          size: 16,
+                          color: colorScheme.onErrorContainer,
                         ),
                       ),
-                  ],
-                ),
-              ),
+                    ),
+                  ),
+              ],
             ),
           ),
-        )
-        .animate()
-        .scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack)
-        .fadeIn();
+        ),
+      ),
+    ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack).fadeIn();
   }
 
   void _showBentoMenu(BuildContext context, Offset position) {
@@ -1413,8 +1442,8 @@ class _FloatingBubble extends StatelessWidget {
     final vibeColor = _getVibeColor(conversation.otherUserName);
     return GestureDetector(
       onTap: onTap,
-      onLongPressStart:
-          (details) => onLongPress(conversation, details.globalPosition),
+      onLongPressStart: (details) =>
+          onLongPress(conversation, details.globalPosition),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -1424,95 +1453,104 @@ class _FloatingBubble extends StatelessWidget {
               Positioned(
                 bottom: -2,
                 right: 18,
-                child: Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black, width: 1),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(0.95, 0.95),
-                      end: const Offset(1.05, 1.05),
-                      duration: 2.seconds,
-                    ),
+                child:
+                    Container(
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.black, width: 1),
+                          ),
+                        )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scale(
+                          begin: const Offset(0.95, 0.95),
+                          end: const Offset(1.05, 1.05),
+                          duration: 2.seconds,
+                        ),
               ),
               Positioned(
                 bottom: -6,
                 right: 10,
-                child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(color: Colors.black, width: 0.5),
-                      ),
-                    )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                      begin: const Offset(0.9, 0.9),
-                      end: const Offset(1.1, 1.1),
-                      duration: 2.5.seconds,
-                    ),
+                child:
+                    Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(color: Colors.black, width: 0.5),
+                          ),
+                        )
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scale(
+                          begin: const Offset(0.9, 0.9),
+                          end: const Offset(1.1, 1.1),
+                          duration: 2.5.seconds,
+                        ),
               ),
               Consumer<PresenceProvider>(
-                builder:
-                    (context, provider, child) => _PresenceRipple(
-                      active: conversation.type == 'direct' && provider.isUserOnline(conversation.otherUserId),
-                      child: Container(
-                        width: 64,
-                        height: 64,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: colorScheme.surface,
-                          border: Border.all(
-                            color: colorScheme.primary,
-                            width: 2.5,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                builder: (context, provider, child) => _PresenceRipple(
+                  active:
+                      conversation.type == 'direct' &&
+                      provider.isUserOnline(conversation.otherUserId),
+                  child: Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: colorScheme.surface,
+                      border: Border.all(
+                        color: colorScheme.primary,
+                        width: 2.5,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
                         ),
-                        child: ClipOval(
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                            child: Container(
-                              color: vibeColor.withValues(alpha: 0.05),
-                              child:
-                                  conversation.otherUserAvatar.isNotEmpty
-                                      ? CachedNetworkImage(
-                                        imageUrl: conversation.otherUserAvatar,
-                                        fit: BoxFit.cover,
-                                      )
-                                      : Center(
-                                        child: conversation.type == 'group'
-                                          ? Icon(Icons.group, color: vibeColor.withValues(alpha: 0.8), size: 30)
-                                          : Text(
-                                            conversation.otherUserName.isNotEmpty
-                                                ? conversation.otherUserName[0].toUpperCase()
-                                                : 'U',
-                                            style: TextStyle(
-                                              color: vibeColor.withValues(
-                                                alpha: 0.8,
-                                              ),
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Container(
+                          color: vibeColor.withValues(alpha: 0.05),
+                          child: conversation.otherUserAvatar.isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: conversation.otherUserAvatar,
+                                  fit: BoxFit.cover,
+                                )
+                              : Center(
+                                  child: conversation.type == 'group'
+                                      ? Icon(
+                                          Icons.group,
+                                          color: vibeColor.withValues(
+                                            alpha: 0.8,
                                           ),
-                                      ),
-                            ),
-                          ),
+                                          size: 30,
+                                        )
+                                      : Text(
+                                          conversation.otherUserName.isNotEmpty
+                                              ? conversation.otherUserName[0]
+                                                    .toUpperCase()
+                                              : 'U',
+                                          style: TextStyle(
+                                            color: vibeColor.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                ),
                         ),
                       ),
                     ),
+                  ),
+                ),
               ),
               if (conversation.unreadCount > 0)
                 Positioned(
@@ -1528,10 +1566,9 @@ class _FloatingBubble extends StatelessWidget {
             child: Text(
               conversation.otherUserName.split(' ')[0],
               style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight:
-                    conversation.unreadCount > 0
-                        ? FontWeight.w900
-                        : FontWeight.w600,
+                fontWeight: conversation.unreadCount > 0
+                    ? FontWeight.w900
+                    : FontWeight.w600,
                 fontSize: 11,
                 color: colorScheme.onSurface.withValues(alpha: 0.7),
                 letterSpacing: 0.5,
@@ -1582,10 +1619,9 @@ class _StealthPreviewPopup extends StatelessWidget {
     if (top + popupHeight > safeBottom) top = safeBottom - popupHeight;
     if (top < safeTop) top = safeTop;
 
-    final messages =
-        decryptedMessages.isNotEmpty
-            ? decryptedMessages
-            : [conversation.lastMessage ?? 'No preview available'];
+    final messages = decryptedMessages.isNotEmpty
+        ? decryptedMessages
+        : [conversation.lastMessage ?? 'No preview available'];
 
     return GestureDetector(
       onTap: onDismiss,
@@ -1600,159 +1636,168 @@ class _StealthPreviewPopup extends StatelessWidget {
             Positioned(
               left: left,
               top: top,
-              child: Container(
-                    width: popupWidth,
-                    height: popupHeight,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(32),
-                      border: Border.all(
-                        color: vibeColor.withValues(alpha: 0.5),
-                        width: 2,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: vibeColor.withValues(alpha: 0.25),
-                          blurRadius: 40,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(32),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                        child: Container(
-                          color: theme.colorScheme.surface.withValues(
-                            alpha: 0.8,
+              child:
+                  Container(
+                        width: popupWidth,
+                        height: popupHeight,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            color: vibeColor.withValues(alpha: 0.5),
+                            width: 2,
                           ),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  20,
-                                  20,
-                                  12,
-                                ),
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 16,
-                                      backgroundImage:
-                                          conversation
+                          boxShadow: [
+                            BoxShadow(
+                              color: vibeColor.withValues(alpha: 0.25),
+                              blurRadius: 40,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(32),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                            child: Container(
+                              color: theme.colorScheme.surface.withValues(
+                                alpha: 0.8,
+                              ),
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      20,
+                                      20,
+                                      20,
+                                      12,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 16,
+                                          backgroundImage:
+                                              conversation
                                                   .otherUserAvatar
                                                   .isNotEmpty
                                               ? CachedNetworkImageProvider(
-                                                conversation.otherUserAvatar,
-                                              )
+                                                  conversation.otherUserAvatar,
+                                                )
                                               : null,
-                                      child:
-                                          conversation.otherUserAvatar.isEmpty
+                                          child:
+                                              conversation
+                                                  .otherUserAvatar
+                                                  .isEmpty
                                               ? Text(
-                                                conversation.otherUserName[0],
-                                                style: const TextStyle(
-                                                  fontSize: 12,
-                                                ),
-                                              )
+                                                  conversation.otherUserName[0],
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ),
+                                                )
                                               : null,
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Text(
-                                        conversation.otherUserName,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 15,
-                                          color: theme.colorScheme.onSurface,
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.visibility_off_rounded,
-                                      size: 16,
-                                      color: theme.colorScheme.onSurfaceVariant
-                                          .withValues(alpha: 0.5),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Divider(
-                                height: 1,
-                                color: theme.colorScheme.outlineVariant
-                                    .withValues(alpha: 0.2),
-                              ),
-                              Expanded(
-                                child: ListView.builder(
-                                  padding: const EdgeInsets.all(16),
-                                  itemCount: messages.length,
-                                  itemBuilder:
-                                      (context, index) => Container(
-                                        margin: const EdgeInsets.only(
-                                          bottom: 12,
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            conversation.otherUserName,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 15,
+                                              color:
+                                                  theme.colorScheme.onSurface,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         ),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 10,
+                                        Icon(
+                                          Icons.visibility_off_rounded,
+                                          size: 16,
+                                          color: theme
+                                              .colorScheme
+                                              .onSurfaceVariant
+                                              .withValues(alpha: 0.5),
                                         ),
-                                        decoration: BoxDecoration(
-                                          color: theme.colorScheme.onSurface
-                                              .withValues(alpha: 0.05),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ).copyWith(
-                                            bottomLeft: const Radius.circular(
-                                              4,
+                                      ],
+                                    ),
+                                  ),
+                                  Divider(
+                                    height: 1,
+                                    color: theme.colorScheme.outlineVariant
+                                        .withValues(alpha: 0.2),
+                                  ),
+                                  Expanded(
+                                    child: ListView.builder(
+                                      padding: const EdgeInsets.all(16),
+                                      itemCount: messages.length,
+                                      itemBuilder: (context, index) =>
+                                          Container(
+                                            margin: const EdgeInsets.only(
+                                              bottom: 12,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 10,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: theme.colorScheme.onSurface
+                                                  .withValues(alpha: 0.05),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    16,
+                                                  ).copyWith(
+                                                    bottomLeft:
+                                                        const Radius.circular(
+                                                          4,
+                                                        ),
+                                                  ),
+                                              border: Border.all(
+                                                color: theme
+                                                    .colorScheme
+                                                    .outlineVariant
+                                                    .withValues(alpha: 0.1),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              messages[index],
+                                              style: TextStyle(
+                                                color:
+                                                    theme.colorScheme.onSurface,
+                                                fontSize: 13,
+                                                height: 1.4,
+                                              ),
                                             ),
                                           ),
-                                          border: Border.all(
-                                            color: theme
-                                                .colorScheme
-                                                .outlineVariant
-                                                .withValues(alpha: 0.1),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          messages[index],
-                                          style: TextStyle(
-                                            color: theme.colorScheme.onSurface,
-                                            fontSize: 13,
-                                            height: 1.4,
-                                          ),
-                                        ),
-                                      ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  12,
-                                  8,
-                                  12,
-                                  16,
-                                ),
-                                child: Text(
-                                  'PEEKING • ${messages.length} UNREAD',
-                                  style: TextStyle(
-                                    color: vibeColor.withValues(alpha: 0.7),
-                                    fontWeight: FontWeight.w900,
-                                    fontSize: 9,
-                                    letterSpacing: 1.2,
+                                    ),
                                   ),
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      12,
+                                      8,
+                                      12,
+                                      16,
+                                    ),
+                                    child: Text(
+                                      'PEEKING • ${messages.length} UNREAD',
+                                      style: TextStyle(
+                                        color: vibeColor.withValues(alpha: 0.7),
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 9,
+                                        letterSpacing: 1.2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
+                      )
+                      .animate()
+                      .fadeIn(duration: 200.ms)
+                      .scale(
+                        curve: Curves.easeOutBack,
+                        begin: const Offset(0.8, 0.8),
                       ),
-                    ),
-                  )
-                  .animate()
-                  .fadeIn(duration: 200.ms)
-                  .scale(
-                    curve: Curves.easeOutBack,
-                    begin: const Offset(0.8, 0.8),
-                  ),
             ),
           ],
         ),

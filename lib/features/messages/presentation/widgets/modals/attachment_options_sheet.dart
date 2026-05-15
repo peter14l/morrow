@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/presentation/widgets/shared/attachment_option_card.dart';
 
+import 'package:oasis/core/extensions/context_extensions.dart';
+
 /// Attachment options bottom sheet.
 /// Extracted from _showAttachmentOptions() in chat_screen.dart.
 class AttachmentOptionsSheet extends StatelessWidget {
@@ -25,15 +27,19 @@ class AttachmentOptionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+
     // Check if platform supports google location (hide on web/desktop)
-    final bool canShareLocation = !kIsWeb && (Platform.isAndroid || Platform.isIOS);
+    final bool canShareLocation =
+        !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
         decoration: BoxDecoration(
-          color: colorScheme.surface.withValues(alpha: 0.85),
+          color: isSolid
+              ? colorScheme.surface
+              : colorScheme.surface.withValues(alpha: 0.85),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: colorScheme.onSurface.withValues(alpha: 0.1),

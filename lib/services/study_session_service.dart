@@ -38,14 +38,12 @@ class StudySessionService extends ChangeNotifier {
     final user = _supabase.auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
 
-    await _supabase
-        .from('study_session_participants')
-        .upsert({
-          'session_id': sessionId,
-          'user_id': user.id,
-          'joined_at': DateTime.now().toIso8601String(),
-          'exit_status': 'joined',
-        });
+    await _supabase.from('study_session_participants').upsert({
+      'session_id': sessionId,
+      'user_id': user.id,
+      'joined_at': DateTime.now().toIso8601String(),
+      'exit_status': 'joined',
+    });
   }
 
   Future<void> completeSession(String sessionId, int xpEarned) async {
@@ -55,10 +53,7 @@ class StudySessionService extends ChangeNotifier {
     // Update participant status
     await _supabase
         .from('study_session_participants')
-        .update({
-          'exit_status': 'completed',
-          'xp_earned': xpEarned,
-        })
+        .update({'exit_status': 'completed', 'xp_earned': xpEarned})
         .eq('session_id', sessionId)
         .eq('user_id', user.id);
 
@@ -70,8 +65,6 @@ class StudySessionService extends ChangeNotifier {
         .eq('creator_id', user.id);
 
     // Award XP to profile
-    await _supabase.rpc('increment_xp', params: {
-      'xp_amount': xpEarned,
-    });
+    await _supabase.rpc('increment_xp', params: {'xp_amount': xpEarned});
   }
 }

@@ -69,7 +69,7 @@ void main() {
       test('should include day names', () {
         final weeklyData = screenTimeService.getWeeklyData();
         final dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        
+
         for (final entry in weeklyData) {
           expect(dayNames, contains(entry['day']));
         }
@@ -77,7 +77,7 @@ void main() {
 
       test('should include date objects', () {
         final weeklyData = screenTimeService.getWeeklyData();
-        
+
         for (final entry in weeklyData) {
           expect(entry['date'], isA<DateTime>());
         }
@@ -105,7 +105,7 @@ void main() {
       test('should include expected category names', () {
         final categories = screenTimeService.getCategoryUsage(100);
         final categoryNames = categories.map((c) => c['name']).toList();
-        
+
         expect(categoryNames, contains('Feed'));
         expect(categoryNames, contains('Messages'));
         expect(categoryNames, contains('Communities'));
@@ -116,12 +116,12 @@ void main() {
       test('should distribute minutes across categories', () {
         const totalMinutes = 100;
         final categories = screenTimeService.getCategoryUsage(totalMinutes);
-        
+
         int sum = 0;
         for (final category in categories) {
           sum += category['minutes'] as int;
         }
-        
+
         expect(sum, equals(totalMinutes));
       });
     });

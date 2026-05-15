@@ -20,13 +20,12 @@ sealed class Result<T> {
   /// Transform the success value, passing through failures unchanged.
   Result<R> map<R>(R Function(T data) fn) {
     return fold(
-      onFailure:
-          (failure) => Result<R>.failure(
-            message: failure.message,
-            code: failure.code,
-            exception: failure.exception,
-            stackTrace: failure.stackTrace,
-          ),
+      onFailure: (failure) => Result<R>.failure(
+        message: failure.message,
+        code: failure.code,
+        exception: failure.exception,
+        stackTrace: failure.stackTrace,
+      ),
       onSuccess: (data) => Result<R>.success(fn(data)),
     );
   }

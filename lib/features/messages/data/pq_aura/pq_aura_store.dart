@@ -22,13 +22,14 @@ class PQAuraStore {
   static const String _stateEncryptionKey = 'pq_aura_state_encryption_key';
   static const String _sessionsKeyPrefix = 'pq_aura_session_';
 
-  PQAuraStore._() : _secureStorage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock,
-      groupId: 'group.com.oasis.app',
-    ),
-  );
+  PQAuraStore._()
+    : _secureStorage = const FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+        iOptions: IOSOptions(
+          accessibility: KeychainAccessibility.first_unlock,
+          groupId: 'group.com.oasis.app',
+        ),
+      );
 
   static PQAuraStore get instance {
     _instance ??= PQAuraStore._();
@@ -48,8 +49,13 @@ class PQAuraStore {
 
     // Generate a fresh 32-byte key
     final random = Random.secure();
-    final key = Uint8List.fromList(List.generate(32, (_) => random.nextInt(256)));
-    await _secureStorage.write(key: _stateEncryptionKey, value: base64Encode(key));
+    final key = Uint8List.fromList(
+      List.generate(32, (_) => random.nextInt(256)),
+    );
+    await _secureStorage.write(
+      key: _stateEncryptionKey,
+      value: base64Encode(key),
+    );
     return key;
   }
 
@@ -80,7 +86,8 @@ class PQAuraStore {
     // Store the keys as base64
     await _secureStorage.write(
       key: _identityKeyPairKey,
-      value: base64Encode(Uint8List.fromList(keyPair.publicKey)) +
+      value:
+          base64Encode(Uint8List.fromList(keyPair.publicKey)) +
           ':' +
           base64Encode(Uint8List.fromList(keyPair.secretKey)),
     );
@@ -103,7 +110,10 @@ class PQAuraStore {
   }
 
   /// Store identity keys
-  Future<void> storeIdentityKeys(Uint8List publicKey, Uint8List secretKey) async {
+  Future<void> storeIdentityKeys(
+    Uint8List publicKey,
+    Uint8List secretKey,
+  ) async {
     await _secureStorage.write(
       key: _identityKeyPairKey,
       value: base64Encode(publicKey) + ':' + base64Encode(secretKey),
@@ -193,13 +203,18 @@ class PQAuraStore {
   }
 
   /// Save session state atomically using Rust FFI
-  Future<bool> saveSessionAtomic(String remoteUserId, Pointer<RatchetState> state) async {
+  Future<bool> saveSessionAtomic(
+    String remoteUserId,
+    Pointer<RatchetState> state,
+  ) async {
     final path = await _getSessionPath(remoteUserId);
     final key = await _getStateEncryptionKey();
-    
+
     final success = PQAuraBridge.instance.saveStateAtomic(state, path, key);
     if (!success) {
-      debugPrint('[PQAuraStore] FAILED to save session atomically for: $remoteUserId');
+      debugPrint(
+        '[PQAuraStore] FAILED to save session atomically for: $remoteUserId',
+      );
     }
     return success;
   }
@@ -232,7 +247,7 @@ class PQAuraStore {
 
     final files = await pqaDir.list().toList();
     final userIds = <String>[];
-    
+
     for (final entity in files) {
       if (entity is File) {
         final name = p.basename(entity.path);
@@ -241,15 +256,17 @@ class PQAuraStore {
         }
       }
     }
-    
+
     return userIds;
   }
 
   // Legacy methods kept for compatibility or internal use during transition
-  
+
   /// Load session state (Legacy)
   Future<Uint8List?> loadSession(String remoteUserId) async {
-    final stored = await _secureStorage.read(key: '$_sessionsKeyPrefix$remoteUserId');
+    final stored = await _secureStorage.read(
+      key: '$_sessionsKeyPrefix$remoteUserId',
+    );
     if (stored == null) return null;
     return base64Decode(stored);
   }
@@ -284,10 +301,7 @@ class PQAuraKeyPairData {
   final Uint8List publicKey;
   final Uint8List secretKey;
 
-  PQAuraKeyPairData({
-    required this.publicKey,
-    required this.secretKey,
-  });
+  PQAuraKeyPairData({required this.publicKey, required this.secretKey});
 }
 
 /// Data class for pre-key bundle

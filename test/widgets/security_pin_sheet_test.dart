@@ -18,16 +18,15 @@ void main() {
               body: ChangeNotifierProvider(
                 create: (_) => _TestEncryptionService(),
                 child: Builder(
-                  builder:
-                      (context) => ElevatedButton(
-                        onPressed: () {
-                          SecurityPinSheet.show(
-                            context,
-                            EncryptionStatus.needsRestore,
-                          );
-                        },
-                        child: const Text('Show Sheet'),
-                      ),
+                  builder: (context) => ElevatedButton(
+                    onPressed: () {
+                      SecurityPinSheet.show(
+                        context,
+                        EncryptionStatus.needsRestore,
+                      );
+                    },
+                    child: const Text('Show Sheet'),
+                  ),
                 ),
               ),
             ),
@@ -52,16 +51,15 @@ void main() {
               body: ChangeNotifierProvider(
                 create: (_) => _TestEncryptionService(),
                 child: Builder(
-                  builder:
-                      (context) => ElevatedButton(
-                        onPressed: () {
-                          SecurityPinSheet.show(
-                            context,
-                            EncryptionStatus.needsSetup,
-                          );
-                        },
-                        child: const Text('Show Sheet'),
-                      ),
+                  builder: (context) => ElevatedButton(
+                    onPressed: () {
+                      SecurityPinSheet.show(
+                        context,
+                        EncryptionStatus.needsSetup,
+                      );
+                    },
+                    child: const Text('Show Sheet'),
+                  ),
                 ),
               ),
             ),
@@ -86,16 +84,15 @@ void main() {
             body: ChangeNotifierProvider(
               create: (_) => _TestEncryptionService(),
               child: Builder(
-                builder:
-                    (context) => ElevatedButton(
-                      onPressed: () {
-                        SecurityPinSheet.show(
-                          context,
-                          EncryptionStatus.needsRestore,
-                        );
-                      },
-                      child: const Text('Show Sheet'),
-                    ),
+                builder: (context) => ElevatedButton(
+                  onPressed: () {
+                    SecurityPinSheet.show(
+                      context,
+                      EncryptionStatus.needsRestore,
+                    );
+                  },
+                  child: const Text('Show Sheet'),
+                ),
               ),
             ),
           ),

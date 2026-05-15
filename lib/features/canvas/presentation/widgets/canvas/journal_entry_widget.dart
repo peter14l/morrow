@@ -59,11 +59,7 @@ class JournalEntryWidget extends StatelessWidget {
           const SizedBox(height: 24),
           Align(
             alignment: Alignment.bottomRight,
-            child: Container(
-              width: 40,
-              height: 1,
-              color: Colors.brown[100],
-            ),
+            child: Container(width: 40, height: 1, color: Colors.brown[100]),
           ),
         ],
       ),

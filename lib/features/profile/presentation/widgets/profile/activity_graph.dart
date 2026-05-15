@@ -211,10 +211,9 @@ class ActivityGraph extends StatelessWidget {
       child: Text(
         year,
         style: TextStyle(
-          color:
-              isSelected
-                  ? colorScheme.onPrimary
-                  : colorScheme.onSurface.withValues(alpha: 0.6),
+          color: isSelected
+              ? colorScheme.onPrimary
+              : colorScheme.onSurface.withValues(alpha: 0.6),
           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           fontSize: 12,
         ),
@@ -258,19 +257,17 @@ class ActivityGraph extends StatelessWidget {
         const SizedBox(height: 4),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children:
-              weeks.map((week) {
-                return Column(
-                  children:
-                      week.map((day) {
-                        if (day == null) {
-                          return const SizedBox(width: 13, height: 13);
-                        }
-                        final count = dailyCounts[day] ?? 0;
-                        return _buildContributionSquare(context, day, count);
-                      }).toList(),
-                );
+          children: weeks.map((week) {
+            return Column(
+              children: week.map((day) {
+                if (day == null) {
+                  return const SizedBox(width: 13, height: 13);
+                }
+                final count = dailyCounts[day] ?? 0;
+                return _buildContributionSquare(context, day, count);
               }).toList(),
+            );
+          }).toList(),
         ),
       ],
     );

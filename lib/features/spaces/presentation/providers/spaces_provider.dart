@@ -54,10 +54,9 @@ class SpacesProvider extends ChangeNotifier {
       orElse: () => _state.appShell.tabs.first,
     );
 
-    final updatedTabs =
-        _state.appShell.tabs
-            .map((t) => t.copyWith(isSelected: t.id == tabId))
-            .toList();
+    final updatedTabs = _state.appShell.tabs
+        .map((t) => t.copyWith(isSelected: t.id == tabId))
+        .toList();
 
     _state = _state.copyWith(
       appShell: _state.appShell.copyWith(
@@ -70,10 +69,9 @@ class SpacesProvider extends ChangeNotifier {
 
   /// Navigate to a tab by route
   void navigateToRoute(String route) {
-    final updatedTabs =
-        _state.appShell.tabs
-            .map((t) => t.copyWith(isSelected: t.route == route))
-            .toList();
+    final updatedTabs = _state.appShell.tabs
+        .map((t) => t.copyWith(isSelected: t.route == route))
+        .toList();
 
     _state = _state.copyWith(
       appShell: _state.appShell.copyWith(
@@ -86,13 +84,12 @@ class SpacesProvider extends ChangeNotifier {
 
   /// Update badge count for a tab
   void updateBadgeCount(String tabId, int count) {
-    final updatedTabs =
-        _state.appShell.tabs.map((tab) {
-          if (tab.id == tabId) {
-            return tab.copyWith(badgeCount: count);
-          }
-          return tab;
-        }).toList();
+    final updatedTabs = _state.appShell.tabs.map((tab) {
+      if (tab.id == tabId) {
+        return tab.copyWith(badgeCount: count);
+      }
+      return tab;
+    }).toList();
 
     _state = _state.copyWith(
       appShell: _state.appShell.copyWith(tabs: updatedTabs),

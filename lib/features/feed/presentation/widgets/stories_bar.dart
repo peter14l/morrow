@@ -49,26 +49,24 @@ class _StoriesBarState extends State<StoriesBar> {
                 decoration: BoxDecoration(
                   shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
                   borderRadius: isM3E ? BorderRadius.circular(24) : null,
-                  gradient:
-                      hasOwnStories && hasUnviewedOwnStories
-                          ? LinearGradient(
-                            colors: [
-                              theme.primaryColor,
-                              theme.colorScheme.secondary,
-                              theme.colorScheme.tertiary,
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          )
-                          : null,
-                  border:
-                      hasOwnStories && !hasUnviewedOwnStories
-                          ? Border.all(color: Colors.grey.shade300, width: 2)
-                          : (!hasOwnStories
-                              ? Border.all(
+                  gradient: hasOwnStories && hasUnviewedOwnStories
+                      ? LinearGradient(
+                          colors: [
+                            theme.primaryColor,
+                            theme.colorScheme.secondary,
+                            theme.colorScheme.tertiary,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : null,
+                  border: hasOwnStories && !hasUnviewedOwnStories
+                      ? Border.all(color: Colors.grey.shade300, width: 2)
+                      : (!hasOwnStories
+                            ? Border.all(
                                 color: theme.colorScheme.outlineVariant,
                               )
-                              : null),
+                            : null),
                 ),
                 padding: const EdgeInsets.all(3),
                 child: Container(
@@ -80,38 +78,35 @@ class _StoriesBarState extends State<StoriesBar> {
                       width: hasOwnStories ? 3 : 0,
                     ),
                   ),
-                  child:
-                      hasOwnStories && currentUser?.photoUrl != null
-                          ? Container(
-                            decoration: BoxDecoration(
-                              shape:
-                                  isM3E ? BoxShape.rectangle : BoxShape.circle,
-                              borderRadius:
-                                  isM3E ? BorderRadius.circular(18) : null,
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: CachedNetworkImage(
-                              imageUrl: currentUser!.photoUrl!,
-                              fit: BoxFit.cover,
-                              placeholder:
-                                  (context, url) =>
-                                      Container(color: Colors.grey.shade200),
-                              errorWidget:
-                                  (context, url, error) => Container(
-                                    color: Colors.grey.shade200,
-                                    child: const Icon(
-                                      Icons.person,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                            ),
-                          )
-                          : Center(
-                            child: Icon(
-                              Icons.add,
-                              color: theme.colorScheme.primary,
+                  child: hasOwnStories && currentUser?.photoUrl != null
+                      ? Container(
+                          decoration: BoxDecoration(
+                            shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+                            borderRadius: isM3E
+                                ? BorderRadius.circular(18)
+                                : null,
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: CachedNetworkImage(
+                            imageUrl: currentUser!.photoUrl!,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) =>
+                                Container(color: Colors.grey.shade200),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey.shade200,
+                              child: const Icon(
+                                Icons.person,
+                                color: Colors.grey,
+                              ),
                             ),
                           ),
+                        )
+                      : Center(
+                          child: Icon(
+                            Icons.add,
+                            color: theme.colorScheme.primary,
+                          ),
+                        ),
                 ),
               ),
               // Add button overlay when user has stories
@@ -193,22 +188,20 @@ class _StoriesBarState extends State<StoriesBar> {
             decoration: BoxDecoration(
               shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
               borderRadius: isM3E ? BorderRadius.circular(24) : null,
-              gradient:
-                  group.hasUnviewed
-                      ? LinearGradient(
-                        colors: [
-                          theme.primaryColor,
-                          theme.colorScheme.secondary,
-                          theme.colorScheme.tertiary,
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                      : null,
-              border:
-                  !group.hasUnviewed
-                      ? Border.all(color: Colors.grey.shade300, width: 2)
-                      : null,
+              gradient: group.hasUnviewed
+                  ? LinearGradient(
+                      colors: [
+                        theme.primaryColor,
+                        theme.colorScheme.secondary,
+                        theme.colorScheme.tertiary,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : null,
+              border: !group.hasUnviewed
+                  ? Border.all(color: Colors.grey.shade300, width: 2)
+                  : null,
             ),
             padding: const EdgeInsets.all(3),
             child: Container(
@@ -229,13 +222,12 @@ class _StoriesBarState extends State<StoriesBar> {
                 child: CachedNetworkImage(
                   imageUrl: group.avatarUrl,
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => Container(color: Colors.grey.shade200),
-                  errorWidget:
-                      (context, url, error) => Container(
-                        color: Colors.grey.shade200,
-                        child: const Icon(Icons.person, color: Colors.grey),
-                      ),
+                  placeholder: (context, url) =>
+                      Container(color: Colors.grey.shade200),
+                  errorWidget: (context, url, error) => Container(
+                    color: Colors.grey.shade200,
+                    child: const Icon(Icons.person, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
@@ -250,10 +242,9 @@ class _StoriesBarState extends State<StoriesBar> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight:
-                    group.hasUnviewed || isM3E
-                        ? FontWeight.w600
-                        : FontWeight.normal,
+                fontWeight: group.hasUnviewed || isM3E
+                    ? FontWeight.w600
+                    : FontWeight.normal,
               ),
             ),
           ),
@@ -277,10 +268,9 @@ class _StoriesBarState extends State<StoriesBar> {
     final currentUserId = _authService.currentUser?.id;
 
     // Filter out current user's stories from groups (they go in "Your Story")
-    final otherUserGroups =
-        widget.storyGroups
-            .where((group) => group.userId != currentUserId)
-            .toList();
+    final otherUserGroups = widget.storyGroups
+        .where((group) => group.userId != currentUserId)
+        .toList();
 
     return Container(
       height: 110,

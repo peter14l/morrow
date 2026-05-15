@@ -97,14 +97,12 @@ class MessageRepositoryImpl implements MessageRepository {
       replyToId: json['reply_to_id'] as String?,
       rippleId: json['ripple_id'] as String?,
       storyId: json['story_id'] as String?,
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
-              : DateTime.now(),
-      updatedAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'] as String)
-              : null,
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
       isDeleted: json['deleted_at'] != null,
     );
   }
@@ -115,10 +113,9 @@ class MessageRepositoryImpl implements MessageRepository {
       messageId: json['message_id'] as String,
       userId: json['user_id'] as String,
       emoji: json['emoji'] as String,
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
-              : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

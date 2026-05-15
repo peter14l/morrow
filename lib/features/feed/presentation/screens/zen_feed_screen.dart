@@ -356,11 +356,11 @@
 //       margin: isM3E ? const EdgeInsets.all(16) : EdgeInsets.zero,
 //       padding: const EdgeInsets.all(16),
 //       decoration: BoxDecoration(
-//         color: disableTransparency 
-//             ? theme.colorScheme.surfaceContainerHigh 
+//         color: disableTransparency
+//             ? theme.colorScheme.surfaceContainerHigh
 //             : theme.colorScheme.surface.withValues(alpha: 0.9),
 //         borderRadius: BorderRadius.circular(radius),
-//         border: isM3E 
+//         border: isM3E
 //             ? Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3))
 //             : Border(
 //                 top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.1)),
@@ -459,8 +459,8 @@
 //           mainAxisSize: MainAxisSize.min,
 //           children: [
 //             Icon(
-//               icon, 
-//               color: color, 
+//               icon,
+//               color: color,
 //               size: isM3E ? 32 : 28,
 //             ),
 //             if (label.isNotEmpty) ...[

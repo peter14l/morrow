@@ -7,18 +7,16 @@ void main() {
     testWidgets('DottedBorder renders child', (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: DottedBorder(
-              child: Text('Hello World'),
-            ),
-          ),
+          home: Scaffold(body: DottedBorder(child: Text('Hello World'))),
         ),
       );
 
       expect(find.text('Hello World'), findsOneWidget);
     });
 
-    testWidgets('DottedBorder applies borderRadius', (WidgetTester tester) async {
+    testWidgets('DottedBorder applies borderRadius', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

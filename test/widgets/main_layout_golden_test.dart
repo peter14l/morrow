@@ -24,7 +24,8 @@ class FakeWellnessService extends ChangeNotifier implements WellnessService {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class FakeUserSettingsProvider extends ChangeNotifier implements UserSettingsProvider {
+class FakeUserSettingsProvider extends ChangeNotifier
+    implements UserSettingsProvider {
   @override
   bool get micaEnabled => false;
 
@@ -44,7 +45,8 @@ class FakeThemeProvider extends ChangeNotifier implements ThemeProvider {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class FakeConversationProvider extends ChangeNotifier implements ConversationProvider {
+class FakeConversationProvider extends ChangeNotifier
+    implements ConversationProvider {
   @override
   int get totalUnreadCount => 2;
 
@@ -70,9 +72,15 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify NavigationBar exists
-    expect(find.byType(NavigationBar), findsNothing); // Wait, we use NavigationBarM3E or something. Let's just check for an Icon that exists.
-    expect(find.byIcon(Icons.person), findsNothing); // It's in the rail? Mobile bottom bar doesn't have Profile.
-    
+    expect(
+      find.byType(NavigationBar),
+      findsNothing,
+    ); // Wait, we use NavigationBarM3E or something. Let's just check for an Icon that exists.
+    expect(
+      find.byIcon(Icons.person),
+      findsNothing,
+    ); // It's in the rail? Mobile bottom bar doesn't have Profile.
+
     // Let's use matchesGoldenFile
     await expectLater(
       find.byType(MainLayout),
@@ -115,7 +123,10 @@ Future<void> _pumpMainLayout(WidgetTester tester) async {
             path: '/',
             builder: (context, state) => const Scaffold(
               body: Center(
-                child: Text('Home Content', style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Home Content',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ),
@@ -127,12 +138,24 @@ Future<void> _pumpMainLayout(WidgetTester tester) async {
   await tester.pumpWidget(
     MultiProvider(
       providers: [
-        Provider<ScreenTimeService>(create: (_) => FakeScreenTimeService() as ScreenTimeService),
-        ChangeNotifierProvider<WellnessService>(create: (_) => FakeWellnessService()),
-        ChangeNotifierProvider<UserSettingsProvider>(create: (_) => FakeUserSettingsProvider()),
-        ChangeNotifierProvider<ThemeProvider>(create: (_) => FakeThemeProvider()),
-        ChangeNotifierProvider<ConversationProvider>(create: (_) => FakeConversationProvider()),
-        Provider<EncryptionService>(create: (_) => FakeEncryptionService() as EncryptionService),
+        Provider<ScreenTimeService>(
+          create: (_) => FakeScreenTimeService() as ScreenTimeService,
+        ),
+        ChangeNotifierProvider<WellnessService>(
+          create: (_) => FakeWellnessService(),
+        ),
+        ChangeNotifierProvider<UserSettingsProvider>(
+          create: (_) => FakeUserSettingsProvider(),
+        ),
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => FakeThemeProvider(),
+        ),
+        ChangeNotifierProvider<ConversationProvider>(
+          create: (_) => FakeConversationProvider(),
+        ),
+        Provider<EncryptionService>(
+          create: (_) => FakeEncryptionService() as EncryptionService,
+        ),
       ],
       child: MaterialApp.router(
         routerConfig: router,

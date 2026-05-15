@@ -82,8 +82,10 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
 
     // Calculate morphing values
     final morphValue = _morphController.value;
-    final morphAmount = math.sin(morphValue * math.pi * 2) * widget.morphIntensity;
-    final morphAmount2 = math.cos(morphValue * math.pi * 3) * (widget.morphIntensity * 0.6);
+    final morphAmount =
+        math.sin(morphValue * math.pi * 2) * widget.morphIntensity;
+    final morphAmount2 =
+        math.cos(morphValue * math.pi * 3) * (widget.morphIntensity * 0.6);
 
     // Determine the border radius with morphing for liquid feel
     final baseRadius = widget.size / 2;
@@ -117,10 +119,7 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
     );
 
     if (widget.tooltip != null) {
-      fab = Tooltip(
-        message: widget.tooltip!,
-        child: fab,
-      );
+      fab = Tooltip(message: widget.tooltip!, child: fab);
     }
 
     return fab;
@@ -139,11 +138,23 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
     }
 
     if (mode == LiquidGlassMode.fake) {
-      return _buildFakeLiquidFAB(context, isDark, morphRadius, morphAmount2, glowColor);
+      return _buildFakeLiquidFAB(
+        context,
+        isDark,
+        morphRadius,
+        morphAmount2,
+        glowColor,
+      );
     }
 
     // Real liquid glass - the authentic refraction effect
-    return _buildRealLiquidFAB(context, isDark, morphRadius, morphAmount2, glowColor);
+    return _buildRealLiquidFAB(
+      context,
+      isDark,
+      morphRadius,
+      morphAmount2,
+      glowColor,
+    );
   }
 
   Widget _buildFallbackFAB(BuildContext context, bool isDark) {
@@ -236,9 +247,7 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
         : Colors.white.withValues(alpha: 0.35);
 
     // Use superellipse shape for organic liquid feel
-    final shape = LiquidRoundedSuperellipse(
-      borderRadius: morphRadius,
-    );
+    final shape = LiquidRoundedSuperellipse(borderRadius: morphRadius);
 
     return Container(
       width: widget.size,
@@ -328,7 +337,7 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
       vsync: this,
       duration: Duration(milliseconds: widget.animationDuration.toInt()),
     );
-    
+
     _morphController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 3000),
@@ -375,7 +384,9 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
         children: [
           // Child FABs that "spill out"
           ...List.generate(count, (index) {
-            final angle = startAngle + (angleSpread * index / (count - 1).clamp(1, count));
+            final angle =
+                startAngle +
+                (angleSpread * index / (count - 1).clamp(1, count));
             final x = math.cos(angle) * radius;
             final y = math.sin(angle) * radius - 20;
 
@@ -386,21 +397,25 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
                   parent: _expandController,
                   curve: Curves.easeOutBack,
                 ).value;
-                
+
                 // Stagger each FAB's animation
                 final delay = index * 0.15;
-                final staggeredProgress = ((progress - delay) / (1 - delay)).clamp(0.0, 1.0);
-                
+                final staggeredProgress = ((progress - delay) / (1 - delay))
+                    .clamp(0.0, 1.0);
+
                 // Add liquid wobble
-                final wobble = math.sin(_morphController.value * math.pi * 2 + index) * 0.1;
-                
-                final scale = _isExpanded 
-                    ? Curves.elasticOut.transform(staggeredProgress) * (1 + wobble)
+                final wobble =
+                    math.sin(_morphController.value * math.pi * 2 + index) *
+                    0.1;
+
+                final scale = _isExpanded
+                    ? Curves.elasticOut.transform(staggeredProgress) *
+                          (1 + wobble)
                     : staggeredProgress;
                 final opacity = scale.clamp(0.0, 1.0);
-                
+
                 if (opacity <= 0) return const SizedBox.shrink();
-                
+
                 return Positioned(
                   bottom: 12 - y,
                   right: 72 - x,
@@ -421,7 +436,7 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
               },
             );
           }),
-          
+
           // Main FAB
           Positioned(
             bottom: 0,
@@ -435,7 +450,7 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
                   final expandProgress = _expandController.value;
                   final squeeze = 1.0 - (expandProgress * 0.1);
                   final rotate = expandProgress * 0.1;
-                  
+
                   return Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.identity()
@@ -478,11 +493,21 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [Colors.white.withValues(alpha: 0.2), Colors.white.withValues(alpha: 0.05)]
-                : [Colors.white.withValues(alpha: 0.8), Colors.white.withValues(alpha: 0.4)],
+                ? [
+                    Colors.white.withValues(alpha: 0.2),
+                    Colors.white.withValues(alpha: 0.05),
+                  ]
+                : [
+                    Colors.white.withValues(alpha: 0.8),
+                    Colors.white.withValues(alpha: 0.4),
+                  ],
           ),
           boxShadow: [
-            BoxShadow(color: glowColor.withValues(alpha: 0.3), blurRadius: 20, spreadRadius: 2),
+            BoxShadow(
+              color: glowColor.withValues(alpha: 0.3),
+              blurRadius: 20,
+              spreadRadius: 2,
+            ),
           ],
         ),
         child: AnimatedRotation(
@@ -503,13 +528,30 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: isDark
-                ? [Colors.white.withValues(alpha: 0.25), Colors.white.withValues(alpha: 0.08)]
-                : [Colors.white.withValues(alpha: 0.9), Colors.white.withValues(alpha: 0.5)],
+                ? [
+                    Colors.white.withValues(alpha: 0.25),
+                    Colors.white.withValues(alpha: 0.08),
+                  ]
+                : [
+                    Colors.white.withValues(alpha: 0.9),
+                    Colors.white.withValues(alpha: 0.5),
+                  ],
           ),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
           boxShadow: [
-            BoxShadow(color: glowColor.withValues(alpha: 0.4), blurRadius: 24, spreadRadius: 2),
-            BoxShadow(color: glowColor.withValues(alpha: 0.2), blurRadius: 40, spreadRadius: 4),
+            BoxShadow(
+              color: glowColor.withValues(alpha: 0.4),
+              blurRadius: 24,
+              spreadRadius: 2,
+            ),
+            BoxShadow(
+              color: glowColor.withValues(alpha: 0.2),
+              blurRadius: 40,
+              spreadRadius: 4,
+            ),
           ],
         ),
         child: AnimatedRotation(
@@ -530,8 +572,16 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(color: glowColor.withValues(alpha: 0.5), blurRadius: 32, spreadRadius: 4),
-          BoxShadow(color: glowColor.withValues(alpha: 0.3), blurRadius: 48, spreadRadius: 8),
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.5),
+            blurRadius: 32,
+            spreadRadius: 4,
+          ),
+          BoxShadow(
+            color: glowColor.withValues(alpha: 0.3),
+            blurRadius: 48,
+            spreadRadius: 8,
+          ),
         ],
       ),
       child: LiquidGlass.withOwnLayer(
@@ -547,7 +597,11 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
           child: AnimatedRotation(
             turns: _isExpanded ? 0.125 : 0,
             duration: const Duration(milliseconds: 300),
-            child: Icon(Icons.add, color: theme.colorScheme.onPrimary, size: 28),
+            child: Icon(
+              Icons.add,
+              color: theme.colorScheme.onPrimary,
+              size: 28,
+            ),
           ),
         ),
       ),
@@ -580,7 +634,11 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             boxShadow: [
-              BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 16, spreadRadius: 2),
+              BoxShadow(
+                color: color.withValues(alpha: 0.4),
+                blurRadius: 16,
+                spreadRadius: 2,
+              ),
             ],
           ),
           child: mode == LiquidGlassMode.disabled
@@ -592,31 +650,43 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
                   child: Icon(option.icon, color: Colors.white, size: 22),
                 )
               : mode == LiquidGlassMode.fake
-                  ? Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: isDark
-                              ? [Colors.white.withValues(alpha: 0.3), Colors.white.withValues(alpha: 0.1)]
-                              : [Colors.white.withValues(alpha: 0.95), Colors.white.withValues(alpha: 0.6)],
-                        ),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
-                      ),
-                      child: Icon(option.icon, color: color, size: 22),
-                    )
-                  : LiquidGlass.withOwnLayer(
-                      settings: LiquidGlassSettings(
-                        thickness: 8,
-                        blur: 4,
-                        glassColor: (isDark ? Colors.white : Colors.white).withValues(alpha: 0.3),
-                        lightIntensity: 1.2,
-                        saturation: 1.1,
-                      ),
-                      shape: LiquidRoundedSuperellipse(borderRadius: morphRadius),
-                      child: Center(child: Icon(option.icon, color: color, size: 22)),
+              ? Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: isDark
+                          ? [
+                              Colors.white.withValues(alpha: 0.3),
+                              Colors.white.withValues(alpha: 0.1),
+                            ]
+                          : [
+                              Colors.white.withValues(alpha: 0.95),
+                              Colors.white.withValues(alpha: 0.6),
+                            ],
                     ),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(option.icon, color: color, size: 22),
+                )
+              : LiquidGlass.withOwnLayer(
+                  settings: LiquidGlassSettings(
+                    thickness: 8,
+                    blur: 4,
+                    glassColor: (isDark ? Colors.white : Colors.white)
+                        .withValues(alpha: 0.3),
+                    lightIntensity: 1.2,
+                    saturation: 1.1,
+                  ),
+                  shape: LiquidRoundedSuperellipse(borderRadius: morphRadius),
+                  child: Center(
+                    child: Icon(option.icon, color: color, size: 22),
+                  ),
+                ),
         ),
       ),
     );

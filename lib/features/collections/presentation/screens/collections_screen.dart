@@ -28,80 +28,74 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => AlertDialog(
-                  title: const Text('Create Collection'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextField(
-                        controller: nameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Name',
-                          hintText: 'My Favorites',
-                        ),
-                        maxLength: 50,
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Description (optional)',
-                          hintText: 'Posts I love',
-                        ),
-                        maxLength: 200,
-                        maxLines: 2,
-                      ),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        title: const Text('Private'),
-                        subtitle: const Text(
-                          'Only you can see this collection',
-                        ),
-                        value: isPrivate,
-                        onChanged: (value) {
-                          setDialogState(() => isPrivate = value);
-                        },
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        if (nameController.text.trim().isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Please enter a name'),
-                            ),
-                          );
-                          return;
-                        }
-
-                        final success = await context.read<CollectionsProvider>()
-                            .createCollection(
-                              name: nameController.text.trim(),
-                              description:
-                                  descriptionController.text.trim().isEmpty
-                                      ? null
-                                      : descriptionController.text.trim(),
-                              isPrivate: isPrivate,
-                            );
-
-                        if (success && context.mounted) {
-                          Navigator.of(context).pop(true);
-                        }
-                      },
-                      child: const Text('Create'),
-                    ),
-                  ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Create Collection'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name',
+                  hintText: 'My Favorites',
                 ),
+                maxLength: 50,
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Description (optional)',
+                  hintText: 'Posts I love',
+                ),
+                maxLength: 200,
+                maxLines: 2,
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: const Text('Private'),
+                subtitle: const Text('Only you can see this collection'),
+                value: isPrivate,
+                onChanged: (value) {
+                  setDialogState(() => isPrivate = value);
+                },
+              ),
+            ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nameController.text.trim().isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please enter a name')),
+                  );
+                  return;
+                }
+
+                final success = await context
+                    .read<CollectionsProvider>()
+                    .createCollection(
+                      name: nameController.text.trim(),
+                      description: descriptionController.text.trim().isEmpty
+                          ? null
+                          : descriptionController.text.trim(),
+                      isPrivate: isPrivate,
+                    );
+
+                if (success && context.mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -117,23 +111,24 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
         ],
       ),
       body:
-          state.status == CollectionsStatus.loading || state.status == CollectionsStatus.initial
-              ? const Center(child: CircularProgressIndicator())
-              : state.collections.isEmpty
-              ? _buildEmptyState()
-              : GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 0.8,
-                ),
-                itemCount: state.collections.length,
-                itemBuilder: (context, index) {
-                  return _buildCollectionCard(state.collections[index]);
-                },
+          state.status == CollectionsStatus.loading ||
+              state.status == CollectionsStatus.initial
+          ? const Center(child: CircularProgressIndicator())
+          : state.collections.isEmpty
+          ? _buildEmptyState()
+          : GridView.builder(
+              padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.8,
               ),
+              itemCount: state.collections.length,
+              itemBuilder: (context, index) {
+                return _buildCollectionCard(state.collections[index]);
+              },
+            ),
     );
   }
 
@@ -185,30 +180,30 @@ class _CollectionsScreenState extends State<CollectionsScreen> {
           children: [
             // Preview images
             Expanded(
-              child:
-                  collection.hasPreview
-                      ? GridView.count(
-                        crossAxisCount: 2,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children:
-                            collection.previewImages!
-                                .take(4)
-                                .map(
-                                  (url) =>
-                                      CachedNetworkImage(imageUrl: url, fit: BoxFit.cover),
-                                )
-                                .toList(),
-                      )
-                      : Container(
-                        color: Colors.grey.shade200,
-                        child: const Center(
-                          child: Icon(
-                            Icons.collections_bookmark_outlined,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
+              child: collection.hasPreview
+                  ? GridView.count(
+                      crossAxisCount: 2,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: collection.previewImages!
+                          .take(4)
+                          .map(
+                            (url) => CachedNetworkImage(
+                              imageUrl: url,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                          .toList(),
+                    )
+                  : Container(
+                      color: Colors.grey.shade200,
+                      child: const Center(
+                        child: Icon(
+                          Icons.collections_bookmark_outlined,
+                          size: 48,
+                          color: Colors.grey,
                         ),
                       ),
+                    ),
             ),
 
             // Collection info

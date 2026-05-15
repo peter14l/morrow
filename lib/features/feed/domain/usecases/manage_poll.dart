@@ -14,15 +14,14 @@ class ManagePoll {
     DateTime? endsAt,
   }) async {
     final pollId = DateTime.now().millisecondsSinceEpoch.toString();
-    final pollOptions =
-        options.asMap().entries.map((entry) {
-          return PollOption(
-            id: '${pollId}_${entry.key}',
-            pollId: pollId,
-            text: entry.value,
-            order: entry.key,
-          );
-        }).toList();
+    final pollOptions = options.asMap().entries.map((entry) {
+      return PollOption(
+        id: '${pollId}_${entry.key}',
+        pollId: pollId,
+        text: entry.value,
+        order: entry.key,
+      );
+    }).toList();
 
     return EnhancedPoll(
       id: pollId,

@@ -7,13 +7,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 class ReactionAnimationOverlay extends StatefulWidget {
   final Stream<ReactionAnimationEvent> animationStream;
 
-  const ReactionAnimationOverlay({
-    super.key,
-    required this.animationStream,
-  });
+  const ReactionAnimationOverlay({super.key, required this.animationStream});
 
   @override
-  State<ReactionAnimationOverlay> createState() => _ReactionAnimationOverlayState();
+  State<ReactionAnimationOverlay> createState() =>
+      _ReactionAnimationOverlayState();
 }
 
 class _ReactionAnimationOverlayState extends State<ReactionAnimationOverlay> {
@@ -36,14 +34,16 @@ class _ReactionAnimationOverlayState extends State<ReactionAnimationOverlay> {
 
   void _onAnimationEvent(ReactionAnimationEvent event) {
     if (!mounted) return;
-    
+
     setState(() {
-      _reactions.add(_AnimatedReaction(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        emoji: event.emoji,
-        position: event.position,
-        type: event.type,
-      ));
+      _reactions.add(
+        _AnimatedReaction(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          emoji: event.emoji,
+          position: event.position,
+          type: event.type,
+        ),
+      );
     });
   }
 
@@ -78,13 +78,12 @@ class _ReactionAnimationOverlayState extends State<ReactionAnimationOverlay> {
         return Positioned(
           left: reaction.position.dx - 10,
           top: reaction.position.dy - 10,
-          child: Text(
-            reaction.emoji,
-            style: const TextStyle(fontSize: 24),
-          )
-              .animate(onComplete: (controller) {
-                if (index == 7) _removeReaction(reaction.id);
-              })
+          child: Text(reaction.emoji, style: const TextStyle(fontSize: 24))
+              .animate(
+                onComplete: (controller) {
+                  if (index == 7) _removeReaction(reaction.id);
+                },
+              )
               .move(
                 begin: Offset.zero,
                 end: Offset(dx, dy),
@@ -92,7 +91,10 @@ class _ReactionAnimationOverlayState extends State<ReactionAnimationOverlay> {
                 curve: Curves.easeOutBack,
               )
               .fadeOut(duration: 600.ms)
-              .scale(begin: const Offset(0.5, 0.5), end: const Offset(1.2, 1.2)),
+              .scale(
+                begin: const Offset(0.5, 0.5),
+                end: const Offset(1.2, 1.2),
+              ),
         );
       }),
     );
@@ -102,11 +104,7 @@ class _ReactionAnimationOverlayState extends State<ReactionAnimationOverlay> {
     return Positioned(
       left: reaction.position.dx - 40,
       top: reaction.position.dy - 40,
-      child: Icon(
-        Icons.favorite,
-        color: Colors.red.shade400,
-        size: 80,
-      )
+      child: Icon(Icons.favorite, color: Colors.red.shade400, size: 80)
           .animate(onComplete: (_) => _removeReaction(reaction.id))
           .scale(
             begin: const Offset(0, 0),

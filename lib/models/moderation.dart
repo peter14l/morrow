@@ -160,10 +160,9 @@ class MutedUser {
       createdAt: DateTime.parse(
         json['created_at'] as String? ?? json['muted_at'] as String,
       ),
-      expiresAt:
-          json['expires_at'] != null
-              ? DateTime.parse(json['expires_at'] as String)
-              : null,
+      expiresAt: json['expires_at'] != null
+          ? DateTime.parse(json['expires_at'] as String)
+          : null,
       username: json['username'] as String?,
       fullName: json['full_name'] as String?,
       avatarUrl: json['avatar_url'] as String?,

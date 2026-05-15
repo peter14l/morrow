@@ -121,16 +121,15 @@ class ShareSheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (_) => ShareSheet(
-            title: title,
-            payload: payload,
-            successMessage: successMessage,
-            messageType: messageType,
-            rippleId: rippleId,
-            storyId: storyId,
-            externalMessage: externalMessage,
-          ),
+      builder: (_) => ShareSheet(
+        title: title,
+        payload: payload,
+        successMessage: successMessage,
+        messageType: messageType,
+        rippleId: rippleId,
+        storyId: storyId,
+        externalMessage: externalMessage,
+      ),
     );
   }
 
@@ -274,8 +273,8 @@ class _ShareSheetState extends State<ShareSheet> {
                 children: [
                   Expanded(
                     child: TextField(
-                      onChanged:
-                          (value) => setState(() => _searchQuery = value),
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       decoration: InputDecoration(
                         hintText: 'Search people...',
                         prefixIcon: const Icon(FluentIcons.search_24_regular),
@@ -301,77 +300,69 @@ class _ShareSheetState extends State<ShareSheet> {
             ),
             const SizedBox(height: 16),
             Expanded(
-              child:
-                  conversations.isEmpty
-                      ? Center(
-                        child: Text(
-                          _searchQuery.isEmpty
-                              ? 'No conversations yet'
-                              : 'No results found',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
+              child: conversations.isEmpty
+                  ? Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No conversations yet'
+                            : 'No results found',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
                         ),
-                      )
-                      : ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        itemCount: conversations.length,
-                        itemBuilder: (context, index) {
-                          final conversation = conversations[index];
-                          final hasSent = _sentConversationIds.contains(
-                            conversation.id,
-                          );
-
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            leading: CircleAvatar(
-                              radius: 24,
-                              backgroundImage:
-                                  conversation.otherUserAvatar.isNotEmpty
-                                      ? CachedNetworkImageProvider(
-                                        conversation.otherUserAvatar,
-                                      )
-                                      : null,
-                              child:
-                                  conversation.otherUserAvatar.isEmpty
-                                      ? Text(
-                                        conversation.otherUserName[0]
-                                            .toUpperCase(),
-                                      )
-                                      : null,
-                            ),
-                            title: Text(
-                              conversation.otherUserName,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            trailing: FilledButton.tonal(
-                              onPressed:
-                                  hasSent
-                                      ? null
-                                      : () => _sendToConversation(conversation),
-                              style: FilledButton.styleFrom(
-                                backgroundColor:
-                                    hasSent
-                                        ? colorScheme.surfaceContainerHighest
-                                        : colorScheme.primaryContainer,
-                                foregroundColor:
-                                    hasSent
-                                        ? colorScheme.onSurfaceVariant
-                                        : colorScheme.onPrimaryContainer,
-                              ),
-                              child: Text(hasSent ? 'Sent' : 'Send'),
-                            ),
-                          );
-                        },
                       ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
+                      itemCount: conversations.length,
+                      itemBuilder: (context, index) {
+                        final conversation = conversations[index];
+                        final hasSent = _sentConversationIds.contains(
+                          conversation.id,
+                        );
+
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundImage:
+                                conversation.otherUserAvatar.isNotEmpty
+                                ? CachedNetworkImageProvider(
+                                    conversation.otherUserAvatar,
+                                  )
+                                : null,
+                            child: conversation.otherUserAvatar.isEmpty
+                                ? Text(
+                                    conversation.otherUserName[0].toUpperCase(),
+                                  )
+                                : null,
+                          ),
+                          title: Text(
+                            conversation.otherUserName,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          trailing: FilledButton.tonal(
+                            onPressed: hasSent
+                                ? null
+                                : () => _sendToConversation(conversation),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: hasSent
+                                  ? colorScheme.surfaceContainerHighest
+                                  : colorScheme.primaryContainer,
+                              foregroundColor: hasSent
+                                  ? colorScheme.onSurfaceVariant
+                                  : colorScheme.onPrimaryContainer,
+                            ),
+                            child: Text(hasSent ? 'Sent' : 'Send'),
+                          ),
+                        );
+                      },
+                    ),
             ),
           ],
         ),

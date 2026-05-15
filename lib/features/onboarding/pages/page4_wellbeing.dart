@@ -25,32 +25,47 @@ class Page4Wellbeing extends StatelessWidget {
         ).animate(target: isActive ? 1 : 0).fadeIn().slideX(begin: -0.1),
         const SizedBox(height: 10),
         Text(
-          'Your attention is\nprecious. We mean it.',
-          textAlign: TextAlign.center,
-          style: OasisTextStyles.onboardingHeadline.copyWith(fontSize: 36, height: 1.2),
-        ).animate(target: isActive ? 1 : 0).fadeIn(delay: 200.ms).slideY(begin: 0.06),
+              'Your attention is\nprecious. We mean it.',
+              textAlign: TextAlign.center,
+              style: OasisTextStyles.onboardingHeadline.copyWith(
+                fontSize: 36,
+                height: 1.2,
+              ),
+            )
+            .animate(target: isActive ? 1 : 0)
+            .fadeIn(delay: 200.ms)
+            .slideY(begin: 0.06),
         const SizedBox(height: 22),
         if (isActive) const EnergyMeter(),
         const SizedBox(height: 28),
         Column(
           children: [
             const WellbeingCard(
-              icon: Icons.bolt_outlined,
-              title: 'Energy Metering',
-              subtitle: 'Visual gauge of your engagement',
-            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 600.ms).slideX(begin: 0.12),
+                  icon: Icons.bolt_outlined,
+                  title: 'Energy Metering',
+                  subtitle: 'Visual gauge of your engagement',
+                )
+                .animate(target: isActive ? 1 : 0)
+                .fadeIn(delay: 600.ms)
+                .slideX(begin: 0.12),
             const SizedBox(height: 10),
             const WellbeingCard(
-              icon: Icons.palette_outlined,
-              title: 'Dopamine Detox',
-              subtitle: 'Grayscale mode to reset your mind',
-            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 780.ms).slideX(begin: 0.12),
+                  icon: Icons.palette_outlined,
+                  title: 'Dopamine Detox',
+                  subtitle: 'Grayscale mode to reset your mind',
+                )
+                .animate(target: isActive ? 1 : 0)
+                .fadeIn(delay: 780.ms)
+                .slideX(begin: 0.12),
             const SizedBox(height: 10),
             const WellbeingCard(
-              icon: Icons.school_outlined,
-              title: 'Study Sessions',
-              subtitle: 'Earn XP for focused deep work',
-            ).animate(target: isActive ? 1 : 0).fadeIn(delay: 960.ms).slideX(begin: 0.12),
+                  icon: Icons.school_outlined,
+                  title: 'Study Sessions',
+                  subtitle: 'Earn XP for focused deep work',
+                )
+                .animate(target: isActive ? 1 : 0)
+                .fadeIn(delay: 960.ms)
+                .slideX(begin: 0.12),
           ],
         ),
         const Spacer(),

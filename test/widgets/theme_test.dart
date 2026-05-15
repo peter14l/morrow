@@ -5,7 +5,7 @@ import '../test_setup.dart';
 
 void main() {
   setupTestEnvironment();
-  
+
   group('AppTheme', () {
     group('Light Theme', () {
       test('should have correct primary color', () {

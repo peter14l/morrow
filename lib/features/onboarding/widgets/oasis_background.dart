@@ -105,7 +105,7 @@ class _OasisBackgroundState extends State<OasisBackground>
               );
             },
           ),
-          
+
           // Particles
           ...List.generate(24, (index) {
             final random = math.Random(index);
@@ -114,7 +114,9 @@ class _OasisBackgroundState extends State<OasisBackground>
             return AnimatedBuilder(
               animation: _particleControllers[index],
               builder: (context, child) {
-                final ty = math.sin(_particleControllers[index].value * 2 * math.pi) * 30;
+                final ty =
+                    math.sin(_particleControllers[index].value * 2 * math.pi) *
+                    30;
                 return Align(
                   alignment: Alignment(left * 2 - 1, top * 2 - 1),
                   child: Transform.translate(
@@ -123,7 +125,9 @@ class _OasisBackgroundState extends State<OasisBackground>
                       width: 2,
                       height: 2,
                       decoration: BoxDecoration(
-                        color: OasisColors.glow.withOpacity(0.15 + random.nextDouble() * 0.2),
+                        color: OasisColors.glow.withOpacity(
+                          0.15 + random.nextDouble() * 0.2,
+                        ),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -166,12 +170,7 @@ class _Blob extends StatelessWidget {
           height: radius * 2,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            gradient: RadialGradient(
-              colors: [
-                color,
-                color.withOpacity(0),
-              ],
-            ),
+            gradient: RadialGradient(colors: [color, color.withOpacity(0)]),
           ),
         ),
       ),

@@ -119,7 +119,10 @@ void main() {
       expect(updated.longitude, equals(original.longitude));
       expect(updated.timestamp, equals(original.timestamp));
       expect(updated.address, equals('New Address'));
-      expect(original.address, equals('Original Address')); // Original unchanged
+      expect(
+        original.address,
+        equals('Original Address'),
+      ); // Original unchanged
     });
 
     test('copyWith with no parameters returns equivalent copy', () {

@@ -37,7 +37,8 @@ class NotificationProvider extends ChangeNotifier {
       _state = _state.copyWith(
         loadingState: NotificationLoadingState.loading,
         currentOffset: 0,
-        notifications: [], // Clear on refresh to avoid showing stale data during reload
+        notifications:
+            [], // Clear on refresh to avoid showing stale data during reload
       );
     } else {
       _state = _state.copyWith(loadingState: NotificationLoadingState.loading);
@@ -63,7 +64,9 @@ class NotificationProvider extends ChangeNotifier {
         } else {
           // Deduplicate based on notification ID to prevent duplicates
           final existingIds = _state.notifications.map((n) => n.id).toSet();
-          final uniqueNew = newNotifications.where((n) => !existingIds.contains(n.id)).toList();
+          final uniqueNew = newNotifications
+              .where((n) => !existingIds.contains(n.id))
+              .toList();
           updatedList = [..._state.notifications, ...uniqueNew];
         }
 
@@ -71,7 +74,9 @@ class NotificationProvider extends ChangeNotifier {
           loadingState: NotificationLoadingState.loaded,
           notifications: updatedList,
           hasMore: newNotifications.length >= 50,
-          currentOffset: refresh ? newNotifications.length : _state.currentOffset + newNotifications.length,
+          currentOffset: refresh
+              ? newNotifications.length
+              : _state.currentOffset + newNotifications.length,
           errorMessage: null,
         );
       },
@@ -98,13 +103,12 @@ class NotificationProvider extends ChangeNotifier {
     result.fold(
       onFailure: (_) {},
       onSuccess: (_) {
-        final updatedNotifications =
-            _state.notifications.map((n) {
-              if (n.id == notificationId) {
-                return n.copyWith(isRead: true);
-              }
-              return n;
-            }).toList();
+        final updatedNotifications = _state.notifications.map((n) {
+          if (n.id == notificationId) {
+            return n.copyWith(isRead: true);
+          }
+          return n;
+        }).toList();
 
         _state = _state.copyWith(
           notifications: updatedNotifications,
@@ -120,10 +124,9 @@ class NotificationProvider extends ChangeNotifier {
     result.fold(
       onFailure: (_) {},
       onSuccess: (_) {
-        final updatedNotifications =
-            _state.notifications.map((n) {
-              return n.copyWith(isRead: true);
-            }).toList();
+        final updatedNotifications = _state.notifications.map((n) {
+          return n.copyWith(isRead: true);
+        }).toList();
 
         _state = _state.copyWith(
           notifications: updatedNotifications,

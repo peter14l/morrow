@@ -455,21 +455,34 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   /// Wrap bottom sheet content with liquid glass effect
   Widget _wrapWithLiquidGlass({required Widget child}) {
-    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+    final liquidGlassMode = context
+        .watch<UserSettingsProvider>()
+        .liquidGlassMode;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+
     if (liquidGlassMode == LiquidGlassMode.disabled) {
       return child;
     }
-    
+
+    if (isSolid) {
+      return Container(
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1A1D24) : Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: child,
+      );
+    }
+
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: Container(
           decoration: BoxDecoration(
-            color: isDark 
+            color: isDark
                 ? Colors.white.withValues(alpha: 0.1)
                 : Colors.white.withValues(alpha: 0.4),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -1133,8 +1146,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       isDesktop: isDesktop,
                       isDetailsOpen: widget.isDetailsOpen,
                       onDetailsToggle: _openChatDetails,
-                      onCallPressed: state.conversationType == 'group' ? null : () => _initiateCall(CallType.voice),
-                      onVideoCallPressed: state.conversationType == 'group' ? null : () => _initiateCall(CallType.video),
+                      onCallPressed: state.conversationType == 'group'
+                          ? null
+                          : () => _initiateCall(CallType.voice),
+                      onVideoCallPressed: state.conversationType == 'group'
+                          ? null
+                          : () => _initiateCall(CallType.video),
                       backgroundUrl: state.backgroundUrl,
                     ),
 

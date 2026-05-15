@@ -45,7 +45,7 @@ class CanvasDrawingPainter extends CustomPainter {
       if (path.getBounds().isEmpty) {
         path.moveTo(point.point.dx, point.point.dy);
       } else {
-        // Use quadratic bezier for smoother transitions if possible, 
+        // Use quadratic bezier for smoother transitions if possible,
         // but drawLine within a Path with Round join/cap is already much smoother
         path.lineTo(point.point.dx, point.point.dy);
       }

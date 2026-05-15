@@ -17,9 +17,9 @@ class AppFluentTheme {
         materialColorScheme?.primary ??
         (isDark ? DarkColors.primary : LightColors.primary);
 
-    final scaffoldColor = isDark
-        ? OasisColors.deep
-        : (materialColorScheme?.surface ?? LightColors.background);
+    final scaffoldColor =
+        materialColorScheme?.surface ??
+        (isDark ? OasisColors.deep : LightColors.background);
 
     final micaBase = isDark ? material.Colors.black : material.Colors.white;
 
@@ -45,12 +45,15 @@ class AppFluentTheme {
       accentColor: accentColor,
       fontFamily: fontFamily,
       visualDensity: VisualDensity.standard,
-      scaffoldBackgroundColor:
-          shouldBeTransparent ? material.Colors.transparent : scaffoldColor,
-      micaBackgroundColor:
-          shouldBeTransparent ? micaBase.withValues(alpha: 0.01) : scaffoldColor,
-      micaAltBackgroundColor:
-          shouldBeTransparent ? micaBase.withValues(alpha: 0.01) : scaffoldColor,
+      scaffoldBackgroundColor: shouldBeTransparent
+          ? material.Colors.transparent
+          : scaffoldColor,
+      micaBackgroundColor: shouldBeTransparent
+          ? micaBase.withValues(alpha: 0.01)
+          : scaffoldColor,
+      micaAltBackgroundColor: shouldBeTransparent
+          ? micaBase.withValues(alpha: 0.01)
+          : scaffoldColor,
 
       // Animation curves updated to WinUI 3 "Fluid" motion
       animationCurve: standardCurve,

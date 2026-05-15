@@ -36,9 +36,7 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
       decoration: BoxDecoration(
         color: colorScheme.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-          color: colorScheme.onSurface.withValues(alpha: 0.1),
-        ),
+        border: Border.all(color: colorScheme.onSurface.withValues(alpha: 0.1)),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
@@ -109,10 +107,15 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
                         padding: const EdgeInsets.symmetric(horizontal: 12),
                         itemBuilder: (context, index) {
                           final conv = filteredConversations[index];
-                          final isSelected = _selectedConversationIds.contains(conv.id);
-                          
+                          final isSelected = _selectedConversationIds.contains(
+                            conv.id,
+                          );
+
                           return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 4,
+                            ),
                             leading: CircleAvatar(
                               radius: 20,
                               backgroundImage: conv.otherUserAvatar.isNotEmpty
@@ -124,16 +127,26 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
                             ),
                             title: Text(
                               conv.otherUserName,
-                              style: const TextStyle(fontWeight: FontWeight.w600),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                             trailing: IconButton(
                               icon: Icon(
-                                isSelected ? Icons.check_circle_rounded : Icons.send_rounded,
-                                color: isSelected ? Colors.green : colorScheme.primary,
+                                isSelected
+                                    ? Icons.check_circle_rounded
+                                    : Icons.send_rounded,
+                                color: isSelected
+                                    ? Colors.green
+                                    : colorScheme.primary,
                               ),
-                              onPressed: _isSending || isSelected ? null : () => _forwardToConversation(conv),
+                              onPressed: _isSending || isSelected
+                                  ? null
+                                  : () => _forwardToConversation(conv),
                             ),
-                            onTap: _isSending || isSelected ? null : () => _forwardToConversation(conv),
+                            onTap: _isSending || isSelected
+                                ? null
+                                : () => _forwardToConversation(conv),
                           );
                         },
                       ),
@@ -160,12 +173,12 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
       // When forwarding, we use the decrypted content of the source message
       // and send it as a fresh message to the target recipient.
       // The MessagingService.sendMessage handles re-encryption for the new recipient.
-      
+
       await messagingService.sendMessage(
         conversationId: conversation.id,
         senderId: userId,
-        content: widget.message.content == '🔒 Message encrypted' 
-            ? 'Forwarded message' 
+        content: widget.message.content == '🔒 Message encrypted'
+            ? 'Forwarded message'
             : widget.message.content,
         messageType: widget.message.messageType,
         mediaUrl: widget.message.mediaUrl,
@@ -179,8 +192,8 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
       if (mounted) {
         context.read<ConversationProvider>().onMessageSent(
           conversation.id,
-          widget.message.content == '🔒 Message encrypted' 
-              ? 'Forwarded message' 
+          widget.message.content == '🔒 Message encrypted'
+              ? 'Forwarded message'
               : widget.message.content,
           widget.message.messageType.name,
         );
@@ -192,7 +205,9 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
             content: Text('Forwarded to ${conversation.otherUserName}'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       }
@@ -200,7 +215,10 @@ class _ForwardMessageModalState extends State<ForwardMessageModal> {
       if (mounted) {
         setState(() => _selectedConversationIds.remove(conversation.id));
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to forward: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text('Failed to forward: $e'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {

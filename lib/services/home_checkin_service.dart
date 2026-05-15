@@ -41,7 +41,9 @@ class HomeCheckinService {
     final arrivalTime = DateTime.now().millisecondsSinceEpoch;
     await _prefs.writeInt(_keyLastArrivalTime, arrivalTime);
     await _prefs.writeBool(_keyPendingVerification, true);
-    debugPrint('[HomeCheckinService] Marked home arrived, verification pending');
+    debugPrint(
+      '[HomeCheckinService] Marked home arrived, verification pending',
+    );
   }
 
   /// User confirms they actually reached home ("Yes" button)
@@ -61,9 +63,13 @@ class HomeCheckinService {
       final partnerId = await _repository.getCouplePartnerId();
       if (partnerId != null) {
         await _repository.sendHomeArrivedNotification(partnerId);
-        debugPrint('[HomeCheckinService] Sent home arrival notification to partner');
+        debugPrint(
+          '[HomeCheckinService] Sent home arrival notification to partner',
+        );
       } else {
-        debugPrint('[HomeCheckinService] No partner found, skipping notification');
+        debugPrint(
+          '[HomeCheckinService] No partner found, skipping notification',
+        );
       }
 
       // Play heartbeat haptic pattern
@@ -92,7 +98,9 @@ class HomeCheckinService {
         final partnerId = await _repository.getCouplePartnerId();
         if (partnerId != null) {
           await _repository.sendNotReachedHomeNotification(partnerId);
-          debugPrint('[HomeCheckinService] Sent "not reached home" warning to partner');
+          debugPrint(
+            '[HomeCheckinService] Sent "not reached home" warning to partner',
+          );
         }
 
         // Play warning haptic pattern

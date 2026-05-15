@@ -44,7 +44,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
       );
       await _loadCurrentLocation();
       setState(() => _isSaving = false);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -61,7 +61,9 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Home Location'),
-        content: const Text('Are you sure you want to remove your home location?'),
+        content: const Text(
+          'Are you sure you want to remove your home location?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -80,13 +82,11 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
       await _homeLocationService.clearHomeLocation();
       await _loadCurrentLocation();
       setState(() => _isSaving = false);
-      
+
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Home location cleared'),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Home location cleared')));
       }
     }
   }
@@ -118,7 +118,10 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                 labelText: 'Latitude',
                 hintText: 'e.g., 37.7749',
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: true,
+              ),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -127,7 +130,10 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                 labelText: 'Longitude',
                 hintText: 'e.g., -122.4194',
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true, signed: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+                signed: true,
+              ),
             ),
           ],
         ),
@@ -140,9 +146,12 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
             onPressed: () {
               final lat = double.tryParse(latController.text);
               final lon = double.tryParse(lonController.text);
-              if (lat != null && lon != null && 
-                  lat >= -90 && lat <= 90 && 
-                  lon >= -180 && lon <= 180) {
+              if (lat != null &&
+                  lon != null &&
+                  lat >= -90 &&
+                  lat <= 90 &&
+                  lon >= -180 &&
+                  lon <= 180) {
                 Navigator.pop(context, (lat, lon));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +196,9 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.3,
+                      ),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: colorScheme.primary.withValues(alpha: 0.3),
@@ -205,7 +216,9 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                           child: Text(
                             'Your home location is stored only on this device and never sent to servers.',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.8),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.8,
+                              ),
                             ),
                           ),
                         ),
@@ -222,7 +235,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  
+
                   if (_currentLocation == null)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -240,7 +253,9 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                           Text(
                             'Home location not set',
                             style: theme.textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.5),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
                             ),
                           ),
                         ],
@@ -250,7 +265,9 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha: 0.2),
+                        color: colorScheme.primaryContainer.withValues(
+                          alpha: 0.2,
+                        ),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: colorScheme.primary.withValues(alpha: 0.3),
@@ -261,10 +278,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.home,
-                                color: colorScheme.primary,
-                              ),
+                              Icon(Icons.home, color: colorScheme.primary),
                               const SizedBox(width: 8),
                               Text(
                                 'Home Set',
@@ -284,13 +298,15 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                           Text(
                             'Set on: ${_formatDate(_currentLocation!.timestamp)}',
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
                             ),
                           ),
                         ],
                       ),
                     ),
-                  
+
                   const SizedBox(height: 24),
                   const SizedBox(height: 8),
 
@@ -299,17 +315,21 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                     width: double.infinity,
                     child: FilledButton.icon(
                       onPressed: _isSaving ? null : _setLocation,
-                      icon: _isSaving 
+                      icon: _isSaving
                           ? const SizedBox(
                               width: 16,
                               height: 16,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.add_location_alt),
-                      label: Text(_currentLocation == null ? 'Set Home Location' : 'Update Location'),
+                      label: Text(
+                        _currentLocation == null
+                            ? 'Set Home Location'
+                            : 'Update Location',
+                      ),
                     ),
                   ),
-                  
+
                   if (_currentLocation != null) ...[
                     const SizedBox(height: 12),
                     SizedBox(
@@ -320,14 +340,16 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                         label: const Text('Clear Location'),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colorScheme.error,
-                          side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
+                          side: BorderSide(
+                            color: colorScheme.error.withValues(alpha: 0.5),
+                          ),
                         ),
                       ),
                     ),
                   ],
-                  
+
                   const SizedBox(height: 32),
-                  
+
                   // How it works section
                   Text(
                     'How It Works',
@@ -339,21 +361,24 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                   _buildInfoCard(
                     icon: Icons.gps_fixed,
                     title: 'Auto-Detection',
-                    description: 'Oasis detects when you arrive home using a 100-meter geofence around your saved location.',
+                    description:
+                        'Oasis detects when you arrive home using a 100-meter geofence around your saved location.',
                     colorScheme: colorScheme,
                   ),
                   const SizedBox(height: 8),
                   _buildInfoCard(
                     icon: Icons.notifications_active,
                     title: 'Partner Notification',
-                    description: 'When you arrive home, your partner receives a notification letting them know you\'re safe.',
+                    description:
+                        'When you arrive home, your partner receives a notification letting them know you\'re safe.',
                     colorScheme: colorScheme,
                   ),
                   const SizedBox(height: 8),
                   _buildInfoCard(
                     icon: Icons.smartphone,
                     title: 'Privacy First',
-                    description: 'Location monitoring only works when the app is open. Background tracking can be enabled in settings.',
+                    description:
+                        'Location monitoring only works when the app is open. Background tracking can be enabled in settings.',
                     colorScheme: colorScheme,
                   ),
                 ],

@@ -35,4 +35,3 @@ abstract class CapsuleRepository {
   /// Delete a capsule
   Future<void> deleteCapsule(String capsuleId);
 }
-

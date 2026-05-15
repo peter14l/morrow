@@ -20,12 +20,13 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
     final callProvider = context.watch<CallProvider>();
     final state = callProvider.state;
 
-    if (!state.isMinimized || (state.activeCall == null && state.incomingCall == null)) {
+    if (!state.isMinimized ||
+        (state.activeCall == null && state.incomingCall == null)) {
       return const SizedBox.shrink();
     }
 
     final size = MediaQuery.of(context).size;
-    
+
     return Positioned(
       left: _position.dx,
       top: _position.dy,
@@ -33,7 +34,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
         onPanUpdate: (details) {
           setState(() {
             _position += details.delta;
-            
+
             // Keep within bounds
             _position = Offset(
               _position.dx.clamp(0, size.width - 120),
@@ -43,9 +44,12 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
         },
         onTap: () {
           callProvider.toggleMinimize(value: false);
-          context.pushNamed('active_call', pathParameters: {
-            'callId': (state.activeCall ?? state.incomingCall)!.id
-          });
+          context.pushNamed(
+            'active_call',
+            pathParameters: {
+              'callId': (state.activeCall ?? state.incomingCall)!.id,
+            },
+          );
         },
         child: Material(
           elevation: 8,
@@ -57,14 +61,17 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
             height: 160,
             decoration: BoxDecoration(
               color: Colors.black,
-              border: Border.all(color: Colors.blue.withValues(alpha: 0.5), width: 2),
+              border: Border.all(
+                color: Colors.blue.withValues(alpha: 0.5),
+                width: 2,
+              ),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Stack(
               children: [
                 // Mini Video / Avatar
                 _buildMiniContent(callProvider),
-                
+
                 // Status Indicator
                 Positioned(
                   top: 8,
@@ -90,7 +97,10 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.8),
+                        ],
                       ),
                     ),
                     child: Row(
@@ -130,7 +140,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
 
   Widget _buildMiniContent(CallProvider provider) {
     final state = provider.state;
-    
+
     // If there's a remote stream, show it
     if (state.remoteRenderers.isNotEmpty) {
       final renderer = state.remoteRenderers.values.first;
@@ -139,7 +149,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
         objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
       );
     }
-    
+
     // Otherwise show local camera or just a person icon
     if (provider.isVideoOn && state.localRenderer != null) {
       return RTCVideoView(

@@ -99,8 +99,9 @@ class CanvasProvider extends ChangeNotifier {
       await _deleteCanvas(canvasId);
       _state = _state.copyWith(
         canvases: _state.canvases.where((c) => c.id != canvasId).toList(),
-        activeCanvas:
-            _state.activeCanvas?.id == canvasId ? null : _state.activeCanvas,
+        activeCanvas: _state.activeCanvas?.id == canvasId
+            ? null
+            : _state.activeCanvas,
         clearActiveCanvas: _state.activeCanvas?.id == canvasId,
       );
       notifyListeners();
@@ -179,14 +180,18 @@ class CanvasProvider extends ChangeNotifier {
     _presenceSubscription?.cancel();
     _presenceSubscription = _repository
         .subscribeToPresence(canvasId)
-        .map((state) => state.map((key, value) => MapEntry(
+        .map(
+          (state) => state.map(
+            (key, value) => MapEntry(
               key,
               CanvasPresenceEntity.fromJson(key, value as Map<String, dynamic>),
-            )))
+            ),
+          ),
+        )
         .listen((typedState) {
-      _state = _state.copyWith(presenceState: typedState);
-      notifyListeners();
-    });
+          _state = _state.copyWith(presenceState: typedState);
+          notifyListeners();
+        });
   }
 
   void updatePresence(
@@ -269,19 +274,18 @@ class CanvasProvider extends ChangeNotifier {
 
     // Optimistic local update
     _state = _state.copyWith(
-      activeItems:
-          _state.activeItems.map((i) {
-            if (i.id == itemId) {
-              return i.copyWith(
-                xPos: xPos,
-                yPos: yPos,
-                rotation: rotation ?? i.rotation,
-                scale: scale ?? i.scale,
-                lastModifiedBy: lastModifiedBy,
-              );
-            }
-            return i;
-          }).toList(),
+      activeItems: _state.activeItems.map((i) {
+        if (i.id == itemId) {
+          return i.copyWith(
+            xPos: xPos,
+            yPos: yPos,
+            rotation: rotation ?? i.rotation,
+            scale: scale ?? i.scale,
+            lastModifiedBy: lastModifiedBy,
+          );
+        }
+        return i;
+      }).toList(),
     );
     notifyListeners();
 
@@ -308,30 +312,26 @@ class CanvasProvider extends ChangeNotifier {
     try {
       // Optimistic update
       _state = _state.copyWith(
-        activeItems:
-            _state.activeItems.map((item) {
-              if (item.id == itemId) {
-                final reactions = Map<String, List<String>>.from(
-                  item.reactions,
-                );
-                final List<String> users =
-                    reactions[emoji] != null
-                        ? List<String>.from(reactions[emoji]!)
-                        : <String>[];
-                if (users.contains(userId)) {
-                  users.remove(userId);
-                } else {
-                  users.add(userId);
-                }
-                if (users.isEmpty) {
-                  reactions.remove(emoji);
-                } else {
-                  reactions[emoji] = users;
-                }
-                return item.copyWith(reactions: reactions);
-              }
-              return item;
-            }).toList(),
+        activeItems: _state.activeItems.map((item) {
+          if (item.id == itemId) {
+            final reactions = Map<String, List<String>>.from(item.reactions);
+            final List<String> users = reactions[emoji] != null
+                ? List<String>.from(reactions[emoji]!)
+                : <String>[];
+            if (users.contains(userId)) {
+              users.remove(userId);
+            } else {
+              users.add(userId);
+            }
+            if (users.isEmpty) {
+              reactions.remove(emoji);
+            } else {
+              reactions[emoji] = users;
+            }
+            return item.copyWith(reactions: reactions);
+          }
+          return item;
+        }).toList(),
       );
       notifyListeners();
 
@@ -349,13 +349,12 @@ class CanvasProvider extends ChangeNotifier {
   Future<void> setItemLock(String itemId, bool isLocked) async {
     try {
       _state = _state.copyWith(
-        activeItems:
-            _state.activeItems.map((item) {
-              if (item.id == itemId) {
-                return item.copyWith(isLocked: isLocked);
-              }
-              return item;
-            }).toList(),
+        activeItems: _state.activeItems.map((item) {
+          if (item.id == itemId) {
+            return item.copyWith(isLocked: isLocked);
+          }
+          return item;
+        }).toList(),
       );
       notifyListeners();
 

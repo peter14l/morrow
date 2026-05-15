@@ -506,11 +506,10 @@ class WellnessRepositoryImpl implements WellnessRepository {
   int get focusRemainingSeconds => _focusRemainingSeconds;
 
   @override
-  double get focusProgress =>
-      _focusStartTime == null
-          ? 0.0
-          : (1 - (_focusRemainingSeconds / (_focusSessionDurationMinutes * 60)))
-              .clamp(0.0, 1.0);
+  double get focusProgress => _focusStartTime == null
+      ? 0.0
+      : (1 - (_focusRemainingSeconds / (_focusSessionDurationMinutes * 60)))
+            .clamp(0.0, 1.0);
 
   @override
   Map<String, bool> get focusSchedule => _datasource.focusSchedule;
@@ -556,8 +555,9 @@ class WellnessRepositoryImpl implements WellnessRepository {
 
   @override
   Future<WellnessStatsEntity> getWellnessStats() async {
-    final focusCount =
-        _achievements.where((a) => a.id.startsWith('focus_')).length;
+    final focusCount = _achievements
+        .where((a) => a.id.startsWith('focus_'))
+        .length;
     final streak = await getWellnessStreak();
     return WellnessStatsEntity(
       totalXp: 0, // Would fetch from user metadata

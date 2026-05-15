@@ -116,28 +116,28 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
                   ),
                   child:
                       _videoController != null &&
-                              _videoController!.value.isInitialized
-                          ? ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: VideoPlayer(_videoController!),
-                          )
-                          : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                FluentIcons.video_add_24_regular,
+                          _videoController!.value.isInitialized
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
+                          child: VideoPlayer(_videoController!),
+                        )
+                      : Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              FluentIcons.video_add_24_regular,
+                              color: Colors.white54,
+                              size: 48,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              'Select a video',
+                              style: theme.textTheme.bodyMedium?.copyWith(
                                 color: Colors.white54,
-                                size: 48,
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                'Select a video',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: Colors.white54,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ),
@@ -172,24 +172,22 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
                 height: 50,
                 child: useFluent
                     ? fluent.FilledButton(
-                      onPressed: _isLoading ? null : _uploadRipple,
-                      child:
-                          _isLoading
-                              ? const fluent.ProgressRing(strokeWidth: 2)
-                              : const Text('Share Ripple'),
-                    )
+                        onPressed: _isLoading ? null : _uploadRipple,
+                        child: _isLoading
+                            ? const fluent.ProgressRing(strokeWidth: 2)
+                            : const Text('Share Ripple'),
+                      )
                     : FilledButton(
-                      onPressed: _isLoading ? null : _uploadRipple,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                        onPressed: _isLoading ? null : _uploadRipple,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ),
-                      child:
-                          _isLoading
-                              ? const SizedBox(
+                        child: _isLoading
+                            ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
@@ -197,14 +195,14 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
                                   color: Colors.white,
                                 ),
                               )
-                              : const Text(
+                            : const Text(
                                 'Share Ripple',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
                               ),
-                    ),
+                      ),
               ),
             ],
           ],
@@ -219,8 +217,8 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
             children: [
               fluent.IconButton(
                 icon: const Icon(fluent.FluentIcons.back),
-                onPressed:
-                    () => context.canPop() ? context.pop() : context.go('/feed'),
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/feed'),
               ),
               const SizedBox(width: 8),
               const Text('New Ripple'),
@@ -228,11 +226,12 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
           ),
           actions: [
             fluent.FilledButton(
-              onPressed: _isLoading || _videoFile == null ? null : _uploadRipple,
-              child:
-                  _isLoading
-                      ? const fluent.ProgressRing(strokeWidth: 2)
-                      : const Text('Share'),
+              onPressed: _isLoading || _videoFile == null
+                  ? null
+                  : _uploadRipple,
+              child: _isLoading
+                  ? const fluent.ProgressRing(strokeWidth: 2)
+                  : const Text('Share'),
             ),
           ],
           body: Center(
@@ -249,8 +248,8 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed:
-                  () => context.canPop() ? context.pop() : context.go('/feed'),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/feed'),
               tooltip: 'Back',
             ),
             const SizedBox(width: 8),
@@ -264,14 +263,13 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
               child: Center(
                 child: FilledButton(
                   onPressed: _isLoading ? null : _uploadRipple,
-                  child:
-                      _isLoading
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : const Text('Share'),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Text('Share'),
                 ),
               ),
             ),
@@ -302,24 +300,23 @@ class _CreateRippleScreenState extends State<CreateRippleScreen> {
           if (_videoFile != null)
             TextButton(
               onPressed: _isLoading ? null : _uploadRipple,
-              child:
-                  _isLoading
-                      ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                      : const Text(
-                        'Share',
-                        style: TextStyle(
-                          color: Colors.blueAccent,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+              child: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
                       ),
+                    )
+                  : const Text(
+                      'Share',
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
         ],
       ),

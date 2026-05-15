@@ -25,6 +25,7 @@ class PostRepositoryImpl implements PostRepository {
     String? communityId,
     String? mood,
     bool isSpoiler = false,
+    List<String>? collaboratorIds,
   }) async {
     final postMap = await _remoteDatasource.createPost(
       userId: userId,
@@ -42,6 +43,26 @@ class PostRepositoryImpl implements PostRepository {
     _notifyFollowers(userId, post.id);
 
     return post;
+  }
+
+  @override
+  Future<void> acceptCollaboration(String postId, String userId) async {
+    final supabase = SupabaseService().client;
+    await supabase
+        .from('post_collaborators')
+        .update({'status': 'accepted'})
+        .eq('post_id', postId)
+        .eq('user_id', userId);
+  }
+
+  @override
+  Future<void> declineCollaboration(String postId, String userId) async {
+    final supabase = SupabaseService().client;
+    await supabase
+        .from('post_collaborators')
+        .update({'status': 'denied'})
+        .eq('post_id', postId)
+        .eq('user_id', userId);
   }
 
   @override
@@ -184,12 +205,11 @@ class PostRepositoryImpl implements PostRepository {
   void _notifyPostOwner(String actorId, String postId, String type) async {
     try {
       final supabase = SupabaseService().client;
-      final postResponse =
-          await supabase
-              .from('posts')
-              .select('user_id')
-              .eq('id', postId)
-              .single();
+      final postResponse = await supabase
+          .from('posts')
+          .select('user_id')
+          .eq('id', postId)
+          .single();
 
       final postOwnerId = postResponse['user_id'] as String;
       if (postOwnerId != actorId) {

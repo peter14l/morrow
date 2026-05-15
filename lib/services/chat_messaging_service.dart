@@ -32,19 +32,18 @@ class ChatMessagingService {
       if (currentUserId == null) throw Exception('Not authenticated');
 
       // 1. Fetch cleared_at timestamp for the current user
-      final participantResponse =
-          await _supabase
-              .from('conversation_participants')
-              .select('cleared_at')
-              .eq('conversation_id', conversationId)
-              .eq('user_id', currentUserId)
-              .maybeSingle();
+      final participantResponse = await _supabase
+          .from('conversation_participants')
+          .select('cleared_at')
+          .eq('conversation_id', conversationId)
+          .eq('user_id', currentUserId)
+          .maybeSingle();
 
       final clearedAt =
           participantResponse != null &&
-                  participantResponse['cleared_at'] != null
-              ? DateTime.parse(participantResponse['cleared_at'])
-              : null;
+              participantResponse['cleared_at'] != null
+          ? DateTime.parse(participantResponse['cleared_at'])
+          : null;
 
       // 2. Query messages
       var query = _supabase
@@ -128,10 +127,12 @@ class ChatMessagingService {
           final myReadTimeStr = myReadMap[messages[i].id];
           final anyReadTimeStr = firstReadMap[messages[i].id];
 
-          final DateTime? myReadAt =
-              myReadTimeStr != null ? DateTime.parse(myReadTimeStr) : null;
-          final DateTime? anyReadAt =
-              anyReadTimeStr != null ? DateTime.parse(anyReadTimeStr) : null;
+          final DateTime? myReadAt = myReadTimeStr != null
+              ? DateTime.parse(myReadTimeStr)
+              : null;
+          final DateTime? anyReadAt = anyReadTimeStr != null
+              ? DateTime.parse(anyReadTimeStr)
+              : null;
 
           if (myReadAt != null || anyReadAt != null) {
             messages[i] = messages[i].copyWith(
@@ -189,32 +190,37 @@ class ChatMessagingService {
     String? pqAuraPayload,
   }) async {
     try {
-      final response = await _supabase.rpc('send_message_v3', params: {
-        'p_conversation_id': conversationId,
-        'p_content': content,
-        'p_message_type': messageType.name,
-        'p_media_url': mediaUrl,
-        'p_media_file_name': mediaFileName,
-        'p_media_file_size': mediaFileSize,
-        'p_voice_duration': voiceDuration,
-        'p_reply_to_id': replyToId,
-        'p_is_ephemeral': whisperMode > 0,
-        'p_ephemeral_duration': whisperMode == 1 ? 0 : 86400,
-        'p_encrypted_keys': encryptedKeys,
-        'p_iv': iv,
-        'p_signal_message_type': signalMessageType,
-        'p_signal_sender_content': signalSenderContent,
-        'p_whisper_mode': whisperMode == 0 ? 'OFF' : (whisperMode == 1 ? 'INSTANT' : '24_HOURS'),
-        'p_ripple_id': rippleId,
-        'p_story_id': storyId,
-        'p_post_id': postId,
-        'p_share_data': shareData,
-        'p_location_data': locationData,
-        'p_media_view_mode': mediaViewMode,
-        'p_is_spoiler': isSpoiler,
-        'p_pq_aura_header': pqAuraHeader,
-        'p_pq_aura_payload': pqAuraPayload,
-      });
+      final response = await _supabase.rpc(
+        'send_message_v3',
+        params: {
+          'p_conversation_id': conversationId,
+          'p_content': content,
+          'p_message_type': messageType.name,
+          'p_media_url': mediaUrl,
+          'p_media_file_name': mediaFileName,
+          'p_media_file_size': mediaFileSize,
+          'p_voice_duration': voiceDuration,
+          'p_reply_to_id': replyToId,
+          'p_is_ephemeral': whisperMode > 0,
+          'p_ephemeral_duration': whisperMode == 1 ? 0 : 86400,
+          'p_encrypted_keys': encryptedKeys,
+          'p_iv': iv,
+          'p_signal_message_type': signalMessageType,
+          'p_signal_sender_content': signalSenderContent,
+          'p_whisper_mode': whisperMode == 0
+              ? 'OFF'
+              : (whisperMode == 1 ? 'INSTANT' : '24_HOURS'),
+          'p_ripple_id': rippleId,
+          'p_story_id': storyId,
+          'p_post_id': postId,
+          'p_share_data': shareData,
+          'p_location_data': locationData,
+          'p_media_view_mode': mediaViewMode,
+          'p_is_spoiler': isSpoiler,
+          'p_pq_aura_header': pqAuraHeader,
+          'p_pq_aura_payload': pqAuraPayload,
+        },
+      );
 
       if (response == null) throw Exception('Failed to send message via RPC');
 
@@ -268,15 +274,19 @@ class ChatMessagingService {
           ),
           callback: (payload) {
             final messageData = Map<String, dynamic>.from(payload.newRecord);
-            
+
             // OPTIMIZATION: Ensure timestamp is set correctly for immediate UI display
-            messageData['created_at'] = messageData['created_at'] ?? DateTime.now().toIso8601String();
-            
+            messageData['created_at'] =
+                messageData['created_at'] ?? DateTime.now().toIso8601String();
+
             // OPTIMIZATION: Derive message type early to avoid deep construction lag
             if (messageData['message_type'] == null) {
-              if (messageData['voice_url'] != null) messageData['message_type'] = 'voice';
-              else if (messageData['image_url'] != null) messageData['message_type'] = 'image';
-              else messageData['message_type'] = 'text';
+              if (messageData['voice_url'] != null)
+                messageData['message_type'] = 'voice';
+              else if (messageData['image_url'] != null)
+                messageData['message_type'] = 'image';
+              else
+                messageData['message_type'] = 'text';
             }
 
             onNewMessage(Message.fromJson(messageData));
@@ -293,9 +303,13 @@ class ChatMessagingService {
         )
         .subscribe((status, [error]) {
           if (status == RealtimeSubscribeStatus.channelError) {
-            debugPrint('[ChatMessagingService] Subscription error for $conversationId: $error');
+            debugPrint(
+              '[ChatMessagingService] Subscription error for $conversationId: $error',
+            );
           } else if (status == RealtimeSubscribeStatus.timedOut) {
-            debugPrint('[ChatMessagingService] Subscription timed out for $conversationId. Table replication or RLS may be missing.');
+            debugPrint(
+              '[ChatMessagingService] Subscription timed out for $conversationId. Table replication or RLS may be missing.',
+            );
           } else if (status == RealtimeSubscribeStatus.subscribed) {
             // Silenced for pitch
           }

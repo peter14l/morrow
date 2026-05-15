@@ -60,7 +60,8 @@ class S3StorageService {
       final dynamic data = bytes ?? (file != null ? file.openRead() : null);
       if (data == null) throw Exception('No data to upload');
 
-      final int totalSize = bytes?.length ?? (file != null ? await file.length() : 0);
+      final int totalSize =
+          bytes?.length ?? (file != null ? await file.length() : 0);
 
       await _dio.put(
         url,

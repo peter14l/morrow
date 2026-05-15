@@ -46,7 +46,8 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
         children: [
           Text(
             '${widget.username} is typing',
-            style: widget.textStyle ??
+            style:
+                widget.textStyle ??
                 theme.textTheme.bodySmall?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                   fontStyle: FontStyle.italic,
@@ -91,4 +92,3 @@ class _TypingIndicatorWidgetState extends State<TypingIndicatorWidget>
     );
   }
 }
-

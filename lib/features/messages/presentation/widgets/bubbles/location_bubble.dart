@@ -241,15 +241,9 @@ class _LiveLocationMapPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return AbsorbPointer(
       child: GoogleMap(
-        initialCameraPosition: CameraPosition(
-          target: center,
-          zoom: 15,
-        ),
+        initialCameraPosition: CameraPosition(target: center, zoom: 15),
         markers: {
-          Marker(
-            markerId: const MarkerId('preview_loc'),
-            position: center,
-          ),
+          Marker(markerId: const MarkerId('preview_loc'), position: center),
         },
         liteModeEnabled: true,
         zoomControlsEnabled: false,

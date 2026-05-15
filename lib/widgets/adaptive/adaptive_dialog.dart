@@ -12,7 +12,10 @@ class AdaptiveDialog {
     required Widget content,
     List<Widget>? actions,
   }) {
-    final useFluent = Provider.of<ThemeProvider>(context, listen: false).useFluentUI;
+    final useFluent = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).useFluentUI;
 
     if (useFluent) {
       return fluent.showDialog<T>(
@@ -44,7 +47,10 @@ class AdaptiveDialog {
     material.Color? confirmColor,
     bool isDestructive = false,
   }) {
-    final useFluent = Provider.of<ThemeProvider>(context, listen: false).useFluentUI;
+    final useFluent = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).useFluentUI;
 
     if (useFluent) {
       return fluent.showDialog<bool>(
@@ -59,9 +65,13 @@ class AdaptiveDialog {
             ),
             fluent.FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              style: isDestructive ? fluent.ButtonStyle(
-                backgroundColor: fluent.WidgetStateProperty.all(fluent.Colors.red),
-              ) : null,
+              style: isDestructive
+                  ? fluent.ButtonStyle(
+                      backgroundColor: fluent.WidgetStateProperty.all(
+                        fluent.Colors.red,
+                      ),
+                    )
+                  : null,
               child: Text(confirmLabel),
             ),
           ],

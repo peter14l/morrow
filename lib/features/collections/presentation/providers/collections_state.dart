@@ -8,7 +8,7 @@ class CollectionsState extends Equatable {
   final CollectionsStatus status;
   final List<CollectionEntity> collections;
   final String? errorMessage;
-  
+
   // Detail view state
   final CollectionsStatus detailStatus;
   final List<Post> collectionItems;
@@ -39,10 +39,10 @@ class CollectionsState extends Equatable {
 
   @override
   List<Object?> get props => [
-        status,
-        collections,
-        errorMessage,
-        detailStatus,
-        collectionItems,
-      ];
+    status,
+    collections,
+    errorMessage,
+    detailStatus,
+    collectionItems,
+  ];
 }

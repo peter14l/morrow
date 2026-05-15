@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// Common BuildContext extensions for quick access to theme, sizing, and navigation.
@@ -34,6 +36,16 @@ extension ContextX on BuildContext {
 
   /// Check if current screen is desktop-sized.
   bool get isDesktopScreen => screenWidth >= 1200;
+
+  /// Whether the current platform should use solid backgrounds for readability (Desktop/Web).
+  bool get shouldUseSolidBackground {
+    if (kIsWeb) return true;
+    try {
+      return Platform.isWindows || Platform.isMacOS;
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// Get the safe area padding.
   EdgeInsets get safePadding => mediaQuery.padding;
@@ -90,20 +102,22 @@ extension ContextX on BuildContext {
     double? maxHeight,
   }) {
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return showModalBottomSheet<T>(
       context: this,
       isScrollControlled: isScrollControlled,
-      // On desktop, prioritize opaque backgrounds for readability
-      backgroundColor: backgroundColor ?? 
-          (isDesktopScreen 
-            ? (isDark ? const Color(0xFF0D1F1A) : Colors.white)
-            : Colors.transparent),
+      // On desktop/web, prioritize opaque backgrounds for readability
+      backgroundColor:
+          backgroundColor ??
+          (shouldUseSolidBackground
+              ? (isDark ? const Color(0xFF0D1F1A) : Colors.white)
+              : Colors.transparent),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
-      constraints:
-          maxHeight != null ? BoxConstraints(maxHeight: maxHeight) : null,
+      constraints: maxHeight != null
+          ? BoxConstraints(maxHeight: maxHeight)
+          : null,
       builder: (context) => builder(context),
     );
   }
@@ -119,20 +133,4 @@ extension ContextX on BuildContext {
       builder: builder,
     );
   }
-
-  /// Push a named route.
-  Future<T?> pushNamed<T extends Object?>(
-    String routeName, {
-    Object? arguments,
-  }) {
-    return Navigator.of(this).pushNamed<T>(routeName, arguments: arguments);
-  }
-
-  /// Pop the current route.
-  void pop<T extends Object?>([T? result]) {
-    Navigator.of(this).pop<T>(result);
-  }
-
-  /// Check if the current route can be popped.
-  bool get canPop => Navigator.of(this).canPop();
 }

@@ -7,11 +7,9 @@ class DataExportService {
   final SupabaseClient _supabase;
 
   DataExportService({SupabaseClient? client})
-      : _supabase = client ?? SupabaseService().client;
+    : _supabase = client ?? SupabaseService().client;
 
-  Future<void> requestDataExport({
-    required String userId,
-  }) async {
+  Future<void> requestDataExport({required String userId}) async {
     try {
       await _supabase.from(SupabaseConfig.dataExportRequestsTable).insert({
         'user_id': userId,

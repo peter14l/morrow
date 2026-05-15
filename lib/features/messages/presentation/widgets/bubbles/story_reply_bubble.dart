@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart' as text_bubble;
+import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart'
+    as text_bubble;
 
 /// Story reply bubble — shows a muted story thumbnail with a quote reply.
 /// Extracted from _buildStoryReplyBubble() in chat_screen.dart.
@@ -31,10 +32,9 @@ class StoryReplyBubble extends StatelessWidget {
     final Widget card = Container(
       constraints: const BoxConstraints(maxWidth: 260),
       decoration: BoxDecoration(
-        color:
-            isMe
-                ? colorScheme.primary.withValues(alpha: 0.12)
-                : colorScheme.surfaceContainerHighest,
+        color: isMe
+            ? colorScheme.primary.withValues(alpha: 0.12)
+            : colorScheme.surfaceContainerHighest,
         borderRadius: borderRadius,
         border: Border.all(
           color: Colors.white.withValues(alpha: 0.1),

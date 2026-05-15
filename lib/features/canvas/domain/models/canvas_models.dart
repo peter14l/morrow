@@ -1,4 +1,13 @@
-enum CanvasItemType { text, photo, voice, sticker, milestone, journal, doodle, shape }
+enum CanvasItemType {
+  text,
+  photo,
+  voice,
+  sticker,
+  milestone,
+  journal,
+  doodle,
+  shape,
+}
 
 class CanvasItemEntity {
   final String id;
@@ -64,10 +73,9 @@ class CanvasItemEntity {
       scale: (json['scale'] as num?)?.toDouble() ?? 1.0,
       color: json['color'] as String? ?? '#252930',
       createdAt: DateTime.parse(json['created_at'] as String),
-      unlockAt:
-          json['unlock_at'] != null
-              ? DateTime.parse(json['unlock_at'] as String)
-              : null,
+      unlockAt: json['unlock_at'] != null
+          ? DateTime.parse(json['unlock_at'] as String)
+          : null,
       groupId: json['group_id'] as String?,
       metadata: (json['metadata'] as Map<String, dynamic>?) ?? {},
       reactions: parsedReactions,
@@ -160,7 +168,10 @@ class CanvasPresenceEntity {
     this.activeItemId,
   });
 
-  factory CanvasPresenceEntity.fromJson(String userId, Map<String, dynamic> json) {
+  factory CanvasPresenceEntity.fromJson(
+    String userId,
+    Map<String, dynamic> json,
+  ) {
     return CanvasPresenceEntity(
       userId: userId,
       x: (json['x'] as num?)?.toDouble() ?? 0.0,
@@ -170,11 +181,7 @@ class CanvasPresenceEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'x': x,
-      'y': y,
-      'active_item_id': activeItemId,
-    };
+    return {'x': x, 'y': y, 'active_item_id': activeItemId};
   }
 
   CanvasPresenceEntity copyWith({

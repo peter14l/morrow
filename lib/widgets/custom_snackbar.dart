@@ -14,8 +14,8 @@ class CustomSnackbar {
   }
 
   static void showError(BuildContext context, dynamic errorOrMessage) {
-    final message = errorOrMessage is String 
-        ? errorOrMessage 
+    final message = errorOrMessage is String
+        ? errorOrMessage
         : ErrorParser.parse(errorOrMessage);
 
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
@@ -36,9 +36,7 @@ class CustomSnackbar {
         content: Text(message),
         backgroundColor: Theme.of(context).colorScheme.error,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -62,9 +60,7 @@ class CustomSnackbar {
         content: Text(message),
         backgroundColor: Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }

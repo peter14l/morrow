@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/notifications/domain/models/notification_entity.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
-import 'package:oasis/features/notifications/presentation/providers/notification_state.dart' as state;
+import 'package:oasis/features/notifications/presentation/providers/notification_state.dart'
+    as state;
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/themes/app_theme.dart';
@@ -55,7 +56,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: $e')));
       }
     }
   }
@@ -84,11 +87,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       try {
         await context.read<NotificationProvider>().deleteAllNotifications();
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notifications cleared')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Notifications cleared')),
+          );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error: $e')));
         }
       }
     }
@@ -102,7 +109,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } else {
       if (notification.postId != null) {
         context.push('/post/${notification.postId}/comments');
-      } else if (notification.actorId != null && (notification.type == 'follow' || notification.type == 'follow_request')) {
+      } else if (notification.actorId != null &&
+          (notification.type == 'follow' ||
+              notification.type == 'follow_request')) {
         context.push('/profile/${notification.actorId}');
       }
     }
@@ -112,7 +121,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final provider = context.read<NotificationProvider>();
     var filtered = provider.notifications;
     if (_showUnreadOnly) filtered = filtered.where((n) => !n.isRead).toList();
-    if (_filterType != 'all') filtered = filtered.where((n) => n.type == _filterType).toList();
+    if (_filterType != 'all')
+      filtered = filtered.where((n) => n.type == _filterType).toList();
     filtered = filtered.where((n) => n.type != 'call').toList();
     return filtered;
   }
@@ -123,13 +133,26 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final yesterday = today.subtract(const Duration(days: 1));
     final thisWeek = today.subtract(const Duration(days: 7));
 
-    final Map<String, List<AppNotification>> grouped = {'Today': [], 'Yesterday': [], 'This Week': [], 'Earlier': []};
+    final Map<String, List<AppNotification>> grouped = {
+      'Today': [],
+      'Yesterday': [],
+      'This Week': [],
+      'Earlier': [],
+    };
     for (final notification in _filteredNotifications) {
-      final notifDate = DateTime(notification.timestamp.year, notification.timestamp.month, notification.timestamp.day);
-      if (notifDate.isAtSameMomentAs(today)) grouped['Today']!.add(notification);
-      else if (notifDate.isAtSameMomentAs(yesterday)) grouped['Yesterday']!.add(notification);
-      else if (notifDate.isAfter(thisWeek)) grouped['This Week']!.add(notification);
-      else grouped['Earlier']!.add(notification);
+      final notifDate = DateTime(
+        notification.timestamp.year,
+        notification.timestamp.month,
+        notification.timestamp.day,
+      );
+      if (notifDate.isAtSameMomentAs(today))
+        grouped['Today']!.add(notification);
+      else if (notifDate.isAtSameMomentAs(yesterday))
+        grouped['Yesterday']!.add(notification);
+      else if (notifDate.isAfter(thisWeek))
+        grouped['This Week']!.add(notification);
+      else
+        grouped['Earlier']!.add(notification);
     }
     grouped.removeWhere((key, value) => value.isEmpty);
     return grouped;
@@ -137,28 +160,44 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   IconData _getNotificationIcon(String type) {
     switch (type) {
-      case 'like': return Icons.favorite;
-      case 'comment': return Icons.comment;
-      case 'follow': return Icons.person_add;
-      case 'follow_request': return Icons.person_add_alt_1_rounded;
-      case 'mention': return Icons.alternate_email;
-      case 'ripple': return Icons.waves;
-      case 'dm': return Icons.message;
-      default: return Icons.notifications;
+      case 'like':
+        return Icons.favorite;
+      case 'comment':
+        return Icons.comment;
+      case 'follow':
+        return Icons.person_add;
+      case 'follow_request':
+        return Icons.person_add_alt_1_rounded;
+      case 'mention':
+        return Icons.alternate_email;
+      case 'ripple':
+        return Icons.waves;
+      case 'dm':
+        return Icons.message;
+      default:
+        return Icons.notifications;
     }
   }
 
   String _getNotificationText(AppNotification notification) {
     final actorName = notification.actorName ?? 'Someone';
     switch (notification.type) {
-      case 'like': return '$actorName liked your post';
-      case 'comment': return '$actorName commented on your post';
-      case 'follow': return '$actorName started following you';
-      case 'follow_request': return '$actorName sent you a follow request';
-      case 'mention': return '$actorName mentioned you';
-      case 'ripple': return '$actorName shared a ripple with you';
-      case 'dm': return '$actorName sent you a message';
-      default: return notification.message ?? 'New notification';
+      case 'like':
+        return '$actorName liked your post';
+      case 'comment':
+        return '$actorName commented on your post';
+      case 'follow':
+        return '$actorName started following you';
+      case 'follow_request':
+        return '$actorName sent you a follow request';
+      case 'mention':
+        return '$actorName mentioned you';
+      case 'ripple':
+        return '$actorName shared a ripple with you';
+      case 'dm':
+        return '$actorName sent you a message';
+      default:
+        return notification.message ?? 'New notification';
     }
   }
 
@@ -167,31 +206,72 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final colorScheme = theme.colorScheme;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
-    final isSelected = isDesktop && _selectedNotification?.id == notification.id;
+    final isSelected =
+        isDesktop && _selectedNotification?.id == notification.id;
     final bool isFollowRequest = notification.type == 'follow_request';
 
     return Card(
       margin: EdgeInsets.only(bottom: isM3E ? 8 : 12),
-      color: notification.isRead 
-          ? (isM3E ? colorScheme.surfaceContainerLow : null) 
-          : (isM3E ? colorScheme.secondaryContainer : colorScheme.primaryContainer.withValues(alpha: 0.3)),
+      color: notification.isRead
+          ? (isM3E ? colorScheme.surfaceContainerLow : null)
+          : (isM3E
+                ? colorScheme.secondaryContainer
+                : colorScheme.primaryContainer.withValues(alpha: 0.3)),
       elevation: isM3E ? 0 : null,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(isM3E ? 20 : 12),
-        side: isSelected ? BorderSide(color: colorScheme.primary, width: 2) : (isM3E ? BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3), width: 1) : BorderSide.none),
+        side: isSelected
+            ? BorderSide(color: colorScheme.primary, width: 2)
+            : (isM3E
+                  ? BorderSide(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      width: 1,
+                    )
+                  : BorderSide.none),
       ),
       child: Column(
         children: [
           ListTile(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 8,
+            ),
             leading: CircleAvatar(
               radius: isM3E ? 22 : 24,
-              backgroundImage: (notification.actorAvatar ?? '').isNotEmpty ? CachedNetworkImageProvider(notification.actorAvatar!) : null,
-              child: (notification.actorAvatar ?? '').isEmpty ? Icon(_getNotificationIcon(notification.type), size: isM3E ? 20 : 24) : null,
+              backgroundImage: (notification.actorAvatar ?? '').isNotEmpty
+                  ? CachedNetworkImageProvider(notification.actorAvatar!)
+                  : null,
+              child: (notification.actorAvatar ?? '').isEmpty
+                  ? Icon(
+                      _getNotificationIcon(notification.type),
+                      size: isM3E ? 20 : 24,
+                    )
+                  : null,
             ),
-            title: Text(_getNotificationText(notification), style: theme.textTheme.bodyMedium?.copyWith(fontWeight: notification.isRead ? FontWeight.normal : FontWeight.w600)),
-            subtitle: Text(timeago.format(notification.timestamp), style: theme.textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
-            trailing: !notification.isRead && !isFollowRequest ? Container(width: 8, height: 8, decoration: BoxDecoration(color: isM3E ? colorScheme.tertiary : colorScheme.primary, shape: BoxShape.circle)) : null,
+            title: Text(
+              _getNotificationText(notification),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: notification.isRead
+                    ? FontWeight.normal
+                    : FontWeight.w600,
+              ),
+            ),
+            subtitle: Text(
+              timeago.format(notification.timestamp),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+            trailing: !notification.isRead && !isFollowRequest
+                ? Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: isM3E ? colorScheme.tertiary : colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  )
+                : null,
             onTap: () => _handleNotificationTap(notification),
           ),
           if (isFollowRequest)
@@ -205,9 +285,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         if (notification.actorId != null) {
                           final currentUserId = AuthService().currentUser?.id;
                           if (currentUserId != null) {
-                            await context.read<ProfileProvider>().acceptFollowRequest(followerId: notification.actorId!, followingId: currentUserId);
+                            await context
+                                .read<ProfileProvider>()
+                                .acceptFollowRequest(
+                                  followerId: notification.actorId!,
+                                  followingId: currentUserId,
+                                );
                             await _markAsRead(notification);
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Follow request accepted')));
+                            if (mounted)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Follow request accepted'),
+                                ),
+                              );
                           }
                         }
                       },
@@ -221,9 +311,19 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         if (notification.actorId != null) {
                           final currentUserId = AuthService().currentUser?.id;
                           if (currentUserId != null) {
-                            await context.read<ProfileProvider>().declineFollowRequest(followerId: notification.actorId!, followingId: currentUserId);
+                            await context
+                                .read<ProfileProvider>()
+                                .declineFollowRequest(
+                                  followerId: notification.actorId!,
+                                  followingId: currentUserId,
+                                );
                             await _markAsRead(notification);
-                            if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Follow request declined')));
+                            if (mounted)
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Follow request declined'),
+                                ),
+                              );
                           }
                         }
                       },
@@ -244,7 +344,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    if (widget.isPanel) return Scaffold(appBar: AppBar(title: const Text('Notifications'), automaticallyImplyLeading: false), body: _buildNotificationsList());
+    if (widget.isPanel)
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Notifications'),
+          automaticallyImplyLeading: false,
+        ),
+        body: _buildNotificationsList(),
+      );
 
     return AdaptiveScaffold(
       title: const Text('Notifications'),
@@ -264,14 +371,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildMobileLayout() {
     return RefreshIndicator(
-      onRefresh: () => context.read<NotificationProvider>().loadNotifications(refresh: true),
+      onRefresh: () =>
+          context.read<NotificationProvider>().loadNotifications(refresh: true),
       child: _buildNotificationsList(),
     );
   }
 
   Widget _buildNotificationsList() {
     final provider = context.watch<NotificationProvider>();
-    if (provider.state.loadingState == state.NotificationLoadingState.loading) return const Center(child: CircularProgressIndicator());
+    if (provider.state.loadingState == state.NotificationLoadingState.loading)
+      return const Center(child: CircularProgressIndicator());
     if (_filteredNotifications.isEmpty) return _buildEmptyState();
     final grouped = _groupedNotifications;
     return ListView.builder(
@@ -279,8 +388,27 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       itemCount: grouped.length * 2,
       itemBuilder: (context, index) {
         final groupKey = grouped.keys.elementAt(index ~/ 2);
-        if (index.isEven) return Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Text(groupKey, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)));
-        return Column(children: grouped[groupKey]!.map((n) => _buildNotificationItem(n, ResponsiveLayout.isDesktop(context) && !widget.isPanel)).toList());
+        if (index.isEven)
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              groupKey,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          );
+        return Column(
+          children: grouped[groupKey]!
+              .map(
+                (n) => _buildNotificationItem(
+                  n,
+                  ResponsiveLayout.isDesktop(context) && !widget.isPanel,
+                ),
+              )
+              .toList(),
+        );
       },
     );
   }
@@ -289,8 +417,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text('Filters', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        SwitchListTile(title: const Text('Unread Only'), value: _showUnreadOnly, onChanged: (v) => setState(() => _showUnreadOnly = v)),
+        const Text(
+          'Filters',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
+        SwitchListTile(
+          title: const Text('Unread Only'),
+          value: _showUnreadOnly,
+          onChanged: (v) => setState(() => _showUnreadOnly = v),
+        ),
         const Divider(),
         _buildFilterOption('All', 'all', Icons.notifications_outlined),
         _buildFilterOption('Likes', 'like', Icons.favorite_outline),
@@ -303,26 +438,52 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget _buildFilterOption(String label, String value, IconData icon) {
     final isSelected = _filterType == value;
     return ListTile(
-      leading: Icon(icon, color: isSelected ? Theme.of(context).colorScheme.primary : null),
-      title: Text(label, style: TextStyle(color: isSelected ? Theme.of(context).colorScheme.primary : null, fontWeight: isSelected ? FontWeight.bold : null)),
+      leading: Icon(
+        icon,
+        color: isSelected ? Theme.of(context).colorScheme.primary : null,
+      ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: isSelected ? Theme.of(context).colorScheme.primary : null,
+          fontWeight: isSelected ? FontWeight.bold : null,
+        ),
+      ),
       onTap: () => setState(() => _filterType = value),
       selected: isSelected,
     );
   }
 
   Widget _buildDetailPanel() {
-    if (_selectedNotification == null) return const Center(child: Text('Select a notification'));
+    if (_selectedNotification == null)
+      return const Center(child: Text('Select a notification'));
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
-            leading: CircleAvatar(backgroundImage: (_selectedNotification!.actorAvatar ?? '').isNotEmpty ? CachedNetworkImageProvider(_selectedNotification!.actorAvatar!) : null),
-            title: Text(_getNotificationText(_selectedNotification!), style: const TextStyle(fontWeight: FontWeight.bold)),
+            leading: CircleAvatar(
+              backgroundImage:
+                  (_selectedNotification!.actorAvatar ?? '').isNotEmpty
+                  ? CachedNetworkImageProvider(
+                      _selectedNotification!.actorAvatar!,
+                    )
+                  : null,
+            ),
+            title: Text(
+              _getNotificationText(_selectedNotification!),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
             subtitle: Text(timeago.format(_selectedNotification!.timestamp)),
           ),
-          if (_selectedNotification!.postId != null) ElevatedButton(onPressed: () => context.push('/post/${_selectedNotification!.postId}/comments'), child: const Text('View Post')),
+          if (_selectedNotification!.postId != null)
+            ElevatedButton(
+              onPressed: () => context.push(
+                '/post/${_selectedNotification!.postId}/comments',
+              ),
+              child: const Text('View Post'),
+            ),
         ],
       ),
     );

@@ -8,7 +8,7 @@ class CollectionRepositoryImpl implements CollectionRepository {
   final CollectionRemoteDatasource _remoteDatasource;
 
   CollectionRepositoryImpl({CollectionRemoteDatasource? remoteDatasource})
-      : _remoteDatasource = remoteDatasource ?? CollectionRemoteDatasource();
+    : _remoteDatasource = remoteDatasource ?? CollectionRemoteDatasource();
 
   @override
   Future<Result<List<CollectionEntity>>> getUserCollections() async {
@@ -16,7 +16,11 @@ class CollectionRepositoryImpl implements CollectionRepository {
       final collections = await _remoteDatasource.getUserCollections();
       return Result.success(collections);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -34,7 +38,11 @@ class CollectionRepositoryImpl implements CollectionRepository {
       );
       return Result.success(collection);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -54,7 +62,11 @@ class CollectionRepositoryImpl implements CollectionRepository {
       );
       return Result.success(success);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -64,27 +76,51 @@ class CollectionRepositoryImpl implements CollectionRepository {
       final success = await _remoteDatasource.deleteCollection(collectionId);
       return Result.success(success);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   @override
-  Future<Result<bool>> addToCollection(String collectionId, String postId) async {
+  Future<Result<bool>> addToCollection(
+    String collectionId,
+    String postId,
+  ) async {
     try {
-      final success = await _remoteDatasource.addToCollection(collectionId, postId);
+      final success = await _remoteDatasource.addToCollection(
+        collectionId,
+        postId,
+      );
       return Result.success(success);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   @override
-  Future<Result<bool>> removeFromCollection(String collectionId, String postId) async {
+  Future<Result<bool>> removeFromCollection(
+    String collectionId,
+    String postId,
+  ) async {
     try {
-      final success = await _remoteDatasource.removeFromCollection(collectionId, postId);
+      final success = await _remoteDatasource.removeFromCollection(
+        collectionId,
+        postId,
+      );
       return Result.success(success);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
@@ -94,27 +130,47 @@ class CollectionRepositoryImpl implements CollectionRepository {
       final items = await _remoteDatasource.getCollectionItems(collectionId);
       return Result.success(items);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   @override
-  Future<Result<bool>> isPostInCollection(String collectionId, String postId) async {
+  Future<Result<bool>> isPostInCollection(
+    String collectionId,
+    String postId,
+  ) async {
     try {
-      final result = await _remoteDatasource.isPostInCollection(collectionId, postId);
+      final result = await _remoteDatasource.isPostInCollection(
+        collectionId,
+        postId,
+      );
       return Result.success(result);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 
   @override
-  Future<Result<List<CollectionEntity>>> getCollectionsForPost(String postId) async {
+  Future<Result<List<CollectionEntity>>> getCollectionsForPost(
+    String postId,
+  ) async {
     try {
       final collections = await _remoteDatasource.getCollectionsForPost(postId);
       return Result.success(collections);
     } catch (e, stackTrace) {
-      return Result.failure(message: e.toString(), exception: e, stackTrace: stackTrace);
+      return Result.failure(
+        message: e.toString(),
+        exception: e,
+        stackTrace: stackTrace,
+      );
     }
   }
 }

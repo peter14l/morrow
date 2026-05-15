@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasis/features/auth/presentation/screens/pin_reset_screen.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class RecoveryKeySheet extends StatefulWidget {
   final String?
@@ -22,11 +23,10 @@ class RecoveryKeySheet extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => RecoveryKeySheet(
-            recoveryKey: recoveryKey,
-            isConfirmMode: isConfirmMode,
-          ),
+      builder: (context) => RecoveryKeySheet(
+        recoveryKey: recoveryKey,
+        isConfirmMode: isConfirmMode,
+      ),
     );
   }
 
@@ -55,11 +55,15 @@ class _RecoveryKeySheetState extends State<RecoveryKeySheet> {
     final theme = Theme.of(context);
     final bottomPadding = MediaQuery.of(context).viewInsets.bottom;
     final isDisplayMode = widget.recoveryKey != null;
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: EdgeInsets.fromLTRB(24, 32, 24, 32 + bottomPadding),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: isSolid
+            ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+            : theme.colorScheme.surface,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
@@ -142,10 +146,9 @@ class _RecoveryKeySheetState extends State<RecoveryKeySheet> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed:
-                    _hasSaved
-                        ? () => Navigator.pop(context, widget.recoveryKey)
-                        : null,
+                onPressed: _hasSaved
+                    ? () => Navigator.pop(context, widget.recoveryKey)
+                    : null,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -171,10 +174,9 @@ class _RecoveryKeySheetState extends State<RecoveryKeySheet> {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed:
-                    _controller.text.length >= 24
-                        ? () => Navigator.pop(context, _controller.text)
-                        : null,
+                onPressed: _controller.text.length >= 24
+                    ? () => Navigator.pop(context, _controller.text)
+                    : null,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),

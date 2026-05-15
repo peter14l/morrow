@@ -12,10 +12,7 @@ class FeaturePill extends StatelessWidget {
       decoration: BoxDecoration(
         color: OasisColors.moss.withOpacity(0.3),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: OasisColors.sage.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: OasisColors.sage.withOpacity(0.3), width: 1),
       ),
       child: Text(
         label,
@@ -51,10 +48,7 @@ class WellbeingCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: OasisColors.moss.withOpacity(0.35),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: OasisColors.sage.withOpacity(0.3),
-          width: 1,
-        ),
+        border: Border.all(color: OasisColors.sage.withOpacity(0.3), width: 1),
       ),
       child: Row(
         children: [
@@ -75,10 +69,7 @@ class WellbeingCard extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: OasisColors.mist,
-                    fontSize: 11,
-                  ),
+                  style: const TextStyle(color: OasisColors.mist, fontSize: 11),
                 ),
               ],
             ),

@@ -23,12 +23,11 @@ class MessageRemoteDatasource {
 
     if (before != null) {
       // Get the timestamp of the 'before' message
-      final beforeMsg =
-          await _client
-              .from('messages')
-              .select('created_at')
-              .eq('id', before)
-              .single();
+      final beforeMsg = await _client
+          .from('messages')
+          .select('created_at')
+          .eq('id', before)
+          .single();
       // Filter by timestamp instead of using .lt() on the builder
       final allMessages = await query;
       return allMessages
@@ -70,8 +69,11 @@ class MessageRemoteDatasource {
       if (storyId != null) 'story_id': storyId,
     };
 
-    final response =
-        await _client.from('messages').insert(messageData).select().single();
+    final response = await _client
+        .from('messages')
+        .insert(messageData)
+        .select()
+        .single();
 
     return response;
   }
@@ -96,12 +98,11 @@ class MessageRemoteDatasource {
       'emoji': emoji,
     };
 
-    final response =
-        await _client
-            .from('message_reactions')
-            .insert(reactionData)
-            .select()
-            .single();
+    final response = await _client
+        .from('message_reactions')
+        .insert(reactionData)
+        .select()
+        .single();
 
     return response;
   }

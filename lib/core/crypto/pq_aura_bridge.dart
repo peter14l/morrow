@@ -14,58 +14,113 @@ typedef PqaGenerateKeypairDart = Pointer<FfiKeyPair> Function();
 typedef PqaFreeKeypairNative = Void Function(Pointer<FfiKeyPair>);
 typedef PqaFreeKeypairDart = void Function(Pointer<FfiKeyPair>);
 
-typedef PqaCreateBundleNative = Pointer<FfiPreKeyBundle> Function(Pointer<Uint8>, IntPtr);
-typedef PqaCreateBundleDart = Pointer<FfiPreKeyBundle> Function(Pointer<Uint8>, int);
+typedef PqaCreateBundleNative =
+    Pointer<FfiPreKeyBundle> Function(Pointer<Uint8>, IntPtr);
+typedef PqaCreateBundleDart =
+    Pointer<FfiPreKeyBundle> Function(Pointer<Uint8>, int);
 
 typedef PqaFreeBundleNative = Void Function(Pointer<FfiPreKeyBundle>);
 typedef PqaFreeBundleDart = void Function(Pointer<FfiPreKeyBundle>);
 
-typedef PqaInitAliceNative = Pointer<FfiInitialMessage> Function(
-    Pointer<Uint8>, IntPtr, Pointer<Uint8>, IntPtr, Pointer<Uint8>, IntPtr);
-typedef PqaInitAliceDart = Pointer<FfiInitialMessage> Function(
-    Pointer<Uint8>, int, Pointer<Uint8>, int, Pointer<Uint8>, int);
+typedef PqaInitAliceNative =
+    Pointer<FfiInitialMessage> Function(
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+    );
+typedef PqaInitAliceDart =
+    Pointer<FfiInitialMessage> Function(
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+    );
 
-typedef PqaInitBobNative = Pointer<RatchetState> Function(
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Bool);
-typedef PqaInitBobDart = Pointer<RatchetState> Function(
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    bool);
+typedef PqaInitBobNative =
+    Pointer<RatchetState> Function(
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Bool,
+    );
+typedef PqaInitBobDart =
+    Pointer<RatchetState> Function(
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      bool,
+    );
 
-typedef PqaEncryptNative = Pointer<FfiMessage> Function(
-    Pointer<RatchetState>, Pointer<Uint8>, IntPtr, Pointer<Uint8>, IntPtr);
-typedef PqaEncryptDart = Pointer<FfiMessage> Function(
-    Pointer<RatchetState>, Pointer<Uint8>, int, Pointer<Uint8>, int);
+typedef PqaEncryptNative =
+    Pointer<FfiMessage> Function(
+      Pointer<RatchetState>,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+    );
+typedef PqaEncryptDart =
+    Pointer<FfiMessage> Function(
+      Pointer<RatchetState>,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+    );
 
-typedef PqaDecryptNative = Pointer<Uint8> Function(
-    Pointer<RatchetState>,
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Pointer<Uint8>, IntPtr,
-    Pointer<IntPtr>);
-typedef PqaDecryptDart = Pointer<Uint8> Function(
-    Pointer<RatchetState>,
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    Pointer<Uint8>, int,
-    Pointer<IntPtr>);
+typedef PqaDecryptNative =
+    Pointer<Uint8> Function(
+      Pointer<RatchetState>,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<Uint8>,
+      IntPtr,
+      Pointer<IntPtr>,
+    );
+typedef PqaDecryptDart =
+    Pointer<Uint8> Function(
+      Pointer<RatchetState>,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<Uint8>,
+      int,
+      Pointer<IntPtr>,
+    );
 
-typedef PqaSerializeStateNative = Pointer<Uint8> Function(Pointer<RatchetState>);
+typedef PqaSerializeStateNative =
+    Pointer<Uint8> Function(Pointer<RatchetState>);
 typedef PqaSerializeStateDart = Pointer<Uint8> Function(Pointer<RatchetState>);
 
 typedef PqaSerializeStateLenNative = IntPtr Function(Pointer<RatchetState>);
 typedef PqaSerializeStateLenDart = int Function(Pointer<RatchetState>);
 
-typedef PqaDeserializeStateNative = Pointer<RatchetState> Function(Pointer<Uint8>, IntPtr);
-typedef PqaDeserializeStateDart = Pointer<RatchetState> Function(Pointer<Uint8>, int);
+typedef PqaDeserializeStateNative =
+    Pointer<RatchetState> Function(Pointer<Uint8>, IntPtr);
+typedef PqaDeserializeStateDart =
+    Pointer<RatchetState> Function(Pointer<Uint8>, int);
 
 typedef PqaFreeStateNative = Void Function(Pointer<RatchetState>);
 typedef PqaFreeStateDart = void Function(Pointer<RatchetState>);
@@ -79,15 +134,15 @@ typedef PqaFreeBufferDart = void Function(Pointer<Uint8>, int);
 typedef PqaFreeInitialMessageNative = Void Function(Pointer<FfiInitialMessage>);
 typedef PqaFreeInitialMessageDart = void Function(Pointer<FfiInitialMessage>);
 
-typedef PqaSaveAtomicNative = Bool Function(
-    Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
-typedef PqaSaveAtomicDart = bool Function(
-    Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaSaveAtomicNative =
+    Bool Function(Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaSaveAtomicDart =
+    bool Function(Pointer<RatchetState>, Pointer<Utf8>, Pointer<Uint8>);
 
-typedef PqaLoadAtomicNative = Pointer<RatchetState> Function(
-    Pointer<Utf8>, Pointer<Uint8>);
-typedef PqaLoadAtomicDart = Pointer<RatchetState> Function(
-    Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaLoadAtomicNative =
+    Pointer<RatchetState> Function(Pointer<Utf8>, Pointer<Uint8>);
+typedef PqaLoadAtomicDart =
+    Pointer<RatchetState> Function(Pointer<Utf8>, Pointer<Uint8>);
 
 /// FFI Structures matching Rust FFI types
 
@@ -248,7 +303,9 @@ class PQAuraBridge {
         }
         if (!loaded) return false;
       } else {
-        debugPrint('[PQAuraBridge] Unsupported platform: ${Platform.operatingSystem}');
+        debugPrint(
+          '[PQAuraBridge] Unsupported platform: ${Platform.operatingSystem}',
+        );
         return false;
       }
 
@@ -259,7 +316,9 @@ class PQAuraBridge {
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[PQAuraBridge] Note: Native library not loaded: $e');
-        debugPrint('[PQAuraBridge] Post-quantum features will be disabled. This is normal if you haven\'t built the Rust library locally.');
+        debugPrint(
+          '[PQAuraBridge] Post-quantum features will be disabled. This is normal if you haven\'t built the Rust library locally.',
+        );
       }
       return false;
     }
@@ -267,7 +326,9 @@ class PQAuraBridge {
 
   void _bindFunctions() {
     _pqaGenerateKeypair = _lib
-        .lookup<NativeFunction<PqaGenerateKeypairNative>>('pqa_generate_keypair')
+        .lookup<NativeFunction<PqaGenerateKeypairNative>>(
+          'pqa_generate_keypair',
+        )
         .asFunction();
 
     _pqaFreeKeypair = _lib
@@ -303,11 +364,15 @@ class PQAuraBridge {
         .asFunction();
 
     _pqaSerializeStateLen = _lib
-        .lookup<NativeFunction<PqaSerializeStateLenNative>>('pqa_serialize_state_len')
+        .lookup<NativeFunction<PqaSerializeStateLenNative>>(
+          'pqa_serialize_state_len',
+        )
         .asFunction();
 
     _pqaDeserializeState = _lib
-        .lookup<NativeFunction<PqaDeserializeStateNative>>('pqa_deserialize_state')
+        .lookup<NativeFunction<PqaDeserializeStateNative>>(
+          'pqa_deserialize_state',
+        )
         .asFunction();
 
     _pqaFreeState = _lib
@@ -323,7 +388,9 @@ class PQAuraBridge {
         .asFunction();
 
     _pqaFreeInitialMessage = _lib
-        .lookup<NativeFunction<PqaFreeInitialMessageNative>>('pqa_free_initial_message')
+        .lookup<NativeFunction<PqaFreeInitialMessageNative>>(
+          'pqa_free_initial_message',
+        )
         .asFunction();
 
     _pqaSaveAtomic = _lib
@@ -350,12 +417,14 @@ class PQAuraBridge {
     if (result == nullptr) return null;
 
     // result is Pointer<FfiKeyPair>
-    final kp = result; 
+    final kp = result;
     final pkLen = kp.ref.public_key_len;
     final skLen = kp.ref.secret_key_len;
-    
-    debugPrint('[PQAuraBridge] Keypair generated. PK len: $pkLen, SK len: $skLen');
-    
+
+    debugPrint(
+      '[PQAuraBridge] Keypair generated. PK len: $pkLen, SK len: $skLen',
+    );
+
     final publicKey = kp.ref.public_key.asTypedList(pkLen).toList();
     final secretKey = kp.ref.secret_key.asTypedList(skLen).toList();
 
@@ -377,10 +446,16 @@ class PQAuraBridge {
     if (result == nullptr) return null;
 
     final bundle = result.ref;
-    final identityPkBytes = bundle.identity_pk.asTypedList(bundle.identity_pk_len).toList();
-    final signedPreKey = bundle.signed_pre_key.asTypedList(bundle.signed_pre_key_len).toList();
+    final identityPkBytes = bundle.identity_pk
+        .asTypedList(bundle.identity_pk_len)
+        .toList();
+    final signedPreKey = bundle.signed_pre_key
+        .asTypedList(bundle.signed_pre_key_len)
+        .toList();
     final oneTimePreKey = bundle.has_one_time
-        ? bundle.one_time_pre_key.asTypedList(bundle.one_time_pre_key_len).toList()
+        ? bundle.one_time_pre_key
+              .asTypedList(bundle.one_time_pre_key_len)
+              .toList()
         : null;
 
     return PQAuraPreKeyBundle(
@@ -404,9 +479,13 @@ class PQAuraBridge {
     final localSkPtr = _mallocBytes(localIdentitySk);
 
     final result = _pqaInitAlice(
-        bundlePtr, remoteBundle.length,
-        localPkPtr, localIdentityPk.length,
-        localSkPtr, localIdentitySk.length);
+      bundlePtr,
+      remoteBundle.length,
+      localPkPtr,
+      localIdentityPk.length,
+      localSkPtr,
+      localIdentitySk.length,
+    );
 
     calloc.free(bundlePtr);
     calloc.free(localPkPtr);
@@ -416,15 +495,29 @@ class PQAuraBridge {
 
     final msg = result.ref;
     final statePtr = msg.state_ptr;
-    final aliceIdentityPk = msg.alice_identity_pk.asTypedList(msg.alice_identity_pk_len).toList();
-    final ephemeralPk = msg.ephemeral_pk.asTypedList(msg.ephemeral_pk_len).toList();
-    final kemIdentity = msg.kem_ciphertext_identity.asTypedList(msg.kem_ciphertext_identity_len).toList();
-    final kemSigned = msg.kem_ciphertext_signed.asTypedList(msg.kem_ciphertext_signed_len).toList();
+    final aliceIdentityPk = msg.alice_identity_pk
+        .asTypedList(msg.alice_identity_pk_len)
+        .toList();
+    final ephemeralPk = msg.ephemeral_pk
+        .asTypedList(msg.ephemeral_pk_len)
+        .toList();
+    final kemIdentity = msg.kem_ciphertext_identity
+        .asTypedList(msg.kem_ciphertext_identity_len)
+        .toList();
+    final kemSigned = msg.kem_ciphertext_signed
+        .asTypedList(msg.kem_ciphertext_signed_len)
+        .toList();
     final kemOneTime = msg.has_one_time
-        ? msg.kem_ciphertext_one_time.asTypedList(msg.kem_ciphertext_one_time_len).toList()
+        ? msg.kem_ciphertext_one_time
+              .asTypedList(msg.kem_ciphertext_one_time_len)
+              .toList()
         : null;
-    final ratchetHeader = msg.ratchet_message_header.asTypedList(msg.ratchet_message_header_len).toList();
-    final ratchetPayload = msg.ratchet_message_payload.asTypedList(msg.ratchet_message_payload_len).toList();
+    final ratchetHeader = msg.ratchet_message_header
+        .asTypedList(msg.ratchet_message_header_len)
+        .toList();
+    final ratchetPayload = msg.ratchet_message_payload
+        .asTypedList(msg.ratchet_message_payload_len)
+        .toList();
 
     return PQAuraInitialMessage(
       statePtr: statePtr,
@@ -459,12 +552,18 @@ class PQAuraBridge {
     }
 
     final result = _pqaInitBob(
-        msgPtr, initialMessage.length,
-        localPkPtr, localIdentityPk.length,
-        localSkPtr, localIdentitySk.length,
-        signedSkPtr, localSignedSk.length,
-        otSkPtr ?? nullptr, localOtSk?.length ?? 0,
-        localOtSk != null);
+      msgPtr,
+      initialMessage.length,
+      localPkPtr,
+      localIdentityPk.length,
+      localSkPtr,
+      localIdentitySk.length,
+      signedSkPtr,
+      localSignedSk.length,
+      otSkPtr ?? nullptr,
+      localOtSk?.length ?? 0,
+      localOtSk != null,
+    );
 
     calloc.free(msgPtr);
     calloc.free(localPkPtr);
@@ -477,13 +576,23 @@ class PQAuraBridge {
   }
 
   /// Encrypt a message
-  PQAuraMessage? encrypt(Pointer<RatchetState> state, List<int> plaintext, List<int> ad) {
+  PQAuraMessage? encrypt(
+    Pointer<RatchetState> state,
+    List<int> plaintext,
+    List<int> ad,
+  ) {
     if (!_isLoaded) return null;
 
     final plaintextPtr = _mallocBytes(plaintext);
     final adPtr = _mallocBytes(ad);
 
-    final result = _pqaEncrypt(state, plaintextPtr, plaintext.length, adPtr, ad.length);
+    final result = _pqaEncrypt(
+      state,
+      plaintextPtr,
+      plaintext.length,
+      adPtr,
+      ad.length,
+    );
 
     calloc.free(plaintextPtr);
     calloc.free(adPtr);
@@ -498,7 +607,12 @@ class PQAuraBridge {
   }
 
   /// Decrypt a message
-  List<int>? decrypt(Pointer<RatchetState> state, List<int> header, List<int> payload, List<int> ad) {
+  List<int>? decrypt(
+    Pointer<RatchetState> state,
+    List<int> header,
+    List<int> payload,
+    List<int> ad,
+  ) {
     if (!_isLoaded) return null;
 
     final headerPtr = _mallocBytes(header);
@@ -595,7 +709,11 @@ class PQAuraBridge {
   }
 
   /// Atomically save the ratchet state to a file
-  bool saveStateAtomic(Pointer<RatchetState> state, String path, List<int> encryptionKey) {
+  bool saveStateAtomic(
+    Pointer<RatchetState> state,
+    String path,
+    List<int> encryptionKey,
+  ) {
     if (!_isLoaded) return false;
 
     final pathPtr = path.toNativeUtf8();

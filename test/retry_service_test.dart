@@ -4,15 +4,18 @@ import 'dart:async';
 
 void main() {
   group('Retry Service', () {
-    test('Successful operation on first attempt returns result immediately', () async {
-      int calls = 0;
-      final result = await withRetry(() async {
-        calls++;
-        return 'success';
-      });
-      expect(result, 'success');
-      expect(calls, 1);
-    });
+    test(
+      'Successful operation on first attempt returns result immediately',
+      () async {
+        int calls = 0;
+        final result = await withRetry(() async {
+          calls++;
+          return 'success';
+        });
+        expect(result, 'success');
+        expect(calls, 1);
+      },
+    );
 
     test('Failed operation retries maxAttempts before throwing', () async {
       int calls = 0;

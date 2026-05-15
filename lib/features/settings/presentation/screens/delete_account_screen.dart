@@ -55,10 +55,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final isM3E = themeProvider.isM3EEnabled;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Delete Account'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Delete Account'), centerTitle: true),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -73,7 +70,11 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 32),
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    color: Colors.red,
+                    size: 32,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Text(
@@ -90,18 +91,37 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             const SizedBox(height: 32),
             Text(
               'What happens when you delete your account:',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
-            _buildBulletPoint(context, 'Your profile, posts, and comments will be permanently removed.'),
-            _buildBulletPoint(context, 'Your messages and conversations will be deleted.'),
-            _buildBulletPoint(context, 'Your followers and following lists will be wiped.'),
-            _buildBulletPoint(context, 'Any active subscriptions will be cancelled.'),
-            _buildBulletPoint(context, 'You will lose access to all your data and stored media.'),
+            _buildBulletPoint(
+              context,
+              'Your profile, posts, and comments will be permanently removed.',
+            ),
+            _buildBulletPoint(
+              context,
+              'Your messages and conversations will be deleted.',
+            ),
+            _buildBulletPoint(
+              context,
+              'Your followers and following lists will be wiped.',
+            ),
+            _buildBulletPoint(
+              context,
+              'Any active subscriptions will be cancelled.',
+            ),
+            _buildBulletPoint(
+              context,
+              'You will lose access to all your data and stored media.',
+            ),
             const SizedBox(height: 40),
             Text(
               'To confirm deletion, please type "DELETE" below:',
-              style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -111,7 +131,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(isM3E ? 16 : 8),
                 ),
-                errorText: _confirmController.text.isNotEmpty && _confirmController.text != 'DELETE'
+                errorText:
+                    _confirmController.text.isNotEmpty &&
+                        _confirmController.text != 'DELETE'
                     ? 'Must match "DELETE"'
                     : null,
               ),
@@ -140,7 +162,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                         height: 20,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
                     : const Text(
@@ -169,7 +193,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('• ', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const Text(
+            '• ',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           Expanded(child: Text(text, style: const TextStyle(height: 1.5))),
         ],
       ),

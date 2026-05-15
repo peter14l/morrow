@@ -18,20 +18,20 @@ class ConversationRemoteDatasource {
 
     if (participantData.isEmpty) return [];
 
-    final conversationIds =
-        participantData.map((p) => p['conversation_id'] as String).toList();
+    final conversationIds = participantData
+        .map((p) => p['conversation_id'] as String)
+        .toList();
 
     if (conversationIds.isEmpty) return [];
 
     // Get conversation details - fetch individually to avoid in_() issue
     final List<Map<String, dynamic>> conversations = [];
     for (final id in conversationIds.take(50)) {
-      final result =
-          await _client
-              .from('conversations')
-              .select()
-              .eq('id', id)
-              .maybeSingle();
+      final result = await _client
+          .from('conversations')
+          .select()
+          .eq('id', id)
+          .maybeSingle();
       if (result != null) {
         conversations.add(result);
       }
@@ -49,12 +49,11 @@ class ConversationRemoteDatasource {
 
   /// Get a single conversation by ID
   Future<Map<String, dynamic>?> getConversation(String conversationId) async {
-    final result =
-        await _client
-            .from('conversations')
-            .select()
-            .eq('id', conversationId)
-            .maybeSingle();
+    final result = await _client
+        .from('conversations')
+        .select()
+        .eq('id', conversationId)
+        .maybeSingle();
     return result;
   }
 
@@ -71,24 +70,22 @@ class ConversationRemoteDatasource {
       'is_group': participantIds.length > 2,
     };
 
-    final conversation =
-        await _client
-            .from('conversations')
-            .insert(conversationData)
-            .select()
-            .single();
+    final conversation = await _client
+        .from('conversations')
+        .insert(conversationData)
+        .select()
+        .single();
 
     // Add participants
-    final participantData =
-        participantIds
-            .map(
-              (userId) => {
-                'conversation_id': conversation['id'],
-                'user_id': userId,
-                'role': userId == createdBy ? 'admin' : 'member',
-              },
-            )
-            .toList();
+    final participantData = participantIds
+        .map(
+          (userId) => {
+            'conversation_id': conversation['id'],
+            'user_id': userId,
+            'role': userId == createdBy ? 'admin' : 'member',
+          },
+        )
+        .toList();
 
     await _client.from('conversation_participants').insert(participantData);
 
@@ -107,13 +104,12 @@ class ConversationRemoteDatasource {
     if (avatarUrl != null) updateData['avatar_url'] = avatarUrl;
     if (description != null) updateData['description'] = description;
 
-    final result =
-        await _client
-            .from('conversations')
-            .update(updateData)
-            .eq('id', conversationId)
-            .select()
-            .single();
+    final result = await _client
+        .from('conversations')
+        .update(updateData)
+        .eq('id', conversationId)
+        .select()
+        .single();
 
     return result;
   }
@@ -200,13 +196,12 @@ class ConversationRemoteDatasource {
     // Count messages that don't have a read status
     int unreadCount = 0;
     for (final msg in messages) {
-      final readStatus =
-          await _client
-              .from('message_read_status')
-              .select()
-              .eq('message_id', msg['id'])
-              .eq('user_id', userId)
-              .maybeSingle();
+      final readStatus = await _client
+          .from('message_read_status')
+          .select()
+          .eq('message_id', msg['id'])
+          .eq('user_id', userId)
+          .maybeSingle();
 
       if (readStatus == null) {
         unreadCount++;
@@ -229,20 +224,20 @@ class ConversationRemoteDatasource {
 
     if (participantData.isEmpty) return [];
 
-    final conversationIds =
-        participantData.map((p) => p['conversation_id'] as String).toList();
+    final conversationIds = participantData
+        .map((p) => p['conversation_id'] as String)
+        .toList();
 
     if (conversationIds.isEmpty) return [];
 
     // Search in conversations - fetch individually to avoid in_() issue
     final List<Map<String, dynamic>> results = [];
     for (final id in conversationIds.take(50)) {
-      final result =
-          await _client
-              .from('conversations')
-              .select()
-              .eq('id', id)
-              .maybeSingle();
+      final result = await _client
+          .from('conversations')
+          .select()
+          .eq('id', id)
+          .maybeSingle();
       if (result != null && result['name'] != null) {
         final name = result['name'].toString().toLowerCase();
         if (name.contains(query.toLowerCase())) {

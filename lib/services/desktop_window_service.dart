@@ -139,7 +139,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
     try {
       // Small delay to ensure window is ready for composition changes
       await Future.delayed(const Duration(milliseconds: 100));
-      
+
       await Window.setEffect(
         effect: windowEffect,
         dark: isDark,
@@ -195,7 +195,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
 
   @override
   Future<void> onWindowFocus() async {
-    // OS handles focus and restoration naturally. 
+    // OS handles focus and restoration naturally.
     // Manual manipulation here can cause native crashes on some Windows builds.
   }
 

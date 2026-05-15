@@ -31,14 +31,12 @@ class CapsuleState {
     return CapsuleState(
       capsules: capsules ?? this.capsules,
       unlockedCapsules: unlockedCapsules ?? this.unlockedCapsules,
-      selectedCapsule:
-          clearSelectedCapsule
-              ? null
-              : (selectedCapsule ?? this.selectedCapsule),
+      selectedCapsule: clearSelectedCapsule
+          ? null
+          : (selectedCapsule ?? this.selectedCapsule),
       isLoading: isLoading ?? this.isLoading,
       isCreating: isCreating ?? this.isCreating,
       error: clearError ? null : (error ?? this.error),
     );
   }
 }
-

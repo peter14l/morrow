@@ -83,18 +83,16 @@ class ConversationRepositoryImpl implements ConversationRepository {
       otherUserName: json['name'] as String? ?? 'Unknown',
       otherUserAvatar: json['avatar_url'] as String? ?? '',
       lastMessage: null,
-      lastMessageAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'] as String)
-              : null,
+      lastMessageAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : null,
       unreadCount: 0,
       isPinned: json['is_pinned'] as bool? ?? false,
       isMuted: json['is_muted'] as bool? ?? false,
       isArchived: json['is_archived'] as bool? ?? false,
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
-              : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 }

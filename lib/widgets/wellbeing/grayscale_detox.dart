@@ -9,11 +9,7 @@ class GrayscaleDetox extends StatelessWidget {
   final Widget child;
   final bool isEnabled;
 
-  const GrayscaleDetox({
-    super.key,
-    required this.child,
-    this.isEnabled = true,
-  });
+  const GrayscaleDetox({super.key, required this.child, this.isEnabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +27,26 @@ class GrayscaleDetox extends StatelessWidget {
 
         return ColorFiltered(
           colorFilter: const ColorFilter.matrix(<double>[
-            grey, green, blue, 0, 0,
-            grey, green, blue, 0, 0,
-            grey, green, blue, 0, 0,
-            0, 0, 0, 1, 0,
+            grey,
+            green,
+            blue,
+            0,
+            0,
+            grey,
+            green,
+            blue,
+            0,
+            0,
+            grey,
+            green,
+            blue,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
           ]),
           child: child,
         );

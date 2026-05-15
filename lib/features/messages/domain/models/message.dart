@@ -4,7 +4,21 @@ import 'package:oasis/features/messages/domain/models/message_reaction.dart';
 part 'message.freezed.dart';
 part 'message.g.dart';
 
-enum MessageType { text, image, document, voice, poll, location, ripple, storyReply, postShare, system, gif, sticker }
+enum MessageType {
+  text,
+  image,
+  document,
+  voice,
+  poll,
+  location,
+  ripple,
+  storyReply,
+  postShare,
+  system,
+  gif,
+  sticker,
+  collaborationRequest,
+}
 
 @freezed
 abstract class Message with _$Message {
@@ -19,7 +33,9 @@ abstract class Message with _$Message {
     @JsonKey(name: 'read_at') DateTime? readAt,
     @JsonKey(name: 'any_read_at') DateTime? anyReadAt,
     @JsonKey(name: 'created_at') required DateTime timestamp,
-    @Default(MessageType.text) @JsonKey(name: 'message_type') MessageType messageType,
+    @Default(MessageType.text)
+    @JsonKey(name: 'message_type')
+    MessageType messageType,
     @JsonKey(name: 'media_url') String? mediaUrl,
     @JsonKey(name: 'media_thumbnail_url') String? mediaThumbnailUrl,
     @JsonKey(name: 'file_name') String? mediaFileName,
@@ -52,15 +68,24 @@ abstract class Message with _$Message {
     @JsonKey(name: 'ripple_id') String? rippleId,
     @JsonKey(name: 'story_id') String? storyId,
     @JsonKey(name: 'post_id') String? postId,
-    @Default('unlimited') @JsonKey(name: 'media_view_mode') String mediaViewMode,
-    @Default(0) @JsonKey(name: 'current_user_view_count') int currentUserViewCount,
-    @Default(false) @JsonKey(includeFromJson: false, includeToJson: false) bool isUploading,
-    @Default(0.0) @JsonKey(includeFromJson: false, includeToJson: false) double uploadProgress,
+    @Default('unlimited')
+    @JsonKey(name: 'media_view_mode')
+    String mediaViewMode,
+    @Default(0)
+    @JsonKey(name: 'current_user_view_count')
+    int currentUserViewCount,
+    @Default(false)
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    bool isUploading,
+    @Default(0.0)
+    @JsonKey(includeFromJson: false, includeToJson: false)
+    double uploadProgress,
   }) = _Message;
 
   const Message._();
 
-  factory Message.fromJson(Map<String, dynamic> json) => _$MessageFromJson(_normalizeJson(json));
+  factory Message.fromJson(Map<String, dynamic> json) =>
+      _$MessageFromJson(_normalizeJson(json));
 
   static Map<String, dynamic> _normalizeJson(Map<String, dynamic> json) {
     final Map<String, dynamic> normalizedJson = Map.from(json);
@@ -73,9 +98,11 @@ abstract class Message with _$Message {
         orElse: () => MessageType.text,
       );
     } else {
-      if (json['voice_url'] != null && json['voice_url'].toString().isNotEmpty) {
+      if (json['voice_url'] != null &&
+          json['voice_url'].toString().isNotEmpty) {
         type = MessageType.voice;
-      } else if (json['image_url'] != null && json['image_url'].toString().isNotEmpty) {
+      } else if (json['image_url'] != null &&
+          json['image_url'].toString().isNotEmpty) {
         // Check if it's a sticker or gif based on some metadata or content
         final String? content = json['content'];
         if (content == '[STICKER]') {
@@ -85,9 +112,11 @@ abstract class Message with _$Message {
         } else {
           type = MessageType.image;
         }
-      } else if (json['video_url'] != null && json['video_url'].toString().isNotEmpty) {
+      } else if (json['video_url'] != null &&
+          json['video_url'].toString().isNotEmpty) {
         type = MessageType.image;
-      } else if (json['file_url'] != null && json['file_url'].toString().isNotEmpty) {
+      } else if (json['file_url'] != null &&
+          json['file_url'].toString().isNotEmpty) {
         type = MessageType.document;
       } else if (json['post_id'] != null) {
         type = MessageType.postShare;
@@ -104,15 +133,22 @@ abstract class Message with _$Message {
     normalizedJson['message_type'] = type.name;
 
     // Consolidate media URLs
-    normalizedJson['media_url'] = json['voice_url'] ?? json['image_url'] ?? json['video_url'] ?? json['file_url'] ?? json['media_url'];
+    normalizedJson['media_url'] =
+        json['voice_url'] ??
+        json['image_url'] ??
+        json['video_url'] ??
+        json['file_url'] ??
+        json['media_url'];
 
     // Handle replied message metadata
     String? replyContent;
     String? replySenderName;
     if (json['reply_to'] != null) {
       final replyData = json['reply_to'] as Map<String, dynamic>;
-      final isEncrypted = replyData['encrypted_keys'] != null || replyData['signal_message_type'] != null;
-      
+      final isEncrypted =
+          replyData['encrypted_keys'] != null ||
+          replyData['signal_message_type'] != null;
+
       if (isEncrypted) {
         if (replyData['voice_url'] != null) {
           replyContent = '🎤 Voice Message';
@@ -141,7 +177,8 @@ abstract class Message with _$Message {
     normalizedJson['sender_name'] = json['sender_name'] ?? '';
     normalizedJson['sender_avatar'] = json['sender_avatar'] ?? '';
     normalizedJson['content'] = json['content'] ?? '';
-    normalizedJson['created_at'] = json['created_at'] ?? DateTime.now().toIso8601String();
+    normalizedJson['created_at'] =
+        json['created_at'] ?? DateTime.now().toIso8601String();
 
     return normalizedJson;
   }

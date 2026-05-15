@@ -23,11 +23,11 @@ class PrefsStorage {
       if (e is FormatException) {
         debugPrint('Attempting to recover from corrupted preferences...');
         // On Windows, if the file is corrupted, getInstance() often fails.
-        // We can't easily delete the file while the plugin is active, 
+        // We can't easily delete the file while the plugin is active,
         // but we can ensure the app doesn't crash by providing a mock/empty fallback
         // or re-attempting a clear if possible.
       }
-      // Re-throw or handle based on app requirements. 
+      // Re-throw or handle based on app requirements.
       // For now, we allow the app to throw so the UI Safety Net can catch it.
       rethrow;
     }
@@ -66,14 +66,16 @@ class PrefsStorage {
       _prefsInstance.setString(key, value);
 
   /// Write an int value.
-  Future<bool> writeInt(String key, int value) => _prefsInstance.setInt(key, value);
+  Future<bool> writeInt(String key, int value) =>
+      _prefsInstance.setInt(key, value);
 
   /// Write a double value.
   Future<bool> writeDouble(String key, double value) =>
       _prefsInstance.setDouble(key, value);
 
   /// Write a bool value.
-  Future<bool> writeBool(String key, bool value) => _prefsInstance.setBool(key, value);
+  Future<bool> writeBool(String key, bool value) =>
+      _prefsInstance.setBool(key, value);
 
   /// Write a list of strings.
   Future<bool> writeStringList(String key, List<String> value) =>

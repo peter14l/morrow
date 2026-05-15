@@ -50,7 +50,7 @@ void notificationTapBackground(NotificationResponse response) async {
     // 2. IMPORTANT: Wait for session restoration in background isolate
     // Increased timeout to 3000ms for better reliability on slower devices
     await SupabaseService().waitForSession(timeoutMs: 3000);
-    
+
     // 3. Initialize NotificationManager in the background isolate
     await NotificationManager.instance.initialize(isBackground: true);
   } catch (e) {
@@ -68,8 +68,10 @@ class NotificationManager {
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   int _notificationId = 1000;
-  
-  static const MethodChannel _nativeNotificationChannel = MethodChannel('oasis/notification_tap');
+
+  static const MethodChannel _nativeNotificationChannel = MethodChannel(
+    'oasis/notification_tap',
+  );
 
   // Track active message groups (last 5 messages per conversation)
   final Map<String, List<NotificationMessage>> _activeMessageGroups = {};
@@ -95,13 +97,19 @@ class NotificationManager {
 
   Future<void> _checkInitialNotification() async {
     try {
-      final String? payload = await _nativeNotificationChannel.invokeMethod('getPendingNotificationPayload');
+      final String? payload = await _nativeNotificationChannel.invokeMethod(
+        'getPendingNotificationPayload',
+      );
       if (payload != null) {
-        debugPrint('[NotificationManager] Detected initial notification tap: $payload');
+        debugPrint(
+          '[NotificationManager] Detected initial notification tap: $payload',
+        );
         _handleNotificationTap(payload);
       }
     } catch (e) {
-      debugPrint('[NotificationManager] Error checking initial notification: $e');
+      debugPrint(
+        '[NotificationManager] Error checking initial notification: $e',
+      );
     }
   }
 
@@ -217,32 +225,43 @@ class NotificationManager {
     }
 
     // Hide ciphertext if it hasn't been decrypted yet
-    if (finalBody.length > 60 && !finalBody.contains(' ') && !finalBody.contains('🔒')) {
+    if (finalBody.length > 60 &&
+        !finalBody.contains(' ') &&
+        !finalBody.contains('🔒')) {
       finalBody = '🔒 Encrypted message';
     }
 
     // Handle Grouping for DMs
     String? conversationId;
-    if (payload != null && (messageType == 'dm' || messageType == 'message' || messageType == 'text')) {
+    if (payload != null &&
+        (messageType == 'dm' ||
+            messageType == 'message' ||
+            messageType == 'text')) {
       try {
         final data = jsonDecode(payload);
-        conversationId = data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
+        conversationId =
+            data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
       } catch (_) {
-        if (payload.length > 20 && !payload.contains('{')) conversationId = payload;
+        if (payload.length > 20 && !payload.contains('{'))
+          conversationId = payload;
       }
     }
 
     if (conversationId != null) {
       final group = _activeMessageGroups.putIfAbsent(conversationId, () => []);
-      
+
       // Check if we are updating an existing "Encrypted message" placeholder
       final int existingPlaceholderIndex = group.indexWhere(
-        (m) => m.senderName == title && (m.content == '🔒 Encrypted message' || (m.content.length > 60 && !m.content.contains(' ')))
+        (m) =>
+            m.senderName == title &&
+            (m.content == '🔒 Encrypted message' ||
+                (m.content.length > 60 && !m.content.contains(' '))),
       );
 
-      final bool isDecryptedUpdate = existingPlaceholderIndex != -1 && 
-                                     finalBody != '🔒 Encrypted message' && 
-                                     !(finalBody.length > 60 && !finalBody.contains(' '));
+      final bool isDecryptedUpdate =
+          existingPlaceholderIndex != -1 &&
+          finalBody != '🔒 Encrypted message' &&
+          !(finalBody.length > 60 && !finalBody.contains(' '));
 
       if (isDecryptedUpdate) {
         // Replace the placeholder with the actual content
@@ -253,14 +272,18 @@ class NotificationManager {
         );
       } else {
         // Check for exact duplicate to avoid double-posting the same decrypted message
-        final bool alreadyExists = group.any((m) => m.content == finalBody && m.senderName == title);
-        
+        final bool alreadyExists = group.any(
+          (m) => m.content == finalBody && m.senderName == title,
+        );
+
         if (!alreadyExists) {
-          group.add(NotificationMessage(
-            senderName: title,
-            content: finalBody,
-            timestamp: DateTime.now(),
-          ));
+          group.add(
+            NotificationMessage(
+              senderName: title,
+              content: finalBody,
+              timestamp: DateTime.now(),
+            ),
+          );
         }
       }
 
@@ -271,7 +294,9 @@ class NotificationManager {
 
       // On non-Android platforms, we manually build a multi-line body for the group
       if (!Platform.isAndroid && group.length > 1) {
-        finalBody = group.map((m) => '${m.senderName}: ${m.content}').join('\n');
+        finalBody = group
+            .map((m) => '${m.senderName}: ${m.content}')
+            .join('\n');
       }
     }
 
@@ -286,7 +311,10 @@ class NotificationManager {
         // Get or assign a notification ID for this conversation
         int idToUse;
         if (conversationId != null) {
-          idToUse = _conversationToNotificationId.putIfAbsent(conversationId, () => _nextNotificationId++);
+          idToUse = _conversationToNotificationId.putIfAbsent(
+            conversationId,
+            () => _nextNotificationId++,
+          );
         } else {
           idToUse = _nextNotificationId++;
         }
@@ -388,20 +416,20 @@ class NotificationManager {
       importance: Importance.max,
       priority: Priority.high,
       showWhen: true,
-      fullScreenIntent: true, // Crucial for lock screen waking/visibility on many devices
-      visibility: NotificationVisibility.public, // Ensure content is visible on lock screen
+      fullScreenIntent:
+          true, // Crucial for lock screen waking/visibility on many devices
+      visibility: NotificationVisibility
+          .public, // Ensure content is visible on lock screen
       category: AndroidNotificationCategory.message,
     );
 
     if (conversationId != null && Platform.isAndroid) {
       final group = _activeMessageGroups[conversationId] ?? [];
-      final List<Message> messages = group.map((m) => 
-        Message(
-          m.content,
-          m.timestamp,
-          Person(name: m.senderName),
-        )
-      ).toList();
+      final List<Message> messages = group
+          .map(
+            (m) => Message(m.content, m.timestamp, Person(name: m.senderName)),
+          )
+          .toList();
 
       androidDetails = AndroidNotificationDetails(
         commonAndroidDetails.channelId,
@@ -423,20 +451,17 @@ class NotificationManager {
             'reply_action',
             'Reply',
             inputs: [
-              AndroidNotificationActionInput(
-                label: 'Type a message...',
-              ),
+              AndroidNotificationActionInput(label: 'Type a message...'),
             ],
           ),
-          AndroidNotificationAction(
-            'like_action',
-            'Like',
-          ),
+          AndroidNotificationAction('like_action', 'Like'),
         ],
       );
     }
 
-    if (senderAvatar != null && senderAvatar.isNotEmpty && androidDetails == null) {
+    if (senderAvatar != null &&
+        senderAvatar.isNotEmpty &&
+        androidDetails == null) {
       try {
         final String largeIconPath = await _downloadAndSaveImage(
           senderAvatar,
@@ -454,21 +479,20 @@ class NotificationManager {
           visibility: commonAndroidDetails.visibility,
           category: commonAndroidDetails.category,
           largeIcon: FilePathAndroidBitmap(largeIconPath),
-          actions: conversationId != null ? [
-            AndroidNotificationAction(
-              'reply_action',
-              'Reply',
-              inputs: [
-                AndroidNotificationActionInput(
-                  label: 'Type a message...',
-                ),
-              ],
-            ),
-            AndroidNotificationAction(
-              'like_action',
-              'Like',
-            ),
-          ] : null,
+          actions: conversationId != null
+              ? [
+                  AndroidNotificationAction(
+                    'reply_action',
+                    'Reply',
+                    inputs: [
+                      AndroidNotificationActionInput(
+                        label: 'Type a message...',
+                      ),
+                    ],
+                  ),
+                  AndroidNotificationAction('like_action', 'Like'),
+                ]
+              : null,
         );
 
         darwinDetails = DarwinNotificationDetails(
@@ -494,21 +518,18 @@ class NotificationManager {
       fullScreenIntent: commonAndroidDetails.fullScreenIntent,
       visibility: commonAndroidDetails.visibility,
       category: commonAndroidDetails.category,
-      actions: conversationId != null ? [
-        AndroidNotificationAction(
-          'reply_action',
-          'Reply',
-          inputs: [
-            AndroidNotificationActionInput(
-              label: 'Type a message...',
-            ),
-          ],
-        ),
-        AndroidNotificationAction(
-          'like_action',
-          'Like',
-        ),
-      ] : null,
+      actions: conversationId != null
+          ? [
+              AndroidNotificationAction(
+                'reply_action',
+                'Reply',
+                inputs: [
+                  AndroidNotificationActionInput(label: 'Type a message...'),
+                ],
+              ),
+              AndroidNotificationAction('like_action', 'Like'),
+            ]
+          : null,
     );
 
     darwinDetails ??= DarwinNotificationDetails(
@@ -544,7 +565,9 @@ class NotificationManager {
     }
 
     if (response.actionId == 'end_call') {
-      debugPrint('[NotificationManager] End call action triggered from notification');
+      debugPrint(
+        '[NotificationManager] End call action triggered from notification',
+      );
       // Use the global instance to end the call
       CallService.instance.endCall();
       dismissActiveCallNotification();
@@ -555,7 +578,7 @@ class NotificationManager {
       final content = response.input;
       if (content != null && content.isNotEmpty) {
         await _handleReply(payload: response.payload, content: content);
-        
+
         // Android: Clear the input spinner by updating or canceling the notification
         if (response.id != null) {
           await _localNotificationsPlugin.cancel(response.id!);
@@ -566,7 +589,7 @@ class NotificationManager {
 
     if (response.actionId == 'like_action') {
       await _handleLike(payload: response.payload);
-      
+
       // Feedback: Briefly update or cancel to show action complete
       if (response.id != null) {
         // For 'Like', we can just cancel or show a small feedback
@@ -587,14 +610,17 @@ class NotificationManager {
       debugPrint('[NotificationManager] Reply failed: Payload is null');
       return;
     }
-    
+
     try {
       final data = jsonDecode(payload);
       // Use fallback logic for conversation_id consistent with showNotification
-      final conversationId = data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
-      
+      final conversationId =
+          data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
+
       if (conversationId == null) {
-        debugPrint('[NotificationManager] Reply failed: conversation_id missing in payload');
+        debugPrint(
+          '[NotificationManager] Reply failed: conversation_id missing in payload',
+        );
         debugPrint('[NotificationManager] Payload keys: ${data.keys.toList()}');
         return;
       }
@@ -620,42 +646,50 @@ class NotificationManager {
             .maybeSingle();
 
         if (conversation != null && conversation['is_encrypted'] == true) {
-           final encryptionService = EncryptionService();
-           if (!encryptionService.isInitialized) await encryptionService.init();
+          final encryptionService = EncryptionService();
+          if (!encryptionService.isInitialized) await encryptionService.init();
 
-           // Fetch other participants' public keys
-           final participants = await client
+          // Fetch other participants' public keys
+          final participants = await client
               .from('conversation_participants')
               .select('profiles(public_key)')
               .eq('conversation_id', conversationId)
               .neq('user_id', userId!);
-           
-           final List<String> publicKeys = [];
-           for (final p in participants) {
-             final key = p['profiles']?['public_key'];
-             if (key != null) publicKeys.add(key as String);
-           }
 
-           if (publicKeys.isNotEmpty) {
-             final encrypted = await encryptionService.encryptMessage(content, publicKeys);
-             finalContent = encrypted.encryptedContent;
-             encryptedKeys = encrypted.encryptedKeys;
-             iv = encrypted.iv;
-             debugPrint('[NotificationManager] Reply encrypted for E2EE chat');
-           }
+          final List<String> publicKeys = [];
+          for (final p in participants) {
+            final key = p['profiles']?['public_key'];
+            if (key != null) publicKeys.add(key as String);
+          }
+
+          if (publicKeys.isNotEmpty) {
+            final encrypted = await encryptionService.encryptMessage(
+              content,
+              publicKeys,
+            );
+            finalContent = encrypted.encryptedContent;
+            encryptedKeys = encrypted.encryptedKeys;
+            iv = encrypted.iv;
+            debugPrint('[NotificationManager] Reply encrypted for E2EE chat');
+          }
         }
       } catch (e) {
         debugPrint('[NotificationManager] E2EE check/encryption failed: $e');
       }
 
-      await client.rpc('send_message_v3', params: {
-        'p_conversation_id': conversationId,
-        'p_content': finalContent,
-        'p_message_type': 'text',
-        'p_encrypted_keys': encryptedKeys,
-        'p_iv': iv,
-      });
-      debugPrint('[NotificationManager] Reply successfully sent to $conversationId');
+      await client.rpc(
+        'send_message_v3',
+        params: {
+          'p_conversation_id': conversationId,
+          'p_content': finalContent,
+          'p_message_type': 'text',
+          'p_encrypted_keys': encryptedKeys,
+          'p_iv': iv,
+        },
+      );
+      debugPrint(
+        '[NotificationManager] Reply successfully sent to $conversationId',
+      );
 
       // Update notification to show success
       await _localNotificationsPlugin.show(
@@ -673,8 +707,10 @@ class NotificationManager {
         ),
       );
       // Auto-cancel feedback after 2 seconds
-      Future.delayed(const Duration(seconds: 2), () => _localNotificationsPlugin.cancel(8888));
-      
+      Future.delayed(
+        const Duration(seconds: 2),
+        () => _localNotificationsPlugin.cancel(8888),
+      );
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification reply: $e');
     }
@@ -690,9 +726,11 @@ class NotificationManager {
     try {
       final data = jsonDecode(payload);
       final messageId = data['message_id'] ?? data['id'];
-      
+
       if (messageId == null) {
-        debugPrint('[NotificationManager] Like failed: message_id missing in payload');
+        debugPrint(
+          '[NotificationManager] Like failed: message_id missing in payload',
+        );
         debugPrint('[NotificationManager] Payload keys: ${data.keys.toList()}');
         return;
       }
@@ -718,7 +756,9 @@ class NotificationManager {
         'username': username,
         'created_at': DateTime.now().toIso8601String(),
       }, onConflict: 'message_id, user_id');
-      debugPrint('[NotificationManager] Like reaction successfully added to $messageId');
+      debugPrint(
+        '[NotificationManager] Like reaction successfully added to $messageId',
+      );
 
       // Optional: Feedback notification for "Like"
       await _localNotificationsPlugin.show(
@@ -735,8 +775,10 @@ class NotificationManager {
           ),
         ),
       );
-      Future.delayed(const Duration(seconds: 2), () => _localNotificationsPlugin.cancel(8889));
-      
+      Future.delayed(
+        const Duration(seconds: 2),
+        () => _localNotificationsPlugin.cancel(8889),
+      );
     } catch (e) {
       debugPrint('[NotificationManager] Error handling notification like: $e');
     }
@@ -767,10 +809,7 @@ class NotificationManager {
         DarwinNotificationCategory(
           'CALL_CATEGORY',
           actions: [
-            DarwinNotificationAction.plain(
-              'accept_call',
-              'Accept',
-            ),
+            DarwinNotificationAction.plain('accept_call', 'Accept'),
             DarwinNotificationAction.plain(
               'decline_call',
               'Decline',
@@ -798,10 +837,7 @@ class NotificationManager {
               buttonTitle: 'Send',
               placeholder: 'Type a message...',
             ),
-            DarwinNotificationAction.plain(
-              'like_action',
-              'Like',
-            ),
+            DarwinNotificationAction.plain('like_action', 'Like'),
           ],
         ),
       ],
@@ -812,7 +848,6 @@ class NotificationManager {
       iOS: iosSettings,
       macOS: macOSSettings,
     );
-
 
     await _localNotificationsPlugin.initialize(
       initSettings,
@@ -844,10 +879,7 @@ class NotificationManager {
   }
 
   /// Handle accept / decline actions from a macOS call notification.
-  void _handleCallAction({
-    required String actionId,
-    String? payload,
-  }) {
+  void _handleCallAction({required String actionId, String? payload}) {
     if (payload == null) return;
     try {
       final data = jsonDecode(payload) as Map<String, dynamic>;
@@ -986,43 +1018,53 @@ class NotificationManager {
     // Foreground message handler - works when app is in foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       debugPrint('FCM onMessage received: ${message.messageId}');
-      
+
       if (message.notification != null || message.data.isNotEmpty) {
-        final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
-        
+        final receiverId =
+            message.data['receiver_id'] ?? message.data['user_id'];
+
         // 1. Requirement (a): Only show if logged in.
         // Check if receiverId is one of our registered accounts.
         final accounts = await SessionRegistryService().getAllAccounts();
         if (accounts.isEmpty) {
-           debugPrint('[NotificationManager] Suppressing notification: No accounts logged in.');
-           return;
+          debugPrint(
+            '[NotificationManager] Suppressing notification: No accounts logged in.',
+          );
+          return;
         }
 
-        if (receiverId != null && !accounts.any((a) => a.userId == receiverId)) {
-           debugPrint('[NotificationManager] Suppressing notification: Recipient $receiverId is not a logged-in account.');
-           return;
+        if (receiverId != null &&
+            !accounts.any((a) => a.userId == receiverId)) {
+          debugPrint(
+            '[NotificationManager] Suppressing notification: Recipient $receiverId is not a logged-in account.',
+          );
+          return;
         }
 
-        String title = message.notification?.title ?? message.data['title'] ?? 'New Notification';
+        String title =
+            message.notification?.title ??
+            message.data['title'] ??
+            'New Notification';
         String body = message.notification?.body ?? message.data['body'] ?? '';
-        
+
         // Decrypt body if it's an encrypted message using the correct receiver's keys
         try {
-          final decryptedBody = await NotificationDecryptionService().decryptMessage(
-            message.data,
-            targetUserId: receiverId,
-          );
-          if (decryptedBody != null && decryptedBody.isNotEmpty && !decryptedBody.contains('🔒')) {
+          final decryptedBody = await NotificationDecryptionService()
+              .decryptMessage(message.data, targetUserId: receiverId);
+          if (decryptedBody != null &&
+              decryptedBody.isNotEmpty &&
+              !decryptedBody.contains('🔒')) {
             body = decryptedBody;
           } else if (body.length > 100 && !body.contains(' ')) {
-             body = '🔒 Encrypted message';
+            body = '🔒 Encrypted message';
           }
         } catch (e) {
           debugPrint('Foreground decryption failed: $e');
         }
 
-        final messageType = message.data['message_type'] ?? message.data['type'];
-        
+        final messageType =
+            message.data['message_type'] ?? message.data['type'];
+
         // In-app calling overlay handles foreground calls
         if (messageType == 'call') return;
 
@@ -1065,7 +1107,9 @@ class NotificationManager {
 
       // Requirement (c): Switch account if notification is for a different account
       if (receiverId != null && receiverId != currentUserId) {
-        debugPrint('[NotificationManager] Switching account to $receiverId for notification');
+        debugPrint(
+          '[NotificationManager] Switching account to $receiverId for notification',
+        );
         final context = AppRouter.rootNavigatorKey.currentContext;
         if (context != null) {
           try {
@@ -1152,14 +1196,14 @@ class NotificationManager {
         badge: true,
         sound: true,
       );
-      
+
       // Request Android 14 full screen intent for incoming call ringing
       if (Platform.isAndroid) {
         try {
           await FlutterCallkitIncoming.requestFullIntentPermission();
         } catch (_) {}
       }
-      
+
       return settings.authorizationStatus == AuthorizationStatus.authorized;
     }
     return false;
@@ -1175,7 +1219,9 @@ class NotificationManager {
           .from('profiles')
           .update({'fcm_token': token})
           .eq('id', userId);
-      debugPrint('[NotificationManager] FCM Token synced to backend for $userId');
+      debugPrint(
+        '[NotificationManager] FCM Token synced to backend for $userId',
+      );
     } catch (e) {
       debugPrint('[NotificationManager] Error syncing FCM token: $e');
     }

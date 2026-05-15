@@ -45,22 +45,25 @@ Future<T> withRetry<T>(
       }
 
       // Calculate delay: initialDelay * (multiplier ^ (attempt - 1))
-      final baseDelayMs = config.initialDelay.inMilliseconds * 
+      final baseDelayMs =
+          config.initialDelay.inMilliseconds *
           pow(config.multiplier, attempt - 1);
-      
+
       // Apply jitter: ±jitterFactor * baseDelay
       final jitterRange = baseDelayMs * config.jitterFactor;
       final jitter = (random.nextDouble() * 2 - 1) * jitterRange;
-      
-      final finalDelayMs = (baseDelayMs + jitter).round()
-          .clamp(0, config.maxDelay.inMilliseconds);
-      
+
+      final finalDelayMs = (baseDelayMs + jitter).round().clamp(
+        0,
+        config.maxDelay.inMilliseconds,
+      );
+
       final nextDelay = Duration(milliseconds: finalDelayMs);
-      
+
       if (onRetry != null) {
         onRetry(attempt, e, nextDelay);
       }
-      
+
       await Future.delayed(nextDelay);
     }
   }

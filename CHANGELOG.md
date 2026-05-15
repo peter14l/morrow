@@ -2,6 +2,25 @@
 
 All notable changes to the Oasis project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.11] - 2026-05-15
+
+### UI/UX & Theming
+- **Liquid Glass Effect** - Full implementation of the experimental glassmorphism engine across all platforms.
+- **Micro-animations** - Enhanced interactive feedback and fluid transitions in feed and messaging.
+- **Collaborator Support** - Added infrastructure for shared posts and collaboration requests.
+
+### Fixes & Stability
+- **WebRTC Calling** - Resolved audio routing issues and improved ICE candidate buffering for more stable connections.
+- **E2EE Decryption** - Fixed fallback logic for secure message decryption and notification previews.
+- **Cursor Pagination** - Implemented robust cursor-based pagination for feeds and conversations to improve performance.
+- **Security Hardening** - Further refinement of RLS policies to prevent recursion and ensure data isolation.
+
+## [1.1.10] - 2026-05-10
+
+### Fixes & Performance
+- Initial support for Liquid Glass effects.
+- Bug fixes in auth and messaging providers.
+
 ## [1.1.9] - 2026-05-09
 
 ### Post-Quantum Security (PQ-DR)

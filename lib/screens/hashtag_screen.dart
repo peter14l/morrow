@@ -140,7 +140,9 @@ class _HashtagScreenState extends State<HashtagScreen> {
           _posts[index] = post;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update like. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to update like. Please try again.'),
+          ),
         );
       }
     }
@@ -160,12 +162,11 @@ class _HashtagScreenState extends State<HashtagScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => ShareSheet(
-            title: 'Share Post',
-            payload: shareText,
-            externalMessage: post.imageUrl,
-          ),
+      builder: (context) => ShareSheet(
+        title: 'Share Post',
+        payload: shareText,
+        externalMessage: post.imageUrl,
+      ),
     );
   }
 
@@ -173,80 +174,79 @@ class _HashtagScreenState extends State<HashtagScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('#${widget.tag}')),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : CustomScrollView(
-                slivers: [
-                  // Hashtag info header
-                  if (_hashtag != null)
-                    SliverToBoxAdapter(
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).primaryColor.withValues(alpha: 0.1),
-                          border: Border(
-                            bottom: BorderSide(color: Colors.grey.shade200),
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '#${_hashtag!.tag}',
-                              style: const TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${_hashtag!.usageCount} ${_hashtag!.usageCount == 1 ? 'post' : 'posts'}',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                          ],
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : CustomScrollView(
+              slivers: [
+                // Hashtag info header
+                if (_hashtag != null)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).primaryColor.withValues(alpha: 0.1),
+                        border: Border(
+                          bottom: BorderSide(color: Colors.grey.shade200),
                         ),
                       ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '#${_hashtag!.tag}',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${_hashtag!.usageCount} ${_hashtag!.usageCount == 1 ? 'post' : 'posts'}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+                  ),
 
-                  // Posts list
-                  if (_posts.isEmpty)
-                    const SliverFillRemaining(
-                      child: Center(child: Text('No posts found')),
-                    )
-                  else
-                    SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        if (index == _posts.length) {
-                          // Load more indicator
-                          if (_isLoadingMore) {
-                            return const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          } else {
-                            // Load more trigger
-                            _loadMorePosts();
-                            return const SizedBox.shrink();
-                          }
+                // Posts list
+                if (_posts.isEmpty)
+                  const SliverFillRemaining(
+                    child: Center(child: Text('No posts found')),
+                  )
+                else
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      if (index == _posts.length) {
+                        // Load more indicator
+                        if (_isLoadingMore) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        } else {
+                          // Load more trigger
+                          _loadMorePosts();
+                          return const SizedBox.shrink();
                         }
+                      }
 
-                        return PostCard(
-                          post: _posts[index],
-                          showInteractionButtons: false,
-                          onLike: () => _handleLike(_posts[index]),
-                          onComment: () => _handleComment(_posts[index]),
-                          onShare: () => _handleShare(_posts[index]),
-                        );
-                      }, childCount: _posts.length + 1),
-                    ),
-                ],
-              ),
+                      return PostCard(
+                        post: _posts[index],
+                        showInteractionButtons: false,
+                        onLike: () => _handleLike(_posts[index]),
+                        onComment: () => _handleComment(_posts[index]),
+                        onShare: () => _handleShare(_posts[index]),
+                      );
+                    }, childCount: _posts.length + 1),
+                  ),
+              ],
+            ),
     );
   }
 }

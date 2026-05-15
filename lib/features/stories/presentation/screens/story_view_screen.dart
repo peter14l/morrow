@@ -190,9 +190,8 @@ class _StoryViewScreenState extends State<StoryViewScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) =>
-              StoryViewersSheet(storyId: widget.stories[_currentIndex].id),
+      builder: (context) =>
+          StoryViewersSheet(storyId: widget.stories[_currentIndex].id),
     ).then((_) => _resumeStory());
   }
 
@@ -280,15 +279,14 @@ class _StoryViewScreenState extends State<StoryViewScreen>
             left: 12,
             right: 12,
             child: Row(
-              children:
-                  widget.stories.asMap().entries.map((entry) {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                        child: _buildProgressBar(entry.key, isM3E),
-                      ),
-                    );
-                  }).toList(),
+              children: widget.stories.asMap().entries.map((entry) {
+                return Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                    child: _buildProgressBar(entry.key, isM3E),
+                  ),
+                );
+              }).toList(),
             ),
           ),
 
@@ -355,10 +353,9 @@ class _StoryViewScreenState extends State<StoryViewScreen>
             bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 16,
             right: 16,
-            child:
-                isOwner
-                    ? _buildOwnerControls(story)
-                    : _buildViewerControls(isM3E),
+            child: isOwner
+                ? _buildOwnerControls(story)
+                : _buildViewerControls(isM3E),
           ),
 
           // Story Caption
@@ -395,16 +392,11 @@ class _StoryViewScreenState extends State<StoryViewScreen>
     return CachedNetworkImage(
       imageUrl: story.mediaUrl,
       fit: BoxFit.cover,
-      placeholder:
-          (context, url) => const Center(
-            child: CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            ),
-          ),
-      errorWidget:
-          (context, url, error) =>
-              const Center(child: Icon(Icons.error, color: Colors.white54)),
+      placeholder: (context, url) => const Center(
+        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+      ),
+      errorWidget: (context, url, error) =>
+          const Center(child: Icon(Icons.error, color: Colors.white54)),
     );
   }
 
@@ -444,25 +436,24 @@ class _StoryViewScreenState extends State<StoryViewScreen>
       child: Container(
         height: isM3E ? 4 : 3,
         decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.3)),
-        child:
-            index < _currentIndex
-                ? const Divider(color: Colors.white, thickness: 4, height: 4)
-                : index == _currentIndex
-                ? AnimatedBuilder(
-                  animation: _animController,
-                  builder: (context, child) {
-                    return FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: _animController.value,
-                      child: Divider(
-                        color: Colors.white,
-                        thickness: isM3E ? 4 : 3,
-                        height: isM3E ? 4 : 3,
-                      ),
-                    );
-                  },
-                )
-                : const SizedBox.shrink(),
+        child: index < _currentIndex
+            ? const Divider(color: Colors.white, thickness: 4, height: 4)
+            : index == _currentIndex
+            ? AnimatedBuilder(
+                animation: _animController,
+                builder: (context, child) {
+                  return FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: _animController.value,
+                    child: Divider(
+                      color: Colors.white,
+                      thickness: isM3E ? 4 : 3,
+                      height: isM3E ? 4 : 3,
+                    ),
+                  );
+                },
+              )
+            : const SizedBox.shrink(),
       ),
     );
   }
@@ -574,55 +565,50 @@ class _StoryViewScreenState extends State<StoryViewScreen>
     _pauseStory();
     showModalBottomSheet(
       context: context,
-      builder:
-          (context) => SafeArea(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isOwner)
-                  ListTile(
-                    leading: const Icon(
-                      Icons.delete_outline,
-                      color: Colors.red,
-                    ),
-                    title: const Text(
-                      'Delete Story',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                    onTap: () async {
-                      final success = await _storiesProvider.deleteStory(
-                        story.id,
-                      );
-                      if (success && mounted) {
-                        Navigator.pop(context);
-                        context.pop();
-                      }
-                    },
-                  )
-                else
-                  ListTile(
-                    leading: const Icon(Icons.report_problem_outlined),
-                    title: const Text('Report Story'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      ReportDialog.show(
-                        context,
-                        postId: story.id, // Stories are treated like posts in moderation
-                        userId: story.userId,
-                      );
-                    },
-                  ),
-                ListTile(
-                  leading: const Icon(Icons.download_outlined),
-                  title: const Text('Save Media'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    // Implement saving
-                  },
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (isOwner)
+              ListTile(
+                leading: const Icon(Icons.delete_outline, color: Colors.red),
+                title: const Text(
+                  'Delete Story',
+                  style: TextStyle(color: Colors.red),
                 ),
-              ],
+                onTap: () async {
+                  final success = await _storiesProvider.deleteStory(story.id);
+                  if (success && mounted) {
+                    Navigator.pop(context);
+                    context.pop();
+                  }
+                },
+              )
+            else
+              ListTile(
+                leading: const Icon(Icons.report_problem_outlined),
+                title: const Text('Report Story'),
+                onTap: () {
+                  Navigator.pop(context);
+                  ReportDialog.show(
+                    context,
+                    postId: story
+                        .id, // Stories are treated like posts in moderation
+                    userId: story.userId,
+                  );
+                },
+              ),
+            ListTile(
+              leading: const Icon(Icons.download_outlined),
+              title: const Text('Save Media'),
+              onTap: () {
+                Navigator.pop(context);
+                // Implement saving
+              },
             ),
-          ),
+          ],
+        ),
+      ),
     ).then((_) => _resumeStory());
   }
 

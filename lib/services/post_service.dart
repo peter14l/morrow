@@ -22,16 +22,15 @@ class PostService {
       final fileExt = file.path.split('.').last;
       final fileName = '${_uuid.v4()}.$fileExt';
       final path = '$userId/$fileName';
-      
-      final mimeType = fileExt.toLowerCase() == 'mp4' || fileExt.toLowerCase() == 'mov' 
-          ? 'video/$fileExt' 
+
+      final mimeType =
+          fileExt.toLowerCase() == 'mp4' || fileExt.toLowerCase() == 'mov'
+          ? 'video/$fileExt'
           : 'image/$fileExt';
 
-      await _supabase.storage.from(SupabaseConfig.postImagesBucket).upload(
-        path,
-        file,
-        fileOptions: FileOptions(contentType: mimeType),
-      );
+      await _supabase.storage
+          .from(SupabaseConfig.postImagesBucket)
+          .upload(path, file, fileOptions: FileOptions(contentType: mimeType));
 
       return _supabase.storage
           .from(SupabaseConfig.postImagesBucket)
@@ -53,6 +52,7 @@ class PostService {
     List<String>? hashtags,
     bool isSpoiler = false,
     EnhancedPoll? poll,
+    List<String>? collaboratorIds,
   }) async {
     try {
       final postId = _uuid.v4();
@@ -68,15 +68,17 @@ class PostService {
               final fileExt = file.path.split('.').last;
               final fileName = '${_uuid.v4()}.$fileExt';
               final path = '$userId/$fileName';
-              
+
               final mimeType =
                   mediaTypes != null &&
-                          mediaFiles.indexOf(file) < mediaTypes.length &&
-                          mediaTypes[mediaFiles.indexOf(file)] == 'video'
-                      ? 'video/$fileExt'
-                      : 'image/$fileExt';
+                      mediaFiles.indexOf(file) < mediaTypes.length &&
+                      mediaTypes[mediaFiles.indexOf(file)] == 'video'
+                  ? 'video/$fileExt'
+                  : 'image/$fileExt';
 
-              await _supabase.storage.from(SupabaseConfig.postImagesBucket).upload(
+              await _supabase.storage
+                  .from(SupabaseConfig.postImagesBucket)
+                  .upload(
                     path,
                     file,
                     fileOptions: FileOptions(contentType: mimeType),
@@ -116,6 +118,60 @@ class PostService {
 
       await _supabase.from(SupabaseConfig.postsTable).insert(postData);
 
+      // Handle Collaborators
+      if (collaboratorIds != null && collaboratorIds.isNotEmpty) {
+        final List<Map<String, dynamic>> collaboratorsData =
+            collaboratorIds
+                .map(
+                  (cId) => {
+                    'post_id': postId,
+                    'user_id': cId,
+                    'status': 'pending',
+                  },
+                )
+                .toList();
+
+        await _supabase.from('post_collaborators').insert(collaboratorsData);
+
+        // Send DM requests
+        for (final collabId in collaboratorIds) {
+          try {
+            // Get or create conversation
+            final String conversationId = await _supabase.rpc(
+              'get_or_create_direct_conversation',
+              params: {'p_user1_id': userId, 'p_user2_id': collabId},
+            );
+
+            // Send collab request message
+            await _supabase.rpc(
+              'send_message_v3',
+              params: {
+                'p_conversation_id': conversationId,
+                'p_content': 'Invited you to collaborate on a post.',
+                'p_message_type': 'collaborationRequest',
+                'p_post_id': postId,
+                'p_share_data': {
+                  'type': 'collaboration_request',
+                  'post_id': postId,
+                  'status': 'pending',
+                },
+              },
+            );
+
+            // Trigger formal notification
+            await _notificationService.createNotification(
+              userId: collabId,
+              type: 'post',
+              actorId: userId,
+              postId: postId,
+              message: 'invited you to collaborate on a post.',
+            );
+          } catch (e) {
+            debugPrint('Error sending collaboration request DM to $collabId: $e');
+          }
+        }
+      }
+
       // Handle Poll Creation (if attached)
       if (poll != null) {
         try {
@@ -134,13 +190,19 @@ class PostService {
           final createdPollId = pollResponse['id'];
 
           if (poll.options.isNotEmpty) {
-            final optionsData = poll.options.map((opt) => {
-              'poll_id': createdPollId,
-              'option_text': opt.text,
-              'option_order': opt.order,
-            }).toList();
+            final optionsData = poll.options
+                .map(
+                  (opt) => {
+                    'poll_id': createdPollId,
+                    'option_text': opt.text,
+                    'option_order': opt.order,
+                  },
+                )
+                .toList();
 
-            await _supabase.from(SupabaseConfig.pollOptionsTable).insert(optionsData);
+            await _supabase
+                .from(SupabaseConfig.pollOptionsTable)
+                .insert(optionsData);
           }
         } catch (e) {
           debugPrint('Error saving poll: $e');
@@ -148,10 +210,9 @@ class PostService {
       }
 
       // Fetch the created post with details
-      final response =
-          await _supabase
-              .from(SupabaseConfig.postsTable)
-              .select('''
+      final response = await _supabase
+          .from(SupabaseConfig.postsTable)
+          .select('''
             *,
             ${SupabaseConfig.profilesTable}:user_id (
               username,
@@ -167,8 +228,8 @@ class PostService {
               options:poll_options (*)
             )
           ''')
-              .eq('id', postId)
-              .single();
+          .eq('id', postId)
+          .single();
 
       final postMap = Map<String, dynamic>.from(response);
       final profile = postMap[SupabaseConfig.profilesTable];
@@ -215,10 +276,9 @@ class PostService {
   /// Get a single post by ID
   Future<Post> getPost(String postId, String userId) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.postsTable)
-              .select('''
+      final response = await _supabase
+          .from(SupabaseConfig.postsTable)
+          .select('''
             *,
             ${SupabaseConfig.profilesTable}:user_id (
               username,
@@ -231,8 +291,8 @@ class PostService {
               options:poll_options (*)
             )
           ''')
-              .eq('id', postId)
-              .single();
+          .eq('id', postId)
+          .single();
 
       final postMap = Map<String, dynamic>.from(response);
       final profile = postMap[SupabaseConfig.profilesTable];
@@ -242,21 +302,19 @@ class PostService {
         postMap['is_verified'] = profile['is_verified'] ?? false;
       }
 
-      final likeResponse =
-          await _supabase
-              .from(SupabaseConfig.likesTable)
-              .select()
-              .eq('post_id', postId)
-              .eq('user_id', userId)
-              .maybeSingle();
+      final likeResponse = await _supabase
+          .from(SupabaseConfig.likesTable)
+          .select()
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
-      final bookmarkResponse =
-          await _supabase
-              .from(SupabaseConfig.bookmarksTable)
-              .select()
-              .eq('post_id', postId)
-              .eq('user_id', userId)
-              .maybeSingle();
+      final bookmarkResponse = await _supabase
+          .from(SupabaseConfig.bookmarksTable)
+          .select()
+          .eq('post_id', postId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       postMap['is_liked'] = likeResponse != null;
       postMap['is_bookmarked'] = bookmarkResponse != null;
@@ -276,6 +334,22 @@ class PostService {
     int offset = 0,
   }) async {
     try {
+      // 1. Get IDs of posts where user is an accepted collaborator
+      final collabResponse = await _supabase
+          .from('post_collaborators')
+          .select('post_id')
+          .eq('user_id', userId)
+          .eq('status', 'accepted');
+
+      final List<String> collabPostIds =
+          (collabResponse as List).map((e) => e['post_id'] as String).toList();
+
+      // 2. Build OR filter: owner is user OR post is in collabPostIds
+      String orFilter = 'user_id.eq.$userId';
+      if (collabPostIds.isNotEmpty) {
+        orFilter += ',id.in.(${collabPostIds.map((id) => '"$id"').join(",")})';
+      }
+
       final response = await _supabase
           .from(SupabaseConfig.postsTable)
           .select('''
@@ -292,9 +366,19 @@ class PostService {
             polls:polls (
               *,
               options:poll_options (*)
+            ),
+            collaborators:post_collaborators (
+              user_id,
+              status,
+              profiles:user_id (
+                username,
+                full_name,
+                avatar_url,
+                is_verified
+              )
             )
           ''')
-          .eq('user_id', userId)
+          .or(orFilter)
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
@@ -304,11 +388,12 @@ class PostService {
       for (final item in response as List) {
         try {
           final postMap = Map<String, dynamic>.from(item);
-          
+
           // Enrich with profile data
           final profile = postMap[SupabaseConfig.profilesTable];
           if (profile != null) {
-            postMap['username'] = profile['username'] ?? profile['full_name'] ?? 'User';
+            postMap['username'] =
+                profile['username'] ?? profile['full_name'] ?? 'User';
             postMap['user_avatar'] = profile['avatar_url'] ?? '';
             postMap['is_verified'] = profile['is_verified'] ?? false;
           }
@@ -319,9 +404,6 @@ class PostService {
             postMap['community_name'] = community['name'];
           }
 
-          // Check if liked/bookmarked by current user (optional enrichment)
-          // Note: Real-time likes/bookmarks are usually handled via separate joins or local state
-          
           posts.add(Post.fromJson(postMap));
         } catch (e) {
           debugPrint('Error parsing user post: $e');
@@ -332,6 +414,44 @@ class PostService {
     } catch (e) {
       debugPrint('Error getting user posts: $e');
       return [];
+    }
+  }
+
+  /// Accept a collaboration invitation
+  Future<void> acceptCollaboration(String postId, String userId) async {
+    try {
+      await _supabase
+          .from('post_collaborators')
+          .update({'status': 'accepted'})
+          .eq('post_id', postId)
+          .eq('user_id', userId);
+
+      // Notify the original author
+      final post = await getPost(postId, userId);
+      await _notificationService.createNotification(
+        userId: post.userId,
+        type: 'post',
+        actorId: userId,
+        postId: postId,
+        message: 'accepted your collaboration invitation!',
+      );
+    } catch (e) {
+      debugPrint('Error accepting collaboration: $e');
+      rethrow;
+    }
+  }
+
+  /// Decline a collaboration invitation
+  Future<void> declineCollaboration(String postId, String userId) async {
+    try {
+      await _supabase
+          .from('post_collaborators')
+          .update({'status': 'denied'})
+          .eq('post_id', postId)
+          .eq('user_id', userId);
+    } catch (e) {
+      debugPrint('Error declining collaboration: $e');
+      rethrow;
     }
   }
 
@@ -370,11 +490,12 @@ class PostService {
       for (final item in response as List) {
         try {
           final postMap = Map<String, dynamic>.from(item);
-          
+
           // Enrich with profile data
           final profile = postMap[SupabaseConfig.profilesTable];
           if (profile != null) {
-            postMap['username'] = profile['username'] ?? profile['full_name'] ?? 'User';
+            postMap['username'] =
+                profile['username'] ?? profile['full_name'] ?? 'User';
             postMap['user_avatar'] = profile['avatar_url'] ?? '';
             postMap['is_verified'] = profile['is_verified'] ?? false;
           }
@@ -401,12 +522,11 @@ class PostService {
   /// Delete a post
   Future<void> deletePost(String postId, String userId) async {
     try {
-      final post =
-          await _supabase
-              .from(SupabaseConfig.postsTable)
-              .select('user_id, image_url, media_urls, storage_provider')
-              .eq('id', postId)
-              .single();
+      final post = await _supabase
+          .from(SupabaseConfig.postsTable)
+          .select('user_id, image_url, media_urls, storage_provider')
+          .eq('id', postId)
+          .single();
 
       if (post['user_id'] != userId) {
         throw Exception('Not authorized to delete this post');
@@ -416,17 +536,17 @@ class PostService {
       final mediaUrls = List<String>.from(post['media_urls'] ?? []);
 
       if (storageProvider == 'backblaze') {
-         // Logic for deleting from B2 would go here if needed
-         // Note: For now we focus on upload and basic record cleanup.
-         // Real S3 deletion requires 'DELETE' signed URLs.
+        // Logic for deleting from B2 would go here if needed
+        // Note: For now we focus on upload and basic record cleanup.
+        // Real S3 deletion requires 'DELETE' signed URLs.
       } else {
         final imageUrl = post['image_url'] as String?;
         if (imageUrl != null && imageUrl.isNotEmpty) {
           try {
             final fileName = imageUrl.split('/').last;
-            await _supabase.storage.from(SupabaseConfig.postImagesBucket).remove([
-              '$userId/$fileName',
-            ]);
+            await _supabase.storage
+                .from(SupabaseConfig.postImagesBucket)
+                .remove(['$userId/$fileName']);
           } catch (e) {
             debugPrint('Error deleting image: $e');
           }
@@ -452,12 +572,11 @@ class PostService {
       });
 
       try {
-        final postResponse =
-            await _supabase
-                .from(SupabaseConfig.postsTable)
-                .select('user_id')
-                .eq('id', postId)
-                .single();
+        final postResponse = await _supabase
+            .from(SupabaseConfig.postsTable)
+            .select('user_id')
+            .eq('id', postId)
+            .single();
 
         final postOwnerId = postResponse['user_id'] as String;
 

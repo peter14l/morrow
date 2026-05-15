@@ -18,12 +18,12 @@ class FeedRepositoryImpl implements FeedRepository {
   Future<List<Post>> getFeedPosts({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
     final rawPosts = await _remoteDatasource.getFeedPosts(
       userId: userId,
       limit: limit,
-      offset: offset,
+      cursor: cursor,
     );
 
     final posts = rawPosts.map((json) => Post.fromJson(json)).toList();
@@ -34,12 +34,12 @@ class FeedRepositoryImpl implements FeedRepository {
   Future<List<Post>> getFollowingFeedPosts({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
     final rawPosts = await _remoteDatasource.getFollowingFeedPosts(
       userId: userId,
       limit: limit,
-      offset: offset,
+      cursor: cursor,
     );
 
     final posts = rawPosts.map((json) => Post.fromJson(json)).toList();
@@ -50,12 +50,12 @@ class FeedRepositoryImpl implements FeedRepository {
   Future<List<Post>> getUnifiedFeed({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
     final rawPosts = await _remoteDatasource.getUnifiedFeed(
       userId: userId,
       limit: limit,
-      offset: offset,
+      cursor: cursor,
     );
 
     final posts = rawPosts.map((json) => Post.fromJson(json)).toList();

@@ -4,8 +4,9 @@ import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
-/// Settings for liquid glass appearance
+/// Configuration for the liquid glass effect
 class LiquidGlassConfig {
   final double thickness;
   final double blur;
@@ -14,26 +15,26 @@ class LiquidGlassConfig {
   final double saturation;
 
   const LiquidGlassConfig({
-    this.thickness = 15,
-    this.blur = 8,
-    this.glassColor = const Color(0x33FFFFFF),
-    this.lightIntensity = 1.2,
-    this.saturation = 1.1,
+    required this.thickness,
+    required this.blur,
+    required this.glassColor,
+    this.lightIntensity = 1.0,
+    this.saturation = 1.0,
   });
 
   static const Light = LiquidGlassConfig(
-    thickness: 10,
-    blur: 6,
+    thickness: 8,
+    blur: 4,
     glassColor: Color(0x1AFFFFFF),
-    lightIntensity: 1.0,
+    lightIntensity: 0.8,
     saturation: 1.0,
   );
 
   static const Medium = LiquidGlassConfig(
-    thickness: 15,
+    thickness: 12,
     blur: 8,
     glassColor: Color(0x33FFFFFF),
-    lightIntensity: 1.2,
+    lightIntensity: 1.0,
     saturation: 1.1,
   );
 
@@ -67,14 +68,26 @@ class LiquidGlassWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<UserSettingsProvider>();
     final mode = settings.liquidGlassMode;
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (mode == LiquidGlassMode.disabled) {
-      // No glass effect - return child as-is
+    if (mode == LiquidGlassMode.disabled || isSolid) {
+      // No glass effect - return child with solid background if isSolid
+      if (isSolid) {
+        return Container(
+          padding: padding,
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1A1D24) : Colors.white,
+            borderRadius: BorderRadius.circular(borderRadius ?? 20),
+          ),
+          child: child,
+        );
+      }
       return child;
     }
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final bgColor = backgroundColor ??
+    final bgColor =
+        backgroundColor ??
         (isDark
             ? Colors.white.withValues(alpha: 0.1)
             : Colors.white.withValues(alpha: 0.3));
@@ -99,36 +112,35 @@ class LiquidGlassWrapper extends StatelessWidget {
   }
 }
 
-/// FakeGlass implementation (backdrop filter only - low battery)
 class _FakeGlassWrapper extends StatelessWidget {
+  final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry? padding;
   final Color bgColor;
-  final Widget child;
 
   const _FakeGlassWrapper({
+    required this.child,
     required this.borderRadius,
     this.padding,
     required this.bgColor,
-    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: padding,
-          decoration: BoxDecoration(
-            color: bgColor.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: child,
         ),
       ),
@@ -136,172 +148,61 @@ class _FakeGlassWrapper extends StatelessWidget {
   }
 }
 
-/// Real liquid glass implementation (full shader effect)
 class _RealLiquidGlassWrapper extends StatelessWidget {
+  final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry? padding;
   final Color bgColor;
   final LiquidGlassConfig config;
-  final Widget child;
 
   const _RealLiquidGlassWrapper({
+    required this.child,
     required this.borderRadius,
     this.padding,
     required this.bgColor,
     required this.config,
-    required this.child,
   });
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlass.withOwnLayer(
-      settings: LiquidGlassSettings(
+    return Container(
+      padding: padding,
+      child: LiquidGlassRenderer(
+        borderRadius: borderRadius,
         thickness: config.thickness,
         blur: config.blur,
         glassColor: config.glassColor,
         lightIntensity: config.lightIntensity,
         saturation: config.saturation,
-      ),
-      shape: LiquidRoundedSuperellipse(borderRadius: borderRadius),
-      child: Container(
-        padding: padding,
         child: child,
       ),
     );
   }
 }
 
-/// Full liquid glass container with background support
-/// Use this for the best real liquid glass results
-class LiquidGlassContainer extends StatelessWidget {
-  final Widget background;
-  final List<Widget> glassChildren;
-  final EdgeInsetsGeometry? padding;
-  final LiquidGlassConfig config;
-
-  const LiquidGlassContainer({
-    super.key,
-    required this.background,
-    required this.glassChildren,
-    this.padding,
-    this.config = LiquidGlassConfig.Medium,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final settings = context.watch<UserSettingsProvider>();
-    final mode = settings.liquidGlassMode;
-
-    if (mode == LiquidGlassMode.disabled) {
-      return Stack(
-        children: [
-          background,
-          if (padding != null) Padding(padding: padding!, child: Stack(children: glassChildren)),
-          if (padding == null) ...glassChildren,
-        ],
-      );
-    }
-
-    if (mode == LiquidGlassMode.fake) {
-      return Stack(
-        children: [
-          background,
-          Positioned.fill(
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                  ),
-                  padding: padding,
-                  child: Stack(children: glassChildren),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-
-    // Real liquid glass with layer
-    return Stack(
-      children: [
-        background,
-        LiquidGlassLayer(
-          settings: LiquidGlassSettings(
-            thickness: config.thickness,
-            blur: config.blur,
-            glassColor: config.glassColor,
-            lightIntensity: config.lightIntensity,
-            saturation: config.saturation,
-          ),
-          child: Padding(
-            padding: padding ?? EdgeInsets.zero,
-            child: Stack(children: glassChildren),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Standalone LiquidGlass button/fab wrapper
-class LiquidGlassButton extends StatelessWidget {
-  final VoidCallback? onPressed;
-  final Widget child;
-  final double? width;
-  final double? height;
-  final double borderRadius;
-  final EdgeInsetsGeometry? padding;
-  final LiquidGlassConfig config;
-
-  const LiquidGlassButton({
-    super.key,
-    required this.onPressed,
-    required this.child,
-    this.width,
-    this.height,
-    this.borderRadius = 20,
-    this.padding,
-    this.config = LiquidGlassConfig.Medium,
-  });
-
-  @override
-  Widget build(BuildContext context) {
+/// Extension to wrap any widget with liquid glass
+extension LiquidGlassExtension on Widget {
+  Widget withLiquidGlass({
+    double borderRadius = 20,
+    EdgeInsetsGeometry? padding,
+    Color? backgroundColor,
+    LiquidGlassConfig config = LiquidGlassConfig.Medium,
+  }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
       padding: padding,
+      backgroundColor: backgroundColor,
       config: config,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: SizedBox(
-          width: width,
-          height: height,
-          child: child,
-        ),
-      ),
+      child: this,
     );
   }
 }
 
-/// Check if liquid glass is enabled anywhere in the app
-bool isLiquidGlassEnabled(BuildContext context) {
-  final settings = context.read<UserSettingsProvider>();
-  return settings.liquidGlassMode != LiquidGlassMode.disabled;
-}
-
-/// Get current liquid glass mode
-LiquidGlassMode getLiquidGlassMode(BuildContext context) {
-  final settings = context.read<UserSettingsProvider>();
-  return settings.liquidGlassMode;
-}
-
-/// Extension to wrap Material FloatingActionButton with liquid glass
-extension LiquidGlassFloatingActionButton on Widget {
+/// Extension to wrap Material FAB with liquid glass
+extension LiquidGlassFAB on Widget {
   Widget asLiquidGlassFAB({
-    double borderRadius = 28,
-    LiquidGlassConfig config = LiquidGlassConfig.Light,
+    double borderRadius = 100,
+    LiquidGlassConfig config = LiquidGlassConfig.Medium,
   }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
@@ -311,7 +212,7 @@ extension LiquidGlassFloatingActionButton on Widget {
   }
 }
 
-/// Extension to wrap Card with liquid glass
+/// Extension to wrap Material Card with liquid glass
 extension LiquidGlassCard on Widget {
   Widget asLiquidGlassCard({
     double borderRadius = 20,
@@ -325,18 +226,20 @@ extension LiquidGlassCard on Widget {
   }
 }
 
-/// Extension to wrap Dialog with liquid glass
+/// Extension to wrap Material Dialog with liquid glass
 extension LiquidGlassDialog on Widget {
   Widget asLiquidGlassDialog({
     double borderRadius = 28,
     LiquidGlassConfig config = LiquidGlassConfig.Medium,
   }) {
-    return LiquidGlassWrapper(
-      borderRadius: borderRadius,
-      config: config,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: this,
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: LiquidGlassWrapper(
+          borderRadius: borderRadius,
+          config: config,
+          child: Material(color: Colors.transparent, child: this),
+        ),
       ),
     );
   }

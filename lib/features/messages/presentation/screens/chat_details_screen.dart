@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/screens/shared_content_screen.dart';
 import 'package:oasis/widgets/moderation_dialogs.dart';
@@ -172,7 +173,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     }
     _searchController.dispose();
     _searchFocusNode.dispose();
-    
+
     super.dispose();
   }
 
@@ -206,7 +207,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       setState(() => _isMuted = value);
 
       if (mounted) {
-        final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
         final useFluent = themeProvider.useFluentUI;
         final isDesktop = MediaQuery.of(context).size.width >= 1000;
 
@@ -215,7 +219,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             context,
             builder: (context, close) => fluent.InfoBar(
               title: Text(value ? 'Muted' : 'Unmuted'),
-              content: Text(value ? 'Notifications for this chat are now silent.' : 'Notifications for this chat are enabled.'),
+              content: Text(
+                value
+                    ? 'Notifications for this chat are now silent.'
+                    : 'Notifications for this chat are enabled.',
+              ),
               severity: fluent.InfoBarSeverity.info,
             ),
           );
@@ -289,7 +297,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               context,
               builder: (context, close) => fluent.InfoBar(
                 title: Text(_isBlocked ? 'User Blocked' : 'User Unblocked'),
-                severity: _isBlocked ? fluent.InfoBarSeverity.error : fluent.InfoBarSeverity.success,
+                severity: _isBlocked
+                    ? fluent.InfoBarSeverity.error
+                    : fluent.InfoBarSeverity.success,
               ),
             );
           } else {
@@ -388,24 +398,26 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       try {
         await context.read<ChatProvider>().updateGroupName(newName);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error renaming group: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error renaming group: $e')));
       }
     }
   }
 
   Future<void> _addParticipants() async {
     // Navigate to GroupMemberSelectionScreen but with "Add" mode
-    final List<String>? selectedUserIds = await context.push<List<String>>('/messages/add-members');
-    
+    final List<String>? selectedUserIds = await context.push<List<String>>(
+      '/messages/add-members',
+    );
+
     if (selectedUserIds != null && selectedUserIds.isNotEmpty && mounted) {
       try {
         await context.read<ChatProvider>().addMembers(selectedUserIds);
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error adding members: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error adding members: $e')));
       }
     }
   }
@@ -425,7 +437,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             return Container(
               height: MediaQuery.of(statefulContext).size.height * 0.8,
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
+                color: context.shouldUseSolidBackground
+                    ? (theme.brightness == Brightness.dark
+                          ? const Color(0xFF1A1D24)
+                          : Colors.white)
+                    : theme.colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(32),
                 ),
@@ -455,9 +471,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       prefixIcon: FluentIcons.search_24_regular,
                       suffixIcon: _searchController.text.isNotEmpty
                           ? IconButton(
-                              icon: const Icon(
-                                FluentIcons.dismiss_24_regular,
-                              ),
+                              icon: const Icon(FluentIcons.dismiss_24_regular),
                               onPressed: () {
                                 _searchController.clear();
                                 _onSearchChanged('');
@@ -614,8 +628,14 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             context,
             builder: (context, close) => fluent.InfoBar(
               title: Text(value ? 'Chat Locked' : 'Chat Unlocked'),
-              content: Text(value ? 'This conversation is now protected in your Vault.' : 'Conversation removed from Vault.'),
-              severity: value ? fluent.InfoBarSeverity.success : fluent.InfoBarSeverity.info,
+              content: Text(
+                value
+                    ? 'This conversation is now protected in your Vault.'
+                    : 'Conversation removed from Vault.',
+              ),
+              severity: value
+                  ? fluent.InfoBarSeverity.success
+                  : fluent.InfoBarSeverity.info,
             ),
           );
         } else {
@@ -640,9 +660,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error updating vault: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Error updating vault: $e')));
         }
       }
     }
@@ -1144,10 +1164,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               onPressed: () => Navigator.of(context).maybePop(),
             ),
           ),
-          content: Material(
-            color: Colors.transparent,
-            child: bodyContent,
-          ),
+          content: Material(color: Colors.transparent, child: bodyContent),
         ),
       );
     }
@@ -1329,7 +1346,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     ),
                   ),
                   trailing: userId == _authService.currentUser?.id
-                      ? const Text('You', style: TextStyle(fontSize: 12, color: Colors.grey))
+                      ? const Text(
+                          'You',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        )
                       : null,
                 );
               }),
@@ -1445,10 +1465,14 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          color: isSelected
+              ? colorScheme.primary
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? colorScheme.primary : colorScheme.outline.withValues(alpha: 0.3),
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.outline.withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -1483,10 +1507,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
         ),
         subtitle: Text(subtitle),
-        trailing: fluent.ToggleSwitch(
-          checked: value,
-          onChanged: onChanged,
-        ),
+        trailing: fluent.ToggleSwitch(checked: value, onChanged: onChanged),
       );
     }
 
@@ -1649,7 +1670,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             label,
             style: TextStyle(
               fontSize: 14,
-              color: isSelected ? fluent.FluentTheme.of(context).accentColor : colorScheme.onSurface,
+              color: isSelected
+                  ? fluent.FluentTheme.of(context).accentColor
+                  : colorScheme.onSurface,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
             ),
           ),

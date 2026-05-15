@@ -23,9 +23,7 @@ class CommunityService {
 
       if (response.isEmpty) return [];
 
-      return response
-          .map((json) => Community.fromJson(json))
-          .toList();
+      return response.map((json) => Community.fromJson(json)).toList();
     } catch (e) {
       debugPrint('Error fetching communities: $e');
       rethrow;
@@ -35,12 +33,11 @@ class CommunityService {
   /// Get community by ID
   Future<Community> getCommunity(String communityId) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.communitiesTable)
-              .select()
-              .eq('id', communityId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.communitiesTable)
+          .select()
+          .eq('id', communityId)
+          .single();
 
       return Community.fromJson(response);
     } catch (e) {
@@ -190,13 +187,12 @@ class CommunityService {
     required String communityId,
   }) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.communityMembersTable)
-              .select()
-              .eq('community_id', communityId)
-              .eq('user_id', userId)
-              .maybeSingle();
+      final response = await _supabase
+          .from(SupabaseConfig.communityMembersTable)
+          .select()
+          .eq('community_id', communityId)
+          .eq('user_id', userId)
+          .maybeSingle();
 
       return response != null;
     } catch (e) {
@@ -247,9 +243,7 @@ class CommunityService {
 
       if (response.isEmpty) return [];
 
-      return response
-          .map((json) => Community.fromJson(json))
-          .toList();
+      return response.map((json) => Community.fromJson(json)).toList();
     } catch (e) {
       debugPrint('Error searching communities: $e');
       rethrow;
@@ -267,13 +261,12 @@ class CommunityService {
   }) async {
     try {
       // Verify user is admin
-      final membership =
-          await _supabase
-              .from(SupabaseConfig.communityMembersTable)
-              .select('role')
-              .eq('community_id', communityId)
-              .eq('user_id', userId)
-              .single();
+      final membership = await _supabase
+          .from(SupabaseConfig.communityMembersTable)
+          .select('role')
+          .eq('community_id', communityId)
+          .eq('user_id', userId)
+          .single();
 
       if (membership['role'] != 'admin' && membership['role'] != 'moderator') {
         throw Exception('Not authorized to update this community');
@@ -304,12 +297,11 @@ class CommunityService {
   }) async {
     try {
       // Verify user is creator
-      final community =
-          await _supabase
-              .from(SupabaseConfig.communitiesTable)
-              .select('creator_id')
-              .eq('id', communityId)
-              .single();
+      final community = await _supabase
+          .from(SupabaseConfig.communitiesTable)
+          .select('creator_id')
+          .eq('id', communityId)
+          .single();
 
       if (community['creator_id'] != userId) {
         throw Exception('Only the creator can delete this community');

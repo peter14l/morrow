@@ -5,11 +5,31 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/crypto/pq_aura_bridge.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_store.dart';
-import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+/// Isolated cryptographic task parameters for PQ-Aura.
+class _PQAuraEncryptTask {
+  final int stateAddress;
+  final List<int> plaintext;
+  final List<int> ad;
+
+  _PQAuraEncryptTask(this.stateAddress, this.plaintext, this.ad);
+}
+
+class _PQAuraDecryptTask {
+  final int stateAddress;
+  final List<int> header;
+  final List<int> payload;
+  final List<int> ad;
+
+  _PQAuraDecryptTask(this.stateAddress, this.header, this.payload, this.ad);
+}
 
 /// High-level PQ-Aura encryption service.
 /// Provides post-quantum resistant encryption for messages and media.
+///
+/// 🚀 PERFORMANCE UPGRADE: Heavy cryptographic operations are offloaded to
+/// background isolates to ensure zero UI jank.
 class PQAuraService {
   static PQAuraService? _instance;
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -76,10 +96,10 @@ class PQAuraService {
   Future<bool?> getOrCreateSession(String remoteUserId) async {
     if (!_isInitialized) await init();
     if (hasSession(remoteUserId)) return true;
-    
+
     final loaded = await loadSession(remoteUserId);
     if (loaded) return true;
-    
+
     return await initSessionAlice(remoteUserId);
   }
 
@@ -114,7 +134,9 @@ class PQAuraService {
       final bundleMap = {
         'identity_pk': toHybridPkMap(remoteIdentityPk),
         'signed_pre_key': toHybridPkMap(remoteSignedPk),
-        'one_time_pre_key': remoteOtPk != null ? toHybridPkMap(remoteOtPk) : null,
+        'one_time_pre_key': remoteOtPk != null
+            ? toHybridPkMap(remoteOtPk)
+            : null,
       };
       final bundleBytes = utf8.encode(jsonEncode(bundleMap));
 
@@ -147,7 +169,11 @@ class PQAuraService {
   }
 
   /// Initialize a session as Bob (responder) using an initial message
-  Future<bool> initSessionBob(String senderId, Uint8List header, Uint8List payload) async {
+  Future<bool> initSessionBob(
+    String senderId,
+    Uint8List header,
+    Uint8List payload,
+  ) async {
     try {
       final localKeys = await _store.getIdentityKeys();
       if (localKeys == null) return false;
@@ -178,7 +204,7 @@ class PQAuraService {
   Future<bool> loadSession(String remoteUserId) async {
     try {
       var statePtr = await _store.loadSessionAtomic(remoteUserId);
-      
+
       if (statePtr != null && statePtr != nullptr) {
         _activeSessions[remoteUserId] = statePtr;
         _corruptSessions.remove(remoteUserId);
@@ -188,7 +214,7 @@ class PQAuraService {
       final serializedState = await _store.loadSession(remoteUserId);
       if (serializedState != null) {
         statePtr = _bridge.deserializeState(serializedState.toList());
-        
+
         if (statePtr != null && statePtr != nullptr) {
           _activeSessions[remoteUserId] = statePtr;
           _corruptSessions.remove(remoteUserId);
@@ -204,7 +230,8 @@ class PQAuraService {
     }
   }
 
-  /// Encrypt a message for a specific user
+  /// Encrypt a message for a specific user.
+  /// Runs in a background isolate via [compute].
   Future<PQAuraEncryptedMessage?> encryptMessage(
     String recipientId,
     String plaintext,
@@ -223,10 +250,13 @@ class PQAuraService {
       final plaintextBytes = utf8.encode(plaintext);
       final ad = utf8.encode(recipientId);
 
-      // Encrypt
-      final encrypted = _bridge.encrypt(state, plaintextBytes, ad);
+      // Encrypt in background isolate
+      final encryptedData = await compute(
+        _isolateEncrypt,
+        _PQAuraEncryptTask(state.address, plaintextBytes.toList(), ad.toList()),
+      );
 
-      if (encrypted == null) {
+      if (encryptedData == null) {
         return null;
       }
 
@@ -240,10 +270,9 @@ class PQAuraService {
       if (_pendingHandshakes.containsKey(recipientId)) {
         final initialMsg = _pendingHandshakes.remove(recipientId);
         if (initialMsg == null) {
-          header = Uint8List.fromList(encrypted.header);
-          payload = Uint8List.fromList(encrypted.payload);
+          header = Uint8List.fromList(encryptedData['header']!);
+          payload = Uint8List.fromList(encryptedData['payload']!);
         } else {
-          // Bob expects a JSON-serialized InitialMessage for pqa_init_bob
           final aliceHandshake = {
             'alice_identity_pk': {
               'classic': initialMsg.aliceIdentityPk.sublist(0, 32),
@@ -257,29 +286,22 @@ class PQAuraService {
             'kem_ciphertext_signed': initialMsg.kemCiphertextSigned,
             'kem_ciphertext_one_time': initialMsg.kemCiphertextOneTime,
             'ratchet_message': {
-              'header_ciphertext': encrypted.header,
-              'payload_ciphertext': encrypted.payload,
-            }
+              'header_ciphertext': encryptedData['header'],
+              'payload_ciphertext': encryptedData['payload'],
+            },
           };
 
           header = Uint8List.fromList(utf8.encode(jsonEncode(aliceHandshake)));
-          payload = Uint8List.fromList(encrypted.payload);
+          payload = Uint8List.fromList(encryptedData['payload']!);
 
-          // Free the native initial message
           _bridge.freeInitialMessage(initialMsg.nativePtr);
         }
       } else {
-        header = Uint8List.fromList(encrypted.header);
-        payload = Uint8List.fromList(encrypted.payload);
+        header = Uint8List.fromList(encryptedData['header']!);
+        payload = Uint8List.fromList(encryptedData['payload']!);
       }
 
-      final result = PQAuraEncryptedMessage(
-        header: header,
-        payload: payload,
-      );
-
-      _bridge.freeMessage(encrypted.nativePtr);
-      return result;
+      return PQAuraEncryptedMessage(header: header, payload: payload);
     } catch (e) {
       debugPrint('[PQAura] Encryption error: $e');
       return null;
@@ -296,31 +318,21 @@ class PQAuraService {
       final String currentUserId = _supabase.auth.currentUser?.id ?? '';
 
       for (final recipientId in recipientIds) {
-        // Skip self
         if (recipientId == currentUserId) continue;
 
         final encrypted = await encryptMessage(recipientId, plaintext);
         if (encrypted != null) {
-          encryptedHeaders['pqa_header_$recipientId'] = base64Encode(encrypted.header);
-          // Payload is same for all if we use same AES key? 
-          // Wait, PQAura encrypts the plaintext directly in the native bridge.
-          // So each recipient gets a different header AND payload.
-          // In pairwise PQ-DR, the message on the server would need to store 
-          // all headers and all payloads? No, usually we encrypt a random AES key 
-          // with PQ-Aura and then encrypt the plaintext with AES.
-          // BUT the current PQAuraService encrypts the plaintext directly.
-          
-          // Let's check how decryptMessage works. It takes header and payload.
-          // If I want to avoid storing N payloads, I should refactor to encrypt a key.
-          
-          // However, to keep it simple and following "Pairwise PQ-DR" strictly as implemented in the bridge:
-          // We will store pqa_header_[id] and pqa_payload_[id].
-          encryptedHeaders['pqa_payload_$recipientId'] = base64Encode(encrypted.payload);
+          encryptedHeaders['pqa_header_$recipientId'] = base64Encode(
+            encrypted.header,
+          );
+          encryptedHeaders['pqa_payload_$recipientId'] = base64Encode(
+            encrypted.payload,
+          );
         }
       }
-      
+
       if (encryptedHeaders.isEmpty) return null;
-      
+
       encryptedHeaders['protocol'] = 'pq_aura_group';
       return encryptedHeaders;
     } catch (e) {
@@ -329,7 +341,8 @@ class PQAuraService {
     }
   }
 
-  /// Decrypt a message from a specific user
+  /// Decrypt a message from a specific user.
+  /// Runs in a background isolate via [compute].
   Future<String?> decryptMessage(
     String senderId,
     Uint8List header,
@@ -341,10 +354,8 @@ class PQAuraService {
         if (!ready) return null;
       }
 
-      // If we know this session is broken, don't keep trying heavy crypto
       if (_corruptSessions.contains(senderId)) return null;
 
-      // If no session, Bob must respond to the handshake
       if (!hasSession(senderId)) {
         final loaded = await loadSession(senderId);
         if (!loaded) {
@@ -357,20 +368,31 @@ class PQAuraService {
       if (state == null) return null;
 
       final ad = utf8.encode(senderId);
-      final plaintext = _bridge.decrypt(state, header.toList(), payload.toList(), ad);
 
-      if (plaintext == null) {
+      // Decrypt in background isolate
+      final plaintextBytes = await compute(
+        _isolateDecrypt,
+        _PQAuraDecryptTask(
+          state.address,
+          header.toList(),
+          payload.toList(),
+          ad.toList(),
+        ),
+      );
+
+      if (plaintextBytes == null) {
         if (kDebugMode) {
-           debugPrint('[PQAura] Decryption failed for user: $senderId. Marking session as corrupt.');
+          debugPrint(
+            '[PQAura] Decryption failed for user: $senderId. Marking session as corrupt.',
+          );
         }
         _corruptSessions.add(senderId);
         return null;
       }
 
-      // Save state atomically after ratchet turn
       await _store.saveSessionAtomic(senderId, state);
 
-      return utf8.decode(plaintext);
+      return utf8.decode(plaintextBytes);
     } catch (e) {
       if (kDebugMode) {
         debugPrint('[PQAura] Decryption error: $e');
@@ -392,21 +414,23 @@ class PQAuraService {
       if (state == null) return null;
 
       final ad = utf8.encode('media_key:$recipientId');
-      final encrypted = _bridge.encrypt(state, mediaKey.toList(), ad);
 
-      if (encrypted == null) return null;
+      final encryptedData = await compute(
+        _isolateEncrypt,
+        _PQAuraEncryptTask(state.address, mediaKey.toList(), ad.toList()),
+      );
 
-      // Save state atomically
+      if (encryptedData == null) return null;
+
       await _store.saveSessionAtomic(recipientId, state);
 
-      final result = {
-        'pq_header': base64Encode(Uint8List.fromList(encrypted.header)),
-        'pq_payload': base64Encode(Uint8List.fromList(encrypted.payload)),
+      return {
+        'pq_header': base64Encode(Uint8List.fromList(encryptedData['header']!)),
+        'pq_payload': base64Encode(
+          Uint8List.fromList(encryptedData['payload']!),
+        ),
         'protocol': 'pq_aura',
       };
-
-      _bridge.freeMessage(encrypted.nativePtr);
-      return result;
     } catch (e) {
       debugPrint('[PQAura] Media key encryption error: $e');
       return null;
@@ -433,7 +457,7 @@ class PQAuraService {
       }
 
       if (encryptedKeys.isEmpty) return null;
-      
+
       encryptedKeys['protocol'] = 'pq_aura_group';
       return encryptedKeys;
     } catch (e) {
@@ -450,7 +474,7 @@ class PQAuraService {
     try {
       final protocol = encryptionData['protocol'] as String?;
       if (protocol != 'pq_aura' && protocol != 'pq_aura_group') return null;
-      
+
       final success = await getOrCreateSession(senderId);
       if (success != true) return null;
 
@@ -474,18 +498,54 @@ class PQAuraService {
       final payload = base64Decode(payloadB64);
 
       final ad = utf8.encode('media_key:$senderId');
-      final decrypted = _bridge.decrypt(state, header.toList(), payload.toList(), ad);
 
-      if (decrypted == null) return null;
+      final decryptedBytes = await compute(
+        _isolateDecrypt,
+        _PQAuraDecryptTask(
+          state.address,
+          header.toList(),
+          payload.toList(),
+          ad.toList(),
+        ),
+      );
 
-      // Save state atomically
+      if (decryptedBytes == null) return null;
+
       await _store.saveSessionAtomic(senderId, state);
 
-      return Uint8List.fromList(decrypted);
+      return Uint8List.fromList(decryptedBytes);
     } catch (e) {
       debugPrint('[PQAura] Media key decryption error: $e');
       return null;
     }
+  }
+
+  /// Internal: Background encryption worker
+  static Map<String, List<int>>? _isolateEncrypt(_PQAuraEncryptTask task) {
+    final bridge = PQAuraBridge.instance;
+    if (!bridge.load()) return null;
+
+    final state = Pointer<RatchetState>.fromAddress(task.stateAddress);
+    final encrypted = bridge.encrypt(state, task.plaintext, task.ad);
+
+    if (encrypted == null) return null;
+
+    final result = {
+      'header': List<int>.from(encrypted.header),
+      'payload': List<int>.from(encrypted.payload),
+    };
+
+    bridge.freeMessage(encrypted.nativePtr);
+    return result;
+  }
+
+  /// Internal: Background decryption worker
+  static List<int>? _isolateDecrypt(_PQAuraDecryptTask task) {
+    final bridge = PQAuraBridge.instance;
+    if (!bridge.load()) return null;
+
+    final state = Pointer<RatchetState>.fromAddress(task.stateAddress);
+    return bridge.decrypt(state, task.header, task.payload, task.ad);
   }
 
   /// Upload our pre-key bundle to the server
@@ -504,7 +564,7 @@ class PQAuraService {
       }
 
       debugPrint('[PQAura] Sending bundle to Supabase for user: $userId');
-      
+
       final data = {
         'user_id': userId,
         'identity_pk': base64Encode(keys.publicKey),
@@ -555,15 +615,12 @@ class PQAuraEncryptedMessage {
   final Uint8List header;
   final Uint8List payload;
 
-  PQAuraEncryptedMessage({
-    required this.header,
-    required this.payload,
-  });
+  PQAuraEncryptedMessage({required this.header, required this.payload});
 
   Map<String, dynamic> toJson() => {
-        'header': base64Encode(header),
-        'payload': base64Encode(payload),
-      };
+    'header': base64Encode(header),
+    'payload': base64Encode(payload),
+  };
 
   factory PQAuraEncryptedMessage.fromJson(Map<String, dynamic> json) {
     return PQAuraEncryptedMessage(

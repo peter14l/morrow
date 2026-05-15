@@ -37,7 +37,10 @@ class AuthProvider with ChangeNotifier {
         final userId = event.session?.user.id;
         _analytics.setUserId(userId);
         if (userId != null) {
-          _analytics.logEvent(name: 'login', parameters: {'method': event.event.name});
+          _analytics.logEvent(
+            name: 'login',
+            parameters: {'method': event.event.name},
+          );
           // Re-subscribe to DM notifications on login/session restoration
           AppInitializer.subscribeToDmNotifications();
         }

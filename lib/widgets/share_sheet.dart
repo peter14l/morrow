@@ -79,7 +79,7 @@ class _ShareSheetState extends State<ShareSheet> {
   List<Conversation> get _filteredConversations {
     final provider = context.watch<ConversationProvider>();
     if (_searchQuery.isEmpty) return provider.conversations;
-    
+
     return provider.conversations.where((c) {
       return c.otherUserName.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
@@ -113,7 +113,9 @@ class _ShareSheetState extends State<ShareSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(widget.successMessage ?? 'Sent to ${conversation.otherUserName}'),
+            content: Text(
+              widget.successMessage ?? 'Sent to ${conversation.otherUserName}',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -170,7 +172,7 @@ class _ShareSheetState extends State<ShareSheet> {
                 ),
               ),
             ),
-            
+
             // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
@@ -199,7 +201,8 @@ class _ShareSheetState extends State<ShareSheet> {
                 children: [
                   Expanded(
                     child: TextField(
-                      onChanged: (value) => setState(() => _searchQuery = value),
+                      onChanged: (value) =>
+                          setState(() => _searchQuery = value),
                       decoration: InputDecoration(
                         hintText: 'Search people...',
                         prefixIcon: const Icon(FluentIcons.search_24_regular),
@@ -208,7 +211,8 @@ class _ShareSheetState extends State<ShareSheet> {
                           borderSide: BorderSide.none,
                         ),
                         filled: true,
-                        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                        fillColor: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                         contentPadding: const EdgeInsets.symmetric(vertical: 0),
                       ),
                     ),
@@ -229,47 +233,64 @@ class _ShareSheetState extends State<ShareSheet> {
               child: conversations.isEmpty
                   ? Center(
                       child: Text(
-                        _searchQuery.isEmpty ? 'No conversations yet' : 'No results found',
+                        _searchQuery.isEmpty
+                            ? 'No conversations yet'
+                            : 'No results found',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurfaceVariant,
                         ),
                       ),
                     )
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       itemCount: conversations.length,
                       itemBuilder: (context, index) {
-                         final conversation = conversations[index];
-                         final hasSent = _sentConversationIds.contains(conversation.id);
+                        final conversation = conversations[index];
+                        final hasSent = _sentConversationIds.contains(
+                          conversation.id,
+                        );
 
-                         return ListTile(
-                           contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                           leading: CircleAvatar(
-                             radius: 24,
-                             backgroundImage: conversation.otherUserAvatar.isNotEmpty
-                                 ? CachedNetworkImageProvider(conversation.otherUserAvatar)
-                                 : null,
-                             child: conversation.otherUserAvatar.isEmpty
-                                 ? Text(conversation.otherUserName[0].toUpperCase())
-                                 : null,
-                           ),
-                           title: Text(
-                             conversation.otherUserName,
-                             style: const TextStyle(fontWeight: FontWeight.w600),
-                           ),
-                           trailing: FilledButton.tonal(
-                             onPressed: hasSent ? null : () => _sendToConversation(conversation),
-                             style: FilledButton.styleFrom(
-                               backgroundColor: hasSent 
-                                  ? colorScheme.surfaceContainerHighest 
+                        return ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          leading: CircleAvatar(
+                            radius: 24,
+                            backgroundImage:
+                                conversation.otherUserAvatar.isNotEmpty
+                                ? CachedNetworkImageProvider(
+                                    conversation.otherUserAvatar,
+                                  )
+                                : null,
+                            child: conversation.otherUserAvatar.isEmpty
+                                ? Text(
+                                    conversation.otherUserName[0].toUpperCase(),
+                                  )
+                                : null,
+                          ),
+                          title: Text(
+                            conversation.otherUserName,
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          trailing: FilledButton.tonal(
+                            onPressed: hasSent
+                                ? null
+                                : () => _sendToConversation(conversation),
+                            style: FilledButton.styleFrom(
+                              backgroundColor: hasSent
+                                  ? colorScheme.surfaceContainerHighest
                                   : colorScheme.primaryContainer,
-                               foregroundColor: hasSent
+                              foregroundColor: hasSent
                                   ? colorScheme.onSurfaceVariant
                                   : colorScheme.onPrimaryContainer,
-                             ),
-                             child: Text(hasSent ? 'Sent' : 'Send'),
-                           ),
-                         );
+                            ),
+                            child: Text(hasSent ? 'Sent' : 'Send'),
+                          ),
+                        );
                       },
                     ),
             ),

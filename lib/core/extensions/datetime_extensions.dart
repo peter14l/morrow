@@ -66,8 +66,9 @@ extension DateTimeX on DateTime {
 
   /// Format as time only (e.g., "3:30 PM").
   String get toTimeOnly {
-    final hour =
-        this.hour == 0 ? 12 : (this.hour > 12 ? this.hour - 12 : this.hour);
+    final hour = this.hour == 0
+        ? 12
+        : (this.hour > 12 ? this.hour - 12 : this.hour);
     final minuteStr = minute.toString().padLeft(2, '0');
     final period = this.hour >= 12 ? 'PM' : 'AM';
     return '$hour:$minuteStr $period';

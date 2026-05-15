@@ -162,7 +162,7 @@ class AppTheme {
       return GoogleFonts.getFont(googleFontName, textStyle: style);
     } catch (e) {
       debugPrint('Error loading font $fontFamily: $e');
-      // If Google Fonts fail (or font isn't a Google Font like Verdana/Georgia/Open Dyslexic), 
+      // If Google Fonts fail (or font isn't a Google Font like Verdana/Georgia/Open Dyslexic),
       // use the fontFamily name directly for system/asset fonts.
       return style.copyWith(fontFamily: fontFamily);
     }
@@ -183,7 +183,9 @@ class AppTheme {
     final defaultBodyFont = bodyFont ?? 'Inter';
 
     // Base colors for transparency
-    final Color micaBase = isDark ? Colors.white : Colors.black; // Flip base for glow
+    final Color micaBase = isDark
+        ? Colors.white
+        : Colors.black; // Flip base for glow
     final Color micaTint = micaBase.withValues(alpha: isDark ? 0.05 : 0.1);
     final Color micaSurface = micaBase.withValues(alpha: 0.01);
 
@@ -212,46 +214,41 @@ class AppTheme {
       );
 
       // Determine surface colors
-      final Color scaffoldBackground =
-          micaEnabled
-              ? micaSurface
-              : (hasDynamicColor
-                  ? colorScheme.surface
-                  : (isDark ? OasisColors.deep : _m3eLightSurface));
-      
-      final Color navigationBarBackground = 
-          micaEnabled
-              ? micaTint
-              : (hasDynamicColor
-                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
-                  : (isDark
-                        ? OasisColors.deep.withValues(alpha: 0.6)
-                        : _m3eLightSurfaceContainer));
+      final Color scaffoldBackground = micaEnabled
+          ? micaSurface
+          : (hasDynamicColor
+                ? colorScheme.surface
+                : (isDark ? OasisColors.deep : _m3eLightSurface));
 
-      final Color cardColor = 
-          micaEnabled
-              ? micaTint
-              : (hasDynamicColor
-                  ? colorScheme.surfaceContainerHigh
-                  : (isDark ? OasisColors.moss : _m3eLightSurfaceContainerLow));
+      final Color navigationBarBackground = micaEnabled
+          ? micaTint
+          : (hasDynamicColor
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                : (isDark
+                      ? OasisColors.deep.withValues(alpha: 0.6)
+                      : _m3eLightSurfaceContainer));
 
-      final Color appBarBackground =
-          micaEnabled
-              ? micaSurface
-              : (hasDynamicColor
-                  ? colorScheme.surface.withValues(alpha: 0.6)
-                  : (isDark
-                        ? OasisColors.deep.withValues(alpha: 0.6)
-                        : _m3eLightSurface));
+      final Color cardColor = micaEnabled
+          ? micaTint
+          : (hasDynamicColor
+                ? colorScheme.surfaceContainerHigh
+                : (isDark ? OasisColors.moss : _m3eLightSurfaceContainerLow));
 
-      final Color inputFillColor = 
-          micaEnabled
-              ? micaTint
-              : (hasDynamicColor
-                  ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-                  : (isDark
-                        ? OasisColors.moss.withValues(alpha: 0.5)
-                        : _m3eLightSurfaceContainerLow));
+      final Color appBarBackground = micaEnabled
+          ? micaSurface
+          : (hasDynamicColor
+                ? colorScheme.surface.withValues(alpha: 0.6)
+                : (isDark
+                      ? OasisColors.deep.withValues(alpha: 0.6)
+                      : _m3eLightSurface));
+
+      final Color inputFillColor = micaEnabled
+          ? micaTint
+          : (hasDynamicColor
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                : (isDark
+                      ? OasisColors.moss.withValues(alpha: 0.5)
+                      : _m3eLightSurfaceContainerLow));
 
       return ThemeData(
         useMaterial3: true,
@@ -270,7 +267,9 @@ class AppTheme {
           ),
           actionTextColor: colorScheme.primary,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
@@ -362,8 +361,8 @@ class AppTheme {
               : SystemUiOverlayStyle.dark,
         ),
         bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: micaEnabled 
-              ? micaTint 
+          backgroundColor: micaEnabled
+              ? micaTint
               : (isDark ? OasisColors.deep : _m3eLightSurface),
           surfaceTintColor: Colors.transparent,
           elevation: 0,
@@ -445,46 +444,41 @@ class AppTheme {
     );
 
     // Determine surface colors
-    final Color scaffoldBackground =
-        micaEnabled
-            ? micaSurface
-            : (hasDynamicColor
-                ? colorScheme.surface
-                : (isDark ? OasisColors.deep : _lightBackgroundColor));
-    
-    final Color appBarBackground =
-        micaEnabled
-            ? micaSurface
-            : (hasDynamicColor
-                ? colorScheme.surface.withValues(alpha: 0.6)
-                : (isDark
-                      ? OasisColors.deep.withValues(alpha: 0.6)
-                      : _lightBackgroundColor));
+    final Color scaffoldBackground = micaEnabled
+        ? micaSurface
+        : (hasDynamicColor
+              ? colorScheme.surface
+              : (isDark ? OasisColors.deep : _lightBackgroundColor));
 
-    final Color cardColor = 
-        micaEnabled
-            ? micaTint
-            : (hasDynamicColor
-                ? colorScheme.surfaceContainerHigh
-                : (isDark ? OasisColors.moss : _lightSurfaceColor));
+    final Color appBarBackground = micaEnabled
+        ? micaSurface
+        : (hasDynamicColor
+              ? colorScheme.surface.withValues(alpha: 0.6)
+              : (isDark
+                    ? OasisColors.deep.withValues(alpha: 0.6)
+                    : _lightBackgroundColor));
 
-    final Color inputFillColor = 
-        micaEnabled
-            ? micaTint
-            : (hasDynamicColor
-                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-                : ((isDark ? OasisColors.moss : _lightSurfaceColor).withValues(
-                    alpha: isDark ? 0.6 : 0.3,
-                  )));
+    final Color cardColor = micaEnabled
+        ? micaTint
+        : (hasDynamicColor
+              ? colorScheme.surfaceContainerHigh
+              : (isDark ? OasisColors.moss : _lightSurfaceColor));
 
-    final Color navigationBarBackground = 
-        micaEnabled
-            ? micaTint
-            : (hasDynamicColor
-                ? colorScheme.surface.withValues(alpha: 0.6)
-                : (isDark
-                      ? OasisColors.deep.withValues(alpha: 0.6)
-                      : Colors.transparent));
+    final Color inputFillColor = micaEnabled
+        ? micaTint
+        : (hasDynamicColor
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+              : ((isDark ? OasisColors.moss : _lightSurfaceColor).withValues(
+                  alpha: isDark ? 0.6 : 0.3,
+                )));
+
+    final Color navigationBarBackground = micaEnabled
+        ? micaTint
+        : (hasDynamicColor
+              ? colorScheme.surface.withValues(alpha: 0.6)
+              : (isDark
+                    ? OasisColors.deep.withValues(alpha: 0.6)
+                    : Colors.transparent));
 
     return ThemeData(
       useMaterial3: true,
@@ -583,7 +577,9 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         indicatorColor: hasDynamicColor
-            ? colorScheme.primaryContainer.withValues(alpha: isDark ? 0.2 : 0.12)
+            ? colorScheme.primaryContainer.withValues(
+                alpha: isDark ? 0.2 : 0.12,
+              )
             : ((isDark ? OasisColors.glow : _lightPrimaryColor).withValues(
                 alpha: isDark ? 0.2 : 0.12,
               )),
@@ -927,15 +923,18 @@ class AppTheme {
     primary: _m3eLightPrimary,
     onPrimary: _m3eLightOnPrimary,
     primaryContainer: _m3eLightPrimaryContainer,
-    onPrimaryContainer: Colors.black, // Changed from _m3eLightOnPrimaryContainer for better readability
+    onPrimaryContainer: Colors
+        .black, // Changed from _m3eLightOnPrimaryContainer for better readability
     secondary: _m3eLightSecondary,
     onSecondary: _m3eLightOnSecondary,
     secondaryContainer: _m3eLightSecondaryContainer,
-    onSecondaryContainer: Colors.black, // Changed from _m3eLightOnSecondaryContainer
+    onSecondaryContainer:
+        Colors.black, // Changed from _m3eLightOnSecondaryContainer
     tertiary: _m3eLightTertiary,
     onTertiary: _m3eLightOnTertiary,
     tertiaryContainer: _m3eLightTertiaryContainer,
-    onTertiaryContainer: Colors.black, // Changed from _m3eLightOnTertiaryContainer
+    onTertiaryContainer:
+        Colors.black, // Changed from _m3eLightOnTertiaryContainer
     error: _m3eLightError,
     onError: _m3eLightOnError,
     errorContainer: _m3eLightErrorContainer,

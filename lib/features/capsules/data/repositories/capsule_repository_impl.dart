@@ -27,12 +27,11 @@ class CapsuleRepositoryImpl implements CapsuleRepository {
       if (response.isEmpty) return [];
 
       // Fetch profile for the current user
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('id, username, avatar_url')
-              .eq('id', userId)
-              .maybeSingle();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('id, username, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
 
       return (response as List).map((e) {
         final mergedData = Map<String, dynamic>.from(e);
@@ -49,20 +48,18 @@ class CapsuleRepositoryImpl implements CapsuleRepository {
   @override
   Future<TimeCapsule?> getCapsuleById(String capsuleId) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('id', capsuleId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('id', capsuleId)
+          .single();
 
       // Fetch profile separately
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('username, avatar_url')
-              .eq('id', response['user_id'])
-              .single();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('username, avatar_url')
+          .eq('id', response['user_id'])
+          .single();
 
       final mergedData = Map<String, dynamic>.from(response);
       mergedData[SupabaseConfig.profilesTable] = profileResponse;
@@ -112,20 +109,18 @@ class CapsuleRepositoryImpl implements CapsuleRepository {
     await _supabase.from(SupabaseConfig.timeCapsulesTable).insert(capsuleData);
 
     // Fetch the created capsule
-    final response =
-        await _supabase
-            .from(SupabaseConfig.timeCapsulesTable)
-            .select()
-            .eq('id', capsuleId)
-            .single();
+    final response = await _supabase
+        .from(SupabaseConfig.timeCapsulesTable)
+        .select()
+        .eq('id', capsuleId)
+        .single();
 
     // Fetch profile separately
-    final profileResponse =
-        await _supabase
-            .from(SupabaseConfig.profilesTable)
-            .select('username, avatar_url')
-            .eq('id', userId)
-            .single();
+    final profileResponse = await _supabase
+        .from(SupabaseConfig.profilesTable)
+        .select('username, avatar_url')
+        .eq('id', userId)
+        .single();
 
     final mergedData = Map<String, dynamic>.from(response);
     mergedData[SupabaseConfig.profilesTable] = profileResponse;
@@ -195,4 +190,3 @@ class CapsuleRepositoryImpl implements CapsuleRepository {
     return TimeCapsule.fromJson(map);
   }
 }
-

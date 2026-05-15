@@ -33,12 +33,14 @@ abstract class MessageReactionModel with _$MessageReactionModel {
     @JsonKey(name: 'user_id') @Default('') String userId,
     @Default('Unknown') String username,
     @JsonKey(readValue: _readReaction) required String reaction,
-    @JsonKey(name: 'created_at', fromJson: _dateTimeFromJson) required DateTime createdAt,
+    @JsonKey(name: 'created_at', fromJson: _dateTimeFromJson)
+    required DateTime createdAt,
   }) = _MessageReactionModel;
 
   const MessageReactionModel._();
 
-  factory MessageReactionModel.fromJson(Map<String, dynamic> json) => _$MessageReactionModelFromJson(json);
+  factory MessageReactionModel.fromJson(Map<String, dynamic> json) =>
+      _$MessageReactionModelFromJson(json);
 }
 
 Object? _readReaction(Map json, String key) {

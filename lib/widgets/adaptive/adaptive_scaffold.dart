@@ -36,31 +36,48 @@ class AdaptiveScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final useFluent = Provider.of<ThemeProvider>(context).useFluentUI;
     final isDesktop = ResponsiveLayout.isDesktop(context);
-    final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
+    final liquidGlassMode = context
+        .watch<UserSettingsProvider>()
+        .liquidGlassMode;
 
     if (useFluent && isDesktop) {
       return fluent.ScaffoldPage(
-        header: header ?? (title != null || actions != null
-            ? fluent.PageHeader(
-                title: title ?? const SizedBox.shrink(),
-                commandBar: actions != null
-                    ? fluent.CommandBar(
-                        primaryItems: actions!.map<fluent.CommandBarItem>((w) {
-                          if (w is fluent.CommandBarItem) {
-                            return w as fluent.CommandBarItem;
-                          }
-                          return fluent.CommandBarBuilderItem(
-                            builder: (context, mode, child) => w,
-                            wrappedItem: fluent.CommandBarButton(
-                              onPressed: () {},
-                              icon: const SizedBox.shrink(),
-                            ),
-                          );
-                        }).toList(),
-                      )
-                    : null,
-              )
-            : null),
+        header:
+            header ??
+            (title != null || actions != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: fluent.PageHeader(
+                      title: title != null
+                          ? DefaultTextStyle.merge(
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              child: title!,
+                            )
+                          : const SizedBox.shrink(),
+                      commandBar: actions != null
+                          ? fluent.CommandBar(
+                              primaryItems: actions!.map<fluent.CommandBarItem>(
+                                (w) {
+                                  if (w is fluent.CommandBarItem) {
+                                    return w as fluent.CommandBarItem;
+                                  }
+                                  return fluent.CommandBarBuilderItem(
+                                    builder: (context, mode, child) => w,
+                                    wrappedItem: fluent.CommandBarButton(
+                                      onPressed: () {},
+                                      icon: const SizedBox.shrink(),
+                                    ),
+                                  );
+                                },
+                              ).toList(),
+                            )
+                          : null,
+                    ),
+                  )
+                : null),
         content: material.ScaffoldMessenger(
           child: material.Material(
             color: material.Colors.transparent,
@@ -75,8 +92,14 @@ class AdaptiveScaffold extends StatelessWidget {
     material.PreferredSizeWidget? materialAppBar = appBar;
 
     // Apply liquid glass to AppBar if enabled (and only if we have a title, not custom appBar)
-    if (liquidGlassMode != LiquidGlassMode.disabled && materialAppBar == null && title != null) {
-      materialAppBar = _buildLiquidGlassAppBar(title!, actions, liquidGlassMode);
+    if (liquidGlassMode != LiquidGlassMode.disabled &&
+        materialAppBar == null &&
+        title != null) {
+      materialAppBar = _buildLiquidGlassAppBar(
+        title!,
+        actions,
+        liquidGlassMode,
+      );
     }
 
     return material.Scaffold(
@@ -89,10 +112,14 @@ class AdaptiveScaffold extends StatelessWidget {
   }
 
   /// Build a new AppBar with liquid glass effect
-  material.PreferredSizeWidget _buildLiquidGlassAppBar(Widget title, List<Widget>? actions, LiquidGlassMode mode) {
+  material.PreferredSizeWidget _buildLiquidGlassAppBar(
+    Widget title,
+    List<Widget>? actions,
+    LiquidGlassMode mode,
+  ) {
     final isDarkMode = mode == LiquidGlassMode.real;
     final blurAmount = isDarkMode ? 15.0 : 10.0;
-    
+
     return material.AppBar(
       title: title,
       actions: actions,
@@ -107,7 +134,7 @@ class AdaptiveScaffold extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  isDarkMode 
+                  isDarkMode
                       ? material.Colors.white.withValues(alpha: 0.1)
                       : material.Colors.white.withValues(alpha: 0.25),
                   material.Colors.transparent,

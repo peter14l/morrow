@@ -33,7 +33,10 @@ class RippleRepositoryImpl implements RippleRepository {
     if (userId == null) throw Exception('Not authenticated');
 
     // 1. Upload video
-    final videoUrl = await _remoteDatasource.uploadRippleVideo(videoFile, userId);
+    final videoUrl = await _remoteDatasource.uploadRippleVideo(
+      videoFile,
+      userId,
+    );
 
     // 2. Create DB record
     return createRipple(

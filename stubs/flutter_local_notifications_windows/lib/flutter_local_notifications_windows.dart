@@ -1,9 +1,11 @@
 import 'package:flutter_local_notifications_platform_interface/flutter_local_notifications_platform_interface.dart';
 
 /// ATL-free Windows implementation stub for flutter_local_notifications
-class FlutterLocalNotificationsWindows extends FlutterLocalNotificationsPlatform {
+class FlutterLocalNotificationsWindows
+    extends FlutterLocalNotificationsPlatform {
   static void registerWith() {
-    FlutterLocalNotificationsPlatform.instance = FlutterLocalNotificationsWindows();
+    FlutterLocalNotificationsPlatform.instance =
+        FlutterLocalNotificationsWindows();
   }
 
   @override
@@ -13,7 +15,8 @@ class FlutterLocalNotificationsWindows extends FlutterLocalNotificationsPlatform
   Future<void> cancelAll() async {}
 
   @override
-  Future<NotificationAppLaunchDetails?> getNotificationAppLaunchDetails() async {
+  Future<NotificationAppLaunchDetails?>
+      getNotificationAppLaunchDetails() async {
     return null;
   }
 
@@ -53,26 +56,16 @@ class FlutterLocalNotificationsWindows extends FlutterLocalNotificationsPlatform
   }) async {}
 
   @override
-  Future<void> periodicallyShow(
-    int id,
-    String? title,
-    String? body,
-    RepeatInterval repeatInterval) async {}
+  Future<void> periodicallyShow(int id, String? title, String? body,
+      RepeatInterval repeatInterval) async {}
 
   @override
   Future<void> showDailyAtTime(
-    int id,
-    String? title,
-    String? body,
-    dynamic notificationTime) async {}
+      int id, String? title, String? body, dynamic notificationTime) async {}
 
   @override
-  Future<void> showWeeklyAtDayAndTime(
-    int id,
-    String? title,
-    String? body,
-    dynamic day,
-    dynamic notificationTime) async {}
+  Future<void> showWeeklyAtDayAndTime(int id, String? title, String? body,
+      dynamic day, dynamic notificationTime) async {}
 }
 
 class WindowsInitializationSettings {

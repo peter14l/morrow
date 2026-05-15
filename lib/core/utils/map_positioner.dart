@@ -7,10 +7,7 @@ import 'package:oasis/models/pulse_node_position.dart';
 class MapPositioner {
   /// Convert polar coordinates (distance, angle) to Cartesian offset
   static Offset polarToCartesian(double distance, double angle) {
-    return Offset(
-      distance * cos(angle),
-      distance * sin(angle),
-    );
+    return Offset(distance * cos(angle), distance * sin(angle));
   }
 
   /// Convert Cartesian offset to polar coordinates
@@ -45,7 +42,7 @@ class MapPositioner {
   static double viewportDiagonal(Size viewportSize) {
     return sqrt(
       viewportSize.width * viewportSize.width +
-      viewportSize.height * viewportSize.height,
+          viewportSize.height * viewportSize.height,
     );
   }
 

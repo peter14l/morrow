@@ -24,12 +24,11 @@ class TimeCapsuleService {
     try {
       final isPro = SubscriptionService().isPro;
       if (!isPro) {
-        final activeCapsulesResponse =
-            await _supabase
-                .from(SupabaseConfig.timeCapsulesTable)
-                .select('id')
-                .eq('user_id', userId)
-                .eq('is_locked', true);
+        final activeCapsulesResponse = await _supabase
+            .from(SupabaseConfig.timeCapsulesTable)
+            .select('id')
+            .eq('user_id', userId)
+            .eq('is_locked', true);
 
         if (activeCapsulesResponse.length >= 2) {
           throw Exception(
@@ -40,12 +39,11 @@ class TimeCapsuleService {
 
       // E2EE Encryption
       if (!_encryption.isInitialized) await _encryption.init();
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('public_key, username, avatar_url')
-              .eq('id', userId)
-              .single();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('public_key, username, avatar_url')
+          .eq('id', userId)
+          .single();
 
       final publicKey = profileResponse['public_key'] as String?;
       if (publicKey == null) {
@@ -82,12 +80,11 @@ class TimeCapsuleService {
       );
 
       // Fetch the created capsule
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('id', capsuleId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('id', capsuleId)
+          .single();
 
       final mergedData = Map<String, dynamic>.from(response);
       mergedData[SupabaseConfig.profilesTable] = profileResponse;
@@ -107,13 +104,12 @@ class TimeCapsuleService {
     int offset = 0,
   }) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('user_id', userId)
-              .order('created_at', ascending: false)
-              .range(offset, offset + limit - 1);
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
 
       // Privacy Audit: Log READ
       await _privacyAudit.logAccess(
@@ -125,21 +121,19 @@ class TimeCapsuleService {
       if (response.isEmpty) return [];
 
       // Fetch profile for the current user
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('id, username, avatar_url')
-              .eq('id', userId)
-              .maybeSingle();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('id, username, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
 
-      final capsules =
-          (response as List).map((e) {
-            final mergedData = Map<String, dynamic>.from(e);
-            if (profileResponse != null) {
-              mergedData[SupabaseConfig.profilesTable] = profileResponse;
-            }
-            return _transformResponse(mergedData);
-          }).toList();
+      final capsules = (response as List).map((e) {
+        final mergedData = Map<String, dynamic>.from(e);
+        if (profileResponse != null) {
+          mergedData[SupabaseConfig.profilesTable] = profileResponse;
+        }
+        return _transformResponse(mergedData);
+      }).toList();
 
       return Future.wait(capsules.map(_decryptCapsule));
     } catch (e) {
@@ -152,13 +146,12 @@ class TimeCapsuleService {
   Future<List<TimeCapsule>> getMyUnlockedCapsules(String userId) async {
     try {
       final now = DateTime.now().toIso8601String();
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('user_id', userId)
-              .lte('unlock_date', now)
-              .order('unlock_date', ascending: false);
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('user_id', userId)
+          .lte('unlock_date', now)
+          .order('unlock_date', ascending: false);
 
       // Privacy Audit: Log READ
       await _privacyAudit.logAccess(
@@ -170,21 +163,19 @@ class TimeCapsuleService {
       if (response.isEmpty) return [];
 
       // Fetch profile for the current user
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('username, avatar_url')
-              .eq('id', userId)
-              .maybeSingle();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
 
-      final capsules =
-          (response as List).map((e) {
-            final mergedData = Map<String, dynamic>.from(e);
-            if (profileResponse != null) {
-              mergedData[SupabaseConfig.profilesTable] = profileResponse;
-            }
-            return _transformResponse(mergedData);
-          }).toList();
+      final capsules = (response as List).map((e) {
+        final mergedData = Map<String, dynamic>.from(e);
+        if (profileResponse != null) {
+          mergedData[SupabaseConfig.profilesTable] = profileResponse;
+        }
+        return _transformResponse(mergedData);
+      }).toList();
 
       return Future.wait(capsules.map(_decryptCapsule));
     } catch (e) {
@@ -201,12 +192,11 @@ class TimeCapsuleService {
   /// Get a single capsule by ID
   Future<TimeCapsule> getCapsule(String capsuleId) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.timeCapsulesTable)
-              .select()
-              .eq('id', capsuleId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('id', capsuleId)
+          .single();
 
       final userId = response['user_id'] as String;
 
@@ -218,12 +208,11 @@ class TimeCapsuleService {
       );
 
       // Fetch profile separately
-      final profileResponse =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('username, avatar_url')
-              .eq('id', userId)
-              .single();
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('username, avatar_url')
+          .eq('id', userId)
+          .single();
 
       final mergedData = Map<String, dynamic>.from(response);
       mergedData[SupabaseConfig.profilesTable] = profileResponse;

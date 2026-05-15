@@ -1578,7 +1578,8 @@ class _TextBoxState extends State<TextBox>
                                     themeData
                                         .resources
                                         .controlStrongStrokeColorDefault,
-                                width: 1, // Thinner neutral border when unfocused
+                                width:
+                                    1, // Thinner neutral border when unfocused
                               ),
                             ),
                           );

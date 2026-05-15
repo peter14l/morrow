@@ -123,8 +123,9 @@ class ChatState {
       isSending: isSending ?? this.isSending,
       isRecording: isRecording ?? this.isRecording,
       recordDuration: recordDuration ?? this.recordDuration,
-      replyMessage:
-          replyMessage == _sentinel ? this.replyMessage : (replyMessage as Message?),
+      replyMessage: replyMessage == _sentinel
+          ? this.replyMessage
+          : (replyMessage as Message?),
       smartReplies: smartReplies ?? this.smartReplies,
       showingSmartReplies: showingSmartReplies ?? this.showingSmartReplies,
       activeTheme: activeTheme ?? this.activeTheme,
@@ -132,38 +133,50 @@ class ChatState {
       lastActiveWhisperMode:
           lastActiveWhisperMode ?? this.lastActiveWhisperMode,
       ephemeralDuration: ephemeralDuration ?? this.ephemeralDuration,
-      backgroundUrl:
-          backgroundUrl == _sentinel ? this.backgroundUrl : (backgroundUrl as String?),
+      backgroundUrl: backgroundUrl == _sentinel
+          ? this.backgroundUrl
+          : (backgroundUrl as String?),
       bgOpacity: bgOpacity ?? this.bgOpacity,
       bgBrightness: bgBrightness ?? this.bgBrightness,
       mediaViewMode: mediaViewMode ?? this.mediaViewMode,
-      bubbleColorSent:
-          bubbleColorSent == _sentinel ? this.bubbleColorSent : (bubbleColorSent as Color?),
-      bubbleColorReceived:
-          bubbleColorReceived == _sentinel ? this.bubbleColorReceived : (bubbleColorReceived as Color?),
-      textColorSent:
-          textColorSent == _sentinel ? this.textColorSent : (textColorSent as Color?),
-      textColorReceived:
-          textColorReceived == _sentinel ? this.textColorReceived : (textColorReceived as Color?),
+      bubbleColorSent: bubbleColorSent == _sentinel
+          ? this.bubbleColorSent
+          : (bubbleColorSent as Color?),
+      bubbleColorReceived: bubbleColorReceived == _sentinel
+          ? this.bubbleColorReceived
+          : (bubbleColorReceived as Color?),
+      textColorSent: textColorSent == _sentinel
+          ? this.textColorSent
+          : (textColorSent as Color?),
+      textColorReceived: textColorReceived == _sentinel
+          ? this.textColorReceived
+          : (textColorReceived as Color?),
       encryptionReady: encryptionReady ?? this.encryptionReady,
       selectedImages: selectedImages ?? this.selectedImages,
-      selectedVideo:
-          selectedVideo == _sentinel ? this.selectedVideo : (selectedVideo as File?),
-      selectedAudio:
-          selectedAudio == _sentinel ? this.selectedAudio : (selectedAudio as File?),
-      selectedFile:
-          selectedFile == _sentinel ? this.selectedFile : (selectedFile as PlatformFile?),
+      selectedVideo: selectedVideo == _sentinel
+          ? this.selectedVideo
+          : (selectedVideo as File?),
+      selectedAudio: selectedAudio == _sentinel
+          ? this.selectedAudio
+          : (selectedAudio as File?),
+      selectedFile: selectedFile == _sentinel
+          ? this.selectedFile
+          : (selectedFile as PlatformFile?),
       whisperDragProgress: whisperDragProgress ?? this.whisperDragProgress,
       whisperDragOffset: whisperDragOffset ?? this.whisperDragOffset,
       whisperTriggered: whisperTriggered ?? this.whisperTriggered,
-      otherUserName:
-          otherUserName == _sentinel ? this.otherUserName : (otherUserName as String?),
-      otherUserId:
-          otherUserId == _sentinel ? this.otherUserId : (otherUserId as String?),
-      otherUserAvatar:
-          otherUserAvatar == _sentinel ? this.otherUserAvatar : (otherUserAvatar as String?),
-      highlightedMessageId:
-          highlightedMessageId == _sentinel ? this.highlightedMessageId : (highlightedMessageId as String?),
+      otherUserName: otherUserName == _sentinel
+          ? this.otherUserName
+          : (otherUserName as String?),
+      otherUserId: otherUserId == _sentinel
+          ? this.otherUserId
+          : (otherUserId as String?),
+      otherUserAvatar: otherUserAvatar == _sentinel
+          ? this.otherUserAvatar
+          : (otherUserAvatar as String?),
+      highlightedMessageId: highlightedMessageId == _sentinel
+          ? this.highlightedMessageId
+          : (highlightedMessageId as String?),
       conversationType: conversationType ?? this.conversationType,
       participantIds: participantIds ?? this.participantIds,
     );

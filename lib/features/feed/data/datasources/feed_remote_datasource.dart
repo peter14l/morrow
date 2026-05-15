@@ -15,11 +15,17 @@ class FeedRemoteDatasource {
   Future<List<Map<String, dynamic>>> getFeedPosts({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
+    // Note: The RPC returns a fixed table. To get collaborators, we might need a separate query
+    // or update the RPC. For now, we'll fetch the posts then hydrate them with collaborators.
     final response = await _supabase.rpc(
       SupabaseConfig.getFeedPostsFn,
-      params: {'p_user_id': userId, 'p_limit': limit, 'p_offset': offset},
+      params: {
+        'p_user_id': userId,
+        'p_limit': limit,
+        'p_cursor_timestamp': cursor,
+      },
     );
 
     if (response == null) return [];
@@ -31,6 +37,7 @@ class FeedRemoteDatasource {
       return map;
     }).toList();
 
+    await _hydrateCollaborators(posts);
     return _hydratePolls(posts);
   }
 
@@ -38,11 +45,15 @@ class FeedRemoteDatasource {
   Future<List<Map<String, dynamic>>> getFollowingFeedPosts({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
     final response = await _supabase.rpc(
       SupabaseConfig.getFollowingFeedPostsFn,
-      params: {'p_user_id': userId, 'p_limit': limit, 'p_offset': offset},
+      params: {
+        'p_user_id': userId,
+        'p_limit': limit,
+        'p_cursor_timestamp': cursor,
+      },
     );
 
     if (response == null) return [];
@@ -54,6 +65,7 @@ class FeedRemoteDatasource {
       return map;
     }).toList();
 
+    await _hydrateCollaborators(posts);
     return _hydratePolls(posts);
   }
 
@@ -61,11 +73,15 @@ class FeedRemoteDatasource {
   Future<List<Map<String, dynamic>>> getUnifiedFeed({
     required String userId,
     int limit = 20,
-    int offset = 0,
+    String? cursor,
   }) async {
     final response = await _supabase.rpc(
       SupabaseConfig.getUnifiedFeedFn,
-      params: {'p_user_id': userId, 'p_limit': limit, 'p_offset': offset},
+      params: {
+        'p_user_id': userId,
+        'p_limit': limit,
+        'p_cursor_timestamp': cursor,
+      },
     );
 
     if (response == null) return [];
@@ -77,7 +93,48 @@ class FeedRemoteDatasource {
       return map;
     }).toList();
 
+    await _hydrateCollaborators(posts);
     return _hydratePolls(posts);
+  }
+
+  /// Hydrate posts with collaborator info.
+  Future<List<Map<String, dynamic>>> _hydrateCollaborators(
+    List<Map<String, dynamic>> posts,
+  ) async {
+    if (posts.isEmpty) return posts;
+
+    final postIds = posts.map((p) => p['id'] as String).toList();
+
+    try {
+      final collabResponse = await _supabase
+          .from('post_collaborators')
+          .select('''
+            post_id,
+            user_id,
+            status,
+            profiles:user_id (
+              username,
+              avatar_url,
+              is_verified
+            )
+          ''')
+          .inFilter('post_id', postIds);
+
+      if (collabResponse.isNotEmpty) {
+        for (final post in posts) {
+          final postCollabs = (collabResponse as List)
+              .where((c) => c['post_id'] == post['id'])
+              .toList();
+          if (postCollabs.isNotEmpty) {
+            post['collaborators'] = postCollabs;
+          }
+        }
+      }
+    } catch (e) {
+      debugPrint('[FeedRemoteDatasource] Collaborator hydration error: $e');
+    }
+
+    return posts;
   }
 
   /// Hydrate posts with their corresponding polls and options.

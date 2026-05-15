@@ -72,10 +72,7 @@ class RippleEntity {
       'is_saved': isSaved,
       'is_ad': isAd,
       'created_at': createdAt.toIso8601String(),
-      'profiles': {
-        'username': username,
-        'avatar_url': avatarUrl,
-      },
+      'profiles': {'username': username, 'avatar_url': avatarUrl},
     };
   }
 
@@ -156,10 +153,7 @@ class RippleCommentEntity {
       'user_id': userId,
       'content': content,
       'created_at': createdAt.toIso8601String(),
-      'profiles': {
-        'username': username,
-        'avatar_url': avatarUrl,
-      },
+      'profiles': {'username': username, 'avatar_url': avatarUrl},
     };
   }
 }

@@ -350,21 +350,16 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors:
-              isM3E
-                  ? [Colors.amber.shade600, Colors.deepOrange.shade700]
-                  : [Colors.amber.shade700, Colors.orange.shade900],
+          colors: isM3E
+              ? [Colors.amber.shade600, Colors.deepOrange.shade700]
+              : [Colors.amber.shade700, Colors.orange.shade900],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(isM3E ? 28 : 16),
-        border:
-            isM3E
-                ? Border.all(
-                  color: Colors.amber.withValues(alpha: 0.3),
-                  width: 1,
-                )
-                : null,
+        border: isM3E
+            ? Border.all(color: Colors.amber.withValues(alpha: 0.3), width: 1)
+            : null,
       ),
       child: ListTile(
         leading: const Icon(
@@ -385,10 +380,9 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           color: Colors.white,
           size: 16,
         ),
-        onTap:
-            () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (context) => const SubscriptionScreen())),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+        ),
       ),
     );
   }

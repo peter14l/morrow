@@ -34,6 +34,7 @@ import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:oasis/widgets/security_upgrade_banner.dart';
 import 'package:oasis/widgets/security_pin_sheet.dart';
 import 'package:oasis/widgets/encryption_pin_overlay.dart';
@@ -158,7 +159,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   // Panel state for Desktop
   String? _activePanel; // 'search', 'notifications', or null
-  final fluent.FlyoutController _fluentCreateFlyoutController = fluent.FlyoutController();
+  final fluent.FlyoutController _fluentCreateFlyoutController =
+      fluent.FlyoutController();
 
   @override
   void initState() {
@@ -258,9 +260,7 @@ class _MainLayoutState extends State<MainLayout> {
           GestureDetector(
             onTap: () => setState(() => _activePanel = null),
             behavior: HitTestBehavior.translucent,
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.01),
-            ),
+            child: Container(color: Colors.black.withValues(alpha: 0.01)),
           ),
           // Sliding panel
           motion.Animate(
@@ -285,10 +285,9 @@ class _MainLayoutState extends State<MainLayout> {
                   ),
                 ],
               ),
-              child:
-                  activePanel == 'search'
-                      ? const SearchScreen(isPanel: true)
-                      : const NotificationsScreen(isPanel: true),
+              child: activePanel == 'search'
+                  ? const SearchScreen(isPanel: true)
+                  : const NotificationsScreen(isPanel: true),
             ),
           ),
         ],
@@ -312,21 +311,23 @@ class _MainLayoutState extends State<MainLayout> {
         final killSwitchActive = wellness.zenModeEnabled;
         final isMica = userSettings.micaEnabled && Platform.isWindows;
 
-        final panelColor =
-            isMica
-                ? theme.colorScheme.surface
-                : (isM3E
-                    ? theme.colorScheme.surfaceContainer
-                    : const Color(0xFF0C0F14).withValues(alpha: 0.8));
+        final panelColor = isMica
+            ? theme.colorScheme.surface
+            : (isM3E
+                  ? theme.colorScheme.surfaceContainer
+                  : const Color(0xFF0C0F14).withValues(alpha: 0.8));
 
-        final slidingPanelColor =
-            isMica
-                ? (theme.brightness == Brightness.dark
-                    ? Colors.black.withValues(alpha: 0.2)
-                    : Colors.white.withValues(alpha: 0.2))
-                : (isM3E
-                    ? theme.colorScheme.surfaceContainerHigh
-                    : const Color(0xFF0C0F14));
+        final slidingPanelColor = context.shouldUseSolidBackground
+            ? (theme.brightness == ui.Brightness.dark
+                  ? const Color(0xFF1A1D24)
+                  : Colors.white)
+            : (isMica
+                  ? (theme.brightness == Brightness.dark
+                        ? Colors.black.withValues(alpha: 0.2)
+                        : Colors.white.withValues(alpha: 0.2))
+                  : (isM3E
+                        ? theme.colorScheme.surfaceContainerHigh
+                        : const Color(0xFF0C0F14)));
 
         if (killSwitchActive) {
           final location = GoRouterState.of(context).uri.path;
@@ -352,22 +353,21 @@ class _MainLayoutState extends State<MainLayout> {
           return fluent.NavigationView(
             pane: fluent.NavigationPane(
               header: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10.0,
+                  vertical: 8.0,
+                ),
                 child: _buildFluentCreateButton(context),
               ),
               selected: currentIndex,
-              size: const fluent.NavigationPaneSize(
-                compactWidth: 54,
+              size: const fluent.NavigationPaneSize(compactWidth: 54),
+              onChanged: (index) => _onDestinationSelected(
+                index,
+                killSwitchActive: killSwitchActive,
               ),
-              onChanged:
-                  (index) => _onDestinationSelected(
-                    index,
-                    killSwitchActive: killSwitchActive,
-                  ),
-              displayMode:
-                  _isRailExtended
-                      ? fluent.PaneDisplayMode.expanded
-                      : fluent.PaneDisplayMode.compact,
+              displayMode: _isRailExtended
+                  ? fluent.PaneDisplayMode.expanded
+                  : fluent.PaneDisplayMode.compact,
               items: [
                 fluent.PaneItem(
                   icon: const Icon(FluentIcons.home_24_regular),
@@ -421,23 +421,24 @@ class _MainLayoutState extends State<MainLayout> {
           body: RawGestureDetector(
             behavior: HitTestBehavior.translucent,
             gestures: {
-              _TwoFingerLongPressGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-                _TwoFingerLongPressGestureRecognizer
-              >(
-                () => _TwoFingerLongPressGestureRecognizer(
-                  onTwoFingerLongPress: () {
-                    setState(
-                      () => _isPrivacyBlurActive = !_isPrivacyBlurActive,
-                    );
-                    if (_isPrivacyBlurActive) {
-                      HapticFeedback.heavyImpact();
-                    } else {
-                      HapticFeedback.mediumImpact();
-                    }
-                  },
-                ),
-                (instance) {},
-              ),
+              _TwoFingerLongPressGestureRecognizer:
+                  GestureRecognizerFactoryWithHandlers<
+                    _TwoFingerLongPressGestureRecognizer
+                  >(
+                    () => _TwoFingerLongPressGestureRecognizer(
+                      onTwoFingerLongPress: () {
+                        setState(
+                          () => _isPrivacyBlurActive = !_isPrivacyBlurActive,
+                        );
+                        if (_isPrivacyBlurActive) {
+                          HapticFeedback.heavyImpact();
+                        } else {
+                          HapticFeedback.mediumImpact();
+                        }
+                      },
+                    ),
+                    (instance) {},
+                  ),
             },
             child: Stack(
               children: [
@@ -463,7 +464,7 @@ class _MainLayoutState extends State<MainLayout> {
                     ),
                   ],
                 ),
-                
+
                 // Encryption PIN Overlay (Full Screen)
                 if (_encryptionStatus == EncryptionStatus.needsRestore ||
                     _encryptionStatus == EncryptionStatus.needsSetup ||
@@ -476,14 +477,19 @@ class _MainLayoutState extends State<MainLayout> {
                       },
                     ),
                   ),
-                
+
                 // Privacy Blur Overlay
                 if (_isPrivacyBlurActive)
                   Positioned.fill(
                     child: motion.Animate(
-                      effects: const [motion.FadeEffect(duration: Duration(milliseconds: 300))],
+                      effects: const [
+                        motion.FadeEffect(
+                          duration: Duration(milliseconds: 300),
+                        ),
+                      ],
                       child: GestureDetector(
-                        onTap: () => setState(() => _isPrivacyBlurActive = false),
+                        onTap: () =>
+                            setState(() => _isPrivacyBlurActive = false),
                         child: BackdropFilter(
                           filter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
                           child: Container(
@@ -492,15 +498,20 @@ class _MainLayoutState extends State<MainLayout> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.spa_rounded, color: OasisColors.glow, size: 80),
+                                  Icon(
+                                    Icons.spa_rounded,
+                                    color: OasisColors.glow,
+                                    size: 80,
+                                  ),
                                   const SizedBox(height: 24),
                                   Text(
                                     'Privacy Mode Active',
-                                    style: theme.textTheme.headlineSmall?.copyWith(
-                                      color: OasisColors.white,
-                                      fontFamily: 'Cormorant Garamond',
-                                      fontStyle: FontStyle.italic,
-                                    ),
+                                    style: theme.textTheme.headlineSmall
+                                        ?.copyWith(
+                                          color: OasisColors.white,
+                                          fontFamily: 'Cormorant Garamond',
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -520,15 +531,14 @@ class _MainLayoutState extends State<MainLayout> {
               ],
             ),
           ),
-          bottomNavigationBar:
-              !isDesktop
-                  ? _buildBottomNavigationBar(
-                    context,
-                    currentIndex,
-                    theme,
-                    killSwitchActive: killSwitchActive,
-                  )
-                  : null,
+          bottomNavigationBar: !isDesktop
+              ? _buildBottomNavigationBar(
+                  context,
+                  currentIndex,
+                  theme,
+                  killSwitchActive: killSwitchActive,
+                )
+              : null,
           floatingActionButton: _buildFloatingActionButton(
             context,
             currentIndex,
@@ -561,55 +571,49 @@ class _MainLayoutState extends State<MainLayout> {
           showModalBottomSheet(
             context: context,
             backgroundColor: Colors.transparent,
-            builder:
-                (context) => Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surface,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(28),
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: const Icon(Icons.post_add, size: 28),
-                        title: const Text('New Post'),
-                        subtitle: const Text(
-                          'Share a moment with your community',
-                        ),
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.pushNamed('create_post');
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      ListTile(
-                        leading: const Icon(
-                          FluentIcons.video_24_regular,
-                          size: 28,
-                        ),
-                        title: const Text('New Ripple'),
-                        subtitle: const Text('Share a short video ripple'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.pushNamed('create_ripple');
-                        },
-                      ),
-                      const SizedBox(height: 12),
-                      ListTile(
-                        leading: const Icon(Icons.lock_clock, size: 28),
-                        title: const Text('Time Capsule'),
-                        subtitle: const Text('Seal a message for the future'),
-                        onTap: () {
-                          Navigator.pop(context);
-                          context.pushNamed('create_capsule');
-                        },
-                      ),
-                    ],
-                  ),
+            builder: (context) => Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
                 ),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.post_add, size: 28),
+                    title: const Text('New Post'),
+                    subtitle: const Text('Share a moment with your community'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.pushNamed('create_post');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    leading: const Icon(FluentIcons.video_24_regular, size: 28),
+                    title: const Text('New Ripple'),
+                    subtitle: const Text('Share a short video ripple'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.pushNamed('create_ripple');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  ListTile(
+                    leading: const Icon(Icons.lock_clock, size: 28),
+                    title: const Text('Time Capsule'),
+                    subtitle: const Text('Seal a message for the future'),
+                    onTap: () {
+                      Navigator.pop(context);
+                      context.pushNamed('create_capsule');
+                    },
+                  ),
+                ],
+              ),
+            ),
           );
         },
         backgroundColor: theme.colorScheme.primaryContainer,
@@ -643,14 +647,13 @@ class _MainLayoutState extends State<MainLayout> {
         killSwitchActive ? Opacity(opacity: 0.3, child: icon) : icon;
 
     final navBar = NavigationBarM3E(
-      backgroundColor:
-          disableTransparency
-              ? theme.colorScheme.surfaceContainer
-              : Colors.transparent,
+      backgroundColor: disableTransparency
+          ? theme.colorScheme.surfaceContainer
+          : Colors.transparent,
       elevation: disableTransparency ? 3 : 0,
       selectedIndex: currentIndex,
-      onDestinationSelected:
-          (i) => _onDestinationSelected(i, killSwitchActive: killSwitchActive),
+      onDestinationSelected: (i) =>
+          _onDestinationSelected(i, killSwitchActive: killSwitchActive),
       labelBehavior: NavBarM3ELabelBehavior.alwaysShow,
       destinations: [
         NavigationDestinationM3E(
@@ -713,31 +716,30 @@ class _MainLayoutState extends State<MainLayout> {
     return NavigationRail(
       extended: _isRailExtended,
       selectedIndex: currentIndex,
-      onDestinationSelected:
-          (i) => _onDestinationSelected(i, killSwitchActive: killSwitchActive),
-      labelType:
-          _isRailExtended
-              ? NavigationRailLabelType.none
-              : NavigationRailLabelType.all,
-      backgroundColor:
-          disableTransparency
-              ? theme.colorScheme.surface
-              : (isMica ? theme.colorScheme.surface : const Color(0xFF0C0F14)),
+      onDestinationSelected: (i) =>
+          _onDestinationSelected(i, killSwitchActive: killSwitchActive),
+      labelType: _isRailExtended
+          ? NavigationRailLabelType.none
+          : NavigationRailLabelType.all,
+      backgroundColor: disableTransparency
+          ? theme.colorScheme.surface
+          : (isMica ? theme.colorScheme.surface : const Color(0xFF0C0F14)),
       leading: Column(
-        crossAxisAlignment:
-            _isRailExtended
-                ? CrossAxisAlignment.stretch
-                : CrossAxisAlignment.center,
+        crossAxisAlignment: _isRailExtended
+            ? CrossAxisAlignment.stretch
+            : CrossAxisAlignment.center,
         children: [
           const SizedBox(height: 8),
           Align(
-            alignment: _isRailExtended ? Alignment.centerLeft : Alignment.center,
+            alignment: _isRailExtended
+                ? Alignment.centerLeft
+                : Alignment.center,
             child: Padding(
               padding: EdgeInsets.only(left: _isRailExtended ? 12 : 0),
               child: IconButton(
                 icon: Icon(_isRailExtended ? Icons.menu_open : Icons.menu),
-                onPressed:
-                    () => setState(() => _isRailExtended = !_isRailExtended),
+                onPressed: () =>
+                    setState(() => _isRailExtended = !_isRailExtended),
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
@@ -751,9 +753,8 @@ class _MainLayoutState extends State<MainLayout> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16),
               child: GestureDetector(
-                onTapDown:
-                    (details) =>
-                        _showCreateMenu(context, details.globalPosition, theme),
+                onTapDown: (details) =>
+                    _showCreateMenu(context, details.globalPosition, theme),
                 child: MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: Container(
@@ -807,20 +808,18 @@ class _MainLayoutState extends State<MainLayout> {
         NavigationRailDestination(
           icon: restrictedIcon(const Icon(FluentIcons.home_24_regular)),
           selectedIcon: restrictedIcon(const Icon(FluentIcons.home_24_filled)),
-          label:
-              killSwitchActive
-                  ? const Text('Feed', style: TextStyle(color: Colors.grey))
-                  : const Text('Feed'),
+          label: killSwitchActive
+              ? const Text('Feed', style: TextStyle(color: Colors.grey))
+              : const Text('Feed'),
         ),
         NavigationRailDestination(
           icon: restrictedIcon(const Icon(FluentIcons.search_24_regular)),
           selectedIcon: restrictedIcon(
             const Icon(FluentIcons.search_24_filled),
           ),
-          label:
-              killSwitchActive
-                  ? const Text('Search', style: TextStyle(color: Colors.grey))
-                  : const Text('Search'),
+          label: killSwitchActive
+              ? const Text('Search', style: TextStyle(color: Colors.grey))
+              : const Text('Search'),
         ),
         const NavigationRailDestination(
           icon: Icon(FluentIcons.channel_24_regular),
@@ -856,8 +855,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   Widget _buildDesktopCreateButton(BuildContext context, ThemeData theme) {
     return GestureDetector(
-      onTapDown:
-          (details) => _showCreateMenu(context, details.globalPosition, theme),
+      onTapDown: (details) =>
+          _showCreateMenu(context, details.globalPosition, theme),
       child: InkWell(
         onTap: () {}, // Handled by onTapDown
         borderRadius: BorderRadius.circular(12),
@@ -912,10 +911,9 @@ class _MainLayoutState extends State<MainLayout> {
         overlay.size.width - position.dx,
         overlay.size.height - position.dy,
       ),
-      color:
-          theme.brightness == Brightness.dark
-              ? const Color(0xFF1A1D24)
-              : Colors.white,
+      color: theme.brightness == Brightness.dark
+          ? const Color(0xFF1A1D24)
+          : Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 8,
       shape: RoundedRectangleBorder(
@@ -1012,8 +1010,9 @@ class _MainLayoutState extends State<MainLayout> {
           break;
         case 4:
           setState(() {
-            _activePanel =
-                _activePanel == 'notifications' ? null : 'notifications';
+            _activePanel = _activePanel == 'notifications'
+                ? null
+                : 'notifications';
           });
           break;
         case 5:
@@ -1153,9 +1152,7 @@ class AppRouter {
       navigatorKey: rootNavigatorKey,
       initialLocation: '/feed',
       refreshListenable: AuthService(),
-      observers: [
-        if (AppAnalytics.observer != null) AppAnalytics.observer!,
-      ],
+      observers: [if (AppAnalytics.observer != null) AppAnalytics.observer!],
       debugLogDiagnostics: false,
       redirect: (context, state) async {
         // Password-reset screen is always reachable once Supabase sets the
@@ -1192,44 +1189,41 @@ class AppRouter {
         return null;
       },
       routes: [
+        // Root Redirect
+        GoRoute(path: '/', redirect: (_, __) => '/feed'),
+
         // Auth Routes
         GoRoute(
           path: '/login',
           name: 'login',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const login_screen.LoginScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const login_screen.LoginScreen(),
+          ),
         ),
         GoRoute(
           path: '/register',
           name: 'register',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const RegisterScreen(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const RegisterScreen()),
         ),
         GoRoute(
           path: '/reset-password',
           name: 'reset_password',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const ResetPasswordScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const ResetPasswordScreen(),
+          ),
         ),
 
         // Set Password (for Google users who want to set a password)
         GoRoute(
           path: '/set-password',
           name: 'set_password',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const ResetPasswordScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const ResetPasswordScreen(),
+          ),
         ),
 
         // Main App Shell (Tab Navigation)
@@ -1241,18 +1235,32 @@ class AppRouter {
             GoRoute(
               path: '/feed',
               name: 'feed',
-              pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: FeedScreen()),
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: FeedScreen()),
             ),
 
             // Communities Screen
             GoRoute(
               path: '/spaces',
               name: 'spaces',
-              pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(child: SpacesScreen()),
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: SpacesScreen()),
+              routes: [
+                GoRoute(
+                  path: 'circles',
+                  name: 'spaces_circles',
+                  pageBuilder: (context, state) => const NoTransitionPage(
+                    child: SpacesScreen(initialIndex: 0),
+                  ),
+                ),
+                GoRoute(
+                  path: 'canvas',
+                  name: 'spaces_canvas',
+                  pageBuilder: (context, state) => const NoTransitionPage(
+                    child: SpacesScreen(initialIndex: 1),
+                  ),
+                ),
+              ],
             ),
 
             // Direct Messages Screen
@@ -1274,11 +1282,8 @@ class AppRouter {
             GoRoute(
               path: '/profile',
               name: 'profile',
-              pageBuilder:
-                  (context, state) =>
-                      const NoTransitionPage(
-                        child: ProfileScreen(),
-                      ),
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: ProfileScreen()),
             ),
 
             // User Profile Screen (for viewing others)
@@ -1287,9 +1292,7 @@ class AppRouter {
               name: 'user_profile',
               pageBuilder: (context, state) {
                 final userId = state.pathParameters['userId']!;
-                return NoTransitionPage(
-                  child: ProfileScreen(userId: userId),
-                );
+                return NoTransitionPage(child: ProfileScreen(userId: userId));
               },
             ),
 
@@ -1318,18 +1321,14 @@ class AppRouter {
         ),
 
         // Full Screen Screens (Outside Shell)
-        
+
         // Search Screen
         GoRoute(
           path: '/search',
           name: 'search',
           parentNavigatorKey: rootNavigatorKey,
-          pageBuilder:
-              (context, state) =>
-                  const MaterialPage(
-                    fullscreenDialog: true,
-                    child: SearchScreen(),
-                  ),
+          pageBuilder: (context, state) =>
+              const MaterialPage(fullscreenDialog: true, child: SearchScreen()),
         ),
 
         // Notifications Screen
@@ -1337,12 +1336,10 @@ class AppRouter {
           path: '/notifications',
           name: 'notifications',
           parentNavigatorKey: rootNavigatorKey,
-          pageBuilder:
-              (context, state) =>
-                  const MaterialPage(
-                    fullscreenDialog: true,
-                    child: NotificationsScreen(),
-                  ),
+          pageBuilder: (context, state) => const MaterialPage(
+            fullscreenDialog: true,
+            child: NotificationsScreen(),
+          ),
         ),
 
         // Circle Creation
@@ -1350,11 +1347,10 @@ class AppRouter {
           path: '/spaces/circles/create',
           name: 'create_circle',
           parentNavigatorKey: rootNavigatorKey,
-          pageBuilder:
-              (context, state) => const MaterialPage(
-                fullscreenDialog: true,
-                child: CreateCircleScreen(),
-              ),
+          pageBuilder: (context, state) => const MaterialPage(
+            fullscreenDialog: true,
+            child: CreateCircleScreen(),
+          ),
         ),
 
         // Canvas Creation
@@ -1362,11 +1358,10 @@ class AppRouter {
           path: '/spaces/canvas/create',
           name: 'create_canvas',
           parentNavigatorKey: rootNavigatorKey,
-          pageBuilder:
-              (context, state) => const MaterialPage(
-                fullscreenDialog: true,
-                child: CreateCanvasScreen(),
-              ),
+          pageBuilder: (context, state) => const MaterialPage(
+            fullscreenDialog: true,
+            child: CreateCanvasScreen(),
+          ),
         ),
 
         // Circle Detail
@@ -1436,8 +1431,7 @@ class AppRouter {
           name: 'chat_nested',
           parentNavigatorKey: rootNavigatorKey,
           pageBuilder: (context, state) {
-            final conversationId =
-                state.pathParameters['conversationId']!;
+            final conversationId = state.pathParameters['conversationId']!;
             final extra = state.extra as Map<String, dynamic>?;
 
             final isDesktop = ResponsiveLayout.isDesktop(context);
@@ -1448,10 +1442,7 @@ class AppRouter {
                 if (context.mounted) {
                   context.go(
                     '/messages',
-                    extra: {
-                      'initialConversationId': conversationId,
-                      ...?extra,
-                    },
+                    extra: {'initialConversationId': conversationId, ...?extra},
                   );
                 }
               });
@@ -1476,12 +1467,11 @@ class AppRouter {
         GoRoute(
           path: '/ripples',
           name: 'ripples',
-          pageBuilder:
-              (context, state) => const MaterialPage(
-                key: ValueKey('ripples_screen'),
-                fullscreenDialog: true,
-                child: RipplesScreen(),
-              ),
+          pageBuilder: (context, state) => const MaterialPage(
+            key: ValueKey('ripples_screen'),
+            fullscreenDialog: true,
+            child: RipplesScreen(),
+          ),
           routes: [
             GoRoute(
               path: ':rippleId',
@@ -1525,15 +1515,13 @@ class AppRouter {
         // Auth Callback Route (Handled by Supabase SDK, but needs a route in GoRouter)
         GoRoute(
           path: '/auth/callback',
-          builder: (context, state) => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
         ),
         GoRoute(
           path: '/auth/apple/callback',
-          builder: (context, state) => const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          ),
+          builder: (context, state) =>
+              const Scaffold(body: Center(child: CircularProgressIndicator())),
         ),
 
         // Integrated Call Screen
@@ -1548,10 +1536,7 @@ class AppRouter {
             return MaterialPage(
               key: state.pageKey,
               fullscreenDialog: true,
-              child: CallingScreen(
-                callId: callId,
-                isIncoming: isIncoming,
-              ),
+              child: CallingScreen(callId: callId, isIncoming: isIncoming),
             );
           },
         ),
@@ -1647,168 +1632,144 @@ class AppRouter {
         GoRoute(
           path: '/edit-profile',
           name: 'edit_profile',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const EditProfileScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const EditProfileScreen(),
+          ),
         ),
 
         // Settings Screen
         GoRoute(
           path: '/settings',
           name: 'settings',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const SettingsScreen(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const SettingsScreen()),
         ),
         GoRoute(
           path: '/settings/account',
           name: 'account_management',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const AccountManagementScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const AccountManagementScreen(),
+          ),
         ),
 
         // Subscription Screen
         GoRoute(
           path: '/subscription',
           name: 'subscription',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const SubscriptionScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const SubscriptionScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/account-privacy',
           name: 'account_privacy',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const AccountPrivacyScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const AccountPrivacyScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/blocked-users',
           name: 'blocked_users',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const BlockedUsersScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const BlockedUsersScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/two-factor-auth',
           name: 'two_factor_auth',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const TwoFactorAuthScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const TwoFactorAuthScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/download-data',
           name: 'download_data',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const DownloadDataScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const DownloadDataScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/storage-usage',
           name: 'storage_usage',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const StorageUsageScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const StorageUsageScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/font-size',
           name: 'font_size',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const FontSizeScreen(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const FontSizeScreen()),
         ),
         GoRoute(
           path: '/settings/help-support',
           name: 'help_support',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const HelpSupportScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const HelpSupportScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/update',
           name: 'software_update',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const UpdateSettingsScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const UpdateSettingsScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/delete-account',
           name: 'delete_account',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const DeleteAccountScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const DeleteAccountScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/home-location',
           name: 'home_location',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const HomeLocationScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const HomeLocationScreen(),
+          ),
         ),
         GoRoute(
           path: '/settings/about',
           name: 'about',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const AboutAppScreen(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const AboutAppScreen()),
           routes: [
             GoRoute(
               path: 'privacy-policy',
               name: 'privacy_policy_sub',
-              pageBuilder:
-                  (context, state) => MaterialPage(
-                    key: state.pageKey,
-                    child: const PrivacyPolicyScreen(),
-                  ),
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const PrivacyPolicyScreen(),
+              ),
             ),
             GoRoute(
               path: 'terms-of-service',
               name: 'terms_of_service_sub',
-              pageBuilder:
-                  (context, state) => MaterialPage(
-                    key: state.pageKey,
-                    child: const TermsOfServiceScreen(),
-                  ),
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const TermsOfServiceScreen(),
+              ),
             ),
             GoRoute(
               path: 'changelog',
               name: 'changelog',
-              pageBuilder:
-                  (context, state) => MaterialPage(
-                    key: state.pageKey,
-                    child: const ChangelogScreen(),
-                  ),
+              pageBuilder: (context, state) => MaterialPage(
+                key: state.pageKey,
+                child: const ChangelogScreen(),
+              ),
             ),
           ],
         ),
@@ -1826,14 +1787,10 @@ class AppRouter {
                 initialStoryId: storyId,
                 stories: stories,
               ),
-              transitionsBuilder: (
-                context,
-                animation,
-                secondaryAnimation,
-                child,
-              ) {
-                return FadeTransition(opacity: animation, child: child);
-              },
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
             );
           },
         ),
@@ -1841,50 +1798,41 @@ class AppRouter {
         GoRoute(
           path: '/wellness-stats',
           name: 'wellness_stats',
-          pageBuilder:
-              (context, state) =>
-                  const MaterialPage(child: WellnessStatsScreen()),
+          pageBuilder: (context, state) =>
+              const MaterialPage(child: WellnessStatsScreen()),
         ),
         // New Message Screen
         GoRoute(
           path: '/new-message',
           name: 'new_message',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const NewMessageScreen(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const NewMessageScreen()),
         ),
 
         // Legal Screens
         GoRoute(
           path: '/privacy-policy',
           name: 'privacy_policy',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const PrivacyPolicyScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const PrivacyPolicyScreen(),
+          ),
         ),
         GoRoute(
           path: '/terms-of-service',
           name: 'terms_of_service',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const TermsOfServiceScreen(),
-              ),
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const TermsOfServiceScreen(),
+          ),
         ),
 
         // Onboarding Screen
         GoRoute(
           path: '/onboarding',
           name: 'onboarding',
-          pageBuilder:
-              (context, state) => MaterialPage(
-                key: state.pageKey,
-                child: const OnboardingShell(),
-              ),
+          pageBuilder: (context, state) =>
+              MaterialPage(key: state.pageKey, child: const OnboardingShell()),
         ),
       ],
     );

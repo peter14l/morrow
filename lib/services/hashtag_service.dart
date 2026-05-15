@@ -59,12 +59,11 @@ class HashtagService {
       final cleanTag = tag.replaceAll('#', '');
 
       // Get hashtag ID
-      final hashtag =
-          await _supabase
-              .from('hashtags')
-              .select('id')
-              .eq('normalized_tag', cleanTag.toLowerCase())
-              .maybeSingle();
+      final hashtag = await _supabase
+          .from('hashtags')
+          .select('id')
+          .eq('normalized_tag', cleanTag.toLowerCase())
+          .maybeSingle();
 
       if (hashtag == null) return [];
 
@@ -108,12 +107,11 @@ class HashtagService {
     try {
       final cleanTag = tag.replaceAll('#', '');
 
-      final response =
-          await _supabase
-              .from('hashtags')
-              .select()
-              .eq('normalized_tag', cleanTag.toLowerCase())
-              .maybeSingle();
+      final response = await _supabase
+          .from('hashtags')
+          .select()
+          .eq('normalized_tag', cleanTag.toLowerCase())
+          .maybeSingle();
 
       if (response == null) return null;
 

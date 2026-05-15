@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class AccountSwitcherSheet extends StatelessWidget {
   const AccountSwitcherSheet({super.key});
@@ -25,19 +26,24 @@ class AccountSwitcherSheet extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final isM3E = themeProvider.isM3EEnabled;
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+    final isSolid = ContextX(context).shouldUseSolidBackground;
+    final isDark = theme.brightness == Brightness.dark;
     final authService = context.watch<AuthService>();
     final currentUserId = authService.currentUser?.id;
     final accounts = authService.registeredAccounts;
 
-    debugPrint('[AccountSwitcherSheet] Building with ${accounts.length} accounts. Current User: $currentUserId');
+    debugPrint(
+      '[AccountSwitcherSheet] Building with ${accounts.length} accounts. Current User: $currentUserId',
+    );
 
     final sheetContent = Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color:
-            disableTransparency
-                ? colorScheme.surface
-                : colorScheme.surface.withValues(alpha: 0.8),
+        color: isSolid
+            ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+            : (disableTransparency
+                  ? colorScheme.surface
+                  : colorScheme.surface.withValues(alpha: 0.8)),
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(isM3E ? 48 : 28),
         ),
@@ -87,70 +93,61 @@ class AccountSwitcherSheet extends StatelessWidget {
                       decoration: BoxDecoration(
                         shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
                         borderRadius: isM3E ? BorderRadius.circular(12) : null,
-                        border:
-                            isM3E
-                                ? Border.all(
-                                  color: colorScheme.primary,
-                                  width: 1.5,
-                                )
-                                : null,
+                        border: isM3E
+                            ? Border.all(color: colorScheme.primary, width: 1.5)
+                            : null,
                       ),
                       child: ClipRRect(
-                        borderRadius:
-                            isM3E
-                                ? BorderRadius.circular(10)
-                                : BorderRadius.circular(20),
+                        borderRadius: isM3E
+                            ? BorderRadius.circular(10)
+                            : BorderRadius.circular(20),
                         child: SizedBox(
                           width: 40,
                           height: 40,
-                          child:
-                              (account.avatarUrl ?? '').isNotEmpty
-                                  ? CachedNetworkImage(
-                                    imageUrl: account.avatarUrl!,
-                                    fit: BoxFit.cover,
-                                  )
-                                  : Container(
-                                    color: colorScheme.surfaceContainerHighest,
-                                    child: Center(
-                                      child: Text(
-                                        account.username[0].toUpperCase(),
-                                        style: TextStyle(
-                                          color: colorScheme.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                          child: (account.avatarUrl ?? '').isNotEmpty
+                              ? CachedNetworkImage(
+                                  imageUrl: account.avatarUrl!,
+                                  fit: BoxFit.cover,
+                                )
+                              : Container(
+                                  color: colorScheme.surfaceContainerHighest,
+                                  child: Center(
+                                    child: Text(
+                                      account.username[0].toUpperCase(),
+                                      style: TextStyle(
+                                        color: colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
                                   ),
+                                ),
                         ),
                       ),
                     ),
                     title: Text(
                       account.username,
                       style: TextStyle(
-                        fontWeight:
-                            isCurrent
-                                ? (isM3E ? FontWeight.w900 : FontWeight.bold)
-                                : FontWeight.normal,
+                        fontWeight: isCurrent
+                            ? (isM3E ? FontWeight.w900 : FontWeight.bold)
+                            : FontWeight.normal,
                       ),
                     ),
                     subtitle: Text(
                       account.email,
                       style: theme.textTheme.bodySmall,
                     ),
-                    trailing:
-                        isCurrent
-                            ? Icon(
-                              Icons.check_circle,
-                              color: colorScheme.primary,
-                            )
-                            : null,
-                    onTap:
-                        isCurrent
-                            ? null
-                            : () async {
-                              Navigator.pop(context);
-                              await authService.switchAccount(context, account.userId);
-                            },
+                    trailing: isCurrent
+                        ? Icon(Icons.check_circle, color: colorScheme.primary)
+                        : null,
+                    onTap: isCurrent
+                        ? null
+                        : () async {
+                            Navigator.pop(context);
+                            await authService.switchAccount(
+                              context,
+                              account.userId,
+                            );
+                          },
                   );
                 },
               ),
@@ -188,7 +185,7 @@ class AccountSwitcherSheet extends StatelessWidget {
       ),
     );
 
-    if (disableTransparency) {
+    if (isSolid || disableTransparency) {
       return sheetContent;
     }
 
@@ -215,10 +212,7 @@ class AccountSwitcherSheet extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Switch Account',
-            style: theme.typography.subtitle,
-          ),
+          child: Text('Switch Account', style: theme.typography.subtitle),
         ),
         const fluent.Divider(),
         Flexible(
@@ -234,11 +228,17 @@ class AccountSwitcherSheet extends StatelessWidget {
                     ? null
                     : () async {
                         Navigator.pop(context);
-                        await authService.switchAccount(context, account.userId);
+                        await authService.switchAccount(
+                          context,
+                          account.userId,
+                        );
                       },
                 builder: (context, states) {
                   return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
                       color: fluent.ButtonThemeData.uncheckedInputColor(
                         theme,
@@ -279,7 +279,9 @@ class AccountSwitcherSheet extends StatelessWidget {
                               Text(
                                 account.username,
                                 style: theme.typography.body?.copyWith(
-                                  fontWeight: isCurrent ? FontWeight.bold : null,
+                                  fontWeight: isCurrent
+                                      ? FontWeight.bold
+                                      : null,
                                 ),
                               ),
                               Text(
@@ -335,10 +337,7 @@ class AccountSwitcherSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Add Account',
-                    style: theme.typography.body,
-                  ),
+                  Text('Add Account', style: theme.typography.body),
                 ],
               ),
             );
@@ -350,14 +349,13 @@ class AccountSwitcherSheet extends StatelessWidget {
 
   static Future<void> show(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    
+
     if (themeProvider.useFluentUI) {
       return fluent.showDialog(
         context: context,
         barrierDismissible: true,
-        builder: (context) => const fluent.ContentDialog(
-          content: AccountSwitcherSheet(),
-        ),
+        builder: (context) =>
+            const fluent.ContentDialog(content: AccountSwitcherSheet()),
       );
     }
 

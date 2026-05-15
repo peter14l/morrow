@@ -40,9 +40,11 @@ class _FeedLayoutSwitcherState extends State<FeedLayoutSwitcher> {
   void _onLayoutSelected(FeedLayoutType layout) {
     final profile = context.read<ProfileProvider>().currentProfile;
     final isPro = profile?.isPro ?? false;
-    
+
     // Lock ZenCarousel and PulseMap for free users
-    if (!isPro && (layout == FeedLayoutType.zenCarousel || layout == FeedLayoutType.pulseMap)) {
+    if (!isPro &&
+        (layout == FeedLayoutType.zenCarousel ||
+            layout == FeedLayoutType.pulseMap)) {
       Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
       );
@@ -65,45 +67,48 @@ class _FeedLayoutSwitcherState extends State<FeedLayoutSwitcher> {
       icon: Icon(widget.currentLayout.icon),
       tooltip: 'Change feed layout',
       onSelected: _onLayoutSelected,
-      itemBuilder:
-          (context) =>
-              FeedLayoutType.values.map((layout) {
-                final isSelected = layout == widget.currentLayout;
-                final isLocked = !isPro && (layout == FeedLayoutType.zenCarousel || layout == FeedLayoutType.pulseMap);
+      itemBuilder: (context) => FeedLayoutType.values.map((layout) {
+        final isSelected = layout == widget.currentLayout;
+        final isLocked =
+            !isPro &&
+            (layout == FeedLayoutType.zenCarousel ||
+                layout == FeedLayoutType.pulseMap);
 
-                return PopupMenuItem<FeedLayoutType>(
-                  value: layout,
-                  child: Row(
-                    children: [
-                      Icon(
-                        isLocked ? Icons.lock : layout.icon,
-                        size: 20,
-                        color: isLocked 
-                            ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5) 
-                            : isSelected ? theme.colorScheme.primary : null,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          layout.displayName,
-                          style: TextStyle(
-                            color: isLocked 
-                                ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                                : isSelected ? theme.colorScheme.primary : null,
-                            fontWeight: isSelected ? FontWeight.bold : null,
-                          ),
-                        ),
-                      ),
-                      if (isSelected)
-                        Icon(
-                          Icons.check,
-                          color: theme.colorScheme.primary,
-                          size: 20,
-                        ),
-                    ],
+        return PopupMenuItem<FeedLayoutType>(
+          value: layout,
+          child: Row(
+            children: [
+              Icon(
+                isLocked ? Icons.lock : layout.icon,
+                size: 20,
+                color: isLocked
+                    ? theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
+                    : isSelected
+                    ? theme.colorScheme.primary
+                    : null,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  layout.displayName,
+                  style: TextStyle(
+                    color: isLocked
+                        ? theme.colorScheme.onSurfaceVariant.withValues(
+                            alpha: 0.5,
+                          )
+                        : isSelected
+                        ? theme.colorScheme.primary
+                        : null,
+                    fontWeight: isSelected ? FontWeight.bold : null,
                   ),
-                );
-              }).toList(),
+                ),
+              ),
+              if (isSelected)
+                Icon(Icons.check, color: theme.colorScheme.primary, size: 20),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

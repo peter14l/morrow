@@ -93,7 +93,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
       body: _conversations.isEmpty
           ? _buildEmptyState()
           : Padding(
-              padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset + 80 : 100),
+              padding: EdgeInsets.only(
+                bottom: bottomInset > 0 ? bottomInset + 80 : 100,
+              ),
               child: ListView.builder(
                 itemCount: _conversations.length,
                 itemBuilder: (context, index) {
@@ -117,7 +119,9 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
 
     return Center(
       child: SingleChildScrollView(
-        padding: EdgeInsets.only(bottom: bottomInset > 0 ? bottomInset + 80 : 100),
+        padding: EdgeInsets.only(
+          bottom: bottomInset > 0 ? bottomInset + 80 : 100,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -149,10 +153,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
               child: Text(
                 'Start a conversation by messaging a friend or community member',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: Color(0xFF9DA6B9),
-                  fontSize: 14,
-                ),
+                style: TextStyle(color: Color(0xFF9DA6B9), fontSize: 14),
               ),
             ),
             const SizedBox(height: 24),
@@ -162,7 +163,10 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1152D4),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -212,10 +216,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
         children: [
           Text(
             conversation.time,
-            style: const TextStyle(
-              color: Color(0xFF9DA6B9),
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: Color(0xFF9DA6B9), fontSize: 12),
           ),
           if (isUnread)
             Container(
@@ -310,7 +311,10 @@ class _NewMessageDialogState extends State<NewMessageDialog> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
-              contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 0,
+                horizontal: 16,
+              ),
             ),
             onChanged: (value) {},
           ),

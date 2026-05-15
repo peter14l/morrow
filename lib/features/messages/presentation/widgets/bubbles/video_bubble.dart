@@ -69,7 +69,8 @@ class _VideoBubbleState extends State<VideoBubble> {
     setState(() => _isDownloading = true);
 
     try {
-      final encryptedKeys = widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
+      final encryptedKeys =
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
       final iv = widget.message.shareData?['media_iv'] as String?;
 
       if (encryptedKeys == null || iv == null) {
@@ -94,16 +95,19 @@ class _VideoBubbleState extends State<VideoBubble> {
       debugPrint('[VideoBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to download video: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to download video: $e')));
       }
     }
   }
 
-  bool get _isRestricted => widget.message.mediaViewMode == 'once' || widget.message.mediaViewMode == 'twice';
+  bool get _isRestricted =>
+      widget.message.mediaViewMode == 'once' ||
+      widget.message.mediaViewMode == 'twice';
   int get _viewLimit => widget.message.mediaViewMode == 'once' ? 1 : 2;
-  bool get _isViewed => _isRestricted && widget.message.currentUserViewCount >= _viewLimit;
+  bool get _isViewed =>
+      _isRestricted && widget.message.currentUserViewCount >= _viewLimit;
 
   @override
   Widget build(BuildContext context) {
@@ -119,14 +123,18 @@ class _VideoBubbleState extends State<VideoBubble> {
     }
 
     Widget mainContent;
-    final isEncrypted = widget.message.shareData?['media_keys'] != null && widget.message.shareData?['media_iv'] != null;
-    
+    final isEncrypted =
+        widget.message.shareData?['media_keys'] != null &&
+        widget.message.shareData?['media_iv'] != null;
+
     if (widget.message.isUploading || (_localPath == null && isEncrypted)) {
       mainContent = Container(
         width: 200,
         height: 120,
         decoration: BoxDecoration(
-          color: widget.isMe ? Colors.black.withValues(alpha: 0.1) : theme.colorScheme.surfaceVariant.withValues(alpha: 0.5),
+          color: widget.isMe
+              ? Colors.black.withValues(alpha: 0.1)
+              : theme.colorScheme.surfaceVariant.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,
@@ -177,16 +185,19 @@ class _VideoBubbleState extends State<VideoBubble> {
               ),
             ] else if (_localPath == null && isEncrypted) ...[
               Positioned.fill(
-
                 child: Container(
                   color: Colors.black.withValues(alpha: 0.3),
                   child: Center(
-                    child: _isDownloading 
-                      ? const CircularProgressIndicator()
-                      : IconButton(
-                          icon: const Icon(Icons.download_for_offline, size: 48, color: Colors.white),
-                          onPressed: _downloadMedia,
-                        ),
+                    child: _isDownloading
+                        ? const CircularProgressIndicator()
+                        : IconButton(
+                            icon: const Icon(
+                              Icons.download_for_offline,
+                              size: 48,
+                              color: Colors.white,
+                            ),
+                            onPressed: _downloadMedia,
+                          ),
                   ),
                 ),
               ),
@@ -199,11 +210,8 @@ class _VideoBubbleState extends State<VideoBubble> {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder:
-                  (context) => ImagePreviewScreen(
-                    imageUrl: _localPath!,
-                    caption: null,
-                  ),
+              builder: (context) =>
+                  ImagePreviewScreen(imageUrl: _localPath!, caption: null),
             ),
           );
         },
@@ -233,54 +241,55 @@ class _VideoBubbleState extends State<VideoBubble> {
 
   Widget _buildRestrictedUI(ThemeData theme) {
     return GestureDetector(
-      onTap:
-          _isViewed || _localPath == null
-              ? (_localPath == null ? _downloadMedia : null)
-              : () async {
-                  await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder:
-                          (context) => ImagePreviewScreen(
-                            imageUrl: _localPath!,
-                            caption: null,
-                            messageId: widget.message.id,
-                            mediaViewMode: widget.message.mediaViewMode,
-                          ),
-                    ),
-                  );
-                  if (context.mounted) {
-                    context.read<ChatProvider>().incrementLocalMediaViewCount(widget.message.id);
-                  }
-                },
+      onTap: _isViewed || _localPath == null
+          ? (_localPath == null ? _downloadMedia : null)
+          : () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ImagePreviewScreen(
+                    imageUrl: _localPath!,
+                    caption: null,
+                    messageId: widget.message.id,
+                    mediaViewMode: widget.message.mediaViewMode,
+                  ),
+                ),
+              );
+              if (context.mounted) {
+                context.read<ChatProvider>().incrementLocalMediaViewCount(
+                  widget.message.id,
+                );
+              }
+            },
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color:
-                  widget.isMe
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : theme.colorScheme.primary.withValues(alpha: 0.1),
+              color: widget.isMe
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : theme.colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _localPath == null ? Icons.download_rounded : Icons.videocam_rounded,
+              _localPath == null
+                  ? Icons.download_rounded
+                  : Icons.videocam_rounded,
               size: 20,
-              color:
-                  _isViewed
-                      ? (widget.isMe ? Colors.white54 : Colors.grey)
-                      : (widget.isMe ? Colors.white : theme.colorScheme.primary),
+              color: _isViewed
+                  ? (widget.isMe ? Colors.white54 : Colors.grey)
+                  : (widget.isMe ? Colors.white : theme.colorScheme.primary),
             ),
           ),
           const SizedBox(width: 12),
           Text(
-            _isViewed ? 'Opened' : (_localPath == null ? 'Download Video' : 'Video'),
+            _isViewed
+                ? 'Opened'
+                : (_localPath == null ? 'Download Video' : 'Video'),
             style: theme.textTheme.bodyMedium?.copyWith(
-              color:
-                  _isViewed
-                      ? (widget.isMe ? Colors.white54 : Colors.grey)
-                      : (widget.isMe ? Colors.white : theme.colorScheme.onSurface),
+              color: _isViewed
+                  ? (widget.isMe ? Colors.white54 : Colors.grey)
+                  : (widget.isMe ? Colors.white : theme.colorScheme.onSurface),
               fontWeight: _isViewed ? FontWeight.normal : FontWeight.w600,
             ),
           ),

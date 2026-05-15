@@ -170,10 +170,9 @@ class MessageOperationsService {
           ),
           callback: (payload) {
             // Support legacy DB-based typing indicators during migration
-            final data =
-                payload.newRecord.isNotEmpty
-                    ? payload.newRecord
-                    : payload.oldRecord;
+            final data = payload.newRecord.isNotEmpty
+                ? payload.newRecord
+                : payload.oldRecord;
             if (data.isNotEmpty) {
               final userId = data['user_id'] as String?;
               if (userId != null) {
@@ -244,7 +243,9 @@ class MessageOperationsService {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return;
 
-      final modeString = whisperMode == 0 ? 'OFF' : (whisperMode == 1 ? 'INSTANT' : '24_HOURS');
+      final modeString = whisperMode == 0
+          ? 'OFF'
+          : (whisperMode == 1 ? 'INSTANT' : '24_HOURS');
 
       await _supabase.from('chat_sessions').upsert({
         'conversation_id': conversationId,
@@ -346,10 +347,9 @@ class MessageOperationsService {
           table: SupabaseConfig.messageReactionsTable,
           callback: (payload) {
             try {
-              final data =
-                  payload.newRecord.isNotEmpty
-                      ? payload.newRecord
-                      : payload.oldRecord;
+              final data = payload.newRecord.isNotEmpty
+                  ? payload.newRecord
+                  : payload.oldRecord;
               if (data.isNotEmpty) {
                 final messageId = data['message_id'] as String?;
                 if (messageId != null) {
@@ -434,24 +434,22 @@ class MessageOperationsService {
           .select('*, ${SupabaseConfig.profilesTable}:user_id (username)')
           .eq('message_id', messageId);
 
-      final reactionModels =
-          reactions.map((r) {
-            final profile =
-                r[SupabaseConfig.profilesTable] as Map<String, dynamic>?;
-            final createdAtStr = r['created_at'] as String?;
+      final reactionModels = reactions.map((r) {
+        final profile =
+            r[SupabaseConfig.profilesTable] as Map<String, dynamic>?;
+        final createdAtStr = r['created_at'] as String?;
 
-            return MessageReactionModel(
-              id: r['id'] as String? ?? '',
-              messageId: r['message_id'] as String? ?? '',
-              userId: r['user_id'] as String? ?? '',
-              username: profile?['username'] ?? 'Unknown',
-              reaction: r['emoji'] as String? ?? r['reaction'] as String? ?? '',
-              createdAt:
-                  createdAtStr != null
-                      ? DateTime.parse(createdAtStr)
-                      : DateTime.now(),
-            );
-          }).toList();
+        return MessageReactionModel(
+          id: r['id'] as String? ?? '',
+          messageId: r['message_id'] as String? ?? '',
+          userId: r['user_id'] as String? ?? '',
+          username: profile?['username'] ?? 'Unknown',
+          reaction: r['emoji'] as String? ?? r['reaction'] as String? ?? '',
+          createdAt: createdAtStr != null
+              ? DateTime.parse(createdAtStr)
+              : DateTime.now(),
+        );
+      }).toList();
 
       onUpdate(messageId, reactionModels);
     } catch (e) {

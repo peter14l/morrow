@@ -7,11 +7,7 @@ class WindowsTitleBar extends StatelessWidget {
   final double height;
   final Color? backgroundColor;
 
-  const WindowsTitleBar({
-    super.key,
-    this.height = 40.0,
-    this.backgroundColor,
-  });
+  const WindowsTitleBar({super.key, this.height = 40.0, this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +44,9 @@ class WindowsTitleBar extends StatelessWidget {
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.8,
+                        ),
                       ),
                     ),
                   ],
@@ -56,7 +54,7 @@ class WindowsTitleBar extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Window Controls
           const WindowCaptionButtons(),
         ],
@@ -123,10 +121,10 @@ class _WindowButtonState extends State<_WindowButton> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    Color hoverColor = widget.isClose 
-        ? Colors.red.withValues(alpha: 0.8) 
+    Color hoverColor = widget.isClose
+        ? Colors.red.withValues(alpha: 0.8)
         : theme.colorScheme.onSurface.withValues(alpha: 0.1);
-    
+
     Color iconColor = (_isHovered && widget.isClose)
         ? Colors.white
         : theme.colorScheme.onSurface.withValues(alpha: 0.7);
@@ -140,13 +138,7 @@ class _WindowButtonState extends State<_WindowButton> {
           width: 46,
           height: double.infinity,
           color: _isHovered ? hoverColor : Colors.transparent,
-          child: Center(
-            child: Icon(
-              widget.icon,
-              size: 16,
-              color: iconColor,
-            ),
-          ),
+          child: Center(child: Icon(widget.icon, size: 16, color: iconColor)),
         ),
       ),
     );

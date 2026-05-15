@@ -57,8 +57,8 @@ class ReplyPreview extends StatelessWidget {
                     Text(
                       message.content == 'Sent attachment'
                           ? (message.messageType == MessageType.voice
-                              ? '🎤 Voice Message'
-                              : '📷 Image')
+                                ? '🎤 Voice Message'
+                                : '📷 Image')
                           : message.content,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

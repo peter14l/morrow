@@ -18,7 +18,7 @@ class ChatBackground extends StatelessWidget {
 
   String? get _normalizedUrl {
     if (backgroundUrl == null) return null;
-    
+
     String url = backgroundUrl!;
 
     // 1. Fix legacy URLs that point to the private S3 endpoint instead of public R2 domain
@@ -30,7 +30,7 @@ class ChatBackground extends StatelessWidget {
         url = '${R2Config.r2PublicBaseUrl}/${parts.last}';
       }
     }
-    
+
     // 2. Fix URLs that are missing the folder prefix (e.g. backgrounds/)
     // This occurs if the upload service returned a URL without the folder segment.
     if (url.startsWith(R2Config.r2PublicBaseUrl)) {
@@ -40,11 +40,12 @@ class ChatBackground extends StatelessWidget {
         // If we only have <userId>/<fileId>, we are missing the <folder> segment.
         // For ChatBackground, this folder is almost always 'backgrounds'.
         if (segments.length == 2) {
-          url = '${R2Config.r2PublicBaseUrl}/backgrounds/${segments[0]}/${segments[1]}';
+          url =
+              '${R2Config.r2PublicBaseUrl}/backgrounds/${segments[0]}/${segments[1]}';
         }
       }
     }
-    
+
     return url;
   }
 

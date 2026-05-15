@@ -80,4 +80,3 @@ abstract class CanvasRepository {
   /// Upload a voice memo to Supabase Storage for use on the canvas.
   Future<String> uploadCanvasAudio(String canvasId, String filePath);
 }
-

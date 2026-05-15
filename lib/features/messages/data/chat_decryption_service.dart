@@ -5,9 +5,9 @@ import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 /// Centralized service for decrypting chat messages.
-/// 
-/// This service handles the complex logic of determining which encryption 
-/// protocol (RSA or Signal) was used for a message and performing the 
+///
+/// This service handles the complex logic of determining which encryption
+/// protocol (RSA or Signal) was used for a message and performing the
 /// decryption with appropriate fallbacks.
 class ChatDecryptionService {
   final EncryptionService _encryptionService;
@@ -20,7 +20,7 @@ class ChatDecryptionService {
        _signalService = signalService ?? SignalService();
 
   /// Decrypts a single message's content based on its encryption metadata.
-  /// 
+  ///
   /// [senderId] is the UUID of the user who sent the message.
   /// [currentUserId] is the UUID of the authenticated user.
   /// [content] is the encrypted ciphertext or a placeholder.
@@ -28,7 +28,7 @@ class ChatDecryptionService {
   /// [iv] is the initialization vector used for AES encryption.
   /// [signalMessageType] if present, indicates the message was sent via Signal Protocol.
   /// [signalSenderContent] contains an RSA-encrypted copy for the sender's own recovery.
-  /// 
+  ///
   /// Returns the plain-text content or a placeholder if decryption fails.
   Future<String> decryptMessageContent({
     required String senderId,
@@ -49,13 +49,15 @@ class ChatDecryptionService {
       // 1. Try PQ-Aura (Post-Quantum)
       if (!isSender) {
         final pqaService = PQAuraService.instance;
-        
+
         // Group PQ-Aura check
-        if (encryptedKeys != null && encryptedKeys['protocol'] == 'pq_aura_group') {
+        if (encryptedKeys != null &&
+            encryptedKeys['protocol'] == 'pq_aura_group') {
           final headerKey = 'pqa_header_$currentUserId';
           final payloadKey = 'pqa_payload_$currentUserId';
-          
-          if (encryptedKeys.containsKey(headerKey) && encryptedKeys.containsKey(payloadKey)) {
+
+          if (encryptedKeys.containsKey(headerKey) &&
+              encryptedKeys.containsKey(payloadKey)) {
             decryptedContent = await pqaService.decryptMessage(
               senderId,
               base64Decode(encryptedKeys[headerKey]!),
@@ -63,9 +65,11 @@ class ChatDecryptionService {
             );
           }
         }
-        
+
         // Single recipient PQ-Aura check
-        if (decryptedContent == null && pqAuraHeader != null && pqAuraPayload != null) {
+        if (decryptedContent == null &&
+            pqAuraHeader != null &&
+            pqAuraPayload != null) {
           decryptedContent = await pqaService.decryptMessage(
             senderId,
             base64Decode(pqAuraHeader),
@@ -93,17 +97,18 @@ class ChatDecryptionService {
         if (decryptedContent == 'PROTOCOL_SYNC') {
           return '🔒 Connection optimized';
         }
-        if (decryptedContent.contains('🔒') || decryptedContent.contains('Optimizing')) {
+        if (decryptedContent.contains('🔒') ||
+            decryptedContent.contains('Optimizing')) {
           decryptedContent = null;
         }
       }
 
       // 3. Try RSA Fallback (Dual-layer for both sender and recipient)
       if (decryptedContent == null) {
-        final rsaCiphertext = isSender 
-            ? signalSenderContent 
+        final rsaCiphertext = isSender
+            ? signalSenderContent
             : (signalSenderContent ?? content);
-        
+
         if (rsaCiphertext != null && encryptedKeys != null && iv != null) {
           decryptedContent = await _encryptionService.decryptMessage(
             rsaCiphertext,

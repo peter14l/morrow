@@ -10,22 +10,19 @@ import 'package:oasis/services/home_location_service.dart';
 class GeofenceMonitorService {
   static const MethodChannel _channel = MethodChannel('oasis/geofence');
   final HomeLocationService _homeLocationService;
-  
+
   /// Radius in meters for geofence detection (default: 100m)
   final int radius;
-  
+
   /// Callback invoked when user arrives home (enters geofence)
   void Function()? onHomeArrived;
 
   /// Callback invoked when user leaves home (exits geofence)
   void Function()? onHomeLeft;
-  
+
   bool _isMonitoring = false;
-  
-  GeofenceMonitorService(
-    this._homeLocationService, {
-    this.radius = 100,
-  }) {
+
+  GeofenceMonitorService(this._homeLocationService, {this.radius = 100}) {
     _channel.setMethodCallHandler(_handleMethodCall);
   }
 
@@ -47,13 +44,13 @@ class GeofenceMonitorService {
         break;
     }
   }
-  
+
   /// Current monitoring state
   bool get isMonitoring => _isMonitoring;
-  
+
   /// Get the geofence radius in meters
   int get radiusMeters => radius;
-  
+
   /// Start monitoring location for home arrival using native OS Geofencing.
   Future<bool> startMonitoring() async {
     final homeLocation = await _homeLocationService.getHomeLocation();
@@ -61,11 +58,12 @@ class GeofenceMonitorService {
       debugPrint('[Geofence] Cannot start: Home location not set');
       return false;
     }
-    
+
     try {
       // 1. Check/Request Permissions
       final permission = await checkAndRequestPermission();
-      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
         debugPrint('[Geofence] Cannot start: Permission denied');
         return false;
       }
@@ -77,16 +75,18 @@ class GeofenceMonitorService {
         'lon': homeLocation.longitude,
         'radius': radius.toDouble(),
       });
-      
+
       _isMonitoring = true;
-      debugPrint('[Geofence] Native monitoring started for (${homeLocation.latitude}, ${homeLocation.longitude})');
+      debugPrint(
+        '[Geofence] Native monitoring started for (${homeLocation.latitude}, ${homeLocation.longitude})',
+      );
       return true;
     } catch (e) {
       debugPrint('[Geofence] Error starting native monitoring: $e');
       return false;
     }
   }
-  
+
   /// Stop monitoring location.
   Future<void> stopMonitoring() async {
     try {
@@ -97,12 +97,12 @@ class GeofenceMonitorService {
       debugPrint('[Geofence] Error stopping native monitoring: $e');
     }
   }
-  
+
   /// Check if location services are enabled.
   Future<bool> isLocationServiceEnabled() async {
     return await Geolocator.isLocationServiceEnabled();
   }
-  
+
   /// Check and request location permission.
   /// Note: Native geofencing often requires background permission on Android 10+.
   Future<LocationPermission> checkAndRequestPermission() async {
@@ -119,7 +119,8 @@ class GeofenceMonitorService {
     }
 
     return permission;
-  }  
+  }
+
   /// Get current position (requires permission).
   Future<Position?> getCurrentPosition() async {
     try {
@@ -138,12 +139,12 @@ class GeofenceMonitorService {
       lat,
       lon,
       homeLocation.latitude,
-      homeLocation.longitude
+      homeLocation.longitude,
     );
 
     return distance <= radius;
   }
-  
+
   /// Dispose of resources.
   void dispose() {
     _channel.setMethodCallHandler(null);

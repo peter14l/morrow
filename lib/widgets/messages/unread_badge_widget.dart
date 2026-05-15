@@ -27,10 +27,7 @@ class UnreadBadgeWidget extends StatelessWidget {
       opacity: count > 0 ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 200),
       child: Container(
-        constraints: BoxConstraints(
-          minWidth: size,
-          minHeight: size,
-        ),
+        constraints: BoxConstraints(minWidth: size, minHeight: size),
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
           color: backgroundColor ?? colorScheme.error,
@@ -52,4 +49,3 @@ class UnreadBadgeWidget extends StatelessWidget {
     );
   }
 }
-

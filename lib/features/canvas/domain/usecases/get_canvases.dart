@@ -11,4 +11,3 @@ class GetCanvases {
     return _repository.getCanvases(userId);
   }
 }
-

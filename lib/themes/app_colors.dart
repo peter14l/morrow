@@ -30,14 +30,14 @@ class DarkColors {
 
 // Oasis "Organic Luxury" Palette
 class OasisColors {
-  static const Color deep = Color(0xFF0D1F1A);      // Background / Scaffold
-  static const Color moss = Color(0xFF1E3A2F);      // Primary Surface
-  static const Color sage = Color(0xFF3D6B55);      // Secondary Surface / Borders
-  static const Color mist = Color(0xFFA8C5B5);      // Muted Text
-  static const Color glow = Color(0xFF7FFFD4);      // Accent / Primary Action
-  static const Color sand = Color(0xFFE8D9C0);      // Display Headings
-  static const Color white = Color(0xFFF5F5F0);     // Pure Text
-  
+  static const Color deep = Color(0xFF0D1F1A); // Background / Scaffold
+  static const Color moss = Color(0xFF1E3A2F); // Primary Surface
+  static const Color sage = Color(0xFF3D6B55); // Secondary Surface / Borders
+  static const Color mist = Color(0xFFA8C5B5); // Muted Text
+  static const Color glow = Color(0xFF7FFFD4); // Accent / Primary Action
+  static const Color sand = Color(0xFFE8D9C0); // Display Headings
+  static const Color white = Color(0xFFF5F5F0); // Pure Text
+
   // Opacity variants for Glassmorphism
   static Color glassBackground = deep.withValues(alpha: 0.6);
   static Color glassBorder = glow.withValues(alpha: 0.1);
@@ -161,12 +161,22 @@ class LegacyAppTheme {
   static ThemeData get lightTheme {
     // Create text theme with proper styling
     final textTheme = TextTheme(
-      displayLarge: AppTextStyles.displayLarge.copyWith(color: LightColors.onBackground),
-      displayMedium: AppTextStyles.displayMedium.copyWith(color: LightColors.onBackground),
-      titleLarge: AppTextStyles.titleLarge.copyWith(color: LightColors.onBackground),
+      displayLarge: AppTextStyles.displayLarge.copyWith(
+        color: LightColors.onBackground,
+      ),
+      displayMedium: AppTextStyles.displayMedium.copyWith(
+        color: LightColors.onBackground,
+      ),
+      titleLarge: AppTextStyles.titleLarge.copyWith(
+        color: LightColors.onBackground,
+      ),
       bodyLarge: AppTextStyles.bodyLarge.copyWith(color: LightColors.onSurface),
-      bodyMedium: AppTextStyles.bodyMedium.copyWith(color: LightColors.onSurface),
-      labelLarge: AppTextStyles.labelLarge.copyWith(color: LightColors.onBackground),
+      bodyMedium: AppTextStyles.bodyMedium.copyWith(
+        color: LightColors.onSurface,
+      ),
+      labelLarge: AppTextStyles.labelLarge.copyWith(
+        color: LightColors.onBackground,
+      ),
     );
 
     return ThemeData(
@@ -178,9 +188,7 @@ class LegacyAppTheme {
         error: LightColors.error,
       ),
       textTheme: textTheme,
-      extensions: const <ThemeExtension<dynamic>>[
-        AppThemeExtension.light,
-      ],
+      extensions: const <ThemeExtension<dynamic>>[AppThemeExtension.light],
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: LightColors.surface,
@@ -211,12 +219,22 @@ class LegacyAppTheme {
   static ThemeData get darkTheme {
     // Create text theme with proper styling
     final textTheme = TextTheme(
-      displayLarge: AppTextStyles.displayLarge.copyWith(color: DarkColors.onBackground),
-      displayMedium: AppTextStyles.displayMedium.copyWith(color: DarkColors.onBackground),
-      titleLarge: AppTextStyles.titleLarge.copyWith(color: DarkColors.onBackground),
+      displayLarge: AppTextStyles.displayLarge.copyWith(
+        color: DarkColors.onBackground,
+      ),
+      displayMedium: AppTextStyles.displayMedium.copyWith(
+        color: DarkColors.onBackground,
+      ),
+      titleLarge: AppTextStyles.titleLarge.copyWith(
+        color: DarkColors.onBackground,
+      ),
       bodyLarge: AppTextStyles.bodyLarge.copyWith(color: DarkColors.onSurface),
-      bodyMedium: AppTextStyles.bodyMedium.copyWith(color: DarkColors.onSurface),
-      labelLarge: AppTextStyles.labelLarge.copyWith(color: DarkColors.onBackground),
+      bodyMedium: AppTextStyles.bodyMedium.copyWith(
+        color: DarkColors.onSurface,
+      ),
+      labelLarge: AppTextStyles.labelLarge.copyWith(
+        color: DarkColors.onBackground,
+      ),
     );
 
     return ThemeData(
@@ -228,9 +246,7 @@ class LegacyAppTheme {
         error: DarkColors.error,
       ),
       textTheme: textTheme,
-      extensions: const <ThemeExtension<dynamic>>[
-        AppThemeExtension.dark,
-      ],
+      extensions: const <ThemeExtension<dynamic>>[AppThemeExtension.dark],
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: DarkColors.surface,

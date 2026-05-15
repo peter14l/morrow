@@ -1,11 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 
-enum LiquidGlassMode {
-  disabled,
-  fake,
-  real,
-}
+enum LiquidGlassMode { disabled, fake, real }
 
 class UserSettingsEntity extends Equatable {
   final bool dataSaver;

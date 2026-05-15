@@ -119,7 +119,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
         energyMeter.onResumed();
         wellness.onResumed();
         ripples.onResumed();
-        
+
         // Check home arrival on app resume
         _checkHomeArrival();
 
@@ -131,48 +131,48 @@ class _LifecycleManagerState extends State<LifecycleManager>
       });
     }
   }
-  
+
   void _checkHomeArrival() {
     // Initialize and check home arrival
     final homeArrivalService = HomeArrivalService();
     homeArrivalService.initialize();
-    
+
     // Set up callback for home arrival notification
     homeArrivalService.onHomeArrived = () {
       // Check if there's a pending verification to avoid duplicate dialogs
       _handleHomeArrivalWithVerification();
     };
-    
+
     // Check current state
     homeArrivalService.checkNow();
   }
-  
+
   void _handleHomeArrivalWithVerification() async {
     // Get context safely
-    final context =mounted ? this.context : null;
+    final context = mounted ? this.context : null;
     if (context == null) return;
-    
+
     try {
       // Initialize services
       final prefs = PrefsStorage();
       final repository = HomeCheckinRepository();
       final checkinService = HomeCheckinService(repository, prefs);
-      
+
       // Check if there's already a pending verification
       final hasPending = await checkinService.hasPendingVerification();
       if (hasPending) {
         debugPrintThrottled('Verification already pending, skipping dialog');
         return;
       }
-      
+
       // Mark that user arrived and verification is needed
       await checkinService.markHomeArrived();
-      
+
       // Show verification dialog after a brief delay
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       if (!mounted) return;
-      
+
       // Show verification dialog
       await VerificationDialog.show(
         context,
@@ -181,11 +181,11 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.checkIn();
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-            material.SnackBar(
-              content: Text('❤️ Your partner has been notified!'),
-              backgroundColor: material.Colors.green,
-            ),
-          );
+              material.SnackBar(
+                content: Text('❤️ Your partner has been notified!'),
+                backgroundColor: material.Colors.green,
+              ),
+            );
           }
         },
         onDeny: () async {
@@ -193,11 +193,11 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.verifyCheckIn(wasAccurate: false);
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-            material.SnackBar(
-              content: Text('⚠️ Your partner has been warned'),
-              backgroundColor: material.Colors.orange,
-            ),
-          );
+              material.SnackBar(
+                content: Text('⚠️ Your partner has been warned'),
+                backgroundColor: material.Colors.orange,
+              ),
+            );
           }
         },
       );
@@ -565,7 +565,9 @@ class _MyAppState extends State<MyApp> {
               context.read<CallProvider>();
             }
           } else {
-            debugPrint('[MainApp] Widget unmounted before 500ms delay, skipping circle/canvas load');
+            debugPrint(
+              '[MainApp] Widget unmounted before 500ms delay, skipping circle/canvas load',
+            );
           }
         }),
       );
@@ -581,14 +583,14 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     final router = AppRouter.router;
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = context.watch<ThemeProvider>();
+    final userSettings = context.watch<UserSettingsProvider>();
     final authService = Provider.of<AuthService>(context, listen: false);
 
     return DynamicColorBuilder(
       builder: (material.ColorScheme? lightDynamic, material.ColorScheme? darkDynamic) {
-        final userSettings = Provider.of<UserSettingsProvider>(context);
-
         // OPTIMIZATION: Cache theme objects to prevent expensive re-calculation on every rebuild
+        // but ensure key includes all relevant styling tokens for desktop reactivity.
         final settingsKey =
             '${themeProvider.themeMode}_'
             '${themeProvider.isM3EEnabled}_'
@@ -699,24 +701,23 @@ class _MyAppState extends State<MyApp> {
                   return material.ScaffoldMessenger(
                     child: material.Stack(
                       children: [
-                        material.Column(
-                          children: [
-                            if (Platform.isWindows)
-                              const WindowsTitleBar(height: 48),
-                            material.Expanded(
-                              child: material.MediaQuery(
-                                data: material.MediaQuery.of(context).copyWith(
-                                  textScaler: material.TextScaler.linear(
-                                    userSettings.fontSizeFactor,
-                                  ),
-                                ),
-                                child: GlobalWellnessWrapper(
-                                  child: CallNavigator(child: child!),
-                                ),
+                        material.Padding(
+                          padding: material.EdgeInsets.only(
+                            top: Platform.isWindows ? 32 : 0,
+                          ),
+                          child: material.MediaQuery(
+                            data: material.MediaQuery.of(context).copyWith(
+                              textScaler: material.TextScaler.linear(
+                                userSettings.fontSizeFactor,
                               ),
                             ),
-                          ],
+                            child: GlobalWellnessWrapper(
+                              child: CallNavigator(child: child!),
+                            ),
+                          ),
                         ),
+                        if (Platform.isWindows)
+                          const WindowsTitleBar(height: 32),
                         FloatingCallOverlay(),
                       ],
                     ),
@@ -735,25 +736,23 @@ class _MyAppState extends State<MyApp> {
               builder: (context, child) {
                 return material.Stack(
                   children: [
-                    material.Column(
-                      children: [
-                        if (Platform.isWindows)
-                          const WindowsTitleBar(height: 48),
-                        material.Expanded(
-                          child: material.MediaQuery(
-                            data: material.MediaQuery.of(context).copyWith(
-                              textScaler: material.TextScaler.linear(
-                                userSettings.fontSizeFactor,
-                              ),
-                              boldText: false,
-                            ),
-                            child: GlobalWellnessWrapper(
-                              child: CallNavigator(child: child!),
-                            ),
+                    material.Padding(
+                      padding: material.EdgeInsets.only(
+                        top: Platform.isWindows ? 32 : 0,
+                      ),
+                      child: material.MediaQuery(
+                        data: material.MediaQuery.of(context).copyWith(
+                          textScaler: material.TextScaler.linear(
+                            userSettings.fontSizeFactor,
                           ),
+                          boldText: false,
                         ),
-                      ],
+                        child: GlobalWellnessWrapper(
+                          child: CallNavigator(child: child!),
+                        ),
+                      ),
                     ),
+                    if (Platform.isWindows) const WindowsTitleBar(height: 32),
                     FloatingCallOverlay(),
                   ],
                 );
@@ -844,10 +843,10 @@ void main() async {
   // 2. Silence Flutter framework errors that are harmless but messy
   material.FlutterError.onError = (material.FlutterErrorDetails details) {
     final exception = details.exception;
+    final errorStr = exception.toString();
     if (exception is AssertionError) {
-      final message = exception.message?.toString() ?? '';
-      if (message.contains('RawKeyDownEvent') &&
-          message.contains('_keysPressed.isNotEmpty')) {
+      if (errorStr.contains('RawKeyDownEvent') &&
+          errorStr.contains('_keysPressed.isNotEmpty')) {
         // Silencing the Windows "Alt" key assertion error
         return;
       }
@@ -859,22 +858,33 @@ void main() async {
 
   // 3. Catch all uncaught asynchronous errors (replaces runZonedGuarded)
   ui.PlatformDispatcher.instance.onError = (error, stack) {
-    final errorStr = error.toString().toLowerCase();
+    final errorStr = error.toString();
+    final errorStrLower = errorStr.toLowerCase();
+
+    if (error is AssertionError) {
+      if (errorStr.contains('RawKeyDownEvent') &&
+          errorStr.contains('_keysPressed.isNotEmpty')) {
+        // Silencing the Windows "Alt" key assertion error
+        return true;
+      }
+    }
 
     // Ignore transient network or realtime errors that shouldn't crash the UI
-    if (errorStr.contains('realtimesubscribeexception') ||
-        errorStr.contains('channelerror') ||
-        errorStr.contains('socketexception') ||
-        errorStr.contains('handshakeexception') ||
-        errorStr.contains('connection closed before full header') ||
-        errorStr.contains('software caused connection abort') ||
-        errorStr.contains('authretryablefetchexception') ||
-        errorStr.contains('clientexception') ||
-        errorStr.contains('timeoutexception') ||
-        errorStr.contains('authapierror') ||
-        errorStr.contains('xmlhttprequest error') ||
-        errorStr.contains('invalid statuscode: 404') ||
-        errorStr.contains('failed host lookup')) {
+    if (errorStrLower.contains('realtimesubscribeexception') ||
+        errorStrLower.contains('channelerror') ||
+        errorStrLower.contains('socketexception') ||
+        errorStrLower.contains('handshakeexception') ||
+        errorStrLower.contains('connection closed before full header') ||
+        errorStrLower.contains('software caused connection abort') ||
+        errorStrLower.contains('authretryablefetchexception') ||
+        errorStrLower.contains('clientexception') ||
+        errorStrLower.contains('timeoutexception') ||
+        errorStrLower.contains('authapierror') ||
+        errorStrLower.contains('authapiexception') ||
+        errorStrLower.contains('refresh_token_not_found') ||
+        errorStrLower.contains('xmlhttprequest error') ||
+        errorStrLower.contains('invalid statuscode: 404') ||
+        errorStrLower.contains('failed host lookup')) {
       material.debugPrint(
         '[GlobalError] Ignoring transient network/auth error: $error',
       );
@@ -1052,10 +1062,10 @@ void _showErrorScreen(
 @pragma('vm:entry-point')
 void callingMain() async {
   material.WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Try to load env but don't block
   await AppInitializer.loadEnv();
-  
+
   // Minimal services for calling
   try {
     await Firebase.initializeApp(
@@ -1067,13 +1077,15 @@ void callingMain() async {
 
   // We fetch intent data using a dedicated method channel we defined in OasisCallActivity
   const channel = services.MethodChannel('oasis/call_intent');
-  
+
   String callerName = "Unknown";
   String callId = "";
   String callerAvatar = "";
-  
+
   try {
-    final data = await channel.invokeMapMethod<String, dynamic>('getIncomingCallData');
+    final data = await channel.invokeMapMethod<String, dynamic>(
+      'getIncomingCallData',
+    );
     if (data != null) {
       callerName = data['callerName'] ?? "Unknown";
       callId = data['callId'] ?? "";
@@ -1101,17 +1113,23 @@ void callingMain() async {
                       if (callerAvatar.isNotEmpty)
                         material.CircleAvatar(
                           radius: 60,
-                          backgroundImage: CachedNetworkImageProvider(callerAvatar),
+                          backgroundImage: CachedNetworkImageProvider(
+                            callerAvatar,
+                          ),
                         )
                       else
                         const material.CircleAvatar(
                           radius: 60,
                           backgroundColor: material.Color(0xFF1A1D24),
-                          child: material.Icon(material.Icons.person, size: 60, color: material.Colors.white54),
+                          child: material.Icon(
+                            material.Icons.person,
+                            size: 60,
+                            color: material.Colors.white54,
+                          ),
                         ),
-                        
+
                       const material.SizedBox(height: 32),
-                      
+
                       material.Text(
                         callerName,
                         style: const material.TextStyle(
@@ -1120,9 +1138,9 @@ void callingMain() async {
                           fontWeight: material.FontWeight.bold,
                         ),
                       ),
-                      
+
                       const material.SizedBox(height: 8),
-                      
+
                       material.Text(
                         'Oasis Audio Call',
                         style: material.TextStyle(
@@ -1130,14 +1148,18 @@ void callingMain() async {
                           fontSize: 16,
                         ),
                       ),
-                      
+
                       const material.Spacer(),
-                      
+
                       // Buttons
                       material.Padding(
-                        padding: const material.EdgeInsets.symmetric(horizontal: 48.0, vertical: 64.0),
+                        padding: const material.EdgeInsets.symmetric(
+                          horizontal: 48.0,
+                          vertical: 64.0,
+                        ),
                         child: material.Row(
-                          mainAxisAlignment: material.MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment:
+                              material.MainAxisAlignment.spaceBetween,
                           children: [
                             // Decline
                             material.Column(
@@ -1145,16 +1167,26 @@ void callingMain() async {
                                 material.FloatingActionButton(
                                   heroTag: 'decline_btn',
                                   onPressed: () async {
-                                    await channel.invokeMethod('finishCallActivity');
+                                    await channel.invokeMethod(
+                                      'finishCallActivity',
+                                    );
                                   },
                                   backgroundColor: material.Colors.redAccent,
-                                  child: const material.Icon(material.Icons.call_end, color: material.Colors.white),
+                                  child: const material.Icon(
+                                    material.Icons.call_end,
+                                    color: material.Colors.white,
+                                  ),
                                 ),
                                 const material.SizedBox(height: 12),
-                                const material.Text('Decline', style: material.TextStyle(color: material.Colors.white)),
+                                const material.Text(
+                                  'Decline',
+                                  style: material.TextStyle(
+                                    color: material.Colors.white,
+                                  ),
+                                ),
                               ],
                             ),
-                            
+
                             // Accept
                             material.Column(
                               children: [
@@ -1168,15 +1200,23 @@ void callingMain() async {
                                     });
                                   },
                                   backgroundColor: material.Colors.greenAccent,
-                                  child: const material.Icon(material.Icons.call, color: material.Colors.white),
+                                  child: const material.Icon(
+                                    material.Icons.call,
+                                    color: material.Colors.white,
+                                  ),
                                 ),
                                 const material.SizedBox(height: 12),
-                                const material.Text('Accept', style: material.TextStyle(color: material.Colors.white)),
+                                const material.Text(
+                                  'Accept',
+                                  style: material.TextStyle(
+                                    color: material.Colors.white,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ),

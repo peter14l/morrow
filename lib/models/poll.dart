@@ -109,7 +109,8 @@ class PollOption {
       id: json['id'] as String,
       text: json['text'] as String,
       votes: json['votes'] as int? ?? 0,
-      voters: (json['voters'] as List<dynamic>?)
+      voters:
+          (json['voters'] as List<dynamic>?)
               ?.map((e) => e as String)
               .toList() ??
           [],
@@ -117,12 +118,7 @@ class PollOption {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'text': text,
-      'votes': votes,
-      'voters': voters,
-    };
+    return {'id': id, 'text': text, 'votes': votes, 'voters': voters};
   }
 
   PollOption copyWith({
@@ -180,4 +176,3 @@ class PollVote {
     };
   }
 }
-

@@ -58,8 +58,8 @@ class StoryModel {
           : null,
       interactiveMetadata: json['interactive_metadata'] != null
           ? (json['interactive_metadata'] as List<dynamic>)
-              .map((s) => StorySticker.fromJson(s as Map<String, dynamic>))
-              .toList()
+                .map((s) => StorySticker.fromJson(s as Map<String, dynamic>))
+                .toList()
           : null,
     );
   }
@@ -81,8 +81,9 @@ class StoryModel {
       'has_viewed': hasViewed,
       'music_id': musicId,
       'music_metadata': musicMetadata?.toJson(),
-      'interactive_metadata':
-          interactiveMetadata?.map((s) => s.toJson()).toList(),
+      'interactive_metadata': interactiveMetadata
+          ?.map((s) => s.toJson())
+          .toList(),
     };
   }
 

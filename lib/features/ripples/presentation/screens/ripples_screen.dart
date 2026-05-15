@@ -19,6 +19,8 @@ import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
+import 'package:oasis/core/utils/responsive_layout.dart';
+import 'package:oasis/core/extensions/context_extensions.dart';
 
 class RipplesScreen extends StatefulWidget {
   final VoidCallback? onExit;
@@ -154,7 +156,7 @@ class _RipplesScreenState extends State<RipplesScreen>
     return GrayscaleDetox(
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bool isDesktop = constraints.maxWidth >= 1000;
+          final bool isDesktop = ResponsiveLayout.isDesktop(context);
 
           if (isDesktop) {
             return Scaffold(
@@ -165,25 +167,29 @@ class _RipplesScreenState extends State<RipplesScreen>
                   Positioned.fill(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 500),
-                      child: Image.network(
-                        currentRipple.thumbnailUrl ?? '',
-                        key: ValueKey('bg_${currentRipple.id}'),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Container(color: Colors.black),
-                      ).animate(
-                        key: ValueKey('anim_bg_${currentRipple.id}'),
-                      ).scale(
-                        begin: const Offset(1.0, 1.0),
-                        end: const Offset(1.2, 1.2),
-                        duration: 20.seconds,
-                        curve: Curves.linear,
-                      ).move(
-                        begin: const Offset(-20, -20),
-                        end: const Offset(20, 20),
-                        duration: 20.seconds,
-                        curve: Curves.linear,
-                      ),
+                      child:
+                          Image.network(
+                                currentRipple.thumbnailUrl ?? '',
+                                key: ValueKey('bg_${currentRipple.id}'),
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(color: Colors.black),
+                              )
+                              .animate(
+                                key: ValueKey('anim_bg_${currentRipple.id}'),
+                              )
+                              .scale(
+                                begin: const Offset(1.0, 1.0),
+                                end: const Offset(1.2, 1.2),
+                                duration: 20.seconds,
+                                curve: Curves.linear,
+                              )
+                              .move(
+                                begin: const Offset(-20, -20),
+                                end: const Offset(20, 20),
+                                duration: 20.seconds,
+                                curve: Curves.linear,
+                              ),
                     ),
                   ),
                   Positioned.fill(
@@ -293,17 +299,22 @@ class _RipplesScreenState extends State<RipplesScreen>
                               children: [
                                 CircleAvatar(
                                   radius: 24,
-                                  backgroundImage: currentRipple.avatarUrl != null
+                                  backgroundImage:
+                                      currentRipple.avatarUrl != null
                                       ? NetworkImage(currentRipple.avatarUrl!)
                                       : null,
                                   child: currentRipple.avatarUrl == null
-                                      ? Text((currentRipple.username ?? 'U')[0].toUpperCase())
+                                      ? Text(
+                                          (currentRipple.username ?? 'U')[0]
+                                              .toUpperCase(),
+                                        )
                                       : null,
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         currentRipple.username ?? 'User',
@@ -351,7 +362,8 @@ class _RipplesScreenState extends State<RipplesScreen>
                                   color: currentRipple.isLiked
                                       ? Colors.redAccent
                                       : Colors.white,
-                                  onTap: () => _toggleLikeInBuild(currentRipple),
+                                  onTap: () =>
+                                      _toggleLikeInBuild(currentRipple),
                                 ),
                                 _buildDesktopAction(
                                   icon: FluentIcons.comment_24_regular,
@@ -371,7 +383,8 @@ class _RipplesScreenState extends State<RipplesScreen>
                                   color: currentRipple.isSaved
                                       ? Colors.blueAccent
                                       : Colors.white,
-                                  onTap: () => _toggleSaveInBuild(currentRipple),
+                                  onTap: () =>
+                                      _toggleSaveInBuild(currentRipple),
                                 ),
                                 _buildDesktopAction(
                                   icon: FluentIcons.send_24_regular,
@@ -477,7 +490,9 @@ class _RipplesScreenState extends State<RipplesScreen>
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.35),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.35,
+                                      ),
                                       blurRadius: 40,
                                       offset: const Offset(0, 12),
                                     ),
@@ -485,7 +500,9 @@ class _RipplesScreenState extends State<RipplesScreen>
                                 ),
                                 child: Stack(
                                   children: [
-                                    _buildMobileBottomPillContent(currentRipple),
+                                    _buildMobileBottomPillContent(
+                                      currentRipple,
+                                    ),
                                     Positioned(
                                       top: 0,
                                       left: 20,
@@ -538,10 +555,7 @@ class _RipplesScreenState extends State<RipplesScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                      colors: [
-                        Colors.blueAccent,
-                        Colors.purpleAccent,
-                      ],
+                      colors: [Colors.blueAccent, Colors.purpleAccent],
                     ),
                   ),
                   child: CircleAvatar(
@@ -656,6 +670,9 @@ class _RipplesScreenState extends State<RipplesScreen>
     bool isM3E,
     bool disableTransparency,
   ) {
+    final isSolid = context.shouldUseSolidBackground;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -664,7 +681,9 @@ class _RipplesScreenState extends State<RipplesScreen>
         height: MediaQuery.of(context).size.height * 0.7,
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: isSolid
+              ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(isM3E ? 48 : 32),
           ),
@@ -689,13 +708,18 @@ class _RipplesScreenState extends State<RipplesScreen>
     bool isM3E,
     bool disableTransparency,
   ) {
+    final isSolid = context.shouldUseSolidBackground;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: isSolid
+              ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(isM3E ? 48 : 32),
           ),
@@ -815,9 +839,7 @@ class _RipplesScreenState extends State<RipplesScreen>
                   ),
                   child: Stack(
                     alignment: Alignment.center,
-                    children: [
-                      Icon(icon, color: Colors.white, size: 24),
-                    ],
+                    children: [Icon(icon, color: Colors.white, size: 24)],
                   ),
                 ),
               ),
@@ -871,8 +893,9 @@ class _RipplesScreenState extends State<RipplesScreen>
                 rippleId: ripples[index].id,
                 videoUrl: ripples[index].videoUrl,
                 isPlaying: _currentIndex == index,
-                progressNotifier:
-                    _currentIndex == index ? _rippleProgress : null,
+                progressNotifier: _currentIndex == index
+                    ? _rippleProgress
+                    : null,
               ),
             );
 
@@ -953,8 +976,8 @@ class _RipplesScreenState extends State<RipplesScreen>
               _pageController.jumpToPage(index);
             });
             context.read<RipplesProvider>().setLayoutPreference(
-                  RipplesLayoutType.kineticCardStack,
-                );
+              RipplesLayoutType.kineticCardStack,
+            );
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
@@ -1069,7 +1092,8 @@ class _RippleVideoPlayerState extends State<RippleVideoPlayer>
     if (widget.isPlaying &&
         widget.progressNotifier != null &&
         _controller.value.isInitialized) {
-      final progress = _controller.value.position.inMilliseconds /
+      final progress =
+          _controller.value.position.inMilliseconds /
           _controller.value.duration.inMilliseconds;
       widget.progressNotifier!.value = progress.clamp(0.0, 1.0);
     }
@@ -1160,8 +1184,8 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
     setState(() => _isLoading = true);
     try {
       final response = await context.read<RipplesProvider>().getComments(
-            widget.rippleId,
-          );
+        widget.rippleId,
+      );
 
       if (mounted) {
         setState(() {
@@ -1181,9 +1205,9 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
 
     try {
       await context.read<RipplesProvider>().commentOnRipple(
-            widget.rippleId,
-            _commentController.text.trim(),
-          );
+        widget.rippleId,
+        _commentController.text.trim(),
+      );
 
       _commentController.clear();
       await _loadComments();
@@ -1196,7 +1220,8 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = Theme.of(context).platform == TargetPlatform.iOS ||
+    final isMobile =
+        Theme.of(context).platform == TargetPlatform.iOS ||
         Theme.of(context).platform == TargetPlatform.android;
 
     return Column(
@@ -1206,65 +1231,72 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
           child: _isLoading
               ? const Center(child: CircularProgressIndicator(strokeWidth: 2))
               : _comments.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No comments yet',
-                        style: TextStyle(color: Colors.white24),
-                      ),
-                    )
-                  : ListView.separated(
-                      itemCount: _comments.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 16),
-                      itemBuilder: (context, index) {
-                        final comment = _comments[index];
-                        return Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CircleAvatar(
-                              radius: 14,
-                              backgroundImage: comment.avatarUrl != null
-                                  ? NetworkImage(comment.avatarUrl!)
-                                  : null,
-                              child: comment.avatarUrl == null
-                                  ? Text((comment.username ?? 'U')[0].toUpperCase(), style: const TextStyle(fontSize: 10))
-                                  : null,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    comment.username ?? 'User',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    comment.content,
-                                    style: const TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
+              ? const Center(
+                  child: Text(
+                    'No comments yet',
+                    style: TextStyle(color: Colors.white24),
+                  ),
+                )
+              : ListView.separated(
+                  itemCount: _comments.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(height: 16),
+                  itemBuilder: (context, index) {
+                    final comment = _comments[index];
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundImage: comment.avatarUrl != null
+                              ? NetworkImage(comment.avatarUrl!)
+                              : null,
+                          child: comment.avatarUrl == null
+                              ? Text(
+                                  (comment.username ?? 'U')[0].toUpperCase(),
+                                  style: const TextStyle(fontSize: 10),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                comment.username ?? 'User',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
+                              const SizedBox(height: 2),
+                              Text(
+                                comment.content,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
         ),
         // Comment input field
         Container(
           padding: EdgeInsets.fromLTRB(
-              12, 8, 12, MediaQuery.of(context).viewInsets.bottom + 8),
+            12,
+            8,
+            12,
+            MediaQuery.of(context).viewInsets.bottom + 8,
+          ),
           decoration: BoxDecoration(
             color: isMobile
                 ? Theme.of(context).colorScheme.surface
@@ -1292,7 +1324,9 @@ class _RippleCommentsListState extends State<RippleCommentsList> {
                             borderSide: BorderSide.none,
                           ),
                           contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
                           isDense: true,
                         )
                       : InputDecoration(
@@ -1371,8 +1405,8 @@ class _ComingUpItemState extends State<_ComingUpItem> {
               color: widget.isCurrent
                   ? Colors.white.withValues(alpha: 0.3)
                   : _isHovered
-                      ? Colors.white.withValues(alpha: 0.15)
-                      : Colors.transparent,
+                  ? Colors.white.withValues(alpha: 0.15)
+                  : Colors.transparent,
             ),
             boxShadow: _isHovered
                 ? [
@@ -1388,16 +1422,19 @@ class _ComingUpItemState extends State<_ComingUpItem> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(widget.isM3E ? 12 : 8),
-                child: Image.network(
-                  widget.ripple.thumbnailUrl ?? '',
-                  width: 60,
-                  height: 80,
-                  fit: BoxFit.cover,
-                ).animate(target: _isHovered ? 1 : 0).scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.1, 1.1),
-                      duration: 200.ms,
-                    ),
+                child:
+                    Image.network(
+                          widget.ripple.thumbnailUrl ?? '',
+                          width: 60,
+                          height: 80,
+                          fit: BoxFit.cover,
+                        )
+                        .animate(target: _isHovered ? 1 : 0)
+                        .scale(
+                          begin: const Offset(1, 1),
+                          end: const Offset(1.1, 1.1),
+                          duration: 200.ms,
+                        ),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -34,10 +34,9 @@ class PostRemoteDatasource {
             '${DateTime.now().millisecondsSinceEpoch}_$i.$extension';
         final path = '$userId/$fileName';
 
-        await _supabase.storage.from(SupabaseConfig.postImagesBucket).upload(
-          path,
-          file,
-        );
+        await _supabase.storage
+            .from(SupabaseConfig.postImagesBucket)
+            .upload(path, file);
 
         final url = _supabase.storage
             .from(SupabaseConfig.postImagesBucket)
@@ -61,10 +60,9 @@ class PostRemoteDatasource {
 
     await _supabase.from(SupabaseConfig.postsTable).insert(postData);
 
-    final response =
-        await _supabase
-            .from(SupabaseConfig.postsTable)
-            .select('''
+    final response = await _supabase
+        .from(SupabaseConfig.postsTable)
+        .select('''
           *,
           ${SupabaseConfig.profilesTable}:user_id (
             username,
@@ -78,8 +76,8 @@ class PostRemoteDatasource {
             options:poll_options (*)
           )
         ''')
-            .eq('id', postId)
-            .single();
+        .eq('id', postId)
+        .single();
 
     final postMap = Map<String, dynamic>.from(response);
     _enrichWithProfile(postMap);
@@ -90,40 +88,46 @@ class PostRemoteDatasource {
 
   /// Get a single post by ID.
   Future<Map<String, dynamic>> getPost(String postId, String userId) async {
-    final response =
-        await _supabase
-            .from(SupabaseConfig.postsTable)
-            .select('''
+    final response = await _supabase
+        .from(SupabaseConfig.postsTable)
+        .select('''
           *,
           ${SupabaseConfig.profilesTable}:user_id (
             username,
             full_name,
             avatar_url,
             is_verified
+          ),
+          collaborators:post_collaborators (
+            user_id,
+            status,
+            profiles:user_id (
+              username,
+              avatar_url,
+              is_verified
+            )
           )
         ''')
-            .eq('id', postId)
-            .single();
+        .eq('id', postId)
+        .single();
 
     final postMap = Map<String, dynamic>.from(response);
     _enrichWithProfile(postMap);
 
     // Check like/bookmark status
-    final likeResponse =
-        await _supabase
-            .from(SupabaseConfig.likesTable)
-            .select()
-            .eq('post_id', postId)
-            .eq('user_id', userId)
-            .maybeSingle();
+    final likeResponse = await _supabase
+        .from(SupabaseConfig.likesTable)
+        .select()
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
 
-    final bookmarkResponse =
-        await _supabase
-            .from(SupabaseConfig.bookmarksTable)
-            .select()
-            .eq('post_id', postId)
-            .eq('user_id', userId)
-            .maybeSingle();
+    final bookmarkResponse = await _supabase
+        .from(SupabaseConfig.bookmarksTable)
+        .select()
+        .eq('post_id', postId)
+        .eq('user_id', userId)
+        .maybeSingle();
 
     postMap['is_liked'] = likeResponse != null;
     postMap['is_bookmarked'] = bookmarkResponse != null;
@@ -138,6 +142,22 @@ class PostRemoteDatasource {
     int limit = 20,
     int offset = 0,
   }) async {
+    // 1. Get IDs of posts where user is an accepted collaborator
+    final collabResponse = await _supabase
+        .from('post_collaborators')
+        .select('post_id')
+        .eq('user_id', userId)
+        .eq('status', 'accepted');
+
+    final List<String> collabPostIds =
+        (collabResponse as List).map((e) => e['post_id'] as String).toList();
+
+    // 2. Build OR filter: owner is user OR post is in collabPostIds
+    String orFilter = 'user_id.eq.$userId';
+    if (collabPostIds.isNotEmpty) {
+      orFilter += ',id.in.(${collabPostIds.map((id) => '"$id"').join(",")})';
+    }
+
     final response = await _supabase
         .from(SupabaseConfig.postsTable)
         .select('''
@@ -147,9 +167,18 @@ class PostRemoteDatasource {
             full_name,
             avatar_url,
             is_verified
+          ),
+          collaborators:post_collaborators (
+            user_id,
+            status,
+            profiles:user_id (
+              username,
+              avatar_url,
+              is_verified
+            )
           )
         ''')
-        .eq('user_id', userId)
+        .or(orFilter)
         .order('created_at', ascending: false)
         .range(offset, offset + limit - 1);
 
@@ -192,12 +221,11 @@ class PostRemoteDatasource {
 
   /// Delete a post (verifies ownership).
   Future<void> deletePost(String postId, String userId) async {
-    final post =
-        await _supabase
-            .from(SupabaseConfig.postsTable)
-            .select('user_id, image_url')
-            .eq('id', postId)
-            .single();
+    final post = await _supabase
+        .from(SupabaseConfig.postsTable)
+        .select('user_id, image_url')
+        .eq('id', postId)
+        .single();
 
     if (post['user_id'] != userId) {
       throw Exception('Not authorized to delete this post');
@@ -225,13 +253,12 @@ class PostRemoteDatasource {
     required String postId,
   }) async {
     try {
-      final existingLike =
-          await _supabase
-              .from(SupabaseConfig.likesTable)
-              .select('id')
-              .eq('user_id', userId)
-              .eq('post_id', postId)
-              .maybeSingle();
+      final existingLike = await _supabase
+          .from(SupabaseConfig.likesTable)
+          .select('id')
+          .eq('user_id', userId)
+          .eq('post_id', postId)
+          .maybeSingle();
 
       if (existingLike != null) return;
     } catch (e) {
@@ -330,12 +357,11 @@ class PostRemoteDatasource {
 
   /// Share a post.
   Future<void> sharePost(String postId) async {
-    final response =
-        await _supabase
-            .from(SupabaseConfig.postsTable)
-            .select('shares_count')
-            .eq('id', postId)
-            .single();
+    final response = await _supabase
+        .from(SupabaseConfig.postsTable)
+        .select('shares_count')
+        .eq('id', postId)
+        .single();
 
     final currentCount = response['shares_count'] as int? ?? 0;
 
@@ -388,7 +414,7 @@ class PostRemoteDatasource {
           .single();
 
       final pollMap = Map<String, dynamic>.from(response);
-      
+
       // Check if current user has voted
       final voteResponse = await _supabase
           .from(SupabaseConfig.pollVotesTable)
@@ -396,7 +422,7 @@ class PostRemoteDatasource {
           .eq('poll_id', pollId)
           .eq('user_id', userId)
           .maybeSingle();
-      
+
       pollMap['has_voted'] = voteResponse != null;
       pollMap['user_voted_option_id'] = voteResponse?['option_id'];
 

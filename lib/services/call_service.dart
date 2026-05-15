@@ -26,7 +26,10 @@ class DisabledCallService extends CallService {
   @override
   Future<Map<String, dynamic>> createOffer(String remoteUserId) async => {};
   @override
-  Future<Map<String, dynamic>> createAnswer(String remoteUserId, Map<String, dynamic> offer) async => {};
+  Future<Map<String, dynamic>> createAnswer(
+    String remoteUserId,
+    Map<String, dynamic> offer,
+  ) async => {};
   @override
   Future<void> endCall() async {}
   @override
@@ -50,16 +53,16 @@ class CallService extends ChangeNotifier {
   final _uuid = const Uuid();
   final AudioPlayer _audioPlayer;
   bool _isPlayingRingtone = false;
-  
+
   static const MethodChannel _callChannel = MethodChannel('oasis/call');
 
   CallService({
     SupabaseClient? supabase,
     SignalService? signalService,
     AudioPlayer? audioPlayer,
-  })  : _supabase = supabase ?? SupabaseService().client,
-        _signal = signalService ?? SignalService(),
-        _audioPlayer = audioPlayer ?? AudioPlayer() {
+  }) : _supabase = supabase ?? SupabaseService().client,
+       _signal = signalService ?? SignalService(),
+       _audioPlayer = audioPlayer ?? AudioPlayer() {
     _instance = this;
     _callChannel.setMethodCallHandler(_handleNativeCall);
     _configureAudioPlayer();
@@ -69,27 +72,34 @@ class CallService extends ChangeNotifier {
 
   void _configureAudioPlayer() {
     if (kIsWeb) return;
-    _audioPlayer.setAudioContext(AudioContext(
-      android: const AudioContextAndroid(
-        usageType: AndroidUsageType.notificationRingtone,
-        contentType: AndroidContentType.sonification,
-        audioFocus: AndroidAudioFocus.none, // Focus is managed by audio_session/WebRTC
+    _audioPlayer.setAudioContext(
+      AudioContext(
+        android: const AudioContextAndroid(
+          usageType: AndroidUsageType.notificationRingtone,
+          contentType: AndroidContentType.sonification,
+          audioFocus: AndroidAudioFocus
+              .none, // Focus is managed by audio_session/WebRTC
+        ),
+        iOS: AudioContextIOS(
+          category: AVAudioSessionCategory.playAndRecord,
+          options: {
+            AVAudioSessionOptions.allowBluetooth,
+            AVAudioSessionOptions.defaultToSpeaker,
+          },
+        ),
       ),
-      iOS: AudioContextIOS(
-        category: AVAudioSessionCategory.playAndRecord,
-        options: {
-          AVAudioSessionOptions.allowBluetooth,
-          AVAudioSessionOptions.defaultToSpeaker,
-        },
-      ),
-    ));
+    );
   }
 
   Future<void> checkInitialCall() async {
     try {
-      final String? pendingCallId = await _callChannel.invokeMethod('getPendingCall');
+      final String? pendingCallId = await _callChannel.invokeMethod(
+        'getPendingCall',
+      );
       if (pendingCallId != null) {
-        debugPrint('[CallService] Detected initial pending call: $pendingCallId');
+        debugPrint(
+          '[CallService] Detected initial pending call: $pendingCallId',
+        );
         setAnswering(pendingCallId);
         _safeNotifyListeners();
       }
@@ -138,7 +148,7 @@ class CallService extends ChangeNotifier {
   CallEntity? _incomingCall;
   String? _lastEndedCallId;
   DateTime? _lastEndedTimestamp;
-  
+
   StreamSubscription? _callSubscription;
   StreamSubscription? _incomingCallSubscription;
   RealtimeChannel? _signalingChannel;
@@ -170,7 +180,7 @@ class CallService extends ChangeNotifier {
       {
         'urls': 'turn:openrelay.metered.ca:80',
         'username': 'openrelayproject',
-        'credential': 'openrelayproject'
+        'credential': 'openrelayproject',
       },
     ],
     'sdpSemantics': 'unified-plan',
@@ -190,14 +200,18 @@ class CallService extends ChangeNotifier {
       notifyListeners();
       return;
     }
-    
+
     _notificationCount++;
     if (_notificationCount > 100) {
-      debugPrint('[CallService] WARNING: Extremely high notification frequency detected! Possible loop.');
+      debugPrint(
+        '[CallService] WARNING: Extremely high notification frequency detected! Possible loop.',
+      );
     }
 
     if (_isNotifying) {
-      debugPrint('[CallService] Skipping notify: Already in a notification cycle');
+      debugPrint(
+        '[CallService] Skipping notify: Already in a notification cycle',
+      );
       return;
     }
 
@@ -237,7 +251,7 @@ class CallService extends ChangeNotifier {
       }
 
       // Pre-configure and activate audio session BEFORE getting user media
-      // This prevents race conditions where WebRTC tries to grab the hardware 
+      // This prevents race conditions where WebRTC tries to grab the hardware
       // while the OS still thinks we are in a normal audio mode.
       await _configureAudioSession(isVideo, isVideo);
 
@@ -247,12 +261,14 @@ class CallService extends ChangeNotifier {
           'noiseSuppression': true,
           'autoGainControl': true,
         },
-        'video': isVideo ? {
-          'facingMode': 'user',
-          'width': {'ideal': 1280},
-          'height': {'ideal': 720},
-          'frameRate': {'ideal': 30},
-        } : false,
+        'video': isVideo
+            ? {
+                'facingMode': 'user',
+                'width': {'ideal': 1280},
+                'height': {'ideal': 720},
+                'frameRate': {'ideal': 30},
+              }
+            : false,
       };
 
       if (!_localRendererInitialized) {
@@ -264,7 +280,7 @@ class CallService extends ChangeNotifier {
       _recordStep('Requesting getUserMedia');
       _localStream = await navigator.mediaDevices.getUserMedia(constraints);
       _recordStep('Local stream obtained: ${_localStream?.id}');
-      
+
       for (var track in _localStream!.getAudioTracks()) {
         _recordStep('Enabling local audio track: ${track.id}');
         track.enabled = true;
@@ -311,8 +327,10 @@ class CallService extends ChangeNotifier {
   Future<void> _configureAudioSession(bool speakerOn, bool isVideo) async {
     if (kIsWeb) return;
     try {
-      debugPrint('[CallService] Configuring audio session: speaker=$speakerOn, isVideo=$isVideo');
-      
+      debugPrint(
+        '[CallService] Configuring audio session: speaker=$speakerOn, isVideo=$isVideo',
+      );
+
       // On Windows, we still try to set speakerphone as it might trigger internal driver refreshes.
       // We wrap it in a try-catch as some Windows drivers might not support this specific command.
       if (Platform.isWindows) {
@@ -325,49 +343,63 @@ class CallService extends ChangeNotifier {
 
       if (Platform.isIOS || Platform.isAndroid) {
         final session = await session_pkg.AudioSession.instance;
-        
+
         // Check for connected Bluetooth/Headset devices to avoid overriding them
         final devices = await session.getDevices();
-        final hasHeadset = devices.any((d) => 
-          d.type == session_pkg.AudioDeviceType.bluetoothA2dp ||
-          d.type == session_pkg.AudioDeviceType.bluetoothLe ||
-          d.type == session_pkg.AudioDeviceType.bluetoothSco ||
-          d.type == session_pkg.AudioDeviceType.wiredHeadset ||
-          d.type == session_pkg.AudioDeviceType.wiredHeadphones ||
-          d.type == session_pkg.AudioDeviceType.usbAudio
+        final hasHeadset = devices.any(
+          (d) =>
+              d.type == session_pkg.AudioDeviceType.bluetoothA2dp ||
+              d.type == session_pkg.AudioDeviceType.bluetoothLe ||
+              d.type == session_pkg.AudioDeviceType.bluetoothSco ||
+              d.type == session_pkg.AudioDeviceType.wiredHeadset ||
+              d.type == session_pkg.AudioDeviceType.wiredHeadphones ||
+              d.type == session_pkg.AudioDeviceType.usbAudio,
         );
 
-        debugPrint('[CallService] Audio devices detected: ${devices.map((d) => d.name).join(', ')}');
+        debugPrint(
+          '[CallService] Audio devices detected: ${devices.map((d) => d.name).join(', ')}',
+        );
         debugPrint('[CallService] Headset/Bluetooth detected: $hasHeadset');
 
-        await session.configure(session_pkg.AudioSessionConfiguration(
-          avAudioSessionCategory: session_pkg.AVAudioSessionCategory.playAndRecord,
-          avAudioSessionCategoryOptions:
-              session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
-              (speakerOn ? session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker : session_pkg.AVAudioSessionCategoryOptions.none),
-          avAudioSessionMode: isVideo ? session_pkg.AVAudioSessionMode.videoChat : session_pkg.AVAudioSessionMode.voiceChat,
-          avAudioSessionRouteSharingPolicy:
-              session_pkg.AVAudioSessionRouteSharingPolicy.defaultPolicy,
-          avAudioSessionSetActiveOptions: session_pkg.AVAudioSessionSetActiveOptions.none,
-          androidAudioAttributes: const session_pkg.AndroidAudioAttributes(
-            contentType: session_pkg.AndroidAudioContentType.speech,
-            usage: session_pkg.AndroidAudioUsage.voiceCommunication,
+        await session.configure(
+          session_pkg.AudioSessionConfiguration(
+            avAudioSessionCategory:
+                session_pkg.AVAudioSessionCategory.playAndRecord,
+            avAudioSessionCategoryOptions:
+                session_pkg.AVAudioSessionCategoryOptions.allowBluetooth |
+                (speakerOn
+                    ? session_pkg.AVAudioSessionCategoryOptions.defaultToSpeaker
+                    : session_pkg.AVAudioSessionCategoryOptions.none),
+            avAudioSessionMode: isVideo
+                ? session_pkg.AVAudioSessionMode.videoChat
+                : session_pkg.AVAudioSessionMode.voiceChat,
+            avAudioSessionRouteSharingPolicy:
+                session_pkg.AVAudioSessionRouteSharingPolicy.defaultPolicy,
+            avAudioSessionSetActiveOptions:
+                session_pkg.AVAudioSessionSetActiveOptions.none,
+            androidAudioAttributes: const session_pkg.AndroidAudioAttributes(
+              contentType: session_pkg.AndroidAudioContentType.speech,
+              usage: session_pkg.AndroidAudioUsage.voiceCommunication,
+            ),
+            androidAudioFocusGainType:
+                session_pkg.AndroidAudioFocusGainType.gain,
           ),
-          androidAudioFocusGainType: session_pkg.AndroidAudioFocusGainType.gain,
-        ));
+        );
         await session.setActive(true);
         debugPrint('[CallService] Audio session activated');
-        
+
         // Small delay to ensure OS has switched routing before we command speakerphone
         await Future.delayed(const Duration(milliseconds: 500));
 
-        // ONLY force speakerphone if the user explicitly wants it (speakerOn) 
+        // ONLY force speakerphone if the user explicitly wants it (speakerOn)
         // AND we don't have a headset/bluetooth device that should take precedence.
         // If a headset is connected, we should NOT call setSpeakerphoneOn(true) as it forces output to built-in speaker.
         final shouldForceSpeaker = speakerOn && !hasHeadset;
-        
+
         await Helper.setSpeakerphoneOn(shouldForceSpeaker);
-        debugPrint('[CallService] Speakerphone forced to: $shouldForceSpeaker (Requested: $speakerOn, Headset connected: $hasHeadset)');
+        debugPrint(
+          '[CallService] Speakerphone forced to: $shouldForceSpeaker (Requested: $speakerOn, Headset connected: $hasHeadset)',
+        );
       }
     } catch (e) {
       debugPrint('[CallService] Error configuring audio session: $e');
@@ -377,7 +409,7 @@ class CallService extends ChangeNotifier {
   Future<RTCPeerConnection> _createPeerConnection(String remoteUserId) async {
     _recordStep('Creating PeerConnection for $remoteUserId');
     final pc = await createPeerConnection(_configuration);
-    
+
     if (_localStream != null) {
       _recordStep('Adding local tracks to PC for $remoteUserId');
       for (var track in _localStream!.getTracks()) {
@@ -393,12 +425,14 @@ class CallService extends ChangeNotifier {
           'sdpMid': candidate.sdpMid,
           'sdpMLineIndex': candidate.sdpMLineIndex,
         };
-        
+
         if (!_isSignalingSubscribed) {
-          _recordStep('Buffering outgoing ICE for $remoteUserId (not yet subscribed)');
+          _recordStep(
+            'Buffering outgoing ICE for $remoteUserId (not yet subscribed)',
+          );
           _outgoingCandidateQueue[remoteUserId] ??= [];
           _outgoingCandidateQueue[remoteUserId]!.add(data);
-          
+
           // Optimization: Try sending immediately if channel is created, even if not fully acked
           if (_signalingChannel != null) {
             _sendSignaling(remoteUserId, data);
@@ -410,65 +444,74 @@ class CallService extends ChangeNotifier {
       });
     };
 
-  final Set<String> _initializingRenderers = {};
+    final Set<String> _initializingRenderers = {};
 
-  pc.onTrack = (event) {
-    _recordStep('onTrack: ${event.track.kind} from $remoteUserId');
-    Future(() async {
-      try {
-        if (event.track.kind == 'audio') {
-          _recordStep('Enabling remote audio track: ${event.track.id}');
-          event.track.enabled = true;
-        }
+    pc.onTrack = (event) {
+      _recordStep('onTrack: ${event.track.kind} from $remoteUserId');
+      Future(() async {
+        try {
+          if (event.track.kind == 'audio') {
+            _recordStep('Enabling remote audio track: ${event.track.id}');
+            event.track.enabled = true;
+          }
 
-        // Use the provided stream if available, otherwise aggregate
-        MediaStream stream;
-        if (event.streams.isNotEmpty) {
-          stream = event.streams[0];
-        } else {
-          _recordStep('No stream in onTrack, using/creating aggregate stream');
-          _remoteStreams[remoteUserId] ??= await createLocalMediaStream('remote_$remoteUserId');
-          final aggregate = _remoteStreams[remoteUserId]!;
-          if (!aggregate.getTracks().any((t) => t.id == event.track.id)) {
-            await aggregate.addTrack(event.track);
+          // Use the provided stream if available, otherwise aggregate
+          MediaStream stream;
+          if (event.streams.isNotEmpty) {
+            stream = event.streams[0];
+          } else {
+            _recordStep(
+              'No stream in onTrack, using/creating aggregate stream',
+            );
+            _remoteStreams[remoteUserId] ??= await createLocalMediaStream(
+              'remote_$remoteUserId',
+            );
+            final aggregate = _remoteStreams[remoteUserId]!;
+            if (!aggregate.getTracks().any((t) => t.id == event.track.id)) {
+              await aggregate.addTrack(event.track);
+            }
+            stream = aggregate;
           }
-          stream = aggregate;
-        }
-        _remoteStreams[remoteUserId] = stream;
+          _remoteStreams[remoteUserId] = stream;
 
-        // IMPORTANT: Always initialize a renderer for remote participants, even for audio-only calls.
-        // This ensures the stream is "attached" to a media consumer which triggers audio playback on some platforms (like Windows).
-        _recordStep('Initializing/updating remote renderer for ${event.track.kind} from $remoteUserId');
-        
-        if (!_remoteRenderers.containsKey(remoteUserId) && !_initializingRenderers.contains(remoteUserId)) {
-          _initializingRenderers.add(remoteUserId);
-          try {
-            final renderer = RTCVideoRenderer();
-            await renderer.initialize();
-            renderer.srcObject = stream;
-            _remoteRenderers[remoteUserId] = renderer;
-          } finally {
-            _initializingRenderers.remove(remoteUserId);
+          // IMPORTANT: Always initialize a renderer for remote participants, even for audio-only calls.
+          // This ensures the stream is "attached" to a media consumer which triggers audio playback on some platforms (like Windows).
+          _recordStep(
+            'Initializing/updating remote renderer for ${event.track.kind} from $remoteUserId',
+          );
+
+          if (!_remoteRenderers.containsKey(remoteUserId) &&
+              !_initializingRenderers.contains(remoteUserId)) {
+            _initializingRenderers.add(remoteUserId);
+            try {
+              final renderer = RTCVideoRenderer();
+              await renderer.initialize();
+              renderer.srcObject = stream;
+              _remoteRenderers[remoteUserId] = renderer;
+            } finally {
+              _initializingRenderers.remove(remoteUserId);
+            }
+          } else if (_remoteRenderers.containsKey(remoteUserId)) {
+            // Update the source object if it's not already set correctly or if it's a new track in the aggregate
+            if (_remoteRenderers[remoteUserId]!.srcObject?.id != stream.id) {
+              _remoteRenderers[remoteUserId]!.srcObject = stream;
+            }
           }
-        } else if (_remoteRenderers.containsKey(remoteUserId)) {
-          // Update the source object if it's not already set correctly or if it's a new track in the aggregate
-          if (_remoteRenderers[remoteUserId]!.srcObject?.id != stream.id) {
-            _remoteRenderers[remoteUserId]!.srcObject = stream;
-          }
+
+          _safeNotifyListeners();
+        } catch (e) {
+          _recordStep('Error in onTrack: $e');
         }
-        
-        _safeNotifyListeners();
-      } catch (e) {
-        _recordStep('Error in onTrack: $e');
-      }
-    });
-  };
+      });
+    };
 
     pc.onRenegotiationNeeded = () {
       debugPrint('[CallService] onRenegotiationNeeded for $remoteUserId');
       Future(() async {
         if (pc.signalingState != RTCSignalingState.RTCSignalingStateStable) {
-          debugPrint('[CallService] Skipping renegotiation: Signaling state is ${pc.signalingState}');
+          debugPrint(
+            '[CallService] Skipping renegotiation: Signaling state is ${pc.signalingState}',
+          );
           return;
         }
 
@@ -490,7 +533,8 @@ class CallService extends ChangeNotifier {
     pc.onConnectionState = (state) {
       _recordStep('Connection state: $state');
       Future(() {
-        if (state == RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
+        if (state ==
+                RTCPeerConnectionState.RTCPeerConnectionStateDisconnected ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateFailed ||
             state == RTCPeerConnectionState.RTCPeerConnectionStateClosed) {
           _removePeer(remoteUserId);
@@ -501,7 +545,9 @@ class CallService extends ChangeNotifier {
     pc.onIceConnectionState = (state) {
       _recordStep('ICE Connection state for $remoteUserId: $state');
       if (state == RTCIceConnectionState.RTCIceConnectionStateFailed) {
-        _recordStep('ICE Connection FAILED for $remoteUserId - possible NAT/Firewall issue');
+        _recordStep(
+          'ICE Connection FAILED for $remoteUserId - possible NAT/Firewall issue',
+        );
       }
     };
 
@@ -527,9 +573,14 @@ class CallService extends ChangeNotifier {
     }
   }
 
-  Future<void> _sendSignaling(String recipientId, Map<String, dynamic> data) async {
+  Future<void> _sendSignaling(
+    String recipientId,
+    Map<String, dynamic> data,
+  ) async {
     if (_currentCallId == null || _signalingChannel == null) {
-      debugPrint('[CallService] Cannot send signaling: No call ID or signaling channel');
+      debugPrint(
+        '[CallService] Cannot send signaling: No call ID or signaling channel',
+      );
       return;
     }
     final user = _supabase.auth.currentUser;
@@ -538,23 +589,27 @@ class CallService extends ChangeNotifier {
     try {
       await _signalingChannel!.sendBroadcastMessage(
         event: 'signaling',
-        payload: {
-          'sender_id': user.id,
-          'recipient_id': recipientId,
-          ...data,
-        },
+        payload: {'sender_id': user.id, 'recipient_id': recipientId, ...data},
       );
     } catch (e) {
       debugPrint('[CallService] Error sending signaling broadcast: $e');
     }
   }
 
-  Future<Map<String, dynamic>> _decryptData(String senderId, Map<String, dynamic> encryptedData, {int attempt = 0}) async {
+  Future<Map<String, dynamic>> _decryptData(
+    String senderId,
+    Map<String, dynamic> encryptedData, {
+    int attempt = 0,
+  }) async {
     if (encryptedData['e2ee'] != true) return encryptedData;
     try {
       int signalType = encryptedData['signal_message_type'];
       if (signalType == 1) signalType = 3;
-      final decryptedJson = await _signal.decryptMessage(senderId, encryptedData['payload'], signalType);
+      final decryptedJson = await _signal.decryptMessage(
+        senderId,
+        encryptedData['payload'],
+        signalType,
+      );
       if (decryptedJson.startsWith('🔒')) {
         if (attempt < 2) {
           await Future.delayed(const Duration(milliseconds: 500));
@@ -581,11 +636,16 @@ class CallService extends ChangeNotifier {
     return {'type': 'offer', 'sdp': offer.sdp, 'sdp_type': offer.type};
   }
 
-  Future<Map<String, dynamic>> createAnswer(String remoteUserId, Map<String, dynamic> offer) async {
+  Future<Map<String, dynamic>> createAnswer(
+    String remoteUserId,
+    Map<String, dynamic> offer,
+  ) async {
     debugPrint('[CallService] createAnswer for $remoteUserId');
     final pc = await _getOrCreatePeerConnection(remoteUserId);
     debugPrint('[CallService] Setting remote description (offer)');
-    await pc.setRemoteDescription(RTCSessionDescription(offer['sdp'], offer['sdp_type']));
+    await pc.setRemoteDescription(
+      RTCSessionDescription(offer['sdp'], offer['sdp_type']),
+    );
     final answer = await pc.createAnswer();
     debugPrint('[CallService] Setting local description (answer)');
     await pc.setLocalDescription(answer);
@@ -600,10 +660,12 @@ class CallService extends ChangeNotifier {
     _currentCall = call;
     _subscribeToCall(call.id);
     _subscribeToSignaling(call.id);
-    
+
     final user = _supabase.auth.currentUser;
     if (user != null) {
-      final remoteUserId = call.callerId == user.id ? call.receiverId : call.callerId;
+      final remoteUserId = call.callerId == user.id
+          ? call.receiverId
+          : call.callerId;
       final pc = _peerConnections[remoteUserId];
       if (pc != null) {
         final rd = await pc.getRemoteDescription();
@@ -611,13 +673,13 @@ class CallService extends ChangeNotifier {
           await _flushCandidateQueue(remoteUserId, pc);
         }
       }
-      
+
       // Safety flush for outgoing candidates if already subscribed
       if (_isSignalingSubscribed) {
         await _flushOutgoingCandidateQueue(remoteUserId);
       }
     }
-    
+
     _safeNotifyListeners();
   }
 
@@ -639,32 +701,45 @@ class CallService extends ChangeNotifier {
               final oldCall = _currentCall;
               _currentCall = updatedCall;
 
-              if (updatedCall.status == CallStatus.active && oldCall?.status == CallStatus.ringing) {
+              if (updatedCall.status == CallStatus.active &&
+                  oldCall?.status == CallStatus.ringing) {
                 // Call just became active
-                debugPrint('[CallService] Call became active, showing notification');
-                final remoteUserId = updatedCall.callerId == userId ? updatedCall.receiverId : updatedCall.callerId;
+                debugPrint(
+                  '[CallService] Call became active, showing notification',
+                );
+                final remoteUserId = updatedCall.callerId == userId
+                    ? updatedCall.receiverId
+                    : updatedCall.callerId;
                 // We don't have the username here easily, but we can try fetching it or just show "Call in Progress"
                 NotificationManager.instance.showActiveCallNotification(
                   callId: updatedCall.id,
-                  participantName: 'Remote User', // Placeholder or fetch if needed
+                  participantName:
+                      'Remote User', // Placeholder or fetch if needed
                 );
               }
 
-              if (updatedCall.status == CallStatus.ended || 
+              if (updatedCall.status == CallStatus.ended ||
                   updatedCall.status == CallStatus.declined ||
                   updatedCall.status == CallStatus.missed) {
-                debugPrint('[CallService] Call status updated to ${updatedCall.status}, cleaning up');
+                debugPrint(
+                  '[CallService] Call status updated to ${updatedCall.status}, cleaning up',
+                );
                 _cleanup();
                 return;
               }
 
-              if (updatedCall.callerId == userId && 
-                  updatedCall.status == CallStatus.active && 
+              if (updatedCall.callerId == userId &&
+                  updatedCall.status == CallStatus.active &&
                   oldCall?.status == CallStatus.ringing &&
                   updatedCall.answer != null) {
                 try {
-                  debugPrint('[CallService] Call accepted by remote, processing answer');
-                  await _handleSignalingData(updatedCall.receiverId, updatedCall.answer!);
+                  debugPrint(
+                    '[CallService] Call accepted by remote, processing answer',
+                  );
+                  await _handleSignalingData(
+                    updatedCall.receiverId,
+                    updatedCall.answer!,
+                  );
                 } catch (e) {
                   debugPrint('[CallService] Error processing answer: $e');
                 }
@@ -681,41 +756,54 @@ class CallService extends ChangeNotifier {
     final userId = user.id;
 
     _isSignalingSubscribed = false;
-    debugPrint('[CallService] Subscribing to signaling broadcast for call_$callId');
+    debugPrint(
+      '[CallService] Subscribing to signaling broadcast for call_$callId',
+    );
     _signalingChannel = _supabase.channel('call_$callId');
-    _signalingChannel!.onBroadcast(event: 'signaling', callback: (payload) {
-      final senderId = payload['sender_id'];
-      final recipientId = payload['recipient_id'];
-      if (recipientId == userId && senderId != userId) {
-        Future(() async {
-          try {
-            final decryptedData = await _decryptData(senderId, payload);
-            debugPrint('[CallService] Received signaling event: ${decryptedData['type']} from $senderId');
-            await _handleSignalingData(senderId, decryptedData);
-          } catch (e) {
-            debugPrint('[CallService] Signaling processing error: $e');
+    _signalingChannel!
+        .onBroadcast(
+          event: 'signaling',
+          callback: (payload) {
+            final senderId = payload['sender_id'];
+            final recipientId = payload['recipient_id'];
+            if (recipientId == userId && senderId != userId) {
+              Future(() async {
+                try {
+                  final decryptedData = await _decryptData(senderId, payload);
+                  debugPrint(
+                    '[CallService] Received signaling event: ${decryptedData['type']} from $senderId',
+                  );
+                  await _handleSignalingData(senderId, decryptedData);
+                } catch (e) {
+                  debugPrint('[CallService] Signaling processing error: $e');
+                }
+              });
+            }
+          },
+        )
+        .subscribe((status, [error]) {
+          _recordStep('Signaling channel status: $status');
+          if (status == RealtimeSubscribeStatus.subscribed) {
+            _isSignalingSubscribed = true;
+            final remoteUserId = _currentCall?.callerId == userId
+                ? _currentCall?.receiverId
+                : _currentCall?.callerId;
+            if (remoteUserId != null) {
+              _flushOutgoingCandidateQueue(remoteUserId);
+            }
+          }
+          if (status == RealtimeSubscribeStatus.channelError) {
+            _recordStep('Signaling subscription error: $error');
           }
         });
-      }
-    }).subscribe((status, [error]) {
-      _recordStep('Signaling channel status: $status');
-      if (status == RealtimeSubscribeStatus.subscribed) {
-        _isSignalingSubscribed = true;
-        final remoteUserId = _currentCall?.callerId == userId ? _currentCall?.receiverId : _currentCall?.callerId;
-        if (remoteUserId != null) {
-          _flushOutgoingCandidateQueue(remoteUserId);
-        }
-      }
-      if (status == RealtimeSubscribeStatus.channelError) {
-        _recordStep('Signaling subscription error: $error');
-      }
-    });
   }
 
   Future<void> _flushOutgoingCandidateQueue(String remoteUserId) async {
     final candidates = _outgoingCandidateQueue[remoteUserId];
     if (candidates != null && _isSignalingSubscribed) {
-      debugPrint('[CallService] Flushing ${candidates.length} outgoing candidates for $remoteUserId');
+      debugPrint(
+        '[CallService] Flushing ${candidates.length} outgoing candidates for $remoteUserId',
+      );
       for (var candidate in candidates) {
         await _sendSignaling(remoteUserId, candidate);
       }
@@ -731,7 +819,8 @@ class CallService extends ChangeNotifier {
         if (!kIsWeb && Platform.isAndroid) {
           try {
             final helper = Helper as dynamic;
-            if (helper.stopForegroundService != null) await helper.stopForegroundService();
+            if (helper.stopForegroundService != null)
+              await helper.stopForegroundService();
           } catch (e) {
             _recordStep('Error stopping Android foreground service: $e');
           }
@@ -750,13 +839,19 @@ class CallService extends ChangeNotifier {
               iconName: 'ic_launcher', // Ensure this exists in res/drawable
             );
           } catch (e) {
-            _recordStep('Warning: Failed to start Android foreground service: $e');
+            _recordStep(
+              'Warning: Failed to start Android foreground service: $e',
+            );
           }
         }
 
         _recordStep('Calling getDisplayMedia');
-        final Map<String, dynamic> mediaConstraints = {'audio': false, 'video': true};
-        final MediaStream screenStream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+        final Map<String, dynamic> mediaConstraints = {
+          'audio': false,
+          'video': true,
+        };
+        final MediaStream screenStream = await navigator.mediaDevices
+            .getDisplayMedia(mediaConstraints);
 
         if (screenStream.getVideoTracks().isNotEmpty) {
           _recordStep('Screen stream obtained, replacing tracks');
@@ -764,7 +859,8 @@ class CallService extends ChangeNotifier {
           for (var pc in _peerConnections.values) {
             final senders = await pc.getSenders();
             final videoSender = senders.cast<RTCRtpSender?>().firstWhere(
-              (s) => s?.track?.kind == 'video', orElse: () => null,
+              (s) => s?.track?.kind == 'video',
+              orElse: () => null,
             );
             if (videoSender != null) {
               await videoSender.replaceTrack(screenTrack);
@@ -776,12 +872,16 @@ class CallService extends ChangeNotifier {
           final user = _supabase.auth.currentUser;
           if (user != null) {
             for (var remoteId in _peerConnections.keys) {
-              await _sendSignaling(remoteId, {'type': 'screen_share_state', 'userId': user.id, 'isSharing': true});
+              await _sendSignaling(remoteId, {
+                'type': 'screen_share_state',
+                'userId': user.id,
+                'isSharing': true,
+              });
             }
           }
-          screenTrack.onEnded = () { 
+          screenTrack.onEnded = () {
             _recordStep('Screen share track ended');
-            if (_isScreenSharing) toggleScreenShare(); 
+            if (_isScreenSharing) toggleScreenShare();
           };
         } else {
           _recordStep('Error: No video tracks found in screen stream');
@@ -794,10 +894,13 @@ class CallService extends ChangeNotifier {
     }
   }
 
-  Future<void> _handleSignalingData(String senderId, Map<String, dynamic> data) async {
+  Future<void> _handleSignalingData(
+    String senderId,
+    Map<String, dynamic> data,
+  ) async {
     final type = data['type'];
     final pc = _peerConnections[senderId];
-    
+
     Future(() async {
       try {
         final rd = pc != null ? await pc.getRemoteDescription() : null;
@@ -817,20 +920,35 @@ class CallService extends ChangeNotifier {
             });
           }
         } else if (type == 'answer') {
-          if (pc != null && pc.signalingState == RTCSignalingState.RTCSignalingStateHaveLocalOffer && rd == null) {
+          if (pc != null &&
+              pc.signalingState ==
+                  RTCSignalingState.RTCSignalingStateHaveLocalOffer &&
+              rd == null) {
             debugPrint('[CallService] Handling remote answer from $senderId');
-            await pc.setRemoteDescription(RTCSessionDescription(data['sdp'], data['sdp_type']));
+            await pc.setRemoteDescription(
+              RTCSessionDescription(data['sdp'], data['sdp_type']),
+            );
             await _applyBitrateConstraints(pc);
             await _flushCandidateQueue(senderId, pc);
           } else if (pc != null) {
-            debugPrint('[CallService] Skipping remote answer: Signaling state is ${pc.signalingState} and remoteDescription is ${rd != null ? 'SET' : 'MISSING'}');
+            debugPrint(
+              '[CallService] Skipping remote answer: Signaling state is ${pc.signalingState} and remoteDescription is ${rd != null ? 'SET' : 'MISSING'}',
+            );
           }
         } else if (type == 'candidate') {
           if (pc != null && rd != null) {
             debugPrint('[CallService] Adding remote candidate from $senderId');
-            await pc.addCandidate(RTCIceCandidate(data['candidate'], data['sdpMid'], data['sdpMLineIndex']));
+            await pc.addCandidate(
+              RTCIceCandidate(
+                data['candidate'],
+                data['sdpMid'],
+                data['sdpMLineIndex'],
+              ),
+            );
           } else {
-            debugPrint('[CallService] Buffering incoming candidate from $senderId (PC ${pc != null ? 'EXISTS' : 'NULL'}, RemoteDescription ${rd != null ? 'SET' : 'MISSING'})');
+            debugPrint(
+              '[CallService] Buffering incoming candidate from $senderId (PC ${pc != null ? 'EXISTS' : 'NULL'}, RemoteDescription ${rd != null ? 'SET' : 'MISSING'})',
+            );
             _candidateQueue[senderId] ??= [];
             _candidateQueue[senderId]!.add(data);
           }
@@ -844,28 +962,46 @@ class CallService extends ChangeNotifier {
           _safeNotifyListeners();
         }
       } catch (e) {
-        debugPrint('[CallService] Error handling signaling data ($type) for $senderId: $e');
+        debugPrint(
+          '[CallService] Error handling signaling data ($type) for $senderId: $e',
+        );
       }
     });
   }
 
-  Future<RTCPeerConnection> _getOrCreatePeerConnection(String remoteUserId) async {
-    if (_peerConnections.containsKey(remoteUserId)) return _peerConnections[remoteUserId]!;
+  Future<RTCPeerConnection> _getOrCreatePeerConnection(
+    String remoteUserId,
+  ) async {
+    if (_peerConnections.containsKey(remoteUserId))
+      return _peerConnections[remoteUserId]!;
     return await _createPeerConnection(remoteUserId);
   }
 
-  Future<void> _flushCandidateQueue(String senderId, RTCPeerConnection pc) async {
+  Future<void> _flushCandidateQueue(
+    String senderId,
+    RTCPeerConnection pc,
+  ) async {
     final rd = await pc.getRemoteDescription();
     if (rd == null) {
-      debugPrint('[CallService] Cannot flush candidate queue for $senderId: remoteDescription is null');
+      debugPrint(
+        '[CallService] Cannot flush candidate queue for $senderId: remoteDescription is null',
+      );
       return;
     }
     final candidates = _candidateQueue[senderId];
     if (candidates != null) {
-      debugPrint('[CallService] Flushing ${candidates.length} buffered incoming candidates for $senderId');
+      debugPrint(
+        '[CallService] Flushing ${candidates.length} buffered incoming candidates for $senderId',
+      );
       for (var candidate in candidates) {
         try {
-          await pc.addCandidate(RTCIceCandidate(candidate['candidate'], candidate['sdpMid'], candidate['sdpMLineIndex']));
+          await pc.addCandidate(
+            RTCIceCandidate(
+              candidate['candidate'],
+              candidate['sdpMid'],
+              candidate['sdpMLineIndex'],
+            ),
+          );
         } catch (e) {
           debugPrint('[CallService] Error adding candidate during flush: $e');
         }
@@ -886,7 +1022,7 @@ class CallService extends ChangeNotifier {
 
   Future<void> _cleanup() async {
     debugPrint('[CallService] Cleaning up call resources');
-    
+
     if (_currentCallId != null) {
       _lastEndedCallId = _currentCallId;
       _lastEndedTimestamp = DateTime.now();
@@ -898,34 +1034,35 @@ class CallService extends ChangeNotifier {
     _signalingChannel?.unsubscribe();
     _signalingChannel = null;
     _isSignalingSubscribed = false;
-    
+
     // Dismiss the active call notification if any
     NotificationManager.instance.dismissActiveCallNotification();
-    
+
     if (!kIsWeb && Platform.isAndroid) {
       try {
         final helper = Helper as dynamic;
-        if (helper.stopForegroundService != null) await helper.stopForegroundService();
+        if (helper.stopForegroundService != null)
+          await helper.stopForegroundService();
       } catch (e) {
         debugPrint('[CallService] Error stopping foreground service: $e');
       }
     }
-    
+
     _localStream?.getTracks().forEach((track) {
       track.enabled = false;
       track.stop();
     });
     _localStream = null;
-    
+
     if (_localRendererInitialized) {
       _localRenderer.srcObject = null;
     }
-    
+
     for (var pc in _peerConnections.values) {
       await pc.close();
     }
     _peerConnections.clear();
-    
+
     for (var stream in _remoteStreams.values) {
       for (var track in stream.getTracks()) {
         track.enabled = false;
@@ -933,12 +1070,12 @@ class CallService extends ChangeNotifier {
       }
     }
     _remoteStreams.clear();
-    
+
     for (var renderer in _remoteRenderers.values) {
       await renderer.dispose();
     }
     _remoteRenderers.clear();
-    
+
     _currentCallId = null;
     _currentCall = null;
     _incomingCall = null;
@@ -957,55 +1094,76 @@ class CallService extends ChangeNotifier {
         debugPrint('[CallService] Error deactivating audio session: $e');
       }
     }
-    
+
     _safeNotifyListeners();
   }
 
   void startIncomingCallListener() {
     final user = _supabase.auth.currentUser;
     if (user == null) {
-      debugPrint('[CallService] Cannot start incoming call listener: No user logged in');
+      debugPrint(
+        '[CallService] Cannot start incoming call listener: No user logged in',
+      );
       return;
     }
-    
+
     final userId = user.id;
     _incomingCallSubscription?.cancel();
-    _incomingCallSubscription = _supabase.from('calls').stream(primaryKey: ['id']).eq('receiver_id', userId).listen((data) {
-      if (data.isNotEmpty) {
-        final ringingCalls = data.where((json) => json['status'] == CallStatus.ringing.name.toLowerCase()).toList();
-        if (ringingCalls.isNotEmpty) {
-          final call = CallEntity.fromJson(ringingCalls.first);
-          
-          // Check if this is the call we just ended (within 5 seconds) to prevent re-ringing flicker
-          final isRecentlyEnded = _lastEndedCallId == call.id && 
-                                 _lastEndedTimestamp != null && 
-                                 DateTime.now().difference(_lastEndedTimestamp!).inSeconds < 5;
+    _incomingCallSubscription = _supabase
+        .from('calls')
+        .stream(primaryKey: ['id'])
+        .eq('receiver_id', userId)
+        .listen((data) {
+          if (data.isNotEmpty) {
+            final ringingCalls = data
+                .where(
+                  (json) =>
+                      json['status'] == CallStatus.ringing.name.toLowerCase(),
+                )
+                .toList();
+            if (ringingCalls.isNotEmpty) {
+              final call = CallEntity.fromJson(ringingCalls.first);
 
-          if (_currentCallId == null && _incomingCall?.id != call.id && !isRecentlyEnded) {
-            _incomingCall = call;
-            _playRingtone();
-            DesktopCallNotifier.instance.handleIncomingCall(callId: call.id, callerName: 'Incoming Call', senderId: call.callerId);
+              // Check if this is the call we just ended (within 5 seconds) to prevent re-ringing flicker
+              final isRecentlyEnded =
+                  _lastEndedCallId == call.id &&
+                  _lastEndedTimestamp != null &&
+                  DateTime.now().difference(_lastEndedTimestamp!).inSeconds < 5;
+
+              if (_currentCallId == null &&
+                  _incomingCall?.id != call.id &&
+                  !isRecentlyEnded) {
+                _incomingCall = call;
+                _playRingtone();
+                DesktopCallNotifier.instance.handleIncomingCall(
+                  callId: call.id,
+                  callerName: 'Incoming Call',
+                  senderId: call.callerId,
+                );
+                _safeNotifyListeners();
+              }
+            } else if (_incomingCall != null) {
+              _incomingCall = null;
+              _stopRingtone();
+              _safeNotifyListeners();
+            }
+          } else if (_incomingCall != null) {
+            _incomingCall = null;
+            _stopRingtone();
             _safeNotifyListeners();
           }
-        } else if (_incomingCall != null) {
-          _incomingCall = null;
-          _stopRingtone();
-          _safeNotifyListeners();
-        }
-      } else if (_incomingCall != null) {
-        _incomingCall = null;
-        _stopRingtone();
-        _safeNotifyListeners();
-      }
-    });
+        });
   }
 
-  Future<void> endCall() async { _cleanup(); }
+  Future<void> endCall() async {
+    _cleanup();
+  }
 
   void toggleMute() {
     if (_localStream != null) {
       _isMuted = !_isMuted;
-      for (var track in _localStream!.getAudioTracks()) track.enabled = !_isMuted;
+      for (var track in _localStream!.getAudioTracks())
+        track.enabled = !_isMuted;
       _safeNotifyListeners();
     }
   }
@@ -1016,7 +1174,11 @@ class CallService extends ChangeNotifier {
       try {
         final videoStream = await navigator.mediaDevices.getUserMedia({
           'audio': false,
-          'video': {'facingMode': 'user', 'width': {'ideal': 1280}, 'height': {'ideal': 720}}
+          'video': {
+            'facingMode': 'user',
+            'width': {'ideal': 1280},
+            'height': {'ideal': 720},
+          },
         });
         if (videoStream.getVideoTracks().isNotEmpty) {
           final videoTrack = videoStream.getVideoTracks().first;
@@ -1025,7 +1187,8 @@ class CallService extends ChangeNotifier {
           for (var pc in _peerConnections.values) {
             final senders = await pc.getSenders();
             final videoSender = senders.cast<RTCRtpSender?>().firstWhere(
-              (s) => s?.track?.kind == 'video', orElse: () => null,
+              (s) => s?.track?.kind == 'video',
+              orElse: () => null,
             );
             if (videoSender != null) {
               await videoSender.replaceTrack(videoTrack);
@@ -1039,9 +1202,11 @@ class CallService extends ChangeNotifier {
       }
     } else {
       _isVideoOn = !_isVideoOn;
-      for (var track in _localStream!.getVideoTracks()) track.enabled = _isVideoOn;
+      for (var track in _localStream!.getVideoTracks())
+        track.enabled = _isVideoOn;
     }
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) await _configureAudioSession(_isSpeakerphoneOn, _isVideoOn);
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS))
+      await _configureAudioSession(_isSpeakerphoneOn, _isVideoOn);
     _safeNotifyListeners();
   }
 
@@ -1054,7 +1219,7 @@ class CallService extends ChangeNotifier {
   Future<void> _playRingtone() async {
     if (kIsWeb) return;
     if (_isPlayingRingtone) return;
-    
+
     debugPrint('[CallService] Starting ringtone playback');
     _isPlayingRingtone = true;
     try {
@@ -1064,7 +1229,7 @@ class CallService extends ChangeNotifier {
       await _audioPlayer.play(AssetSource('audio/standardringtone.mp3'));
     } catch (e) {
       debugPrint('[CallService] Error playing ringtone: $e');
-      _isPlayingRingtone = false; 
+      _isPlayingRingtone = false;
     }
   }
 

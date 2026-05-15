@@ -11,11 +11,7 @@ class CallingScreen extends StatefulWidget {
   final String? callId;
   final bool isIncoming;
 
-  const CallingScreen({
-    super.key,
-    this.callId,
-    this.isIncoming = false,
-  });
+  const CallingScreen({super.key, this.callId, this.isIncoming = false});
 
   @override
   State<CallingScreen> createState() => _CallingScreenState();
@@ -82,11 +78,19 @@ class _CallingScreenState extends State<CallingScreen> {
   @override
   Widget build(BuildContext context) {
     // Optimization: Use select for high-level structure to avoid total rebuilds
-    final hasActiveCall = context.select<CallProvider, bool>((p) => p.hasActiveCall);
-    final hasIncomingCall = context.select<CallProvider, bool>((p) => p.hasIncomingCall);
-    
-    final isWaitingForIncomingCall = widget.isIncoming && !hasActiveCall && !hasIncomingCall && !_isCallDataTimeout;
-    
+    final hasActiveCall = context.select<CallProvider, bool>(
+      (p) => p.hasActiveCall,
+    );
+    final hasIncomingCall = context.select<CallProvider, bool>(
+      (p) => p.hasIncomingCall,
+    );
+
+    final isWaitingForIncomingCall =
+        widget.isIncoming &&
+        !hasActiveCall &&
+        !hasIncomingCall &&
+        !_isCallDataTimeout;
+
     if (!isWaitingForIncomingCall && !hasActiveCall && !hasIncomingCall) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && Navigator.canPop(context)) {
@@ -129,11 +133,7 @@ class _CallingScreenState extends State<CallingScreen> {
             ),
 
             // Call Header - Isolated rebuilds
-            const Positioned(
-              top: 60,
-              left: 20,
-              child: CallHeaderDisplay(),
-            ),
+            const Positioned(top: 60, left: 20, child: CallHeaderDisplay()),
 
             // Diagnostic Button (Only shown in debug or when explicitly requested)
             Positioned(
@@ -157,7 +157,10 @@ class _CallingScreenState extends State<CallingScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.grey[900],
-        title: const Text('Call Diagnostics', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Call Diagnostics',
+          style: TextStyle(color: Colors.white),
+        ),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -167,7 +170,11 @@ class _CallingScreenState extends State<CallingScreen> {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
                 steps[index],
-                style: const TextStyle(color: Colors.white70, fontSize: 12, fontFamily: 'monospace'),
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontFamily: 'monospace',
+                ),
               ),
             ),
           ),
@@ -190,9 +197,11 @@ class ParticipantDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     // Only rebuild if streams or sharing state changes
     final state = context.watch<CallProvider>().state;
-    final isLocalSharing = context.select<CallProvider, bool>((p) => p.isScreenSharing);
+    final isLocalSharing = context.select<CallProvider, bool>(
+      (p) => p.isScreenSharing,
+    );
     final isVideoOn = context.select<CallProvider, bool>((p) => p.isVideoOn);
-    
+
     final isWaiting = state.remoteStreams.isEmpty;
     if (isWaiting) {
       return const WaitingScreen();
@@ -204,8 +213,8 @@ class ParticipantDisplay extends StatelessWidget {
 
     if (someoneSharing) {
       return ScreenShareLayout(
-        remoteIds: remoteIds, 
-        isLocalSharing: isLocalSharing, 
+        remoteIds: remoteIds,
+        isLocalSharing: isLocalSharing,
         remoteSharingId: remoteSharingId,
         isVideoOn: isVideoOn,
         localRenderer: state.localRenderer,
@@ -218,10 +227,10 @@ class ParticipantDisplay extends StatelessWidget {
           Expanded(
             child: VideoTile(
               key: const ValueKey('local_tile'),
-              name: 'You', 
-              renderer: state.localRenderer, 
-              isLocal: true, 
-              isVideoOn: isVideoOn
+              name: 'You',
+              renderer: state.localRenderer,
+              isLocal: true,
+              isVideoOn: isVideoOn,
             ),
           ),
           const SizedBox(height: 4),
@@ -248,10 +257,10 @@ class ParticipantDisplay extends StatelessWidget {
         if (index == 0) {
           return VideoTile(
             key: const ValueKey('local_tile_grid'),
-            name: 'You', 
-            renderer: state.localRenderer, 
-            isLocal: true, 
-            isVideoOn: isVideoOn
+            name: 'You',
+            renderer: state.localRenderer,
+            isLocal: true,
+            isVideoOn: isVideoOn,
           );
         }
         final userId = remoteIds[index - 1];
@@ -269,13 +278,21 @@ class WaitingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final call = context.select<CallProvider, CallEntity?>((p) => p.activeCall ?? p.incomingCall);
-    final currentUserId = context.select<ProfileProvider, String?>((p) => p.currentProfile?.id);
-    final otherUserId = call?.callerId == currentUserId ? call?.receiverId : call?.callerId;
-    
+    final call = context.select<CallProvider, CallEntity?>(
+      (p) => p.activeCall ?? p.incomingCall,
+    );
+    final currentUserId = context.select<ProfileProvider, String?>(
+      (p) => p.currentProfile?.id,
+    );
+    final otherUserId = call?.callerId == currentUserId
+        ? call?.receiverId
+        : call?.callerId;
+
     String statusText;
     if (call?.status == CallStatus.ringing) {
-      statusText = call?.callerId == currentUserId ? 'Calling...' : 'Incoming...';
+      statusText = call?.callerId == currentUserId
+          ? 'Calling...'
+          : 'Incoming...';
     } else {
       statusText = 'Connecting...';
     }
@@ -293,7 +310,11 @@ class WaitingScreen extends StatelessWidget {
           const SizedBox(height: 40),
           Text(
             statusText,
-            style: const TextStyle(color: Colors.white70, fontSize: 18, letterSpacing: 1.2),
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 18,
+              letterSpacing: 1.2,
+            ),
           ),
         ],
       ),
@@ -322,19 +343,19 @@ class ScreenShareLayout extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: isLocalSharing 
-            ? VideoTile(
-                key: const ValueKey('local_screen_share'),
-                name: 'Your Screen', 
-                renderer: localRenderer, 
-                isLocal: true, 
-                isVideoOn: true
-              )
-            : RemoteParticipantTile(
-                key: ValueKey('remote_screen_share_$remoteSharingId'),
-                userId: remoteSharingId!, 
-                isFull: true
-              ),
+          child: isLocalSharing
+              ? VideoTile(
+                  key: const ValueKey('local_screen_share'),
+                  name: 'Your Screen',
+                  renderer: localRenderer,
+                  isLocal: true,
+                  isVideoOn: true,
+                )
+              : RemoteParticipantTile(
+                  key: ValueKey('remote_screen_share_$remoteSharingId'),
+                  userId: remoteSharingId!,
+                  isFull: true,
+                ),
         ),
         Positioned(
           top: 100,
@@ -348,23 +369,27 @@ class ScreenShareLayout extends StatelessWidget {
                   height: 160,
                   child: VideoTile(
                     key: const ValueKey('local_pip'),
-                    name: 'You', 
-                    renderer: localRenderer, 
-                    isLocal: true, 
-                    isVideoOn: isVideoOn
+                    name: 'You',
+                    renderer: localRenderer,
+                    isLocal: true,
+                    isVideoOn: isVideoOn,
                   ),
                 ),
-              ...remoteIds.where((id) => id != remoteSharingId).map((id) => Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: SizedBox(
-                  width: 120,
-                  height: 160,
-                  child: RemoteParticipantTile(
-                    key: ValueKey('remote_pip_$id'),
-                    userId: id,
+              ...remoteIds
+                  .where((id) => id != remoteSharingId)
+                  .map(
+                    (id) => Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: SizedBox(
+                        width: 120,
+                        height: 160,
+                        child: RemoteParticipantTile(
+                          key: ValueKey('remote_pip_$id'),
+                          userId: id,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              )),
             ],
           ),
         ),
@@ -386,12 +411,17 @@ class RemoteParticipantTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Optimization: Select only what's needed for this specific participant
-    final stream = context.select<CallProvider, MediaStream?>((p) => p.state.remoteStreams[userId]);
-    final renderer = context.select<CallProvider, RTCVideoRenderer?>((p) => p.state.remoteRenderers[userId]);
-    
-    final hasRemoteVideo = stream != null && 
-                          stream.getVideoTracks().isNotEmpty && 
-                          stream.getVideoTracks().any((t) => t.enabled);
+    final stream = context.select<CallProvider, MediaStream?>(
+      (p) => p.state.remoteStreams[userId],
+    );
+    final renderer = context.select<CallProvider, RTCVideoRenderer?>(
+      (p) => p.state.remoteRenderers[userId],
+    );
+
+    final hasRemoteVideo =
+        stream != null &&
+        stream.getVideoTracks().isNotEmpty &&
+        stream.getVideoTracks().any((t) => t.enabled);
 
     return ParticipantTile(
       key: ValueKey('tile_$userId'),
@@ -408,13 +438,19 @@ class CallHeaderDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final type = context.select<CallProvider, CallType?>((p) => (p.activeCall ?? p.incomingCall)?.type);
+    final type = context.select<CallProvider, CallType?>(
+      (p) => (p.activeCall ?? p.incomingCall)?.type,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           type == CallType.video ? 'Video Call' : 'Voice Call',
-          style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         const SizedBox(height: 4),
         const Row(
@@ -439,12 +475,20 @@ class CallControlBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.read<CallProvider>();
-    final hasIncomingCall = context.select<CallProvider, bool>((p) => p.hasIncomingCall);
-    final hasActiveCall = context.select<CallProvider, bool>((p) => p.hasActiveCall);
+    final hasIncomingCall = context.select<CallProvider, bool>(
+      (p) => p.hasIncomingCall,
+    );
+    final hasActiveCall = context.select<CallProvider, bool>(
+      (p) => p.hasActiveCall,
+    );
     final isMuted = context.select<CallProvider, bool>((p) => p.isMuted);
     final isVideoOn = context.select<CallProvider, bool>((p) => p.isVideoOn);
-    final isSpeakerphoneOn = context.select<CallProvider, bool>((p) => p.isSpeakerphoneOn);
-    final isSharing = context.select<CallProvider, bool>((p) => p.isScreenSharing);
+    final isSpeakerphoneOn = context.select<CallProvider, bool>(
+      (p) => p.isSpeakerphoneOn,
+    );
+    final isSharing = context.select<CallProvider, bool>(
+      (p) => p.isScreenSharing,
+    );
 
     if (isIncoming && !hasIncomingCall && !hasActiveCall) {
       return const SizedBox.shrink();
@@ -456,7 +500,14 @@ class CallControlBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: hasIncomingCall && !hasActiveCall
             ? _buildIncomingControls(context, provider)
-            : _buildActiveControls(context, provider, isMuted, isVideoOn, isSpeakerphoneOn, isSharing),
+            : _buildActiveControls(
+                context,
+                provider,
+                isMuted,
+                isVideoOn,
+                isSpeakerphoneOn,
+                isSharing,
+              ),
       ),
     );
   }
@@ -493,7 +544,14 @@ class CallControlBar extends StatelessWidget {
     );
   }
 
-  Widget _buildActiveControls(BuildContext context, CallProvider provider, bool isMuted, bool isVideoOn, bool isSpeakerphoneOn, bool isSharing) {
+  Widget _buildActiveControls(
+    BuildContext context,
+    CallProvider provider,
+    bool isMuted,
+    bool isVideoOn,
+    bool isSpeakerphoneOn,
+    bool isSharing,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
@@ -552,10 +610,7 @@ class _ControlButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(icon, color: Colors.white),
@@ -602,15 +657,12 @@ class VideoTile extends StatelessWidget {
                 key: ValueKey('renderer_${renderer!.hashCode}'),
               ),
             ),
-          
+
           if (!isVideoOn)
             Positioned.fill(
               child: Container(
                 color: Colors.grey[900],
-                child: PulsatingParticipant(
-                  userId: userId,
-                  isLocal: isLocal,
-                ),
+                child: PulsatingParticipant(userId: userId, isLocal: isLocal),
               ),
             ),
 
@@ -651,7 +703,8 @@ class PulsatingParticipant extends StatefulWidget {
   State<PulsatingParticipant> createState() => _PulsatingParticipantState();
 }
 
-class _PulsatingParticipantState extends State<PulsatingParticipant> with SingleTickerProviderStateMixin {
+class _PulsatingParticipantState extends State<PulsatingParticipant>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   UserProfileEntity? _profile;
@@ -663,9 +716,10 @@ class _PulsatingParticipantState extends State<PulsatingParticipant> with Single
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
-    _animation = Tween<double>(begin: 1.0, end: 1.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _animation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _loadProfile();
   }
 
@@ -711,11 +765,15 @@ class _PulsatingParticipantState extends State<PulsatingParticipant> with Single
           child: CircleAvatar(
             radius: widget.size / 2,
             backgroundColor: Colors.grey[800],
-            backgroundImage: _profile?.avatarUrl != null 
-                ? CachedNetworkImageProvider(_profile!.avatarUrl!) 
+            backgroundImage: _profile?.avatarUrl != null
+                ? CachedNetworkImageProvider(_profile!.avatarUrl!)
                 : null,
-            child: _profile?.avatarUrl == null 
-                ? Icon(Icons.person, size: widget.size / 2, color: Colors.white54) 
+            child: _profile?.avatarUrl == null
+                ? Icon(
+                    Icons.person,
+                    size: widget.size / 2,
+                    color: Colors.white54,
+                  )
                 : null,
           ),
         ),
@@ -759,7 +817,9 @@ class _ParticipantTileState extends State<ParticipantTile> {
 
   Future<void> _loadProfile() async {
     try {
-      final profile = await context.read<ProfileProvider>().getProfile(widget.userId);
+      final profile = await context.read<ProfileProvider>().getProfile(
+        widget.userId,
+      );
       if (mounted) setState(() => _profile = profile);
     } catch (e) {
       debugPrint('[ParticipantTile] Error loading profile: $e');
@@ -773,7 +833,9 @@ class _ParticipantTileState extends State<ParticipantTile> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[900],
-        borderRadius: widget.isFull ? BorderRadius.zero : BorderRadius.circular(12),
+        borderRadius: widget.isFull
+            ? BorderRadius.zero
+            : BorderRadius.circular(12),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -787,7 +849,7 @@ class _ParticipantTileState extends State<ParticipantTile> {
                 key: ValueKey('remote_renderer_${widget.renderer!.hashCode}'),
               ),
             ),
-          
+
           if (!widget.isVideoOn)
             Positioned.fill(
               child: Container(

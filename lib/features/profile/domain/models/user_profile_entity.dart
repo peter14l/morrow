@@ -26,8 +26,9 @@ class UserProfileEntity {
   final bool isPro;
   final DateTime createdAt;
 
-  String get displayName => (fullName != null && fullName!.isNotEmpty) ? fullName! : username;
-  
+  String get displayName =>
+      (fullName != null && fullName!.isNotEmpty) ? fullName! : username;
+
   int get safeFollowersCount => followersCount < 0 ? 0 : followersCount;
   int get safeFollowingCount => followingCount < 0 ? 0 : followingCount;
   int get safePostsCount => postsCount < 0 ? 0 : postsCount;
@@ -89,10 +90,9 @@ class UserProfileEntity {
       windDownTime: json['wind_down_time'] as String?,
       xp: json['xp'] as int? ?? 0,
       level: json['level'] as int? ?? 1,
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
-              : DateTime.now(),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 

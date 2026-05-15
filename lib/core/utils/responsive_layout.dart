@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 /// Responsive layout breakpoints and utilities
 class ResponsiveLayout {
   // Breakpoints
-  static const double mobileBreakpoint = 600;
-  static const double tabletBreakpoint = 1200;
+  static const double mobileBreakpoint = 768;
+  static const double tabletBreakpoint = 1024;
 
   // Max widths
   static const double maxContentWidth = 1400;
@@ -30,10 +30,11 @@ class ResponsiveLayout {
   /// Check if current width is desktop
   static bool isDesktop(BuildContext context) {
     // Only allow desktop layout on non-mobile platforms
-    final bool isMobilePlatform = Theme.of(context).platform == TargetPlatform.android || 
-                                  Theme.of(context).platform == TargetPlatform.iOS;
+    final bool isMobilePlatform =
+        Theme.of(context).platform == TargetPlatform.android ||
+        Theme.of(context).platform == TargetPlatform.iOS;
     if (isMobilePlatform) return false;
-    
+
     return MediaQuery.of(context).size.width >= tabletBreakpoint;
   }
 

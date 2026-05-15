@@ -82,7 +82,9 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         context: context,
         builder: (context) => fluent.ContentDialog(
           title: const Text('Delete Post'),
-          content: const Text('Are you sure you want to delete this post? This action cannot be undone.'),
+          content: const Text(
+            'Are you sure you want to delete this post? This action cannot be undone.',
+          ),
           actions: [
             fluent.Button(
               child: const Text('Cancel'),
@@ -91,7 +93,9 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             fluent.FilledButton(
               onPressed: () => Navigator.pop(context, 'delete'),
               style: fluent.ButtonStyle(
-                backgroundColor: fluent.WidgetStateProperty.all(fluent.Colors.red),
+                backgroundColor: fluent.WidgetStateProperty.all(
+                  fluent.Colors.red,
+                ),
               ),
               child: const Text('Delete'),
             ),
@@ -164,7 +168,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(material.Icons.error_outline, size: 48, color: material.Colors.grey),
+            const Icon(
+              material.Icons.error_outline,
+              size: 48,
+              color: material.Colors.grey,
+            ),
             const SizedBox(height: 16),
             Text('Error: $_error'),
             const SizedBox(height: 16),
@@ -201,24 +209,26 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   : _post!.likes + 1;
 
               setState(() {
-                _post = _post!.copyWith(
-                  isLiked: !wasLiked,
-                  likes: newLikes,
-                );
+                _post = _post!.copyWith(isLiked: !wasLiked, likes: newLikes);
               });
 
               try {
                 if (wasLiked) {
                   await _postService.unlikePost(_post!.id, userId);
                 } else {
-                  await _postService.likePost(userId: userId, postId: _post!.id);
+                  await _postService.likePost(
+                    userId: userId,
+                    postId: _post!.id,
+                  );
                 }
               } catch (e) {
                 if (mounted) {
                   setState(() {
                     _post = _post!.copyWith(
                       isLiked: wasLiked,
-                      likes: wasLiked ? _post!.likes + 1 : (_post!.likes > 0 ? _post!.likes - 1 : 0),
+                      likes: wasLiked
+                          ? _post!.likes + 1
+                          : (_post!.likes > 0 ? _post!.likes - 1 : 0),
                     );
                   });
                 }
@@ -235,9 +245,15 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
               try {
                 if (wasBookmarked) {
-                  await _postService.unbookmarkPost(userId: userId, postId: _post!.id);
+                  await _postService.unbookmarkPost(
+                    userId: userId,
+                    postId: _post!.id,
+                  );
                 } else {
-                  await _postService.bookmarkPost(userId: userId, postId: _post!.id);
+                  await _postService.bookmarkPost(
+                    userId: userId,
+                    postId: _post!.id,
+                  );
                 }
               } catch (e) {
                 if (mounted) {

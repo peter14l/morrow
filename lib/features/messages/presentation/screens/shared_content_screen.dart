@@ -198,15 +198,13 @@ class _SharedContentScreenState extends State<SharedContentScreen>
                 CachedNetworkImage(
                   imageUrl: msg.mediaUrl!,
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => Container(
-                        color: Theme.of(context).colorScheme.surfaceContainer,
-                      ),
-                  errorWidget:
-                      (context, url, error) => Container(
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        child: const Icon(FluentIcons.error_circle_24_regular),
-                      ),
+                  placeholder: (context, url) => Container(
+                    color: Theme.of(context).colorScheme.surfaceContainer,
+                  ),
+                  errorWidget: (context, url, error) => Container(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: const Icon(FluentIcons.error_circle_24_regular),
+                  ),
                 ),
                 if (msg.messageType == MessageType.ripple)
                   const Center(

@@ -38,12 +38,14 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
 
   @override
   Widget build(BuildContext context) {
-    // If animation is disabled, just show a static gradient
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final backgroundColor = theme.scaffoldBackgroundColor;
+
+    // If animation is disabled, just show a static background
     if (!widget.animate) {
       return Container(
-        decoration: const BoxDecoration(
-          color: OasisColors.deep,
-        ),
+        decoration: BoxDecoration(color: backgroundColor),
         child: widget.child,
       );
     }
@@ -51,14 +53,14 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
     return Stack(
       children: [
         // Background base color
-        Container(color: OasisColors.deep),
+        Container(color: backgroundColor),
 
         // Animated Mesh Orbs
         AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
             return CustomPaint(
-              painter: MeshPainter(_controller.value),
+              painter: MeshPainter(_controller.value, colorScheme),
               size: Size.infinite,
             );
           },
@@ -68,9 +70,7 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
         ClipRect(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
-            child: Container(
-              color: OasisColors.deep.withValues(alpha: 0.1),
-            ),
+            child: Container(color: backgroundColor.withValues(alpha: 0.1)),
           ),
         ),
 
@@ -82,21 +82,17 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
               radius: 1.5,
               colors: [
                 Colors.transparent,
-                OasisColors.deep.withValues(alpha: 0.5),
-                OasisColors.deep.withValues(alpha: 0.8),
+                backgroundColor.withValues(alpha: 0.5),
+                backgroundColor.withValues(alpha: 0.8),
               ],
             ),
           ),
         ),
-        
+
         // Grain Texture (Procedural Noise)
         const Positioned.fill(
           child: IgnorePointer(
-            child: RepaintBoundary(
-              child: CustomPaint(
-                painter: GrainPainter(),
-              ),
-            ),
+            child: RepaintBoundary(child: CustomPaint(painter: GrainPainter())),
           ),
         ),
 
@@ -109,36 +105,37 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
 
 class MeshPainter extends CustomPainter {
   final double animationValue;
+  final ColorScheme colorScheme;
 
-  MeshPainter(this.animationValue);
+  MeshPainter(this.animationValue, this.colorScheme);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 100);
+    final paint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 100);
 
-    // Oasis Glow Orb 1
+    // Orb 1: Primary color
     final x1 = size.width * 0.3 + sin(animationValue * 2 * pi) * 150;
     final y1 = size.height * 0.4 + cos(animationValue * 2 * pi) * 100;
-    paint.color = OasisColors.glow.withValues(alpha: 0.25);
+    paint.color = colorScheme.primary.withValues(alpha: 0.25);
     canvas.drawCircle(Offset(x1, y1), 350, paint);
 
-    // Oasis Moss Orb 2
+    // Orb 2: Secondary color
     final x2 = size.width * 0.7 - cos(animationValue * 2 * pi) * 180;
     final y2 = size.height * 0.6 - sin(animationValue * 2 * pi) * 120;
-    paint.color = OasisColors.moss.withValues(alpha: 0.35);
+    paint.color = colorScheme.secondary.withValues(alpha: 0.35);
     canvas.drawCircle(Offset(x2, y2), 450, paint);
 
-    // Oasis Sage Orb 3
+    // Orb 3: Tertiary color
     final x3 = size.width * 0.5 + sin(animationValue * 2 * pi + 1) * 120;
     final y3 = size.height * 0.2 + cos(animationValue * 2 * pi + 1) * 150;
-    paint.color = OasisColors.sage.withValues(alpha: 0.3);
+    paint.color = colorScheme.tertiary.withValues(alpha: 0.3);
     canvas.drawCircle(Offset(x3, y3), 300, paint);
 
-    // Oasis Glow Orb 4 (Halo effect)
+    // Orb 4: Primary container color (Halo effect)
     final x4 = size.width * 0.8 + cos(animationValue * 2 * pi + 2) * 100;
     final y4 = size.height * 0.8 + sin(animationValue * 2 * pi + 2) * 130;
-    paint.color = OasisColors.glow.withValues(alpha: 0.15);
+    paint.color = colorScheme.primaryContainer.withValues(alpha: 0.15);
     canvas.drawCircle(Offset(x4, y4), 250, paint);
   }
 
@@ -165,7 +162,7 @@ class GrainPainter extends CustomPainter {
     final recordingCanvas = Canvas(recorder);
     final random = Random(42); // Deterministic seed for consistent grain
     final paint = Paint()..color = Colors.white.withValues(alpha: 0.03);
-    
+
     // Draw tiny dots randomly to simulate grain
     for (var i = 0; i < 5000; i++) {
       final x = random.nextDouble() * size.width;

@@ -24,7 +24,9 @@ class StoriesService {
       if (response == null || response.isEmpty) return [];
 
       return (response as List)
-          .map((json) => StoryGroupEntity.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) => StoryGroupEntity.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
     } catch (e) {
       debugPrint('Error fetching following stories: $e');
@@ -111,29 +113,28 @@ class StoriesService {
       final now = DateTime.now();
       final expiresAt = now.add(const Duration(hours: 24));
 
-      final response =
-          await _supabase
-              .from('stories')
-              .insert({
-                'user_id': userId,
-                'media_url': mediaUrl,
-                'media_type': mediaType,
-                'caption': caption,
-                'duration': duration,
-                'created_at': now.toIso8601String(),
-                'expires_at': expiresAt.toIso8601String(),
-                'music_id': musicId,
-                'music_metadata': musicMetadata,
-                'interactive_metadata': interactiveMetadata,
-              })
-              .select('''
+      final response = await _supabase
+          .from('stories')
+          .insert({
+            'user_id': userId,
+            'media_url': mediaUrl,
+            'media_type': mediaType,
+            'caption': caption,
+            'duration': duration,
+            'created_at': now.toIso8601String(),
+            'expires_at': expiresAt.toIso8601String(),
+            'music_id': musicId,
+            'music_metadata': musicMetadata,
+            'interactive_metadata': interactiveMetadata,
+          })
+          .select('''
             *,
             profiles:user_id (
               username,
               avatar_url
             )
           ''')
-              .single();
+          .single();
 
       // 3. Parse response
       final storyData = Map<String, dynamic>.from(response);
@@ -211,12 +212,11 @@ class StoriesService {
       if (userId == null) return false;
 
       // Get story to delete media file
-      final story =
-          await _supabase
-              .from('stories')
-              .select('media_url, user_id')
-              .eq('id', storyId)
-              .single();
+      final story = await _supabase
+          .from('stories')
+          .select('media_url, user_id')
+          .eq('id', storyId)
+          .single();
 
       // Verify ownership
       if (story['user_id'] != userId) {

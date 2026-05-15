@@ -116,7 +116,13 @@ class _EnergyArcPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     canvas.drawArc(rect, -math.pi / 2, 2 * math.pi, false, bgPaint);
-    canvas.drawArc(rect, -math.pi / 2, sweepAngle * (math.pi / 180), false, progressPaint);
+    canvas.drawArc(
+      rect,
+      -math.pi / 2,
+      sweepAngle * (math.pi / 180),
+      false,
+      progressPaint,
+    );
   }
 
   @override

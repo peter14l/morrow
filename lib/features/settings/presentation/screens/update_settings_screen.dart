@@ -41,18 +41,17 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
     return Consumer<UpdateService>(
       builder: (context, updateService, _) {
         final progress = updateService.currentProgress;
-        
+
         // Auto-scroll logs
         WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
 
         return Scaffold(
-          backgroundColor: isDesktop ? Colors.transparent : theme.scaffoldBackgroundColor,
+          backgroundColor: isDesktop
+              ? Colors.transparent
+              : theme.scaffoldBackgroundColor,
           appBar: isDesktop
               ? null
-              : AppBar(
-                  title: const Text('Software Update'),
-                  centerTitle: true,
-                ),
+              : AppBar(title: const Text('Software Update'), centerTitle: true),
           body: Column(
             children: [
               if (isDesktop)
@@ -105,21 +104,24 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
                         const SizedBox(height: 32),
 
                         // Action Buttons
-                        if (progress.status == UpdateStatus.idle || 
-                            progress.status == UpdateStatus.upToDate || 
+                        if (progress.status == UpdateStatus.idle ||
+                            progress.status == UpdateStatus.upToDate ||
                             progress.status == UpdateStatus.failed)
                           AppButton.primary(
-                            onPressed: () => updateService.checkForUpdates(manual: true),
+                            onPressed: () =>
+                                updateService.checkForUpdates(manual: true),
                             text: 'Check for Updates',
                             icon: const Icon(Icons.refresh),
                             width: double.infinity,
                           ),
-                        
+
                         if (progress.status == UpdateStatus.available)
                           AppButton.primary(
                             onPressed: () {
                               if (updateService.cachedUpdateInfo != null) {
-                                updateService.downloadAndInstallUpdate(updateService.cachedUpdateInfo!);
+                                updateService.downloadAndInstallUpdate(
+                                  updateService.cachedUpdateInfo!,
+                                );
                               }
                             },
                             text: 'Update Now',
@@ -146,10 +148,13 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
                             width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                              color: colorScheme.surfaceContainerHighest
+                                  .withOpacity(0.5),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: colorScheme.outlineVariant.withOpacity(0.3),
+                                color: colorScheme.outlineVariant.withOpacity(
+                                  0.3,
+                                ),
                               ),
                             ),
                             child: ListView.builder(
@@ -157,7 +162,9 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
                               itemCount: progress.logs.length,
                               itemBuilder: (context, index) {
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
                                   child: Text(
                                     progress.logs[index],
                                     style: TextStyle(
@@ -202,7 +209,8 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
         break;
       case UpdateStatus.available:
         title = 'Update Available';
-        message = 'Version ${updateService.cachedUpdateInfo?.latestVersion} is ready to download.';
+        message =
+            'Version ${updateService.cachedUpdateInfo?.latestVersion} is ready to download.';
         icon = Icons.file_download_outlined;
         iconColor = colorScheme.secondary;
         break;
@@ -240,9 +248,7 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withOpacity(0.2),
-        ),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.2)),
       ),
       child: Column(
         children: [
@@ -272,13 +278,15 @@ class _UpdateSettingsScreenState extends State<UpdateSettingsScreen> {
               ),
             ],
           ),
-          if (progress.status == UpdateStatus.downloading || 
+          if (progress.status == UpdateStatus.downloading ||
               progress.status == UpdateStatus.installing) ...[
             const SizedBox(height: 24),
             ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: LinearProgressIndicator(
-                value: progress.status == UpdateStatus.installing ? null : progress.progress,
+                value: progress.status == UpdateStatus.installing
+                    ? null
+                    : progress.progress,
                 minHeight: 8,
                 backgroundColor: colorScheme.surfaceContainerHighest,
               ),

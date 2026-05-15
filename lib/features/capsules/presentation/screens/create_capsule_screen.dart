@@ -79,10 +79,10 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
       context: context,
       initialDate:
           _selectedDate.isAfter(
-                isPro ? now.add(const Duration(days: 365 * 50)) : maxFreeDate,
-              )
-              ? now.add(const Duration(days: 1))
-              : _selectedDate,
+            isPro ? now.add(const Duration(days: 365 * 50)) : maxFreeDate,
+          )
+          ? now.add(const Duration(days: 1))
+          : _selectedDate,
       firstDate: now.add(const Duration(days: 1)),
       lastDate: isPro ? now.add(const Duration(days: 365 * 50)) : maxFreeDate,
     );
@@ -135,9 +135,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
       if (mounted) context.pop();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to seal capsule: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Failed to seal capsule: $e')));
     } finally {
       if (mounted) {
         setState(() {
@@ -160,11 +160,16 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Write a message to the future', style: theme.textTheme.headlineSmall),
+          Text(
+            'Write a message to the future',
+            style: theme.textTheme.headlineSmall,
+          ),
           const SizedBox(height: 8),
           Text(
             'This message will stay locked until the date you choose.',
-            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 24),
 
@@ -184,7 +189,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
               decoration: InputDecoration(
                 hintText: 'Dear Future Me...',
                 filled: true,
-                fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                fillColor: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -250,7 +257,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
               final preset = _datePresets[index];
               final duration = preset['duration'] as Duration;
               final isProPreset = preset['isPro'] as bool;
-              final userIsPro = context.read<ProfileProvider>().currentProfile?.isPro ?? false;
+              final userIsPro =
+                  context.read<ProfileProvider>().currentProfile?.isPro ??
+                  false;
               final isLocked = isProPreset && !userIsPro;
 
               if (useFluent && isDesktop) {
@@ -258,7 +267,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                   onPressed: () {
                     if (isLocked) {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const SubscriptionScreen(),
+                        ),
                       );
                     } else {
                       setState(() {
@@ -269,7 +280,18 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(isLocked ? fluent.FluentIcons.lock : (index == 0 ? fluent.FluentIcons.brightness : (index == 1 ? fluent.FluentIcons.calendar_week : (index == 2 ? fluent.FluentIcons.calendar : fluent.FluentIcons.rocket))), size: 16),
+                      Icon(
+                        isLocked
+                            ? fluent.FluentIcons.lock
+                            : (index == 0
+                                  ? fluent.FluentIcons.brightness
+                                  : (index == 1
+                                        ? fluent.FluentIcons.calendar_week
+                                        : (index == 2
+                                              ? fluent.FluentIcons.calendar
+                                              : fluent.FluentIcons.rocket))),
+                        size: 16,
+                      ),
                       const SizedBox(width: 8),
                       Text(preset['label'] as String),
                     ],
@@ -281,7 +303,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                 onPressed: () {
                   if (isLocked) {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const SubscriptionScreen(),
+                      ),
                     );
                   } else {
                     setState(() {
@@ -289,14 +313,23 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                     });
                   }
                 },
-                icon: Icon(isLocked ? Icons.lock : preset['icon'] as IconData, size: 18),
+                icon: Icon(
+                  isLocked ? Icons.lock : preset['icon'] as IconData,
+                  size: 18,
+                ),
                 label: Text(preset['label'] as String),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: isLocked ? colorScheme.onSurfaceVariant : colorScheme.primary,
+                  foregroundColor: isLocked
+                      ? colorScheme.onSurfaceVariant
+                      : colorScheme.primary,
                   side: BorderSide(
-                    color: isLocked ? colorScheme.outlineVariant : colorScheme.primary.withValues(alpha: 0.5),
+                    color: isLocked
+                        ? colorScheme.outlineVariant
+                        : colorScheme.primary.withValues(alpha: 0.5),
                   ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               );
             },
@@ -307,11 +340,10 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
               height: 50,
               child: useFluent
                   ? fluent.FilledButton(
-                    onPressed: _isLoading ? null : _createCapsule,
-                    child:
-                        _isLoading
-                            ? const fluent.ProgressRing(strokeWidth: 2)
-                            : const Row(
+                      onPressed: _isLoading ? null : _createCapsule,
+                      child: _isLoading
+                          ? const fluent.ProgressRing(strokeWidth: 2)
+                          : const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(fluent.FluentIcons.lock, size: 16),
@@ -319,12 +351,11 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                                 Text('Seal Time Capsule'),
                               ],
                             ),
-                  )
+                    )
                   : FilledButton.icon(
-                    onPressed: _isLoading ? null : _createCapsule,
-                    icon:
-                        _isLoading
-                            ? const SizedBox(
+                      onPressed: _isLoading ? null : _createCapsule,
+                      icon: _isLoading
+                          ? const SizedBox(
                               width: 20,
                               height: 20,
                               child: CircularProgressIndicator(
@@ -332,15 +363,20 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
                                 color: Colors.white,
                               ),
                             )
-                            : const Icon(Icons.lock_clock),
-                    label: const Text(
-                      'Seal Time Capsule',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          : const Icon(Icons.lock_clock),
+                      label: const Text(
+                        'Seal Time Capsule',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      style: FilledButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
                     ),
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    ),
-                  ),
             ),
           ],
         ],
@@ -354,7 +390,8 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
             children: [
               fluent.IconButton(
                 icon: const Icon(fluent.FluentIcons.back),
-                onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
+                onPressed: () =>
+                    context.canPop() ? context.pop() : context.go('/feed'),
               ),
               const SizedBox(width: 8),
               const Text('New Time Capsule'),
@@ -363,7 +400,9 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
           actions: [
             fluent.FilledButton(
               onPressed: _isLoading ? null : _createCapsule,
-              child: _isLoading ? const fluent.ProgressRing(strokeWidth: 2) : const Text('Seal'),
+              child: _isLoading
+                  ? const fluent.ProgressRing(strokeWidth: 2)
+                  : const Text('Seal'),
             ),
           ],
           body: Center(
@@ -380,7 +419,8 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              onPressed: () => context.canPop() ? context.pop() : context.go('/feed'),
+              onPressed: () =>
+                  context.canPop() ? context.pop() : context.go('/feed'),
               tooltip: 'Back',
             ),
             const SizedBox(width: 8),
@@ -393,7 +433,16 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
             child: Center(
               child: FilledButton.icon(
                 onPressed: _isLoading ? null : _createCapsule,
-                icon: _isLoading ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.lock_clock, size: 18),
+                icon: _isLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.lock_clock, size: 18),
                 label: const Text('Seal'),
               ),
             ),
@@ -416,7 +465,16 @@ class _CreateCapsuleScreenState extends State<CreateCapsuleScreen> {
             padding: const EdgeInsets.only(right: 16),
             child: FilledButton.icon(
               onPressed: _isLoading ? null : _createCapsule,
-              icon: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Icon(Icons.lock_clock),
+              icon: _isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.lock_clock),
               label: const Text('Seal'),
             ),
           ),

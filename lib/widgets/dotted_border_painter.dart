@@ -27,19 +27,23 @@ class DottedBorderPainter extends CustomPainter {
 
     final Path path = Path();
     if (borderRadius != null) {
-      path.addRRect(borderRadius!.toRRect(Rect.fromLTWH(0, 0, size.width, size.height)));
+      path.addRRect(
+        borderRadius!.toRRect(Rect.fromLTWH(0, 0, size.width, size.height)),
+      );
     } else if (radius != null) {
-      path.addRRect(RRect.fromRectAndRadius(
-        Rect.fromLTWH(0, 0, size.width, size.height),
-        radius!,
-      ));
+      path.addRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTWH(0, 0, size.width, size.height),
+          radius!,
+        ),
+      );
     } else {
       path.addRect(Rect.fromLTWH(0, 0, size.width, size.height));
     }
 
     final Path dashPath = Path();
     double distance = 0.0;
-    
+
     for (final PathMetric metric in path.computeMetrics()) {
       while (distance < metric.length) {
         dashPath.addPath(
@@ -98,10 +102,7 @@ class DottedBorder extends StatelessWidget {
         borderRadius: borderRadius,
         radius: radius,
       ),
-      child: Padding(
-        padding: padding,
-        child: child,
-      ),
+      child: Padding(padding: padding, child: child),
     );
   }
 }

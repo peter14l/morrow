@@ -31,10 +31,9 @@ class ViewModeButton extends StatelessWidget {
           color: isActive ? colorScheme.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color:
-                isActive
-                    ? colorScheme.primary
-                    : colorScheme.outline.withValues(alpha: 0.3),
+            color: isActive
+                ? colorScheme.primary
+                : colorScheme.outline.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -43,19 +42,17 @@ class ViewModeButton extends StatelessWidget {
             Icon(
               icon,
               size: 16,
-              color:
-                  isActive
-                      ? colorScheme.onPrimary
-                      : colorScheme.onSurfaceVariant,
+              color: isActive
+                  ? colorScheme.onPrimary
+                  : colorScheme.onSurfaceVariant,
             ),
             const SizedBox(width: 6),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(
-                color:
-                    isActive
-                        ? colorScheme.onPrimary
-                        : colorScheme.onSurfaceVariant,
+                color: isActive
+                    ? colorScheme.onPrimary
+                    : colorScheme.onSurfaceVariant,
                 fontWeight: isActive ? FontWeight.bold : null,
               ),
             ),

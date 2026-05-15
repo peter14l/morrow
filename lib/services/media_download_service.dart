@@ -22,7 +22,10 @@ class MediaDownloadService {
     try {
       if (kIsWeb) {
         // For web, just launch the URL to trigger browser download
-        return await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+        return await launchUrl(
+          Uri.parse(url),
+          mode: LaunchMode.externalApplication,
+        );
       }
 
       // Request storage permission (Mobile only)

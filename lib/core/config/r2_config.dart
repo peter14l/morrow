@@ -12,5 +12,6 @@ class R2Config {
   static const String presignedUrlFunctionName = 'generate-presigned-url';
 
   // Public access URL for files in R2 (unencrypted only)
-  static const String r2PublicBaseUrl = 'https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev';
+  static const String r2PublicBaseUrl =
+      'https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev';
 }

@@ -42,36 +42,36 @@ class PQAuraInitializer {
 }
 
 /// Usage example:
-/// 
+///
 /// In your app initialization (e.g., after authentication):
 /// ```dart
 /// // Initialize PQ-Aura alongside Signal
 /// await PQAuraInitializer.initialize();
 /// ```
-/// 
+///
 /// For message encryption (with Signal fallback):
 /// ```dart
 /// final pqaService = PQAuraService.instance;
-/// 
+///
 /// // Try PQ-Aura first
 /// var encrypted = await pqaService.encryptMessage(recipientId, plaintext);
-/// 
+///
 /// if (encrypted == null) {
 ///   // Fall back to Signal
 ///   encrypted = await SignalService().encryptMessage(recipientId, plaintext);
 /// }
 /// ```
-/// 
+///
 /// For media key encryption:
 /// ```dart
 /// final pqaService = PQAuraService.instance;
-/// 
+///
 /// // Generate random 32-byte AES key for media
 /// final mediaKey = generateRandomBytes(32);
-/// 
+///
 /// // Encrypt the media key with PQ session
 /// var encryptedKey = await pqaService.encryptMediaKey(recipientId, Uint8List.fromList(mediaKey));
-/// 
+///
 /// if (encryptedKey == null) {
 ///   // Fall back to RSA encryption (legacy)
 ///   encryptedKey = await EncryptionService().encryptWithRSA(mediaKey, recipientId);

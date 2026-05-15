@@ -33,9 +33,11 @@ class LiveLocationTracker {
         return Future.error('Location permissions are denied');
       }
     }
-    
+
     if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied, we cannot request permissions.');
+      return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.',
+      );
     }
 
     // Stop existing sharing if any
@@ -48,18 +50,19 @@ class LiveLocationTracker {
     Position position = await Geolocator.getCurrentPosition();
     await _updateLocationOnServer(position);
 
-    _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
-    ).listen((Position position) {
-      if (_expiresAt != null && DateTime.now().isAfter(_expiresAt!)) {
-        stopSharing();
-      } else {
-        _updateLocationOnServer(position);
-      }
-    });
+    _positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 10,
+          ),
+        ).listen((Position position) {
+          if (_expiresAt != null && DateTime.now().isAfter(_expiresAt!)) {
+            stopSharing();
+          } else {
+            _updateLocationOnServer(position);
+          }
+        });
 
     // Auto-stop when duration expires
     _expiryTimer = Timer(duration, () {
@@ -72,7 +75,7 @@ class LiveLocationTracker {
     _expiryTimer = null;
     await _positionStream?.cancel();
     _positionStream = null;
-    
+
     if (_activeMessageId != null) {
       try {
         final currentPosition = await Geolocator.getLastKnownPosition();
@@ -92,21 +95,21 @@ class LiveLocationTracker {
         debugPrint('Failed to mark location as not live: $e');
       }
     }
-    
+
     _activeMessageId = null;
     _expiresAt = null;
   }
 
   Future<void> _updateLocationOnServer(Position position) async {
     if (_activeMessageId == null) return;
-    
+
     final locData = LocationData(
       latitude: position.latitude,
       longitude: position.longitude,
       timestamp: DateTime.now(),
       isLive: true,
     );
-    
+
     try {
       await Supabase.instance.client
           .from('messages')

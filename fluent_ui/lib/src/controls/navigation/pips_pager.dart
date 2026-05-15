@@ -80,11 +80,15 @@ class PipsPager extends StatelessWidget {
                   duration: theme.fasterAnimationDuration,
                   curve: theme.animationCurve,
                   width: isSelected ? 12 : 6,
-                  height: orientation == Axis.horizontal ? 6 : (isSelected ? 12 : 6),
+                  height: orientation == Axis.horizontal
+                      ? 6
+                      : (isSelected ? 12 : 6),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? theme.accentColor.defaultBrushFor(theme.brightness)
-                        : theme.resources.textFillColorSecondary.withValues(alpha: states.isHovered ? 0.6 : 0.4),
+                        : theme.resources.textFillColorSecondary.withValues(
+                            alpha: states.isHovered ? 0.6 : 0.4,
+                          ),
                     borderRadius: BorderRadius.circular(100),
                   ),
                 ),

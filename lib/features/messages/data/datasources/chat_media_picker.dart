@@ -22,7 +22,9 @@ class ChatMediaPicker {
   }
 
   /// Pick multiple images from gallery.
-  Future<List<XFile>> pickMultiImage({ImageSource source = ImageSource.gallery}) async {
+  Future<List<XFile>> pickMultiImage({
+    ImageSource source = ImageSource.gallery,
+  }) async {
     try {
       if (Platform.isWindows) {
         final result = await FilePicker.platform.pickFiles(
@@ -31,7 +33,10 @@ class ChatMediaPicker {
           initialDirectory: await getInitialDirectory(),
         );
         if (result != null && result.paths.isNotEmpty) {
-          return result.paths.where((path) => path != null).map((path) => XFile(path!)).toList();
+          return result.paths
+              .where((path) => path != null)
+              .map((path) => XFile(path!))
+              .toList();
         }
         return [];
       } else {

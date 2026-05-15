@@ -374,10 +374,7 @@ class CommunityProvider with ChangeNotifier {
         int newLikes = isLiked ? post.likes + 1 : post.likes - 1;
         if (newLikes < 0) newLikes = 0;
 
-        _communityPosts[i] = post.copyWith(
-          isLiked: isLiked,
-          likes: newLikes,
-        );
+        _communityPosts[i] = post.copyWith(isLiked: isLiked, likes: newLikes);
         break;
       }
     }

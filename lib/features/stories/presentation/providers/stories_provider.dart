@@ -97,24 +97,22 @@ class StoriesProvider extends ChangeNotifier {
 
   void _updateStoryAsViewed(String storyId) {
     // Update in story groups
-    final updatedGroups =
-        _state.storyGroups.map((group) {
-          final updatedStories =
-              group.stories.map((story) {
-                if (story.id == storyId) {
-                  return story.copyWith(hasViewed: true);
-                }
-                return story;
-              }).toList();
-          return StoryGroupEntity(
-            userId: group.userId,
-            username: group.username,
-            avatarUrl: group.avatarUrl,
-            stories: updatedStories,
-            hasUnviewed: updatedStories.any((s) => !s.hasViewed),
-            latestStoryAt: group.latestStoryAt,
-          );
-        }).toList();
+    final updatedGroups = _state.storyGroups.map((group) {
+      final updatedStories = group.stories.map((story) {
+        if (story.id == storyId) {
+          return story.copyWith(hasViewed: true);
+        }
+        return story;
+      }).toList();
+      return StoryGroupEntity(
+        userId: group.userId,
+        username: group.username,
+        avatarUrl: group.avatarUrl,
+        stories: updatedStories,
+        hasUnviewed: updatedStories.any((s) => !s.hasViewed),
+        latestStoryAt: group.latestStoryAt,
+      );
+    }).toList();
 
     _state = _state.copyWith(storyGroups: updatedGroups);
     notifyListeners();
@@ -140,8 +138,9 @@ class StoriesProvider extends ChangeNotifier {
     final result = await _repository.deleteStory(storyId);
     if (result) {
       // Remove from local state
-      final updatedStories =
-          _state.userStories.where((s) => s.id != storyId).toList();
+      final updatedStories = _state.userStories
+          .where((s) => s.id != storyId)
+          .toList();
       _state = _state.copyWith(userStories: updatedStories);
       notifyListeners();
     }

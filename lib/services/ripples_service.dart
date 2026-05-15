@@ -4,10 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 
-enum RipplesLayoutType {
-  kineticCardStack,
-  choiceMosaic,
-}
+enum RipplesLayoutType { kineticCardStack, choiceMosaic }
 
 class RipplesService extends ChangeNotifier {
   static const String _lockoutEndTimeKey = 'ripples_lockout_end_time';
@@ -23,7 +20,7 @@ class RipplesService extends ChangeNotifier {
   Timer? _lockoutCheckTimer;
   RipplesLayoutType _currentLayout = RipplesLayoutType.kineticCardStack;
   String? _currentUserId;
-  
+
   Duration? _remainingDuration;
   DateTime? _lastSessionEndTime;
   double _lockoutMultiplier = 1.0;
@@ -38,16 +35,21 @@ class RipplesService extends ChangeNotifier {
   List<Map<String, dynamic>> get ripples => _ripples;
   bool get isLoading => _isLoading;
 
-  final StreamController<void> _sessionEndController = StreamController<void>.broadcast();
+  final StreamController<void> _sessionEndController =
+      StreamController<void>.broadcast();
   Stream<void> get onSessionEnd => _sessionEndController.stream;
 
-  RipplesService({SupabaseClient? supabase}) : _supabase = supabase ?? SupabaseService().client {
+  RipplesService({SupabaseClient? supabase})
+    : _supabase = supabase ?? SupabaseService().client {
     _startLockoutTimer();
   }
 
   void _startLockoutTimer() {
     _lockoutCheckTimer?.cancel();
-    _lockoutCheckTimer = Timer.periodic(const Duration(minutes: 1), (_) => checkLockout());
+    _lockoutCheckTimer = Timer.periodic(
+      const Duration(minutes: 1),
+      (_) => checkLockout(),
+    );
   }
 
   /// App lifecycle handling to save battery
@@ -63,14 +65,15 @@ class RipplesService extends ChangeNotifier {
     debugPrint('Ripples: Lockout check timer resumed');
   }
 
-  String _getUserKey(String baseKey) => _currentUserId != null ? '${baseKey}_$_currentUserId' : baseKey;
+  String _getUserKey(String baseKey) =>
+      _currentUserId != null ? '${baseKey}_$_currentUserId' : baseKey;
 
   Future<void> initForUser(String userId) async {
     if (_currentUserId == userId) return;
     _currentUserId = userId;
-    
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     // Load local state
     final lockoutTimeString = prefs.getString(_getUserKey(_lockoutEndTimeKey));
     if (lockoutTimeString != null) {
@@ -102,18 +105,24 @@ class RipplesService extends ChangeNotifier {
 
     // Load from Supabase for sync/multiplier
     try {
-      final data = await _supabase.from('profiles')
-          .select('ripples_lockout_multiplier, ripples_last_session_end, ripples_remaining_duration_ms')
+      final data = await _supabase
+          .from('profiles')
+          .select(
+            'ripples_lockout_multiplier, ripples_last_session_end, ripples_remaining_duration_ms',
+          )
           .eq('id', userId)
           .single();
-      
-      _lockoutMultiplier = (data['ripples_lockout_multiplier'] as num?)?.toDouble() ?? 1.0;
+
+      _lockoutMultiplier =
+          (data['ripples_lockout_multiplier'] as num?)?.toDouble() ?? 1.0;
       final dbLastEnd = data['ripples_last_session_end'] as String?;
       if (dbLastEnd != null) _lastSessionEndTime = DateTime.parse(dbLastEnd);
-      
+
       // Decay multiplier if long time passed (e.g. 24h)
       if (_lastSessionEndTime != null) {
-        final hoursSince = DateTime.now().difference(_lastSessionEndTime!).inHours;
+        final hoursSince = DateTime.now()
+            .difference(_lastSessionEndTime!)
+            .inHours;
         if (hoursSince > 24) {
           _lockoutMultiplier = 1.0;
           await _updateMultiplierInDb();
@@ -134,7 +143,9 @@ class RipplesService extends ChangeNotifier {
         _isRipplesLocked = false;
         _lockoutEndTime = null;
         if (_currentUserId != null) {
-          SharedPreferences.getInstance().then((prefs) => prefs.remove(_getUserKey(_lockoutEndTimeKey)));
+          SharedPreferences.getInstance().then(
+            (prefs) => prefs.remove(_getUserKey(_lockoutEndTimeKey)),
+          );
         }
       } else {
         _isRipplesLocked = true;
@@ -160,8 +171,14 @@ class RipplesService extends ChangeNotifier {
   Future<void> _saveSessionState() async {
     final prefs = await SharedPreferences.getInstance();
     if (_remainingDuration != null) {
-      await prefs.setInt(_getUserKey(_remainingDurationKey), _remainingDuration!.inMilliseconds);
-      await prefs.setString(_getUserKey(_lastActiveKey), DateTime.now().toIso8601String());
+      await prefs.setInt(
+        _getUserKey(_remainingDurationKey),
+        _remainingDuration!.inMilliseconds,
+      );
+      await prefs.setString(
+        _getUserKey(_lastActiveKey),
+        DateTime.now().toIso8601String(),
+      );
     }
   }
 
@@ -169,33 +186,40 @@ class RipplesService extends ChangeNotifier {
     _activeSessionTimer?.cancel();
     _activeSessionTimer = null;
     _remainingDuration = null;
-    
+
     // Adaptive Lockout Logic
     if (_lastSessionEndTime != null) {
       final diff = DateTime.now().difference(_lastSessionEndTime!).inMinutes;
       // If re-entering within 30 mins of lockout expiry (which is ~60 mins from last session end)
-      // Actually the requirement is: "if a user, say, sets a duration for 15mins, gets blocked for 30mins, 
+      // Actually the requirement is: "if a user, say, sets a duration for 15mins, gets blocked for 30mins,
       // and again immediately after that sets a duration of 30mins and so and so forth, then increase the duration of the block"
-      
+
       // We check if the lockout just ended recently (e.g. within 30 mins)
-      if (diff < 65) { // 30 min lockout + 35 min grace
+      if (diff < 65) {
+        // 30 min lockout + 35 min grace
         _lockoutMultiplier += 0.5;
       }
     }
 
     const baseLockout = Duration(minutes: 30);
-    final actualLockoutMinutes = (baseLockout.inMinutes * _lockoutMultiplier).round();
-    
-    _lockoutEndTime = DateTime.now().add(Duration(minutes: actualLockoutMinutes));
+    final actualLockoutMinutes = (baseLockout.inMinutes * _lockoutMultiplier)
+        .round();
+
+    _lockoutEndTime = DateTime.now().add(
+      Duration(minutes: actualLockoutMinutes),
+    );
     _lastSessionEndTime = _lockoutEndTime;
     _isRipplesLocked = true;
-    
+
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_getUserKey(_lockoutEndTimeKey), _lockoutEndTime!.toIso8601String());
+    await prefs.setString(
+      _getUserKey(_lockoutEndTimeKey),
+      _lockoutEndTime!.toIso8601String(),
+    );
     await prefs.remove(_getUserKey(_remainingDurationKey));
 
     await _updateMultiplierInDb();
-    
+
     notifyListeners();
     _sessionEndController.add(null);
   }
@@ -203,10 +227,13 @@ class RipplesService extends ChangeNotifier {
   Future<void> _updateMultiplierInDb() async {
     if (_currentUserId == null) return;
     try {
-      await _supabase.from('profiles').update({
-        'ripples_lockout_multiplier': _lockoutMultiplier,
-        'ripples_last_session_end': _lastSessionEndTime?.toIso8601String(),
-      }).eq('id', _currentUserId!);
+      await _supabase
+          .from('profiles')
+          .update({
+            'ripples_lockout_multiplier': _lockoutMultiplier,
+            'ripples_last_session_end': _lastSessionEndTime?.toIso8601String(),
+          })
+          .eq('id', _currentUserId!);
     } catch (e) {
       debugPrint('Error updating multiplier in DB: $e');
     }
@@ -215,7 +242,7 @@ class RipplesService extends ChangeNotifier {
   void cancelSession() {
     // This is called when user exits manually
     // We should save the remaining time
-    // For now we don't have a direct way to get elapsed time from Timer, 
+    // For now we don't have a direct way to get elapsed time from Timer,
     // so the UI should pass it or we track start time.
   }
 
@@ -236,7 +263,9 @@ class RipplesService extends ChangeNotifier {
       final userId = _supabase.auth.currentUser?.id;
 
       // Fetch ripples with profiles and check if current user liked/saved them
-      final response = await _supabase.from('ripples').select('''
+      final response = await _supabase
+          .from('ripples')
+          .select('''
             *,
             profiles:user_id (
               username,
@@ -249,10 +278,9 @@ class RipplesService extends ChangeNotifier {
             ripple_saves!left (
               user_id
             )
-          ''').or('is_private.eq.false,user_id.eq.$userId').order(
-        'created_at',
-        ascending: false,
-      );
+          ''')
+          .or('is_private.eq.false,user_id.eq.$userId')
+          .order('created_at', ascending: false);
 
       final ripplesData = List<Map<String, dynamic>>.from(response);
 
@@ -281,12 +309,13 @@ class RipplesService extends ChangeNotifier {
   Future<void> likeRipple(String rippleId) async {
     final userId = _supabase.auth.currentUser?.id;
     if (userId == null) return;
-    
+
     // Update locally first for instant feedback
     final index = _ripples.indexWhere((r) => r['id'] == rippleId);
     if (index != -1 && !(_ripples[index]['is_liked'] ?? false)) {
       _ripples[index]['is_liked'] = true;
-      _ripples[index]['likes_count'] = (_ripples[index]['likes_count'] ?? 0) + 1;
+      _ripples[index]['likes_count'] =
+          (_ripples[index]['likes_count'] ?? 0) + 1;
       notifyListeners();
     }
 
@@ -309,8 +338,10 @@ class RipplesService extends ChangeNotifier {
     final index = _ripples.indexWhere((r) => r['id'] == rippleId);
     if (index != -1 && (_ripples[index]['is_liked'] ?? false)) {
       _ripples[index]['is_liked'] = false;
-      _ripples[index]['likes_count'] = (_ripples[index]['likes_count'] ?? 0) - 1;
-      if (_ripples[index]['likes_count'] < 0) _ripples[index]['likes_count'] = 0;
+      _ripples[index]['likes_count'] =
+          (_ripples[index]['likes_count'] ?? 0) - 1;
+      if (_ripples[index]['likes_count'] < 0)
+        _ripples[index]['likes_count'] = 0;
       notifyListeners();
     }
 
@@ -333,11 +364,12 @@ class RipplesService extends ChangeNotifier {
         'user_id': userId,
         'content': comment,
       });
-      
+
       // Update local count
       final index = _ripples.indexWhere((r) => r['id'] == rippleId);
       if (index != -1) {
-        _ripples[index]['comments_count'] = (_ripples[index]['comments_count'] ?? 0) + 1;
+        _ripples[index]['comments_count'] =
+            (_ripples[index]['comments_count'] ?? 0) + 1;
         notifyListeners();
       }
     } catch (e) {
@@ -356,7 +388,10 @@ class RipplesService extends ChangeNotifier {
     }
 
     try {
-      await _supabase.from('ripple_saves').upsert({'ripple_id': rippleId, 'user_id': userId});
+      await _supabase.from('ripple_saves').upsert({
+        'ripple_id': rippleId,
+        'user_id': userId,
+      });
     } catch (e) {
       debugPrint('Error saving ripple: $e');
     }

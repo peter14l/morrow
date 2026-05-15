@@ -162,10 +162,9 @@ class _MentionHashtagAutocompleteState
 
     // Find the start of the current word
     final textBeforeCursor = text.substring(0, cursorPosition);
-    final match =
-        _isHashtag
-            ? RegExp(r'#([a-zA-Z0-9_]*)$').firstMatch(textBeforeCursor)
-            : RegExp(r'@([a-z0-9_]*)$').firstMatch(textBeforeCursor);
+    final match = _isHashtag
+        ? RegExp(r'#([a-zA-Z0-9_]*)$').firstMatch(textBeforeCursor)
+        : RegExp(r'@([a-z0-9_]*)$').firstMatch(textBeforeCursor);
 
     if (match != null) {
       final beforeWord = textBeforeCursor.substring(0, match.start);
@@ -226,14 +225,12 @@ class _MentionHashtagAutocompleteState
               dense: true,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundImage:
-                    user.avatarUrl != null
-                        ? NetworkImage(user.avatarUrl!)
-                        : null,
-                child:
-                    user.avatarUrl == null
-                        ? const Icon(Icons.person, size: 16)
-                        : null,
+                backgroundImage: user.avatarUrl != null
+                    ? NetworkImage(user.avatarUrl!)
+                    : null,
+                child: user.avatarUrl == null
+                    ? const Icon(Icons.person, size: 16)
+                    : null,
               ),
               title: Text('@${user.username}'),
               subtitle: user.fullName != null ? Text(user.fullName!) : null,

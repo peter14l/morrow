@@ -84,43 +84,40 @@ class ChatThemeSelector extends StatelessWidget {
                         color: preset.backgroundColor ?? colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color:
-                              isSelected
-                                  ? colorScheme.primary
-                                  : colorScheme.outline.withValues(alpha: 0.2),
+                          color: isSelected
+                              ? colorScheme.primary
+                              : colorScheme.outline.withValues(alpha: 0.2),
                           width: isSelected ? 3 : 1,
                         ),
-                        boxShadow:
-                            isSelected
-                                ? [
-                                  BoxShadow(
-                                    color: colorScheme.primary.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    blurRadius: 8,
-                                    spreadRadius: 1,
+                        boxShadow: isSelected
+                            ? [
+                                BoxShadow(
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.3,
                                   ),
-                                ]
-                                : null,
+                                  blurRadius: 8,
+                                  spreadRadius: 1,
+                                ),
+                              ]
+                            : null,
                       ),
-                      child:
-                          preset == ChatThemePreset.defaultTheme
-                              ? Icon(
-                                Icons.brightness_auto,
-                                color: colorScheme.onSurface,
-                              )
-                              : null,
+                      child: preset == ChatThemePreset.defaultTheme
+                          ? Icon(
+                              Icons.brightness_auto,
+                              color: colorScheme.onSurface,
+                            )
+                          : null,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       preset.name,
                       style: theme.textTheme.labelSmall?.copyWith(
-                        color:
-                            isSelected
-                                ? colorScheme.primary
-                                : colorScheme.onSurfaceVariant,
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -163,13 +160,12 @@ class ChatThemePreview extends StatelessWidget {
       height: 200,
       decoration: BoxDecoration(
         color: theme.backgroundColor ?? defaultBg,
-        image:
-            theme.backgroundImageUrl != null
-                ? DecorationImage(
-                  image: NetworkImage(theme.backgroundImageUrl!),
-                  fit: BoxFit.cover,
-                )
-                : null,
+        image: theme.backgroundImageUrl != null
+            ? DecorationImage(
+                image: NetworkImage(theme.backgroundImageUrl!),
+                fit: BoxFit.cover,
+              )
+            : null,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(16),

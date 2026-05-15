@@ -66,7 +66,8 @@ class LocationData {
     final dLat = (other.latitude - latitude) * (3.14159265359 / 180);
     final dLon = (other.longitude - longitude) * (3.14159265359 / 180);
 
-    final a = (dLat / 2).sin() * (dLat / 2).sin() +
+    final a =
+        (dLat / 2).sin() * (dLat / 2).sin() +
         lat1.cos() * lat2.cos() * (dLon / 2).sin() * (dLon / 2).sin();
     final c = 2 * (a.sqrt()).asin();
 
@@ -80,4 +81,3 @@ extension on double {
   double asin() => this;
   double sqrt() => this;
 }
-

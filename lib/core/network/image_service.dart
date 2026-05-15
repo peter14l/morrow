@@ -38,29 +38,31 @@ class ImageService {
   }) {
     // If the path is already a full URL, we might need to parse it
     // but usually we store the path in DB.
-    
-    return _client.storage.from(bucket).getPublicUrl(
-      path,
-      transform: TransformOptions(
-        width: transform.width,
-        height: transform.height,
-        format: transform.format,
-        quality: transform.quality,
-        resize: transform.resizeMode,
-      ),
-    );
+
+    return _client.storage
+        .from(bucket)
+        .getPublicUrl(
+          path,
+          transform: TransformOptions(
+            width: transform.width,
+            height: transform.height,
+            format: transform.format,
+            quality: transform.quality,
+            resize: transform.resizeMode,
+          ),
+        );
   }
 
   /// Convenience helpers
   String getAvatar(String userId) => getOptimizedUrl(
-        bucket: 'avatars',
-        path: '$userId/profile.png',
-        transform: ImagePresets.avatar,
-      );
+    bucket: 'avatars',
+    path: '$userId/profile.png',
+    transform: ImagePresets.avatar,
+  );
 
   String getPostImage(String path) => getOptimizedUrl(
-        bucket: 'posts',
-        path: path,
-        transform: ImagePresets.card,
-      );
+    bucket: 'posts',
+    path: path,
+    transform: ImagePresets.card,
+  );
 }

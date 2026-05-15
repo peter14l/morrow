@@ -79,14 +79,17 @@ class SpotifyService {
     final token = await _getValidToken();
     if (token == null) {
       // Fallback if auth fails
-      return _featuredTracks.where((t) => 
-        t.title.toLowerCase().contains(query.toLowerCase()) ||
-        t.artist.toLowerCase().contains(query.toLowerCase())
-      ).toList();
+      return _featuredTracks
+          .where(
+            (t) =>
+                t.title.toLowerCase().contains(query.toLowerCase()) ||
+                t.artist.toLowerCase().contains(query.toLowerCase()),
+          )
+          .toList();
     }
 
     try {
-      // We can call Spotify directly with the token, 
+      // We can call Spotify directly with the token,
       // or route search through backend if we want to hide queries.
       // For now, calling Spotify with a valid token is fine as the SECRET is hidden.
       final response = await SupabaseService().client.functions.invoke(
@@ -101,11 +104,14 @@ class SpotifyService {
     } catch (e) {
       debugPrint('Spotify Search Error: $e');
     }
-    
-    return _featuredTracks.where((t) => 
-      t.title.toLowerCase().contains(query.toLowerCase()) ||
-      t.artist.toLowerCase().contains(query.toLowerCase())
-    ).toList();
+
+    return _featuredTracks
+        .where(
+          (t) =>
+              t.title.toLowerCase().contains(query.toLowerCase()) ||
+              t.artist.toLowerCase().contains(query.toLowerCase()),
+        )
+        .toList();
   }
 
   StoryMusicEntity _parseTrack(Map<String, dynamic> item) {

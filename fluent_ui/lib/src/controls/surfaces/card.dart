@@ -118,4 +118,3 @@ class Card extends StatelessWidget {
     );
   }
 }
-

@@ -9,7 +9,7 @@ class CursorPaginator {
   CursorPaginator(this._client, {this.defaultLimit = 20});
 
   /// Fetch a page using cursor
-  /// 
+  ///
   /// Uses a composite cursor (orderColumn, id) for deterministic ordering.
   Future<PageResponse<Map<String, dynamic>>> fetchPage({
     required String table,
@@ -20,7 +20,7 @@ class CursorPaginator {
     Map<String, dynamic>? filters,
   }) async {
     final effectiveLimit = limit ?? defaultLimit;
-    
+
     // We fetch one extra item to determine if there's more
     var query = _client.from(table).select();
 
@@ -36,12 +36,12 @@ class CursorPaginator {
       if (ascending) {
         // (orderColumn > cursor.createdAt) OR (orderColumn == cursor.createdAt AND id > cursor.id)
         query = query.or(
-          '$orderColumn.gt.${cursor.createdAt!.toIso8601String()},and($orderColumn.eq.${cursor.createdAt!.toIso8601String()},id.gt.${cursor.id})'
+          '$orderColumn.gt.${cursor.createdAt!.toIso8601String()},and($orderColumn.eq.${cursor.createdAt!.toIso8601String()},id.gt.${cursor.id})',
         );
       } else {
         // (orderColumn < cursor.createdAt) OR (orderColumn == cursor.createdAt AND id < cursor.id)
         query = query.or(
-          '$orderColumn.lt.${cursor.createdAt!.toIso8601String()},and($orderColumn.eq.${cursor.createdAt!.toIso8601String()},id.lt.${cursor.id})'
+          '$orderColumn.lt.${cursor.createdAt!.toIso8601String()},and($orderColumn.eq.${cursor.createdAt!.toIso8601String()},id.lt.${cursor.id})',
         );
       }
     }

@@ -35,13 +35,12 @@ class ReportDialog extends StatefulWidget {
     if (useFluent) {
       return fluent.showDialog<bool>(
         context: context,
-        builder:
-            (context) => FluentReportDialog(
-              userId: userId,
-              postId: postId,
-              commentId: commentId,
-              messageId: messageId,
-            ),
+        builder: (context) => FluentReportDialog(
+          userId: userId,
+          postId: postId,
+          commentId: commentId,
+          messageId: messageId,
+        ),
       );
     }
 
@@ -49,13 +48,12 @@ class ReportDialog extends StatefulWidget {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => ReportDialog(
-            userId: userId,
-            postId: postId,
-            commentId: commentId,
-            messageId: messageId,
-          ),
+      builder: (context) => ReportDialog(
+        userId: userId,
+        postId: postId,
+        commentId: commentId,
+        messageId: messageId,
+      ),
     );
   }
 
@@ -114,14 +112,13 @@ class _ReportDialogState extends State<ReportDialog> {
   }
 
   Future<void> _launchSupportEmail(String category, String details) async {
-    final type =
-        widget.messageId != null
-            ? 'Message'
-            : widget.postId != null
-            ? 'Post'
-            : widget.commentId != null
-            ? 'Comment'
-            : 'User';
+    final type = widget.messageId != null
+        ? 'Message'
+        : widget.postId != null
+        ? 'Post'
+        : widget.commentId != null
+        ? 'Comment'
+        : 'User';
 
     final id =
         widget.messageId ??
@@ -130,7 +127,8 @@ class _ReportDialogState extends State<ReportDialog> {
         widget.userId ??
         'N/A';
 
-    final body = '''
+    final body =
+        '''
 New Report Submitted:
 --------------------
 Type: $type
@@ -301,10 +299,9 @@ This report was also submitted to our moderation system.
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          onPressed:
-                              _isSubmitting
-                                  ? null
-                                  : () => Navigator.pop(context),
+                          onPressed: _isSubmitting
+                              ? null
+                              : () => Navigator.pop(context),
                           style: OutlinedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
@@ -326,19 +323,18 @@ This report was also submitted to our moderation system.
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          child:
-                              _isSubmitting
-                                  ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
                                     ),
-                                  )
-                                  : const Text('Submit Report'),
+                                  ),
+                                )
+                              : const Text('Submit Report'),
                         ),
                       ),
                     ],
@@ -461,23 +457,22 @@ class _MuteUserDialogState extends State<MuteUserDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed:
-              _duration == null && _durationOptions.last.value != null
-                  ? null
-                  : () async {
-                    final success = await moderationService.muteUser(
-                      widget.userId,
-                      duration: _duration,
-                    );
-                    if (context.mounted) {
-                      Navigator.of(context).pop(success);
-                      if (success) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Muted @${widget.username}')),
-                        );
-                      }
+          onPressed: _duration == null && _durationOptions.last.value != null
+              ? null
+              : () async {
+                  final success = await moderationService.muteUser(
+                    widget.userId,
+                    duration: _duration,
+                  );
+                  if (context.mounted) {
+                    Navigator.of(context).pop(success);
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Muted @${widget.username}')),
+                      );
                     }
-                  },
+                  }
+                },
           child: const Text('Mute'),
         ),
       ],
@@ -571,14 +566,13 @@ class _FluentReportDialogState extends State<FluentReportDialog> {
   }
 
   Future<void> _launchSupportEmail(String category, String details) async {
-    final type =
-        widget.messageId != null
-            ? 'Message'
-            : widget.postId != null
-            ? 'Post'
-            : widget.commentId != null
-            ? 'Comment'
-            : 'User';
+    final type = widget.messageId != null
+        ? 'Message'
+        : widget.postId != null
+        ? 'Post'
+        : widget.commentId != null
+        ? 'Comment'
+        : 'User';
 
     final id =
         widget.messageId ??
@@ -587,7 +581,8 @@ class _FluentReportDialogState extends State<FluentReportDialog> {
         widget.userId ??
         'N/A';
 
-    final body = '''
+    final body =
+        '''
 New Report Submitted:
 --------------------
 Type: $type

@@ -37,7 +37,9 @@ class AppAnalytics {
       try {
         await _analytics.logEvent(name: name, parameters: parameters);
       } catch (e) {
-        debugPrint('Analytics Error: Failed to log event $name to Firebase: $e');
+        debugPrint(
+          'Analytics Error: Failed to log event $name to Firebase: $e',
+        );
       }
     } else if (Platform.isWindows) {
       // Fallback for Windows: Log as a Sentry breadcrumb and event

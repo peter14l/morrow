@@ -11,13 +11,12 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder:
-                  (context) => ElevatedButton(
-                    onPressed: () {
-                      RecoveryKeySheet.show(context);
-                    },
-                    child: const Text('Show Sheet'),
-                  ),
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  RecoveryKeySheet.show(context);
+                },
+                child: const Text('Show Sheet'),
+              ),
             ),
           ),
         ),
@@ -39,16 +38,15 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder:
-                  (context) => ElevatedButton(
-                    onPressed: () {
-                      RecoveryKeySheet.show(
-                        context,
-                        recoveryKey: 'ABCD-1234-EFGH-5678',
-                      );
-                    },
-                    child: const Text('Show Sheet'),
-                  ),
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  RecoveryKeySheet.show(
+                    context,
+                    recoveryKey: 'ABCD-1234-EFGH-5678',
+                  );
+                },
+                child: const Text('Show Sheet'),
+              ),
             ),
           ),
         ),
@@ -66,13 +64,12 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder:
-                  (context) => ElevatedButton(
-                    onPressed: () {
-                      RecoveryKeySheet.show(context);
-                    },
-                    child: const Text('Show Sheet'),
-                  ),
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  RecoveryKeySheet.show(context);
+                },
+                child: const Text('Show Sheet'),
+              ),
             ),
           ),
         ),
@@ -91,13 +88,12 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder:
-                  (context) => ElevatedButton(
-                    onPressed: () {
-                      RecoveryKeySheet.show(context);
-                    },
-                    child: const Text('Show Sheet'),
-                  ),
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  RecoveryKeySheet.show(context);
+                },
+                child: const Text('Show Sheet'),
+              ),
             ),
           ),
         ),
@@ -116,13 +112,12 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: Builder(
-              builder:
-                  (context) => ElevatedButton(
-                    onPressed: () {
-                      RecoveryKeySheet.show(context);
-                    },
-                    child: const Text('Show Sheet'),
-                  ),
+              builder: (context) => ElevatedButton(
+                onPressed: () {
+                  RecoveryKeySheet.show(context);
+                },
+                child: const Text('Show Sheet'),
+              ),
             ),
           ),
         ),

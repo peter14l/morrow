@@ -45,13 +45,16 @@ class _OasisLogoMarkState extends State<OasisLogoMark>
         alignment: Alignment.center,
         children: [
           if (widget.showRotatingRing)
-            _RotatingRing(size: widget.size * 1.4)
-                .animate(onPlay: (c) => c.repeat())
-                .rotate(duration: 12.seconds),
-          
+            _RotatingRing(
+              size: widget.size * 1.4,
+            ).animate(onPlay: (c) => c.repeat()).rotate(duration: 12.seconds),
+
           ScaleTransition(
             scale: Tween<double>(begin: 1.0, end: 1.04).animate(
-              CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+              CurvedAnimation(
+                parent: _pulseController,
+                curve: Curves.easeInOut,
+              ),
             ),
             child: CustomPaint(
               size: Size(widget.size, widget.size),
@@ -70,10 +73,7 @@ class _RotatingRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: Size(size, size),
-      painter: _RingPainter(),
-    );
+    return CustomPaint(size: Size(size, size), painter: _RingPainter());
   }
 }
 
@@ -133,13 +133,24 @@ class _OasisLogoPainter extends CustomPainter {
       center.dx,
       center.dy - radius * 0.8,
     );
-    
+
     // Draw outer glow ring
-    canvas.drawCircle(center, radius * 0.9, paint..strokeWidth = 1..color = OasisColors.glow.withOpacity(0.5));
-    
+    canvas.drawCircle(
+      center,
+      radius * 0.9,
+      paint
+        ..strokeWidth = 1
+        ..color = OasisColors.glow.withOpacity(0.5),
+    );
+
     // Draw main logo
-    canvas.drawPath(path, paint..strokeWidth = 3..color = OasisColors.glow);
-    
+    canvas.drawPath(
+      path,
+      paint
+        ..strokeWidth = 3
+        ..color = OasisColors.glow,
+    );
+
     // Inner small circle
     canvas.drawCircle(center, radius * 0.15, Paint()..color = OasisColors.glow);
   }

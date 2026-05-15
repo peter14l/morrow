@@ -15,8 +15,14 @@ class HomeLocation {
     required this.longitude,
     required this.timestamp,
     this.address,
-  })  : assert(latitude >= -90 && latitude <= 90, 'Latitude must be between -90 and 90'),
-        assert(longitude >= -180 && longitude <= 180, 'Longitude must be between -180 and 180');
+  }) : assert(
+         latitude >= -90 && latitude <= 90,
+         'Latitude must be between -90 and 90',
+       ),
+       assert(
+         longitude >= -180 && longitude <= 180,
+         'Longitude must be between -180 and 180',
+       );
 
   factory HomeLocation.fromJson(Map<String, dynamic> json) {
     return HomeLocation(
@@ -60,8 +66,12 @@ class HomeLocation {
     final dLat = (other.latitude - latitude) * (math.pi / 180);
     final dLon = (other.longitude - longitude) * (math.pi / 180);
 
-    final a = math.sin(dLat / 2) * math.sin(dLat / 2) +
-        math.cos(lat1) * math.cos(lat2) * math.sin(dLon / 2) * math.sin(dLon / 2);
+    final a =
+        math.sin(dLat / 2) * math.sin(dLat / 2) +
+        math.cos(lat1) *
+            math.cos(lat2) *
+            math.sin(dLon / 2) *
+            math.sin(dLon / 2);
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
     return earthRadius * c;

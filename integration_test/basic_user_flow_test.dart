@@ -9,7 +9,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Basic User Flow Test', () {
-    testWidgets('App starts, shows splash, and reaches login screen', (tester) async {
+    testWidgets('App starts, shows splash, and reaches login screen', (
+      tester,
+    ) async {
       // 1. Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -25,12 +27,15 @@ void main() {
       // 4. Verify we are on the Login Screen
       expect(find.byType(LoginScreen), findsOneWidget);
       expect(find.text('Sign In'), findsWidgets);
-      
+
       debugPrint('✅ Successfully reached Login Screen');
 
       // 5. Check if we can find common auth elements
-      expect(find.byType(TextField), findsAtLeastNWidgets(2)); // Email and Password
-      
+      expect(
+        find.byType(TextField),
+        findsAtLeastNWidgets(2),
+      ); // Email and Password
+
       // 6. Navigate to Register
       final registerButton = find.textContaining('Create Account');
       if (registerButton.evaluate().isNotEmpty) {

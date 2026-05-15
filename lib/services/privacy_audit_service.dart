@@ -4,7 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PrivacyAuditService {
   static PrivacyAuditService? _instance;
-  
+
   final SupabaseClient? _client;
 
   PrivacyAuditService._internal({SupabaseClient? client}) : _client = client;

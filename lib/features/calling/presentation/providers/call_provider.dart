@@ -5,6 +5,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/config/app_config.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 import '../../domain/models/call_entity.dart';
 import '../../domain/usecases/initiate_call.dart';
 import '../../domain/usecases/accept_call.dart';
@@ -74,7 +75,9 @@ class CallState {
   }) {
     return CallState(
       activeCall: clearActiveCall ? null : (activeCall ?? this.activeCall),
-      incomingCall: clearIncomingCall ? null : (incomingCall ?? this.incomingCall),
+      incomingCall: clearIncomingCall
+          ? null
+          : (incomingCall ?? this.incomingCall),
       activeCalls: activeCalls ?? this.activeCalls,
       localStream: localStream ?? this.localStream,
       remoteStreams: remoteStreams ?? this.remoteStreams,
@@ -87,13 +90,15 @@ class CallState {
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
       isScreenSharing: isScreenSharing ?? this.isScreenSharing,
       isMinimized: isMinimized ?? this.isMinimized,
-      remoteScreenShareUserId: clearRemoteScreenShare ? null : (remoteScreenShareUserId ?? this.remoteScreenShareUserId),
+      remoteScreenShareUserId: clearRemoteScreenShare
+          ? null
+          : (remoteScreenShareUserId ?? this.remoteScreenShareUserId),
     );
   }
 }
 
 /// Provider for call state management
-class CallProvider extends ChangeNotifier {
+class CallProvider extends ChangeNotifier with SafeChangeNotifier {
   final CallService _callService;
   final InitiateCall _initiateCall;
   final AcceptCall _acceptCall;
@@ -111,13 +116,13 @@ class CallProvider extends ChangeNotifier {
     required AcceptCall acceptCall,
     required EndCall endCall,
     required GetActiveCalls getActiveCalls,
-  })  : _callService = callService,
-        _initiateCall = initiateCall,
-        _acceptCall = acceptCall,
-        _endCall = endCall,
-        _getActiveCalls = getActiveCalls {
+  }) : _callService = callService,
+       _initiateCall = initiateCall,
+       _acceptCall = acceptCall,
+       _endCall = endCall,
+       _getActiveCalls = getActiveCalls {
     _callService.addListener(_onCallServiceUpdate);
-    
+
     // Listen to auth state changes to automatically start/stop listener
     Supabase.instance.client.auth.onAuthStateChange.listen((data) {
       if (data.session != null) {
@@ -136,7 +141,7 @@ class CallProvider extends ChangeNotifier {
   bool _isProcessingUpdate = false;
 
   void _onCallServiceUpdate() {
-    if (_isEnding || _isProcessingUpdate) return;
+    if (_isEnding || _isProcessingUpdate || isDisposed) return;
 
     try {
       _isProcessingUpdate = true;
@@ -157,7 +162,8 @@ class CallProvider extends ChangeNotifier {
         clearActiveCall: _callService.currentCallId == null,
       );
 
-      final hasChanges = newState.activeCall != _state.activeCall ||
+      final hasChanges =
+          newState.activeCall != _state.activeCall ||
           newState.incomingCall != _state.incomingCall ||
           newState.localStream != _state.localStream ||
           !mapEquals(newState.remoteStreams, _state.remoteStreams) ||
@@ -170,7 +176,7 @@ class CallProvider extends ChangeNotifier {
 
       if (hasChanges) {
         // If call status changed to active, stop ringing timer
-        if (newState.activeCall?.status == CallStatus.active && 
+        if (newState.activeCall?.status == CallStatus.active &&
             _state.activeCall?.status == CallStatus.ringing) {
           _ringingTimer?.cancel();
           _callService.stopRingtone();
@@ -206,13 +212,13 @@ class CallProvider extends ChangeNotifier {
   bool get isSpeakerphoneOn => _state.isSpeakerphoneOn;
   bool get isScreenSharing => _state.isScreenSharing;
 
-
-
   Future<void> _startListenerWithRetry({int attempt = 0}) async {
     try {
       _callService.startIncomingCallListener();
     } catch (e) {
-      debugPrint('[CallProvider] Failed to start incoming call listener (attempt $attempt): $e');
+      debugPrint(
+        '[CallProvider] Failed to start incoming call listener (attempt $attempt): $e',
+      );
       if (attempt < 5) {
         // Linear backoff: 2s, 4s, 6s, 8s, 10s
         await Future.delayed(Duration(seconds: 2 * (attempt + 1)));
@@ -238,9 +244,11 @@ class CallProvider extends ChangeNotifier {
       notifyListeners();
 
       // 1. Initialize local stream
-      debugPrint('[CallProvider] Initializing local stream for ${type.name} call');
+      debugPrint(
+        '[CallProvider] Initializing local stream for ${type.name} call',
+      );
       await _callService.initLocalStream(type == CallType.video);
-      
+
       // 2. Create WebRTC offer
       debugPrint('[CallProvider] Creating WebRTC offer for $receiverId');
       final offer = await _callService.createOffer(receiverId);
@@ -259,9 +267,9 @@ class CallProvider extends ChangeNotifier {
         // 4. Start signaling and ringtone
         await _callService.startSignaling(call);
         await _callService.startRingtone();
-        
+
         _state = _state.copyWith(activeCall: call, isLoading: false);
-        
+
         // 5. Start ringing timeout (30 seconds)
         _ringingTimer?.cancel();
         _ringingTimer = Timer(const Duration(seconds: 30), () {
@@ -271,7 +279,10 @@ class CallProvider extends ChangeNotifier {
           }
         });
       } else {
-        _state = _state.copyWith(isLoading: false, error: 'Failed to create call');
+        _state = _state.copyWith(
+          isLoading: false,
+          error: 'Failed to create call',
+        );
       }
 
       notifyListeners();
@@ -298,36 +309,44 @@ class CallProvider extends ChangeNotifier {
       await _callService.stopRingtone();
 
       // 2. Initialize local stream FIRST so tracks are ready when we start signaling
-      debugPrint('[CallProvider] Initializing local stream for incoming ${call.type.name} call');
+      debugPrint(
+        '[CallProvider] Initializing local stream for incoming ${call.type.name} call',
+      );
       await _callService.initLocalStream(call.type == CallType.video);
-      
+
       // 3. Start signaling early to allow ICE candidates to be sent as they are gathered
       debugPrint('[CallProvider] Starting signaling for call ${call.id}');
       await _callService.startSignaling(call);
 
       // 4. Create WebRTC answer
       debugPrint('[CallProvider] Creating WebRTC answer for ${call.callerId}');
-      final answer = await _callService.createAnswer(call.callerId, call.offer!);
+      final answer = await _callService.createAnswer(
+        call.callerId,
+        call.offer!,
+      );
 
       // 5. Update DB with answer
       debugPrint('[CallProvider] Updating call status to active in database');
       final acceptedCall = await _acceptCall.call(
-        callId: call.id, 
+        callId: call.id,
         userId: call.receiverId,
         answer: answer,
       );
-      
+
       _state = _state.copyWith(
-        isLoading: false, 
-        activeCall: acceptedCall, 
-        clearIncomingCall: true
+        isLoading: false,
+        activeCall: acceptedCall,
+        clearIncomingCall: true,
       );
       notifyListeners();
     } catch (e) {
       debugPrint('[CallProvider] Error accepting call: $e');
-      _state = _state.copyWith(isLoading: false, error: 'Failed to accept call: ${e.toString()}');
+      _state = _state.copyWith(
+        isLoading: false,
+        error: 'Failed to accept call: ${e.toString()}',
+      );
       notifyListeners();
-      
+
       // If it fails, we should cleanup to be safe
       await _callService.stopRingtone();
       await _callService.endCall();
@@ -344,7 +363,11 @@ class CallProvider extends ChangeNotifier {
       await _endCall.decline(callId, userId);
       await _callService.endCall();
 
-      _state = _state.copyWith(isLoading: false, clearIncomingCall: true, clearActiveCall: true);
+      _state = _state.copyWith(
+        isLoading: false,
+        clearIncomingCall: true,
+        clearActiveCall: true,
+      );
       _isEnding = false;
       notifyListeners();
     } catch (e) {
@@ -359,11 +382,11 @@ class CallProvider extends ChangeNotifier {
     try {
       final callId = _state.activeCall?.id ?? _state.incomingCall?.id;
       if (callId == null) return;
-      
+
       _ringingTimer?.cancel();
       _isEnding = true;
       _state = _state.copyWith(
-        isLoading: true, 
+        isLoading: true,
         clearError: true,
         clearActiveCall: true,
         clearIncomingCall: true,
@@ -372,7 +395,7 @@ class CallProvider extends ChangeNotifier {
 
       await _endCall.call(callId);
       await _callService.endCall();
-      
+
       _state = _state.copyWith(isLoading: false);
       _isEnding = false;
       notifyListeners();
@@ -423,6 +446,17 @@ class CallProvider extends ChangeNotifier {
 
   void clearError() {
     _state = _state.copyWith(error: null);
+    notifyListeners();
+  }
+
+  /// Clear call state (used during account switching)
+  void clear() {
+    if (isDisposed) return;
+    _ringingTimer?.cancel();
+    _ringingTimer = null;
+    _callService.endCall(); // Local cleanup only
+    _state = CallState.initial();
+    _isEnding = false;
     notifyListeners();
   }
 }

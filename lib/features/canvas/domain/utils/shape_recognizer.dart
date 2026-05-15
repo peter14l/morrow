@@ -17,7 +17,12 @@ class RecognizedShape {
 
 class ShapeRecognizer {
   static RecognizedShape recognize(List<Offset> points) {
-    if (points.length < 10) return RecognizedShape(type: RecognizedShapeType.unknown, bounds: Rect.zero, points: []);
+    if (points.length < 10)
+      return RecognizedShape(
+        type: RecognizedShapeType.unknown,
+        bounds: Rect.zero,
+        points: [],
+      );
 
     double minX = points[0].dx;
     double maxX = points[0].dx;
@@ -42,11 +47,15 @@ class ShapeRecognizer {
     final distStartEnd = (startPoint - endPoint).distance;
     double totalDist = 0;
     for (int i = 0; i < points.length - 1; i++) {
-      totalDist += (points[i] - points[i+1]).distance;
+      totalDist += (points[i] - points[i + 1]).distance;
     }
 
     if (distStartEnd > totalDist * 0.8) {
-      return RecognizedShape(type: RecognizedShapeType.line, bounds: bounds, points: [startPoint, endPoint]);
+      return RecognizedShape(
+        type: RecognizedShapeType.line,
+        bounds: bounds,
+        points: [startPoint, endPoint],
+      );
     }
 
     // Check for circle
@@ -63,20 +72,33 @@ class ShapeRecognizer {
     variance /= points.length;
 
     if (sqrt(variance) < avgDistFromCenter * 0.15) {
-      return RecognizedShape(type: RecognizedShapeType.circle, bounds: bounds, points: []);
+      return RecognizedShape(
+        type: RecognizedShapeType.circle,
+        bounds: bounds,
+        points: [],
+      );
     }
 
     // Check for rectangle (simplified: checking if points are near corners)
     // For a more robust solution, we'd use something like the $1 recognizer, but this is a start.
     if (width > 20 && height > 20) {
-       // Check if it's more like a triangle or rectangle
-       // This is a very basic heuristic
-       if (distStartEnd < totalDist * 0.2) { // closed shape
-         // If aspect ratio is close to 1 and points are roughly distributed
-         return RecognizedShape(type: RecognizedShapeType.rectangle, bounds: bounds, points: []);
-       }
+      // Check if it's more like a triangle or rectangle
+      // This is a very basic heuristic
+      if (distStartEnd < totalDist * 0.2) {
+        // closed shape
+        // If aspect ratio is close to 1 and points are roughly distributed
+        return RecognizedShape(
+          type: RecognizedShapeType.rectangle,
+          bounds: bounds,
+          points: [],
+        );
+      }
     }
 
-    return RecognizedShape(type: RecognizedShapeType.unknown, bounds: bounds, points: []);
+    return RecognizedShape(
+      type: RecognizedShapeType.unknown,
+      bounds: bounds,
+      points: [],
+    );
   }
 }

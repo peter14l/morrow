@@ -40,13 +40,25 @@ void main() {
 
       // 4. Alice fetches Bob's bundle and builds a session
       const bobAddress = SignalProtocolAddress('bob', 1);
-      final sessionBuilder = SessionBuilder(aliceStore, aliceStore, aliceStore, aliceStore, bobAddress);
-      
+      final sessionBuilder = SessionBuilder(
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        bobAddress,
+      );
+
       // Process Bob's prekey bundle
       await sessionBuilder.processPreKeyBundle(bobBundle);
 
       // 5. Alice encrypts a message for Bob
-      final sessionCipherAlice = SessionCipher(aliceStore, aliceStore, aliceStore, aliceStore, bobAddress);
+      final sessionCipherAlice = SessionCipher(
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        aliceStore,
+        bobAddress,
+      );
       const plaintext = 'Hello Bob, this is a secret message!';
       final ciphertextMessage = await sessionCipherAlice.encrypt(
         Uint8List.fromList(utf8.encode(plaintext)),
@@ -57,12 +69,22 @@ void main() {
 
       // 6. Bob receives the message and decrypts it
       const aliceAddress = SignalProtocolAddress('alice', 1);
-      final sessionCipherBob = SessionCipher(bobStore, bobStore, bobStore, bobStore, aliceAddress);
+      final sessionCipherBob = SessionCipher(
+        bobStore,
+        bobStore,
+        bobStore,
+        bobStore,
+        aliceAddress,
+      );
 
       // Bob decodes it as a PreKeySignalMessage
-      final preKeySignalMessage = PreKeySignalMessage(ciphertextMessage.serialize());
-      final decryptedBytes = await sessionCipherBob.decrypt(preKeySignalMessage);
-      
+      final preKeySignalMessage = PreKeySignalMessage(
+        ciphertextMessage.serialize(),
+      );
+      final decryptedBytes = await sessionCipherBob.decrypt(
+        preKeySignalMessage,
+      );
+
       final decryptedText = utf8.decode(decryptedBytes);
       expect(decryptedText, plaintext);
 
@@ -76,9 +98,13 @@ void main() {
       expect(bobCiphertext.getType(), CiphertextMessage.whisperType);
 
       // 8. Alice decrypts Bob's reply
-      final signalMessage = SignalMessage.fromSerialized(bobCiphertext.serialize());
-      final aliceDecryptedBytes = await sessionCipherAlice.decryptFromSignal(signalMessage);
-      
+      final signalMessage = SignalMessage.fromSerialized(
+        bobCiphertext.serialize(),
+      );
+      final aliceDecryptedBytes = await sessionCipherAlice.decryptFromSignal(
+        signalMessage,
+      );
+
       final aliceDecryptedText = utf8.decode(aliceDecryptedBytes);
       expect(aliceDecryptedText, bobReply);
     });

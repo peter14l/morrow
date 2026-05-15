@@ -21,7 +21,8 @@ class PrivacyTransparencyCard extends material.StatefulWidget {
       _PrivacyTransparencyCardState();
 }
 
-class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCard> {
+class _PrivacyTransparencyCardState
+    extends material.State<PrivacyTransparencyCard> {
   bool _isSyncEnabled = false;
   bool _isLoading = true;
   bool _isSyncing = false;
@@ -77,7 +78,9 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
 
     final supabase = SupabaseService();
     if (!supabase.isAuthenticated) {
-      material.debugPrint('[PrivacyTransparency] User not authenticated, skipping sync');
+      material.debugPrint(
+        '[PrivacyTransparency] User not authenticated, skipping sync',
+      );
       return;
     }
 
@@ -91,7 +94,9 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
         await supabase.client.rpc('sync_user_analytics', params: data);
       }
 
-      material.debugPrint('[PrivacyTransparency] Sync to server completed: ${syncData.length} categories');
+      material.debugPrint(
+        '[PrivacyTransparency] Sync to server completed: ${syncData.length} categories',
+      );
     } catch (e) {
       material.debugPrint('[PrivacyTransparency] Sync error: $e');
     } finally {
@@ -103,57 +108,59 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (themeProvider.useFluentUI && _isDesktop) {
       return await fluent.showDialog<bool>(
-        context: context,
-        builder: (context) => fluent.ContentDialog(
-          title: const material.Text('Disable Cloud Sync?'),
-          content: const material.Text(
-            'Disabling sync will return your data to local-only storage. '
-            'You won\'t receive curated recommendations on new devices, and your '
-            'analytics will be deleted from our servers.\n\n'
-            'Are you sure you want to disable?',
-          ),
-          actions: [
-            fluent.Button(
-              onPressed: () => material.Navigator.pop(context, false),
-              child: const material.Text('Cancel'),
-            ),
-            fluent.FilledButton(
-              onPressed: () => material.Navigator.pop(context, true),
-              style: fluent.ButtonStyle(
-                backgroundColor: fluent.WidgetStateProperty.all(material.Colors.red),
+            context: context,
+            builder: (context) => fluent.ContentDialog(
+              title: const material.Text('Disable Cloud Sync?'),
+              content: const material.Text(
+                'Disabling sync will return your data to local-only storage. '
+                'You won\'t receive curated recommendations on new devices, and your '
+                'analytics will be deleted from our servers.\n\n'
+                'Are you sure you want to disable?',
               ),
-              child: const material.Text('Disable Sync'),
+              actions: [
+                fluent.Button(
+                  onPressed: () => material.Navigator.pop(context, false),
+                  child: const material.Text('Cancel'),
+                ),
+                fluent.FilledButton(
+                  onPressed: () => material.Navigator.pop(context, true),
+                  style: fluent.ButtonStyle(
+                    backgroundColor: fluent.WidgetStateProperty.all(
+                      material.Colors.red,
+                    ),
+                  ),
+                  child: const material.Text('Disable Sync'),
+                ),
+              ],
             ),
-          ],
-        ),
-      ) ?? false;
+          ) ??
+          false;
     }
 
     return await material.showDialog<bool>(
           context: context,
-          builder:
-              (context) => material.AlertDialog(
-                title: const material.Text('Disable Cloud Sync?'),
-                content: const material.Text(
-                  'Disabling sync will return your data to local-only storage. '
-                  'You won\'t receive curated recommendations on new devices, and your '
-                  'analytics will be deleted from our servers.\n\n'
-                  'Are you sure you want to disable?',
-                ),
-                actions: [
-                  material.TextButton(
-                    onPressed: () => material.Navigator.pop(context, false),
-                    child: const material.Text('Cancel'),
-                  ),
-                  material.TextButton(
-                    onPressed: () => material.Navigator.pop(context, true),
-                    style: material.TextButton.styleFrom(
-                      foregroundColor: material.Theme.of(context).colorScheme.error,
-                    ),
-                    child: const material.Text('Disable Sync'),
-                  ),
-                ],
+          builder: (context) => material.AlertDialog(
+            title: const material.Text('Disable Cloud Sync?'),
+            content: const material.Text(
+              'Disabling sync will return your data to local-only storage. '
+              'You won\'t receive curated recommendations on new devices, and your '
+              'analytics will be deleted from our servers.\n\n'
+              'Are you sure you want to disable?',
+            ),
+            actions: [
+              material.TextButton(
+                onPressed: () => material.Navigator.pop(context, false),
+                child: const material.Text('Cancel'),
               ),
+              material.TextButton(
+                onPressed: () => material.Navigator.pop(context, true),
+                style: material.TextButton.styleFrom(
+                  foregroundColor: material.Theme.of(context).colorScheme.error,
+                ),
+                child: const material.Text('Disable Sync'),
+              ),
+            ],
+          ),
         ) ??
         false;
   }
@@ -227,7 +234,10 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
 
           // "Your data is NEVER sold" assurance text
           material.Container(
-            padding: const material.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const material.EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
             decoration: material.BoxDecoration(
               color: colorScheme.primary.withValues(alpha: 0.08),
               borderRadius: material.BorderRadius.circular(8),
@@ -259,24 +269,26 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
             const material.Divider(),
             const material.SizedBox(height: 8),
             if (useFluent)
-               fluent.ListTile(
+              fluent.ListTile(
                 title: const material.Text('Sync to Cloud'),
                 subtitle: material.Text(
                   _isSyncEnabled
                       ? _isSyncing
-                          ? 'Syncing your analytics...'
-                          : 'Your analytics are backed up for new devices'
+                            ? 'Syncing your analytics...'
+                            : 'Your analytics are backed up for new devices'
                       : 'Keep analytics local only',
                   style: theme.textTheme.bodySmall,
                 ),
                 leading: _isSyncing
-                      ? const fluent.ProgressRing(strokeWidth: 2)
-                      : material.Icon(
-                          _isSyncEnabled
-                              ? FluentIcons.cloud_checkmark_24_regular
-                              : FluentIcons.cloud_dismiss_24_regular,
-                          color: _isSyncEnabled ? colorScheme.primary : colorScheme.onSurfaceVariant,
-                        ),
+                    ? const fluent.ProgressRing(strokeWidth: 2)
+                    : material.Icon(
+                        _isSyncEnabled
+                            ? FluentIcons.cloud_checkmark_24_regular
+                            : FluentIcons.cloud_dismiss_24_regular,
+                        color: _isSyncEnabled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
                 trailing: fluent.ToggleSwitch(
                   checked: _isSyncEnabled,
                   onChanged: _isSyncing ? null : _toggleSync,
@@ -288,37 +300,38 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
                 subtitle: material.Text(
                   _isSyncEnabled
                       ? _isSyncing
-                          ? 'Syncing your analytics...'
-                          : 'Your analytics are backed up for new devices'
+                            ? 'Syncing your analytics...'
+                            : 'Your analytics are backed up for new devices'
                       : 'Keep analytics local only',
                   style: theme.textTheme.bodySmall,
                 ),
                 value: _isSyncEnabled,
                 onChanged: _isSyncing ? null : _toggleSync,
                 contentPadding: material.EdgeInsets.zero,
-                secondary:
-                    _isSyncing
-                        ? const material.SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: material.CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : material.Icon(
-                          _isSyncEnabled
-                              ? FluentIcons.cloud_checkmark_24_regular
-                              : FluentIcons.cloud_dismiss_24_regular,
-                          color:
-                              _isSyncEnabled
-                                  ? colorScheme.primary
-                                  : colorScheme.onSurfaceVariant,
+                secondary: _isSyncing
+                    ? const material.SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: material.CircularProgressIndicator(
+                          strokeWidth: 2,
                         ),
+                      )
+                    : material.Icon(
+                        _isSyncEnabled
+                            ? FluentIcons.cloud_checkmark_24_regular
+                            : FluentIcons.cloud_dismiss_24_regular,
+                        color: _isSyncEnabled
+                            ? colorScheme.primary
+                            : colorScheme.onSurfaceVariant,
+                      ),
               ),
           ],
 
           const material.SizedBox(height: 8),
           material.FutureBuilder<Map<String, dynamic>>(
-            future:
-                context.read<CurationTrackingService>().getTrackingSummary(),
+            future: context
+                .read<CurationTrackingService>()
+                .getTrackingSummary(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) return const material.SizedBox.shrink();
               final data = snapshot.data!;
@@ -344,7 +357,10 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
                   const material.SizedBox(height: 12),
                   material.TextButton.icon(
                     onPressed: () => _confirmClearData(context),
-                    icon: const material.Icon(FluentIcons.delete_24_regular, size: 18),
+                    icon: const material.Icon(
+                      FluentIcons.delete_24_regular,
+                      size: 18,
+                    ),
                     label: const material.Text('Clear Local Tracking Data'),
                     style: material.TextButton.styleFrom(
                       foregroundColor: colorScheme.error,
@@ -360,7 +376,11 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
     );
   }
 
-  material.Widget _buildSummaryItem(material.BuildContext context, String label, String value) {
+  material.Widget _buildSummaryItem(
+    material.BuildContext context,
+    String label,
+    String value,
+  ) {
     final theme = material.Theme.of(context);
     return material.Padding(
       padding: const material.EdgeInsets.symmetric(vertical: 4),
@@ -391,7 +411,9 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
         context: context,
         builder: (context) => fluent.ContentDialog(
           title: const material.Text('Clear Tracking Data?'),
-          content: const material.Text('This will remove all locally stored curation data. Your recommendations may become less personalized.'),
+          content: const material.Text(
+            'This will remove all locally stored curation data. Your recommendations may become less personalized.',
+          ),
           actions: [
             fluent.Button(
               onPressed: () => material.Navigator.pop(context),
@@ -403,7 +425,9 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
                 if (context.mounted) material.Navigator.pop(context);
               },
               style: fluent.ButtonStyle(
-                backgroundColor: fluent.WidgetStateProperty.all(material.Colors.red),
+                backgroundColor: fluent.WidgetStateProperty.all(
+                  material.Colors.red,
+                ),
               ),
               child: const material.Text('Clear Data'),
             ),
@@ -415,29 +439,30 @@ class _PrivacyTransparencyCardState extends material.State<PrivacyTransparencyCa
 
     material.showDialog(
       context: context,
-      builder:
-          (context) => material.AlertDialog(
-            title: const material.Text('Clear Tracking Data?'),
-            content: const material.Text(
-              'This will remove all locally stored curation data. Your recommendations may become less personalized.',
-            ),
-            actions: [
-              material.TextButton(
-                onPressed: () => material.Navigator.pop(context),
-                child: const material.Text('Cancel'),
-              ),
-              material.TextButton(
-                onPressed: () async {
-                  await context.read<CurationTrackingService>().clearAllData();
-                  if (context.mounted) material.Navigator.pop(context);
-                },
-                child: material.Text(
-                  'Clear Data',
-                  style: material.TextStyle(color: material.Theme.of(context).colorScheme.error),
-                ),
-              ),
-            ],
+      builder: (context) => material.AlertDialog(
+        title: const material.Text('Clear Tracking Data?'),
+        content: const material.Text(
+          'This will remove all locally stored curation data. Your recommendations may become less personalized.',
+        ),
+        actions: [
+          material.TextButton(
+            onPressed: () => material.Navigator.pop(context),
+            child: const material.Text('Cancel'),
           ),
+          material.TextButton(
+            onPressed: () async {
+              await context.read<CurationTrackingService>().clearAllData();
+              if (context.mounted) material.Navigator.pop(context);
+            },
+            child: material.Text(
+              'Clear Data',
+              style: material.TextStyle(
+                color: material.Theme.of(context).colorScheme.error,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

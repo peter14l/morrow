@@ -17,7 +17,7 @@ class SessionDial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       width: 200,
       height: 200,
@@ -36,7 +36,7 @@ class SessionDial extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Main Painter
           CustomPaint(
             size: const Size(160, 160),
@@ -46,7 +46,7 @@ class SessionDial extends StatelessWidget {
               trackColor: OasisColors.moss,
             ),
           ),
-          
+
           // Labels
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -106,7 +106,7 @@ class DialPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-      
+
     // Halo Glow
     final glowPaint = Paint()
       ..color = color.withValues(alpha: 0.3)
@@ -124,7 +124,7 @@ class DialPainter extends CustomPainter {
       false,
       glowPaint,
     );
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       startAngle,
@@ -132,12 +132,12 @@ class DialPainter extends CustomPainter {
       false,
       progressPaint,
     );
-    
+
     // Tick marks
     final tickPaint = Paint()
       ..color = OasisColors.white.withValues(alpha: 0.2)
       ..strokeWidth = 2;
-      
+
     for (var i = 0; i < 8; i++) {
       final angle = (i * pi / 4) - pi / 2;
       final start = Offset(

@@ -31,7 +31,9 @@ class _CircleListCardState extends State<CircleListCard> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Circle'),
-        content: Text('Are you sure you want to delete "${widget.circle.name}"? This action cannot be undone.'),
+        content: Text(
+          'Are you sure you want to delete "${widget.circle.name}"? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -169,7 +171,10 @@ class _CircleListCardState extends State<CircleListCard> {
                   color: theme.colorScheme.primary.withValues(alpha: 0.1),
                 ),
                 alignment: Alignment.center,
-                child: Text(widget.circle.emoji, style: const TextStyle(fontSize: 28)),
+                child: Text(
+                  widget.circle.emoji,
+                  style: const TextStyle(fontSize: 28),
+                ),
               ),
 
               const SizedBox(width: 14),
@@ -212,7 +217,9 @@ class _CircleListCardState extends State<CircleListCard> {
               ),
 
               // Delete button (only for the owner)
-              if (widget.onDelete != null && widget.currentUserId != null && widget.circle.createdBy == widget.currentUserId)
+              if (widget.onDelete != null &&
+                  widget.currentUserId != null &&
+                  widget.circle.createdBy == widget.currentUserId)
                 IconButton(
                   icon: const Icon(
                     FluentIcons.delete_24_regular,

@@ -4,10 +4,12 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:fluentui_system_icons/fluentui_system_icons.dart' as system_icons;
+import 'package:fluentui_system_icons/fluentui_system_icons.dart'
+    as system_icons;
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 /// Onboarding Screen
 /// Displays a multi-page introduction to the app's key features
@@ -123,7 +125,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Align(
                   alignment: Alignment.topRight,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Builder(
                       builder: (context) {
                         return material.TextButton(
@@ -137,7 +142,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             ),
                           ),
                         );
-                      }
+                      },
                     ),
                   ),
                 ),
@@ -194,6 +199,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Widget _buildPage(OnboardingPageData page, int index) {
     final isCurrent = index == _currentPage;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -202,28 +209,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         children: [
           // Animated Icon with Pulse Effect
           Container(
-            padding: const EdgeInsets.all(32),
-            decoration: BoxDecoration(
-              color: material.Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: material.Colors.white.withValues(alpha: 0.3),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: material.Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 20,
-                  spreadRadius: 5,
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: material.Colors.white.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: material.Colors.white.withValues(alpha: 0.3),
+                    width: 2,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: material.Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 20,
+                      spreadRadius: 5,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            child: Icon(
-              page.icon,
-              size: 80,
-              color: material.Colors.white,
-            ),
-          )
+                child: Icon(page.icon, size: 80, color: material.Colors.white),
+              )
               .animate(target: isCurrent ? 1 : 0)
               .scale(
                 duration: 600.ms,
@@ -231,61 +234,81 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 begin: const Offset(0.5, 0.5),
               )
               .fadeIn()
-              .shimmer(delay: 800.ms, duration: 1500.ms, color: material.Colors.white24),
+              .shimmer(
+                delay: 800.ms,
+                duration: 1500.ms,
+                color: material.Colors.white24,
+              ),
 
           const SizedBox(height: 60),
 
           // Glassmorphic Content Box
           ClipRRect(
             borderRadius: BorderRadius.circular(32),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-              child: Container(
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: material.Colors.white.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(32),
-                  border: Border.all(
-                    color: material.Colors.white.withValues(alpha: 0.2),
+            child: disableTransparency
+                ? Container(
+                    padding: const EdgeInsets.all(32),
+                    decoration: BoxDecoration(
+                      color: material.Colors.black.withValues(alpha: 0.8),
+                      borderRadius: BorderRadius.circular(32),
+                      border: Border.all(
+                        color: material.Colors.white.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: _buildOnboardingPageContent(page, isCurrent),
+                  )
+                : BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: Container(
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: material.Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(
+                          color: material.Colors.white.withValues(alpha: 0.2),
+                        ),
+                      ),
+                      child: _buildOnboardingPageContent(page, isCurrent),
+                    ),
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      page.title,
-                      style: const TextStyle(
-                        color: material.Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 28,
-                        letterSpacing: 1.2,
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                        .animate(target: isCurrent ? 1 : 0)
-                        .fadeIn(delay: 200.ms)
-                        .slideY(begin: 0.2, curve: Curves.easeOutQuad),
-
-                    const SizedBox(height: 20),
-
-                    Text(
-                      page.description,
-                      style: TextStyle(
-                        color: material.Colors.white.withValues(alpha: 0.9),
-                        height: 1.6,
-                        fontSize: 18,
-                      ),
-                      textAlign: TextAlign.center,
-                    )
-                        .animate(target: isCurrent ? 1 : 0)
-                        .fadeIn(delay: 400.ms)
-                        .slideY(begin: 0.2, curve: Curves.easeOutQuad),
-                  ],
-                ),
-              ),
-            ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildOnboardingPageContent(OnboardingPageData page, bool isCurrent) {
+    return Column(
+      children: [
+        Text(
+              page.title,
+              style: const TextStyle(
+                color: material.Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 28,
+                letterSpacing: 1.2,
+              ),
+              textAlign: TextAlign.center,
+            )
+            .animate(target: isCurrent ? 1 : 0)
+            .fadeIn(delay: 200.ms)
+            .slideY(begin: 0.2, curve: Curves.easeOutQuad),
+
+        const SizedBox(height: 20),
+
+        Text(
+              page.description,
+              style: TextStyle(
+                color: material.Colors.white.withValues(alpha: 0.9),
+                height: 1.6,
+                fontSize: 18,
+              ),
+              textAlign: TextAlign.center,
+            )
+            .animate(target: isCurrent ? 1 : 0)
+            .fadeIn(delay: 400.ms)
+            .slideY(begin: 0.2, curve: Curves.easeOutQuad),
+      ],
     );
   }
 
@@ -305,7 +328,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 width: isActive ? 32 : 12,
                 height: 12,
                 decoration: BoxDecoration(
-                  color: isActive ? material.Colors.white : material.Colors.white.withValues(alpha: 0.3),
+                  color: isActive
+                      ? material.Colors.white
+                      : material.Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(6),
                 ),
               );
@@ -318,29 +343,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           SizedBox(
             width: double.infinity,
             height: 64,
-            child: Builder(
-              builder: (context) {
-                return material.ElevatedButton(
-                  onPressed: _onNextPage,
-                  style: material.ElevatedButton.styleFrom(
-                    backgroundColor: material.Colors.white,
-                    foregroundColor: _pages[_currentPage].colors[1],
-                    elevation: 0,
-                    shape: material.RoundedRectangleBorder(
-                      borderRadius: material.BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: Text(
-                    isLastPage ? 'GET STARTED' : 'CONTINUE',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                );
-              }
-            ).animate(target: isLastPage ? 1 : 0).shake(delay: 200.ms, duration: 500.ms),
+            child:
+                Builder(
+                      builder: (context) {
+                        return material.ElevatedButton(
+                          onPressed: _onNextPage,
+                          style: material.ElevatedButton.styleFrom(
+                            backgroundColor: material.Colors.white,
+                            foregroundColor: _pages[_currentPage].colors[1],
+                            elevation: 0,
+                            shape: material.RoundedRectangleBorder(
+                              borderRadius: material.BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: Text(
+                            isLastPage ? 'GET STARTED' : 'CONTINUE',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    )
+                    .animate(target: isLastPage ? 1 : 0)
+                    .shake(delay: 200.ms, duration: 500.ms),
           ),
         ],
       ),

@@ -44,8 +44,9 @@ class CanvasRemoteDatasource {
             (canvasMap['canvas_members'] as List?)
                 ?.cast<Map<String, dynamic>>() ??
             [];
-        canvasMap['member_ids'] =
-            memberRows.map((m) => m['user_id'] as String).toList();
+        canvasMap['member_ids'] = memberRows
+            .map((m) => m['user_id'] as String)
+            .toList();
         return OasisCanvas.fromJson(canvasMap);
       }).toList();
     } catch (e) {
@@ -62,16 +63,15 @@ class CanvasRemoteDatasource {
     List<String> memberIds = const [],
   }) async {
     try {
-      final canvasData =
-          await _supabase
-              .from('canvases')
-              .insert({
-                'title': title,
-                'created_by': createdBy,
-                'cover_color': coverColor,
-              })
-              .select()
-              .single();
+      final canvasData = await _supabase
+          .from('canvases')
+          .insert({
+            'title': title,
+            'created_by': createdBy,
+            'cover_color': coverColor,
+          })
+          .select()
+          .single();
 
       final canvas = OasisCanvas.fromJson(canvasData);
 
@@ -147,12 +147,11 @@ class CanvasRemoteDatasource {
   /// Fetch a single canvas by ID
   Future<OasisCanvas> getCanvas(String canvasId) async {
     try {
-      final response =
-          await _supabase
-              .from('canvases')
-              .select('*, canvas_members(user_id)')
-              .eq('id', canvasId)
-              .single();
+      final response = await _supabase
+          .from('canvases')
+          .select('*, canvas_members(user_id)')
+          .eq('id', canvasId)
+          .single();
 
       final userId = _supabase.auth.currentUser?.id;
       if (userId != null) {
@@ -169,8 +168,9 @@ class CanvasRemoteDatasource {
           (canvasMap['canvas_members'] as List?)
               ?.cast<Map<String, dynamic>>() ??
           [];
-      canvasMap['member_ids'] =
-          memberRows.map((m) => m['user_id'] as String).toList();
+      canvasMap['member_ids'] = memberRows
+          .map((m) => m['user_id'] as String)
+          .toList();
 
       return OasisCanvas.fromJson(canvasMap);
     } catch (e) {
@@ -191,13 +191,12 @@ class CanvasRemoteDatasource {
       if (coverColor != null) updates['cover_color'] = coverColor;
       updates['updated_at'] = DateTime.now().toIso8601String();
 
-      final response =
-          await _supabase
-              .from('canvases')
-              .update(updates)
-              .eq('id', canvasId)
-              .select()
-              .single();
+      final response = await _supabase
+          .from('canvases')
+          .update(updates)
+          .eq('id', canvasId)
+          .select()
+          .single();
 
       return OasisCanvas.fromJson(response);
     } catch (e) {
@@ -228,7 +227,7 @@ class CanvasRemoteDatasource {
       final items = (response as List)
           .map((json) => CanvasItemEntity.fromJson(json))
           .toList();
-      
+
       return Future.wait(items.map(_decryptItem));
     } catch (e) {
       debugPrint('CanvasRemoteDatasource.fetchCanvasItems error: $e');
@@ -261,7 +260,11 @@ class CanvasRemoteDatasource {
           .eq('canvas_id', canvasId);
 
       final publicKeys = (membersResponse as List)
-          .map((m) => (m['profiles'] as Map<String, dynamic>?)?['public_key'] as String?)
+          .map(
+            (m) =>
+                (m['profiles'] as Map<String, dynamic>?)?['public_key']
+                    as String?,
+          )
           .whereType<String>()
           .toList();
 
@@ -295,12 +298,11 @@ class CanvasRemoteDatasource {
         insertData['unlock_at'] = unlockAt.toIso8601String();
       }
 
-      final response =
-          await _supabase
-              .from('canvas_items')
-              .insert(insertData)
-              .select()
-              .single();
+      final response = await _supabase
+          .from('canvas_items')
+          .insert(insertData)
+          .select()
+          .single();
 
       // Privacy Audit: Log WRITE
       await _privacyAudit.logAccess(
@@ -399,18 +401,18 @@ class CanvasRemoteDatasource {
     required String emoji,
   }) async {
     try {
-      final itemData =
-          await _supabase
-              .from('canvas_items')
-              .select('reactions')
-              .eq('id', itemId)
-              .single();
+      final itemData = await _supabase
+          .from('canvas_items')
+          .select('reactions')
+          .eq('id', itemId)
+          .single();
 
       final Map<String, dynamic> reactions = Map<String, dynamic>.from(
         itemData['reactions'] ?? {},
       );
-      final List<dynamic> users =
-          reactions[emoji] != null ? List.from(reactions[emoji]) : [];
+      final List<dynamic> users = reactions[emoji] != null
+          ? List.from(reactions[emoji])
+          : [];
 
       if (users.contains(userId)) {
         users.remove(userId);
@@ -547,8 +549,9 @@ class CanvasRemoteDatasource {
 
           for (final singleState in state) {
             if (singleState.presences.isNotEmpty) {
-              mappedState[singleState.key] =
-                  singleState.presences.map((p) => p.payload).toList();
+              mappedState[singleState.key] = singleState.presences
+                  .map((p) => p.payload)
+                  .toList();
             }
           }
 
@@ -616,4 +619,3 @@ class CanvasRemoteDatasource {
     }
   }
 }
-

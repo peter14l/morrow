@@ -48,13 +48,14 @@ class AppNotification {
       commentId: json['comment_id'] as String?,
       messageId: json['message_id'] as String?,
       message: (json['content'] ?? json['message']) as String?,
-      conversationId: json['conversation_id'] as String? ?? json['metadata']?['conversation_id'] as String?,
+      conversationId:
+          json['conversation_id'] as String? ??
+          json['metadata']?['conversation_id'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
       isRead: json['is_read'] as bool? ?? false,
-      timestamp:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'] as String)
-              : DateTime.now(),
+      timestamp: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
     );
   }
 
@@ -180,7 +181,16 @@ class AppNotification {
   }
 }
 
-enum NotificationType { like, comment, follow, follow_request, mention, dm, ripple, system }
+enum NotificationType {
+  like,
+  comment,
+  follow,
+  follow_request,
+  mention,
+  dm,
+  ripple,
+  system,
+}
 
 extension NotificationTypeExtension on NotificationType {
   String get displayName {

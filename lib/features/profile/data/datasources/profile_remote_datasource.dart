@@ -12,16 +12,19 @@ class ProfileRemoteDatasource {
 
   Future<Map<String, dynamic>> getProfile(String userId) async {
     if (userId.isEmpty) {
-      debugPrint('[ProfileRemoteDatasource] Blocking getProfile attempt with empty userId');
+      debugPrint(
+        '[ProfileRemoteDatasource] Blocking getProfile attempt with empty userId',
+      );
       return {}; // Return empty map or throw error. Calling code handles empty map or errors.
     }
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color')
-              .eq('id', userId)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select(
+            'id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color',
+          )
+          .eq('id', userId)
+          .single();
 
       return Map<String, dynamic>.from(response);
     } catch (e) {
@@ -32,12 +35,13 @@ class ProfileRemoteDatasource {
 
   Future<Map<String, dynamic>> getProfileByUsername(String username) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.profilesTable)
-              .select('id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color')
-              .eq('username', username)
-              .single();
+      final response = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select(
+            'id, username, full_name, avatar_url, bio, location, website, is_verified, is_private, followers_count, following_count, posts_count, is_pro, created_at, xp, level, public_key, banner_url, banner_color',
+          )
+          .eq('username', username)
+          .single();
 
       return Map<String, dynamic>.from(response);
     } catch (e) {
@@ -151,7 +155,9 @@ class ProfileRemoteDatasource {
     required String followingId,
   }) async {
     if (followerId == followingId) {
-      debugPrint('[ProfileRemoteDatasource] Blocking self-follow attempt: $followerId');
+      debugPrint(
+        '[ProfileRemoteDatasource] Blocking self-follow attempt: $followerId',
+      );
       return;
     }
     try {
@@ -192,7 +198,9 @@ class ProfileRemoteDatasource {
           .eq('follower_id', followerId)
           .eq('following_id', followingId);
     } catch (e) {
-      debugPrint('[ProfileRemoteDatasource] Error accepting follow request: $e');
+      debugPrint(
+        '[ProfileRemoteDatasource] Error accepting follow request: $e',
+      );
       rethrow;
     }
   }
@@ -208,7 +216,9 @@ class ProfileRemoteDatasource {
           .eq('follower_id', followerId)
           .eq('following_id', followingId);
     } catch (e) {
-      debugPrint('[ProfileRemoteDatasource] Error declining follow request: $e');
+      debugPrint(
+        '[ProfileRemoteDatasource] Error declining follow request: $e',
+      );
       rethrow;
     }
   }
@@ -254,13 +264,12 @@ class ProfileRemoteDatasource {
     required String followingId,
   }) async {
     try {
-      final response =
-          await _supabase
-              .from(SupabaseConfig.followsTable)
-              .select()
-              .eq('follower_id', followerId)
-              .eq('following_id', followingId)
-              .maybeSingle();
+      final response = await _supabase
+          .from(SupabaseConfig.followsTable)
+          .select()
+          .eq('follower_id', followerId)
+          .eq('following_id', followingId)
+          .maybeSingle();
 
       return response != null;
     } catch (e) {

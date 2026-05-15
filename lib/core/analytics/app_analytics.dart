@@ -36,11 +36,14 @@ class AppAnalytics {
   void logSessionStart() => logEvent('session_start');
 
   /// Specialized event for calling (proves engagement)
-  void logCallStarted(String type) => logEvent('call_started', parameters: {'call_type': type});
+  void logCallStarted(String type) =>
+      logEvent('call_started', parameters: {'call_type': type});
 
   /// Specialized event for wellness (proves differentiator usage)
-  void logWellnessGoalReached(String type) => logEvent('wellness_goal_reached', parameters: {'goal_type': type});
+  void logWellnessGoalReached(String type) =>
+      logEvent('wellness_goal_reached', parameters: {'goal_type': type});
 
   /// Specialized event for conversion
-  void logSubscriptionStarted(String planId) => logEvent('subscription_started', parameters: {'plan_id': planId});
+  void logSubscriptionStarted(String planId) =>
+      logEvent('subscription_started', parameters: {'plan_id': planId});
 }

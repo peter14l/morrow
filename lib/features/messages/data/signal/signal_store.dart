@@ -7,11 +7,11 @@ import 'package:oasis/core/storage/secure_storage.dart';
 
 /// A persistent implementation of SignalProtocolStore using SecureStorage
 /// for identity keys, and SharedPreferences for session/prekey state.
-class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeyStore, IdentityKeyStore {
+class PersistentSignalStore
+    implements SessionStore, PreKeyStore, SignedPreKeyStore, IdentityKeyStore {
   final InMemorySignalProtocolStore _inMemoryStore;
   final SecureStorage _secureStorage = SecureStorage();
   late final SharedPreferences _prefs;
-
 
   // Keys for SharedPreferences / Secure Storage
   static String _identityKeyPairKey(String uid) =>
@@ -35,7 +35,9 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
     final secureStorage = SecureStorage();
     final uid = userId ?? Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) {
-      debugPrint('[SignalStore] hasKeys: No user ID provided and no current user');
+      debugPrint(
+        '[SignalStore] hasKeys: No user ID provided and no current user',
+      );
       return false;
     }
 
@@ -47,7 +49,9 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
         key: _localRegistrationIdKey(uid),
       );
 
-      debugPrint('[SignalStore] hasKeys result for $uid: identity=${identityKeyString != null}, registration=${registrationIdString != null}');
+      debugPrint(
+        '[SignalStore] hasKeys result for $uid: identity=${identityKeyString != null}, registration=${registrationIdString != null}',
+      );
       return identityKeyString != null && registrationIdString != null;
     } catch (e) {
       debugPrint('[SignalStore] hasKeys error: $e');
@@ -143,7 +147,6 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
 
     // Load remaining state (sessions, etc) into memory
     await store._loadState(userId);
-
 
     return store;
   }
@@ -328,11 +331,13 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
           return record;
         }
       }
-      
+
       // Workaround for libsignal_protocol_dart dropping the exception and causing
       // an Unhandled Exception in the logs. We return a dummy prekey instead.
       // This will cause decryption to cleanly fail with a catchable InvalidMessageException.
-      debugPrint('[SignalStore] PreKey $preKeyId missing. Supplying dummy to avoid unhandled exception.');
+      debugPrint(
+        '[SignalStore] PreKey $preKeyId missing. Supplying dummy to avoid unhandled exception.',
+      );
       final dummyKeyPair = Curve.generateKeyPair();
       return PreKeyRecord(preKeyId, dummyKeyPair);
     }
@@ -451,6 +456,5 @@ class PersistentSignalStore implements SessionStore, PreKeyStore, SignedPreKeySt
         await _prefs.remove(key);
       }
     }
-
   }
 }

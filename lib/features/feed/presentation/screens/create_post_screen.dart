@@ -20,6 +20,8 @@ import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
 import 'package:oasis/themes/theme_provider.dart';
 
+import 'package:oasis/features/feed/presentation/widgets/collaborator_picker_sheet.dart';
+
 class CreatePostScreen extends StatefulWidget {
   final String? communityId;
   final String? circleId;
@@ -45,6 +47,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   PostMood? _selectedMood;
   EnhancedPoll? _attachedPoll;
   bool _showPollCreator = false;
+
+  final List<Map<String, dynamic>> _selectedCollaborators = [];
 
   final TextEditingController _locationController = TextEditingController();
 
@@ -155,6 +159,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           hashtags: hashtags,
           isSpoiler: _isSpoiler,
           poll: _attachedPoll,
+          collaboratorIds: _selectedCollaborators.map((u) => u['id'] as String).toList(),
         );
 
         if (!mounted) return;
@@ -235,6 +240,24 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         _locationController.text = result;
       });
       HapticUtils.success();
+    }
+  }
+
+  void _showCollaboratorPicker() async {
+    final List<Map<String, dynamic>>? result = await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => CollaboratorPickerSheet(
+        initialCollaborators: _selectedCollaborators,
+      ),
+    );
+
+    if (result != null && mounted) {
+      setState(() {
+        _selectedCollaborators.clear();
+        _selectedCollaborators.addAll(result);
+      });
     }
   }
 
@@ -605,12 +628,46 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ],
           ),
         ),
+        fluent.Button(
+          onPressed: _showCollaboratorPicker,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(fluent.FluentIcons.people_add, size: 16),
+              const SizedBox(width: 8),
+              Text(_selectedCollaborators.isEmpty
+                  ? 'Collaborators'
+                  : '${_selectedCollaborators.length} collaborators'),
+            ],
+          ),
+        ),
         MoodSelector(
           selectedMood: _selectedMood,
           showLabel: false,
           onMoodSelected: (mood) {
             setState(() => _selectedMood = mood);
           },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFluentCollaboratorsList() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 24),
+        const Text('Collaborators', style: TextStyle(fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          children: _selectedCollaborators.map((u) {
+            return Chip(
+              label: Text(u['username'] ?? 'User'),
+              onDeleted: () => setState(() => _selectedCollaborators.remove(u)),
+              deleteIcon: const Icon(Icons.close, size: 14),
+            );
+          }).toList(),
         ),
       ],
     );
@@ -773,6 +830,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               onPressed: _pickLocation,
               isM3E: isM3E,
             ),
+            _buildActionButton(
+              icon: Icons.group_add_outlined,
+              label: 'Collaborators',
+              onPressed: _showCollaboratorPicker,
+              isM3E: isM3E,
+              isActive: _selectedCollaborators.isNotEmpty,
+            ),
             MoodSelector(
               selectedMood: _selectedMood,
               showLabel: false,
@@ -780,6 +844,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           ],
         ),
+        if (_selectedCollaborators.isNotEmpty) ...[
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 8,
+            children: _selectedCollaborators.map((u) {
+              return Chip(
+                label: Text(u['username'] ?? 'User'),
+                onDeleted: () => setState(() => _selectedCollaborators.remove(u)),
+                deleteIcon: const Icon(Icons.close, size: 14),
+              );
+            }).toList(),
+          ),
+        ],
         if (_selectedImages.isNotEmpty) ...[
           const SizedBox(height: 24),
           SizedBox(
@@ -1079,9 +1156,36 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   onPressed: _pickLocation,
                   isM3E: isM3E,
                 ),
+                const SizedBox(width: 8),
+                _buildActionButton(
+                  icon: Icons.group_add_outlined,
+                  label: 'Collaborators',
+                  onPressed: _showCollaboratorPicker,
+                  isM3E: isM3E,
+                  isActive: _selectedCollaborators.isNotEmpty,
+                ),
               ],
             ),
           ),
+          if (_selectedCollaborators.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _selectedCollaborators.map((u) {
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Chip(
+                      label: Text(u['username'] ?? 'User'),
+                      onDeleted: () =>
+                          setState(() => _selectedCollaborators.remove(u)),
+                      deleteIcon: const Icon(Icons.close, size: 14),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+          ],
           if (_locationController.text.isNotEmpty) ...[
             const SizedBox(height: 16),
             Container(

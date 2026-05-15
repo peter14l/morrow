@@ -3,7 +3,7 @@ import 'package:path/path.dart' as p;
 
 void main() async {
   print('Testing Windows Native Notification...');
-  
+
   if (!Platform.isWindows) {
     print('Error: This script only works on Windows.');
     return;
@@ -19,7 +19,8 @@ void main() async {
 
   for (final appId in testAppIds) {
     print('--- Attempting notification with App ID: $appId ---');
-    final psScript = '''
+    final psScript =
+        '''
 \$code = @"
 using System;
 using Windows.UI.Notifications;
@@ -49,13 +50,20 @@ if (-not ([VisualTreeHelper])) {
 [Toast]::Show("$appId", "Oasis Test ($appId)", "Testing notification system with this ID.")
 ''';
 
-    final tempFile = File(p.join(Directory.systemTemp.path, 'oasis_test_notif_${appId.hashCode}.ps1'));
+    final tempFile = File(
+      p.join(
+        Directory.systemTemp.path,
+        'oasis_test_notif_${appId.hashCode}.ps1',
+      ),
+    );
     try {
       await tempFile.writeAsString(psScript);
       final result = await Process.run('powershell', [
         '-NoProfile',
-        '-ExecutionPolicy', 'Bypass',
-        '-File', tempFile.path,
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        tempFile.path,
       ]);
       print('Result for $appId: Exit Code ${result.exitCode}');
       if (result.stdout.toString().trim().isNotEmpty) {

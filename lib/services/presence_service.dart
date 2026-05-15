@@ -145,30 +145,29 @@ class PresenceService {
     final timestamp = DateTime.now().toUtc().toIso8601String();
 
     try {
-      await channel.track({
-        'status': status,
-        'last_seen': timestamp,
-      });
+      await channel.track({'status': status, 'last_seen': timestamp});
 
       // Also upsert to user_status table for polling fallback
       unawaited(
-        _supabase.from(SupabaseConfig.userStatusTable).upsert({
-          'user_id': userId,
-          'status': status,
-          'last_seen': timestamp,
-        }).catchError((e) {
-          debugPrint('PresenceService: Table upsert error - ${e.toString()}');
-        }),
+        _supabase
+            .from(SupabaseConfig.userStatusTable)
+            .upsert({
+              'user_id': userId,
+              'status': status,
+              'last_seen': timestamp,
+            })
+            .catchError((e) {
+              debugPrint(
+                'PresenceService: Table upsert error - ${e.toString()}',
+              );
+            }),
       );
     } catch (e) {
       // Retry once after brief delay
       debugPrint('PresenceService: Retry presence after - ${e.toString()}');
       try {
         await Future.delayed(const Duration(milliseconds: 100));
-        await channel.track({
-          'status': status,
-          'last_seen': timestamp,
-        });
+        await channel.track({'status': status, 'last_seen': timestamp});
       } catch (e2) {
         debugPrint(
           'PresenceService: Failed to track presence - ${e2.toString()}',

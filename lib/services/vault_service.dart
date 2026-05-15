@@ -23,7 +23,7 @@ class VaultService with ChangeNotifier {
   final Set<String> _vaultItemIds = {};
   final Map<String, String> _itemIntervals = {};
   final Map<String, Timer?> _lockTimers = {};
-  
+
   Completer<void>? _initCompleter;
   bool _isInitDone = false;
 
@@ -37,14 +37,14 @@ class VaultService with ChangeNotifier {
   Future<void> init() async {
     if (_initCompleter != null) return _initCompleter!.future;
     _initCompleter = Completer<void>();
-    
+
     debugPrint('[VaultService] Initializing...');
     await _loadIntervals();
     await _refreshVaultItemCache();
-    
+
     final enabled = await isVaultEnabled();
     debugPrint('[VaultService] Initialization complete. Enabled: $enabled');
-    
+
     _isInitDone = true;
     _initCompleter!.complete();
     return _initCompleter!.future;
@@ -108,14 +108,14 @@ class VaultService with ChangeNotifier {
     await _storage.delete(key: _vaultPinKey);
     _unlockedItemIds.clear();
     _itemIntervals.clear();
-    
+
     // Safety: use toList() for concurrent mod protection
     final timers = _lockTimers.values.toList();
     for (final timer in timers) {
       timer?.cancel();
     }
     _lockTimers.clear();
-    
+
     await _storage.delete(key: _vaultIntervalsKey);
     scheduleMicrotask(() => notifyListeners());
   }
@@ -181,7 +181,7 @@ class VaultService with ChangeNotifier {
     _unlockedItemIds.remove(id);
     _lockTimers[id]?.cancel();
     _lockTimers.remove(id);
-    
+
     debugPrint('Vault: Locked item $id');
     scheduleMicrotask(() => notifyListeners());
   }
@@ -202,8 +202,8 @@ class VaultService with ChangeNotifier {
   /// Specialized lock for chat exit
   void lockOnChatClose(String itemId) {
     final id = _normalizeId(itemId);
-    
-    // Safety check: if intervals aren't loaded yet, it's safer to lock 
+
+    // Safety check: if intervals aren't loaded yet, it's safer to lock
     // on exit if the item is known to be in the vault.
     if (!_isInitDone) {
       if (isInVaultSync(id)) {
@@ -228,19 +228,21 @@ class VaultService with ChangeNotifier {
         // App close (lifecycle backgrounding) should lock EVERYTHING for maximum security.
         return true;
       }
-      
+
       final itemInterval = getLockInterval(id);
       return itemInterval == interval;
     }).toList();
-    
+
     for (final id in itemsToLock) {
       _unlockedItemIds.remove(id);
       _lockTimers[id]?.cancel();
       _lockTimers.remove(id);
     }
-    
+
     if (itemsToLock.isNotEmpty) {
-      debugPrint('Vault: Locked ${itemsToLock.length} items with interval $interval');
+      debugPrint(
+        'Vault: Locked ${itemsToLock.length} items with interval $interval',
+      );
       scheduleMicrotask(() => notifyListeners());
     }
   }
@@ -249,7 +251,7 @@ class VaultService with ChangeNotifier {
   Future<void> setLockInterval(String itemId, String interval) async {
     // Ensure service is initialized before updating settings
     await isReady;
-    
+
     final id = _normalizeId(itemId);
     _itemIntervals[id] = interval;
     await _saveIntervals();
@@ -279,7 +281,7 @@ class VaultService with ChangeNotifier {
     BuildContext? context,
   }) async {
     final id = _normalizeId(itemId);
-    
+
     if (pin != null) {
       return unlockItemWithPin(id, pin);
     }
@@ -411,7 +413,7 @@ class VaultService with ChangeNotifier {
     _itemIntervals[id] = 'app_close';
     await _saveIntervals();
 
-    // Automatically mark as unlocked when first added, since the user 
+    // Automatically mark as unlocked when first added, since the user
     // is currently interacting with the item they just secured.
     _unlockedItemIds.add(id);
 
@@ -524,16 +526,15 @@ class VaultService with ChangeNotifier {
           .select()
           .eq('user_id', userId);
 
-      final items =
-          response
-              .map<VaultItem>(
-                (v) => VaultItem(
-                  id: _normalizeId(v['item_id'].toString()),
-                  type: VaultItemType.fromString(v['item_type']),
-                  addedAt: DateTime.parse(v['created_at']),
-                ),
-              )
-              .toList();
+      final items = response
+          .map<VaultItem>(
+            (v) => VaultItem(
+              id: _normalizeId(v['item_id'].toString()),
+              type: VaultItemType.fromString(v['item_type']),
+              addedAt: DateTime.parse(v['created_at']),
+            ),
+          )
+          .toList();
 
       await _saveVaultItems(items);
       _vaultItemIds.clear();
