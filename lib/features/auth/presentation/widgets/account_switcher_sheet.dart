@@ -230,7 +230,7 @@ class AccountSwitcherSheet extends StatelessWidget {
               },
             ),
           ],
-        ],
+        ),
       ),
     );
 
