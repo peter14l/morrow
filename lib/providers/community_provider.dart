@@ -4,8 +4,9 @@ import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/services/community_service.dart';
 import 'package:oasis/services/post_service.dart';
 import 'package:oasis/services/feed_service.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
-class CommunityProvider with ChangeNotifier {
+class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
   final CommunityService _communityService = CommunityService();
   final FeedService _feedService = FeedService();
   final PostService _postService = PostService();

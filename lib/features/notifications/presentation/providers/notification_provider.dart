@@ -4,8 +4,9 @@ import 'package:oasis/features/notifications/domain/models/notification_entity.d
 import 'package:oasis/features/notifications/domain/repositories/notification_repository.dart';
 import 'package:oasis/features/notifications/domain/usecases/notification_usecases.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_state.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
-class NotificationProvider extends ChangeNotifier {
+class NotificationProvider extends ChangeNotifier with SafeChangeNotifier {
   final GetNotifications _getNotifications;
   final MarkNotificationRead _markNotificationRead;
   final MarkAllNotificationsRead _markAllNotificationsRead;

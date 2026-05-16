@@ -4,10 +4,11 @@ import 'package:oasis/features/circles/domain/models/circles_models.dart';
 import 'package:oasis/features/circles/domain/repositories/circle_repository.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_state.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 export 'package:oasis/features/circles/presentation/providers/circle_state.dart';
 
-class CircleProvider with ChangeNotifier {
+class CircleProvider with ChangeNotifier, SafeChangeNotifier {
   final CircleRepository _repository;
 
   CircleState _state = const CircleState();

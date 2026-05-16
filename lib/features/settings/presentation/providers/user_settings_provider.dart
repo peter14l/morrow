@@ -4,8 +4,9 @@ import 'package:oasis/features/settings/domain/usecases/settings_usecases.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/services/desktop_window_service.dart';
 import 'package:universal_io/io.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
-class UserSettingsProvider with ChangeNotifier {
+class UserSettingsProvider with ChangeNotifier, SafeChangeNotifier {
   final GetSettingsUseCase _getSettingsUseCase;
   final SaveSettingsUseCase _saveSettingsUseCase;
 

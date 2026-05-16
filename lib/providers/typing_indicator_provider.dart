@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
-class TypingIndicatorProvider with ChangeNotifier {
+class TypingIndicatorProvider with ChangeNotifier, SafeChangeNotifier {
   final MessagingService _messagingService = MessagingService();
 
   // Map of conversationId -> isTyping status
@@ -82,6 +83,7 @@ class TypingIndicatorProvider with ChangeNotifier {
 
   /// Subscribe to typing status updates for a conversation
   void subscribeToTypingStatus(String conversationId, String currentUserId) {
+    if (isDisposed) return;
     // Don't subscribe if already subscribed
     if (_subscriptions.containsKey(conversationId)) {
       return;
@@ -94,6 +96,7 @@ class TypingIndicatorProvider with ChangeNotifier {
       final channel = _messagingService.subscribeToTypingStatus(
         conversationId: conversationId,
         onTypingUpdate: (userId, isTyping) {
+          if (isDisposed) return;
           // Only update if it's the other user typing (not current user)
           if (userId != currentUserId) {
             _typingStatus[conversationId] = isTyping;
@@ -102,6 +105,7 @@ class TypingIndicatorProvider with ChangeNotifier {
             // Auto-clear typing status after 5 seconds if still showing
             if (isTyping) {
               Future.delayed(const Duration(seconds: 5), () {
+                if (isDisposed) return;
                 if (_typingStatus[conversationId] == true) {
                   _typingStatus[conversationId] = false;
                   notifyListeners();
@@ -123,6 +127,7 @@ class TypingIndicatorProvider with ChangeNotifier {
 
   /// Unsubscribe from typing status updates
   Future<void> unsubscribeFromTypingStatus(String conversationId) async {
+    if (isDisposed) return;
     final channel = _subscriptions[conversationId];
     if (channel != null) {
       await _messagingService.unsubscribeFromTypingStatus(channel);
@@ -136,24 +141,40 @@ class TypingIndicatorProvider with ChangeNotifier {
   }
 
   /// Clear all subscriptions
-  Future<void> clearAll() async {
+  Future<void> clearAll({bool isDisposing = false}) async {
     for (final conversationId in _subscriptions.keys.toList()) {
-      await unsubscribeFromTypingStatus(conversationId);
+      final channel = _subscriptions[conversationId];
+      if (channel != null) {
+        await _messagingService.unsubscribeFromTypingStatus(channel);
+      }
     }
+    _subscriptions.clear();
     _typingStatus.clear();
     _trackedConversationIds.clear();
     for (var timer in _debounceTimers.values) {
       timer.cancel();
     }
     _debounceTimers.clear();
-    notifyListeners();
+    
+    if (!isDisposing) {
+      notifyListeners();
+    }
   }
 
   @override
   void dispose() {
-    clearAll();
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    
+    for (var timer in _debounceTimers.values) {
+      timer.cancel();
+    }
+    _debounceTimers.clear();
+
+    // We don't await clearAll here because dispose must be sync.
+    // The SafeChangeNotifier will prevent notifyListeners from crashing.
+    clearAll(isDisposing: true);
+    
     super.dispose();
   }
 

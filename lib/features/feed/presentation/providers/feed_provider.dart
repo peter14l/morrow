@@ -9,12 +9,13 @@ import 'package:oasis/features/feed/presentation/providers/feed_state.dart';
 import 'package:oasis/services/ad_service.dart';
 import 'package:oasis/services/subscription_service.dart';
 import 'package:oasis/services/curation_tracking_service.dart';
+import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 export 'package:oasis/features/feed/presentation/providers/feed_state.dart'
     show FeedType;
 
 /// Feed feature provider managing unified feed state, posts, and comments.
-class FeedProvider with ChangeNotifier {
+class FeedProvider with ChangeNotifier, SafeChangeNotifier {
   final FeedRepository _feedRepository;
   final PostRepository _postRepository;
   final CommentRepository _commentRepository;
@@ -74,7 +75,7 @@ class FeedProvider with ChangeNotifier {
 
   /// Load initial unified feed.
   Future<void> loadFeed({required String userId, bool refresh = false}) async {
-    if (_state.isLoading) return;
+    if (isDisposed || _state.isLoading) return;
 
     _state = _state.copyWith(isLoading: true, error: null);
     if (refresh) {
@@ -89,8 +90,10 @@ class FeedProvider with ChangeNotifier {
         limit: 20,
         cursor: effectiveCursor,
       );
+      if (isDisposed) return;
 
       newPosts = await _injectAds(newPosts);
+      if (isDisposed) return;
 
       if (refresh || _state.posts.isEmpty) {
         _state = _state.copyWith(posts: newPosts);
@@ -116,17 +119,20 @@ class FeedProvider with ChangeNotifier {
       // Track category for curation
       _trackCategories(newPosts);
     } catch (e) {
+      if (isDisposed) return;
       _state = _state.copyWith(error: e.toString());
       debugPrint('[FeedProvider] Load feed error: $e');
     } finally {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
+      if (!isDisposed) {
+        _state = _state.copyWith(isLoading: false);
+        notifyListeners();
+      }
     }
   }
 
   /// Load more posts (pagination).
   Future<void> loadMore({required String userId}) async {
-    if (_state.isLoadingMore || !_state.hasMore || _state.isLoading) return;
+    if (isDisposed || _state.isLoadingMore || !_state.hasMore || _state.isLoading) return;
 
     _state = _state.copyWith(isLoadingMore: true);
     notifyListeners();
@@ -137,7 +143,10 @@ class FeedProvider with ChangeNotifier {
         limit: 20,
         cursor: _state.cursor,
       );
+      if (isDisposed) return;
+      
       newPosts = await _injectAds(newPosts);
+      if (isDisposed) return;
 
       final updatedPosts = [..._state.posts, ...newPosts];
       final realPosts = updatedPosts.where((p) => !p.isAd).toList();
@@ -150,11 +159,14 @@ class FeedProvider with ChangeNotifier {
         hasMore: newPosts.length >= 20,
       );
     } catch (e) {
+      if (isDisposed) return;
       _state = _state.copyWith(error: e.toString());
       debugPrint('[FeedProvider] Load more error: $e');
     } finally {
-      _state = _state.copyWith(isLoadingMore: false);
-      notifyListeners();
+      if (!isDisposed) {
+        _state = _state.copyWith(isLoadingMore: false);
+        notifyListeners();
+      }
     }
   }
 
