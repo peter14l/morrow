@@ -8,7 +8,6 @@ abstract class CallRepository {
     required String callerId,
     required String receiverId,
     required CallType type,
-    required Map<String, dynamic> offer,
   });
 
   /// Get call by ID
@@ -21,7 +20,6 @@ abstract class CallRepository {
   Future<CallEntity> acceptCall({
     required String callId,
     required String userId,
-    required Map<String, dynamic> answer,
   });
 
   /// Decline incoming call

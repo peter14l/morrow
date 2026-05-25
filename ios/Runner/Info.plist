@@ -77,6 +77,7 @@
 		<string>firebase-cloud-messaging</string>
 		<string>voip</string>
 		<string>remote-notification</string>
+		<string>audio</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Oasis uses your location to notify you when you arrive at home and for sharing your live location in chat.</string>
@@ -85,9 +86,9 @@
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Oasis uses your background location to automatically notify you when you arrive home, even if the app is closed.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>This app needs camera access for video calls and capturing photos.</string>
+	<string>This app requires camera access to make video calls.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs microphone access for voice and video calls.</string>
+	<string>This app requires microphone access to make audio and video calls.</string>
 	<!-- Enable Impeller renderer for liquid glass effects -->
 	<key>FLTEnableImpeller</key>
 	<true/>

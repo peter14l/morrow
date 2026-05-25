@@ -51,6 +51,7 @@ import 'package:oasis/features/settings/presentation/providers/user_settings_pro
 
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
+import 'package:oasis/features/calling/presentation/widgets/floating_call_overlay.dart';
 
 /// Fully wired ChatScreen — thin orchestrator composing extracted widgets.
 /// Replaces the 4,682-line legacy chat_screen.dart.
@@ -1154,6 +1155,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           : () => _initiateCall(CallType.video),
                       backgroundUrl: state.backgroundUrl,
                     ),
+
+                    // Floating Call Overlay (Minimized Call)
+                    const FloatingCallOverlay(),
 
                     // Vault Lock Overlay
                     if (_vaultService.isInVaultSync(widget.conversationId) &&

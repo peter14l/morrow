@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
 import 'package:go_router/go_router.dart';
+import '../screens/calling_screen.dart';
 
 class FloatingCallOverlay extends StatefulWidget {
   const FloatingCallOverlay({super.key});
@@ -139,28 +140,46 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
   }
 
   Widget _buildMiniContent(CallProvider provider) {
-    final state = provider.state;
-
-    // If there's a remote stream, show it
-    if (state.remoteRenderers.isNotEmpty) {
-      final renderer = state.remoteRenderers.values.first;
-      return RTCVideoView(
-        renderer,
-        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-      );
+    final room = provider.room;
+    if (room == null) {
+      return _buildPlaceholder(provider);
     }
 
-    // Otherwise show local camera or just a person icon
-    if (provider.isVideoOn && state.localRenderer != null) {
-      return RTCVideoView(
-        state.localRenderer!,
-        mirror: true,
-        objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-      );
+    final remoteParticipant = room.remoteParticipants.values.firstOrNull;
+    if (remoteParticipant != null) {
+      final videoTrack = remoteParticipant.videoTrackPublications.firstOrNull?.track;
+      if (videoTrack != null && videoTrack is VideoTrack) {
+        return VideoTrackRenderer(
+          videoTrack,
+          fit: VideoViewFit.cover,
+        );
+      }
     }
 
-    return const Center(
-      child: Icon(Icons.person, color: Colors.white24, size: 40),
+    if (provider.isVideoOn) {
+      final localVideoTrack = room.localParticipant?.videoTrackPublications.firstOrNull?.track;
+      if (localVideoTrack != null && localVideoTrack is VideoTrack) {
+        return VideoTrackRenderer(
+          localVideoTrack,
+          fit: VideoViewFit.cover,
+        );
+      }
+    }
+
+    return _buildPlaceholder(provider);
+  }
+
+  Widget _buildPlaceholder(CallProvider provider) {
+    final call = provider.activeCall ?? provider.incomingCall;
+    return Container(
+      color: Colors.grey[900],
+      child: Center(
+        child: PulsatingParticipant(
+          userId: call?.callerId, // Placeholder logic
+          isLocal: false,
+          size: 60,
+        ),
+      ),
     );
   }
 }

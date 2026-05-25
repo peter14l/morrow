@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:livekit_client/livekit_client.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/profile/domain/models/user_profile_entity.dart';
+import '../widgets/add_participant_sheet.dart';
 
 class CallingScreen extends StatefulWidget {
   final String? callId;
@@ -26,7 +27,7 @@ class _CallingScreenState extends State<CallingScreen> {
     super.initState();
 
     if (widget.isIncoming) {
-      Future.delayed(const Duration(seconds: 10), () {
+      Future.delayed(const Duration(seconds: 15), () {
         if (mounted) {
           final provider = context.read<CallProvider>();
           if (!provider.hasIncomingCall && !provider.hasActiveCall) {
@@ -77,7 +78,6 @@ class _CallingScreenState extends State<CallingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Optimization: Use select for high-level structure to avoid total rebuilds
     final hasActiveCall = context.select<CallProvider, bool>(
       (p) => p.hasActiveCall,
     );
@@ -121,10 +121,8 @@ class _CallingScreenState extends State<CallingScreen> {
         ),
         child: Stack(
           children: [
-            // Using a separate widget for the grid to isolate rebuilds
             const Positioned.fill(child: ParticipantDisplay()),
 
-            // Control Bar - Isolated rebuilds
             Positioned(
               bottom: 40,
               left: 0,
@@ -132,10 +130,8 @@ class _CallingScreenState extends State<CallingScreen> {
               child: CallControlBar(isIncoming: widget.isIncoming),
             ),
 
-            // Call Header - Isolated rebuilds
             const Positioned(top: 60, left: 20, child: CallHeaderDisplay()),
 
-            // Diagnostic Button (Only shown in debug or when explicitly requested)
             Positioned(
               top: 60,
               right: 20,
@@ -195,80 +191,88 @@ class ParticipantDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Only rebuild if streams or sharing state changes
-    final state = context.watch<CallProvider>().state;
-    final isLocalSharing = context.select<CallProvider, bool>(
-      (p) => p.isScreenSharing,
-    );
-    final isVideoOn = context.select<CallProvider, bool>((p) => p.isVideoOn);
+    final room = context.watch<CallProvider>().room;
 
-    final isWaiting = state.remoteStreams.isEmpty;
-    if (isWaiting) {
+    if (room == null) {
       return const WaitingScreen();
     }
 
-    final remoteIds = state.remoteStreams.keys.toList();
-    final remoteSharingId = state.remoteScreenShareUserId;
-    final someoneSharing = isLocalSharing || remoteSharingId != null;
+    final localParticipant = room.localParticipant;
+    final List<RemoteParticipant> remoteParticipants = room.remoteParticipants.values.toList();
+    
+    // Sort participants: speakers first, then by join time
+    remoteParticipants.sort((a, b) {
+      if (a.isSpeaking && !b.isSpeaking) return -1;
+      if (!a.isSpeaking && b.isSpeaking) return 1;
+      return a.joinedAt.compareTo(b.joinedAt);
+    });
 
-    if (someoneSharing) {
+    final List<Participant> allParticipants = [if (localParticipant != null) localParticipant, ...remoteParticipants];
+
+    if (allParticipants.length <= 1) {
+      return const WaitingScreen();
+    }
+
+    // Check for screen sharing
+    Participant? screenSharer;
+    for (final p in allParticipants) {
+      if (p.isScreenShareEnabled()) {
+        screenSharer = p;
+        break;
+      }
+    }
+
+    if (screenSharer != null) {
       return ScreenShareLayout(
-        remoteIds: remoteIds,
-        isLocalSharing: isLocalSharing,
-        remoteSharingId: remoteSharingId,
-        isVideoOn: isVideoOn,
-        localRenderer: state.localRenderer,
+        screenSharer: screenSharer,
+        otherParticipants: allParticipants.where((p) => p != screenSharer).toList(),
       );
     }
 
-    if (remoteIds.length == 1) {
+    if (allParticipants.length == 2) {
       return Column(
         children: [
           Expanded(
-            child: VideoTile(
-              key: const ValueKey('local_tile'),
-              name: 'You',
-              renderer: state.localRenderer,
-              isLocal: true,
-              isVideoOn: isVideoOn,
+            child: ParticipantTile(
+              participant: allParticipants[0],
+              isLocal: allParticipants[0] is LocalParticipant,
             ),
           ),
           const SizedBox(height: 4),
           Expanded(
-            child: RemoteParticipantTile(
-              key: ValueKey('remote_${remoteIds[0]}'),
-              userId: remoteIds[0],
+            child: ParticipantTile(
+              participant: allParticipants[1],
+              isLocal: allParticipants[1] is LocalParticipant,
             ),
           ),
         ],
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.fromLTRB(4, 100, 4, 120),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: remoteIds.length + 1 <= 2 ? 1 : 2,
-        childAspectRatio: remoteIds.length + 1 <= 2 ? 0.8 : 1,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-      ),
-      itemCount: remoteIds.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return VideoTile(
-            key: const ValueKey('local_tile_grid'),
-            name: 'You',
-            renderer: state.localRenderer,
-            isLocal: true,
-            isVideoOn: isVideoOn,
-          );
-        }
-        final userId = remoteIds[index - 1];
-        return RemoteParticipantTile(
-          key: ValueKey('remote_grid_$userId'),
-          userId: userId,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isLandscape = constraints.maxWidth > constraints.maxHeight;
+        final crossAxisCount = isLandscape ? (allParticipants.length <= 4 ? 2 : 3) : (allParticipants.length <= 2 ? 1 : 2);
+        
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(8, 100, 8, 120),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: isLandscape ? 1.5 : 0.8,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+          ),
+          itemCount: allParticipants.length,
+          itemBuilder: (context, index) {
+            final p = allParticipants[index];
+            return ParticipantTile(
+              key: ValueKey(p.sid),
+              participant: p,
+              isLocal: p is LocalParticipant,
+            );
+          },
         );
-      },
+      }
     );
   }
 }
@@ -323,19 +327,13 @@ class WaitingScreen extends StatelessWidget {
 }
 
 class ScreenShareLayout extends StatelessWidget {
-  final List<String> remoteIds;
-  final bool isLocalSharing;
-  final String? remoteSharingId;
-  final bool isVideoOn;
-  final RTCVideoRenderer? localRenderer;
+  final Participant screenSharer;
+  final List<Participant> otherParticipants;
 
   const ScreenShareLayout({
     super.key,
-    required this.remoteIds,
-    required this.isLocalSharing,
-    this.remoteSharingId,
-    required this.isVideoOn,
-    this.localRenderer,
+    required this.screenSharer,
+    required this.otherParticipants,
   });
 
   @override
@@ -343,54 +341,28 @@ class ScreenShareLayout extends StatelessWidget {
     return Stack(
       children: [
         Positioned.fill(
-          child: isLocalSharing
-              ? VideoTile(
-                  key: const ValueKey('local_screen_share'),
-                  name: 'Your Screen',
-                  renderer: localRenderer,
-                  isLocal: true,
-                  isVideoOn: true,
-                )
-              : RemoteParticipantTile(
-                  key: ValueKey('remote_screen_share_$remoteSharingId'),
-                  userId: remoteSharingId!,
-                  isFull: true,
-                ),
+          child: ParticipantTile(
+            participant: screenSharer,
+            isLocal: screenSharer is LocalParticipant,
+            useScreenShare: true,
+          ),
         ),
         Positioned(
           top: 100,
           right: 16,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              if (!isLocalSharing)
-                SizedBox(
-                  width: 120,
-                  height: 160,
-                  child: VideoTile(
-                    key: const ValueKey('local_pip'),
-                    name: 'You',
-                    renderer: localRenderer,
-                    isLocal: true,
-                    isVideoOn: isVideoOn,
-                  ),
+            children: otherParticipants.map((p) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: SizedBox(
+                width: 120,
+                height: 160,
+                child: ParticipantTile(
+                  participant: p,
+                  isLocal: p is LocalParticipant,
                 ),
-              ...remoteIds
-                  .where((id) => id != remoteSharingId)
-                  .map(
-                    (id) => Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: SizedBox(
-                        width: 120,
-                        height: 160,
-                        child: RemoteParticipantTile(
-                          key: ValueKey('remote_pip_$id'),
-                          userId: id,
-                        ),
-                      ),
-                    ),
-                  ),
-            ],
+              ),
+            )).toList(),
           ),
         ),
       ],
@@ -398,37 +370,118 @@ class ScreenShareLayout extends StatelessWidget {
   }
 }
 
-class RemoteParticipantTile extends StatelessWidget {
-  final String userId;
-  final bool isFull;
+class ParticipantTile extends StatefulWidget {
+  final Participant participant;
+  final bool isLocal;
+  final bool useScreenShare;
 
-  const RemoteParticipantTile({
+  const ParticipantTile({
     super.key,
-    required this.userId,
-    this.isFull = false,
+    required this.participant,
+    required this.isLocal,
+    this.useScreenShare = false,
   });
 
   @override
+  State<ParticipantTile> createState() => _ParticipantTileState();
+}
+
+class _ParticipantTileState extends State<ParticipantTile> {
+  UserProfileEntity? _profile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  @override
+  void didUpdateWidget(ParticipantTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.participant != widget.participant) {
+      _loadProfile();
+    }
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final identity = widget.participant.identity;
+      final profile = await context.read<ProfileProvider>().getProfile(identity);
+      if (mounted) setState(() => _profile = profile);
+    } catch (e) {
+      debugPrint('[ParticipantTile] Error loading profile: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Optimization: Select only what's needed for this specific participant
-    final stream = context.select<CallProvider, MediaStream?>(
-      (p) => p.state.remoteStreams[userId],
-    );
-    final renderer = context.select<CallProvider, RTCVideoRenderer?>(
-      (p) => p.state.remoteRenderers[userId],
-    );
+    final name = _profile?.displayName ?? _profile?.username ?? (widget.isLocal ? 'You' : 'Remote User');
+    
+    TrackPublication? videoPub;
+    if (widget.useScreenShare) {
+      videoPub = widget.participant.videoTrackPublications.where((e) => e.isScreenShare).firstOrNull;
+    } else {
+      videoPub = widget.participant.videoTrackPublications.where((e) => !e.isScreenShare).firstOrNull;
+    }
+    
+    final isVideoEnabled = videoPub?.subscribed ?? false;
+    final videoTrack = videoPub?.track;
 
-    final hasRemoteVideo =
-        stream != null &&
-        stream.getVideoTracks().isNotEmpty &&
-        stream.getVideoTracks().any((t) => t.enabled);
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.grey[900],
+        borderRadius: BorderRadius.circular(12),
+        border: widget.participant.isSpeaking 
+          ? Border.all(color: Colors.blue, width: 2)
+          : null,
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: [
+          if (videoTrack != null && videoTrack is VideoTrack && isVideoEnabled)
+            VideoTrackRenderer(
+              videoTrack,
+              fit: VideoViewFit.contain,
+            )
+          else
+            Positioned.fill(
+              child: Container(
+                color: Colors.grey[900],
+                child: PulsatingParticipant(
+                  userId: widget.participant.identity,
+                  isLocal: widget.isLocal,
+                  size: 80,
+                ),
+              ),
+            ),
 
-    return ParticipantTile(
-      key: ValueKey('tile_$userId'),
-      userId: userId,
-      renderer: renderer,
-      isVideoOn: hasRemoteVideo,
-      isFull: isFull,
+          Positioned(
+            bottom: 8,
+            left: 8,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.participant.isSpeaking)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 4),
+                      child: Icon(Icons.mic, color: Colors.blue, size: 12),
+                    ),
+                  Text(
+                    name,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -458,7 +511,7 @@ class CallHeaderDisplay extends StatelessWidget {
             Icon(Icons.lock, color: Colors.green, size: 14),
             SizedBox(width: 4),
             Text(
-              'End-to-end encrypted',
+              'LiveKit Powered • End-to-end encrypted',
               style: TextStyle(color: Colors.green, fontSize: 12),
             ),
           ],
@@ -494,7 +547,6 @@ class CallControlBar extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    // Optimization: Wrap in RepaintBoundary to avoid unnecessary paints of background elements
     return RepaintBoundary(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -584,6 +636,26 @@ class CallControlBar extends StatelessWidget {
           color: isSharing ? Colors.green : Colors.white24,
         ),
         _ControlButton(
+          onPressed: () {
+            final room = provider.room;
+            if (room != null) {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.transparent,
+                builder: (context) => AddParticipantSheet(
+                  existingParticipantIds: [
+                    room.localParticipant?.identity ?? '',
+                    ...room.remoteParticipants.values.map((p) => p.identity),
+                  ],
+                ),
+              );
+            }
+          },
+          icon: Icons.person_add_alt_1,
+          color: Colors.white24,
+        ),
+        _ControlButton(
           onPressed: provider.endCall,
           icon: Icons.call_end,
           color: Colors.red,
@@ -616,72 +688,6 @@ class _ControlButton extends StatelessWidget {
         icon: Icon(icon, color: Colors.white),
         iconSize: isLarge ? 32 : 24,
         padding: EdgeInsets.all(isLarge ? 16 : 12),
-      ),
-    );
-  }
-}
-
-class VideoTile extends StatelessWidget {
-  final String name;
-  final RTCVideoRenderer? renderer;
-  final bool isLocal;
-  final String? userId;
-  final bool isVideoOn;
-
-  const VideoTile({
-    super.key,
-    required this.name,
-    this.renderer,
-    this.isLocal = false,
-    this.userId,
-    required this.isVideoOn,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          if (renderer != null)
-            Opacity(
-              opacity: isVideoOn ? 1.0 : 0.01,
-              child: RTCVideoView(
-                renderer!,
-                mirror: isLocal,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                key: ValueKey('renderer_${renderer!.hashCode}'),
-              ),
-            ),
-
-          if (!isVideoOn)
-            Positioned.fill(
-              child: Container(
-                color: Colors.grey[900],
-                child: PulsatingParticipant(userId: userId, isLocal: isLocal),
-              ),
-            ),
-
-          Positioned(
-            bottom: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                name,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -777,106 +783,6 @@ class _PulsatingParticipantState extends State<PulsatingParticipant>
                 : null,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class ParticipantTile extends StatefulWidget {
-  final String userId;
-  final RTCVideoRenderer? renderer;
-  final bool isVideoOn;
-  final bool isFull;
-
-  const ParticipantTile({
-    super.key,
-    required this.userId,
-    this.renderer,
-    required this.isVideoOn,
-    this.isFull = false,
-  });
-
-  @override
-  State<ParticipantTile> createState() => _ParticipantTileState();
-}
-
-class _ParticipantTileState extends State<ParticipantTile> {
-  UserProfileEntity? _profile;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadProfile();
-  }
-
-  @override
-  void didUpdateWidget(ParticipantTile oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.userId != widget.userId) _loadProfile();
-  }
-
-  Future<void> _loadProfile() async {
-    try {
-      final profile = await context.read<ProfileProvider>().getProfile(
-        widget.userId,
-      );
-      if (mounted) setState(() => _profile = profile);
-    } catch (e) {
-      debugPrint('[ParticipantTile] Error loading profile: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final name = _profile?.displayName ?? _profile?.username ?? 'Remote User';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: widget.isFull
-            ? BorderRadius.zero
-            : BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          if (widget.renderer != null)
-            Opacity(
-              opacity: widget.isVideoOn ? 1.0 : 0.01,
-              child: RTCVideoView(
-                widget.renderer!,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                key: ValueKey('remote_renderer_${widget.renderer!.hashCode}'),
-              ),
-            ),
-
-          if (!widget.isVideoOn)
-            Positioned.fill(
-              child: Container(
-                color: Colors.grey[900],
-                child: PulsatingParticipant(
-                  userId: widget.userId,
-                  size: widget.isFull ? 200 : 80,
-                ),
-              ),
-            ),
-
-          Positioned(
-            bottom: 8,
-            left: 8,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.black54,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                name,
-                style: const TextStyle(color: Colors.white, fontSize: 12),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

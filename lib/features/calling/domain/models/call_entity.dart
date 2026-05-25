@@ -135,4 +135,6 @@ class CallEntity {
   Duration? get duration => (endedAt != null && startedAt != null)
       ? endedAt!.difference(startedAt!)
       : null;
+
+  String get roomName => offer?['room_name'] as String? ?? id;
 }

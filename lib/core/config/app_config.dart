@@ -40,6 +40,19 @@ class AppConfig {
     return '';
   }
 
+  /// LiveKit Server URL
+  static String get liveKitUrl {
+    const fromEnv = String.fromEnvironment('LIVEKIT_URL');
+    if (fromEnv.isNotEmpty) return fromEnv;
+    return 'wss://oasis-calling.livekit.cloud'; // Default placeholder
+  }
+
+  /// Supabase project URL for function calls
+  static String get supabaseUrl {
+    const fromEnv = String.fromEnvironment('SUPABASE_URL');
+    return fromEnv;
+  }
+
   /// Helper to generate a full URL for specific paths.
   static String getWebUrl(String path) {
     final base = webBaseUrl;

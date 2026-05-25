@@ -13,7 +13,6 @@ class CallRepositoryImpl implements CallRepository {
     required String callerId,
     required String receiverId,
     required CallType type,
-    required Map<String, dynamic> offer,
   }) async {
     final now = DateTime.now();
 
@@ -25,7 +24,6 @@ class CallRepositoryImpl implements CallRepository {
           'receiver_id': receiverId,
           'type': type.name,
           'status': CallStatus.ringing.name,
-          'offer': offer,
           'created_at': now.toIso8601String(),
         })
         .select()
@@ -62,13 +60,11 @@ class CallRepositoryImpl implements CallRepository {
   Future<CallEntity> acceptCall({
     required String callId,
     required String userId,
-    required Map<String, dynamic> answer,
   }) async {
     final response = await _supabase.client
         .from('calls')
         .update({
           'status': CallStatus.active.name,
-          'answer': answer,
           'started_at': DateTime.now().toIso8601String(),
         })
         .eq('id', callId)

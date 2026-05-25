@@ -11,12 +11,10 @@ class AcceptCall {
   Future<CallEntity> call({
     required String callId,
     required String userId,
-    required Map<String, dynamic> answer,
   }) {
     return _repository.acceptCall(
       callId: callId,
       userId: userId,
-      answer: answer,
     );
   }
 }

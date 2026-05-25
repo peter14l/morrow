@@ -262,7 +262,6 @@ class ChatAppBar extends StatelessWidget {
 
           const SizedBox(width: 8),
 
-          /*
           // Right: Action buttons
           _FloatingContainer(
             isCircular: true,
@@ -310,7 +309,6 @@ class ChatAppBar extends StatelessWidget {
               ),
             ),
           ),
-          */
         ],
       ),
     );
@@ -438,7 +436,6 @@ class ChatAppBar extends StatelessWidget {
             fluent.CommandBar(
               overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
               primaryItems: [
-                /*
                 if (AppConfig.enableCalls) ...[
                   fluent.CommandBarButton(
                     icon: const Icon(FluentIcons.call_24_regular, size: 18),
@@ -449,7 +446,6 @@ class ChatAppBar extends StatelessWidget {
                     onPressed: onVideoCallPressed,
                   ),
                 ],
-                */
                 fluent.CommandBarButton(
                   icon: const Icon(FluentIcons.search_24_regular, size: 18),
                   onPressed: onSearchPressed,
