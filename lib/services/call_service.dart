@@ -48,12 +48,12 @@ class CallService extends ChangeNotifier {
   Future<void> _initBackgroundService() async {
     if (!kIsWeb && Platform.isAndroid) {
       try {
-        const androidConfig = FlutterBackgroundConfiguration(
+        final androidConfig = FlutterBackgroundAndroidConfig(
           notificationTitle: "Oasis Call",
           notificationText: "Active call in progress",
-          notificationImportance: AndroidNotificationImportance.Default,
+          notificationImportance: AndroidNotificationImportance.normal,
           notificationIcon:
-              AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
+              const AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
         );
         await FlutterBackground.initialize(androidConfig: androidConfig);
       } catch (e) {
@@ -133,12 +133,12 @@ class CallService extends ChangeNotifier {
       return;
     }
 
-    // Connect to room
+      // Connect to room
     try {
       _room = Room();
       
-      // Use createDescriptor() which is standard in many versions of livekit_client
-      final listener = _room!.createDescriptor();
+      // Use createListener() to listen for Room events
+      final listener = _room!.createListener();
       _setupRoomListeners(listener);
 
       await _room!.connect(AppConfig.liveKitUrl, token, fastConnectOptions: FastConnectOptions(
