@@ -49,11 +49,11 @@ class CallService extends ChangeNotifier {
     if (!kIsWeb && Platform.isAndroid) {
       try {
         final androidConfig = FlutterBackgroundAndroidConfig(
-          notificationTitle: "Oasis Call",
-          notificationText: "Active call in progress",
-          notificationImportance: AndroidNotificationImportance.normal,
+          notificationTitle: 'Oasis Call',
+          notificationText: 'Active call in progress',
+          notificationImportance: AndroidNotificationImportance.Default,
           notificationIcon:
-              const AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
+              AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
         );
         await FlutterBackground.initialize(androidConfig: androidConfig);
       } catch (e) {

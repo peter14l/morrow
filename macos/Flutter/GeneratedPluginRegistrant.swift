@@ -8,6 +8,8 @@ import Foundation
 import app_links
 import audio_session
 import audioplayers_darwin
+import connectivity_plus
+import device_info_plus
 import dynamic_color
 import emoji_picker_flutter
 import file_picker
@@ -22,6 +24,7 @@ import flutter_webrtc
 import gal
 import geolocator_apple
 import google_sign_in_ios
+import livekit_client
 import local_auth_darwin
 import macos_window_utils
 import package_info_plus
@@ -45,6 +48,8 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   AppLinksMacosPlugin.register(with: registry.registrar(forPlugin: "AppLinksMacosPlugin"))
   AudioSessionPlugin.register(with: registry.registrar(forPlugin: "AudioSessionPlugin"))
   AudioplayersDarwinPlugin.register(with: registry.registrar(forPlugin: "AudioplayersDarwinPlugin"))
+  ConnectivityPlusPlugin.register(with: registry.registrar(forPlugin: "ConnectivityPlusPlugin"))
+  DeviceInfoPlusMacosPlugin.register(with: registry.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
   DynamicColorPlugin.register(with: registry.registrar(forPlugin: "DynamicColorPlugin"))
   EmojiPickerFlutterPlugin.register(with: registry.registrar(forPlugin: "EmojiPickerFlutterPlugin"))
   FilePickerPlugin.register(with: registry.registrar(forPlugin: "FilePickerPlugin"))
@@ -59,6 +64,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   GalPlugin.register(with: registry.registrar(forPlugin: "GalPlugin"))
   GeolocatorPlugin.register(with: registry.registrar(forPlugin: "GeolocatorPlugin"))
   FLTGoogleSignInPlugin.register(with: registry.registrar(forPlugin: "FLTGoogleSignInPlugin"))
+  LiveKitPlugin.register(with: registry.registrar(forPlugin: "LiveKitPlugin"))
   LocalAuthPlugin.register(with: registry.registrar(forPlugin: "LocalAuthPlugin"))
   MacOSWindowUtilsPlugin.register(with: registry.registrar(forPlugin: "MacOSWindowUtilsPlugin"))
   FPPPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))

@@ -1620,10 +1620,9 @@ packages:
   liquid_glass_renderer:
     dependency: "direct main"
     description:
-      name: liquid_glass_renderer
-      sha256: "789be157494b38cdef7607bb9b63e7fe3fab76fae16149e52fa313c2d858cb3f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "plugins/flutter_liquid_glass/packages/liquid_glass_renderer"
+      relative: true
+    source: path
     version: "0.2.0-dev.4"
   livekit_client:
     dependency: "direct main"
