@@ -51,7 +51,7 @@ class CallService extends ChangeNotifier {
         const androidConfig = FlutterBackgroundConfiguration(
           notificationTitle: "Oasis Call",
           notificationText: "Active call in progress",
-          notificationImportance: AndroidNotificationImportance.normal,
+          notificationImportance: AndroidNotificationImportance.Default,
           notificationIcon:
               AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
         );
@@ -137,7 +137,8 @@ class CallService extends ChangeNotifier {
     try {
       _room = Room();
       
-      final listener = _room!.createEventsListener();
+      // Use createDescriptor() which is standard in many versions of livekit_client
+      final listener = _room!.createDescriptor();
       _setupRoomListeners(listener);
 
       await _room!.connect(AppConfig.liveKitUrl, token, fastConnectOptions: FastConnectOptions(
@@ -355,7 +356,7 @@ class CallService extends ChangeNotifier {
     if (_currentCall == null) return;
     _recordStep('Inviting user $userId to call');
 
-    await _supabase.client.from('calls').insert({
+    await _supabase.from('calls').insert({
       'conversation_id': _currentCall!.conversationId,
       'caller_id': _supabase.auth.currentUser!.id,
       'receiver_id': userId,
@@ -377,4 +378,23 @@ class CallService extends ChangeNotifier {
     _room?.dispose();
     super.dispose();
   }
+}
+
+class DisabledCallService extends CallService {
+  @override
+  Future<void> initLocalStream(bool isVideo) async {}
+  @override
+  Future<void> startSignaling(CallEntity call) async {}
+  @override
+  void startIncomingCallListener() {}
+  @override
+  Future<void> endCall() async {}
+  @override
+  void toggleMute() {}
+  @override
+  Future<void> toggleVideo() async {}
+  @override
+  void toggleSpeakerphone() {}
+  @override
+  Future<void> toggleScreenShare() async {}
 }

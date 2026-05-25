@@ -645,12 +645,11 @@ class AppInitializer {
               debugPrint(
                 'CallService not found during CallProvider creation: $e',
               );
-              callService = DisabledCallService();
             }
 
             final repo = CallRepositoryImpl();
             return CallProvider(
-              callService: callService,
+              callService: callService ?? DisabledCallService(),
               initiateCall: InitiateCall(repo),
               acceptCall: AcceptCall(repo),
               endCall: EndCall(repo),
