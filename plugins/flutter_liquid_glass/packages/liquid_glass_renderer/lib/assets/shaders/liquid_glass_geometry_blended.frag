@@ -42,13 +42,7 @@ void main() {
         return;
     }
     
-    float dx = dFdx(sd);
-    float dy = dFdy(sd);
-    
-    float n_cos = max(uThickness + sd, 0.0) / uThickness;
-    float n_sin = sqrt(max(0.0, 1.0 - n_cos * n_cos));
-    
-    vec3 normal = normalize(vec3(dx * n_cos, dy * n_cos, n_sin));
+    vec3 normal = getNormal(fragCoord, int(uNumShapes), uBlend, uThickness);
     
     if (sd >= 0.0 || uThickness <= 0.0) {
         fragColor = vec4(0.0);

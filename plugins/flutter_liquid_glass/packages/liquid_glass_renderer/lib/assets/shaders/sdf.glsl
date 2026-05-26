@@ -107,13 +107,20 @@ float sceneSDF(vec2 p, int numShapes, float blend) {
     return result;
 }
 
-// Calculate 3D normal using derivatives (shader-specific normal calculation)
-vec3 getNormal(float sd, float thickness) {
-    float dx = dFdx(sd);
-    float dy = dFdy(sd);
+// Calculate 3D normal using numerical derivatives (portable across Windows/Web)
+vec3 getNormal(vec2 p, int numShapes, float blend, float thickness) {
+    // We use a small epsilon for numerical differentiation
+    // This is more portable than dFdx/dFdy which aren't supported in all Flutter targets
+    const float h = 0.5;
+    
+    float d = sceneSDF(p, numShapes, blend);
+    
+    // Central difference for better accuracy
+    float dx = (sceneSDF(p + vec2(h, 0.0), numShapes, blend) - sceneSDF(p - vec2(h, 0.0), numShapes, blend)) / (2.0 * h);
+    float dy = (sceneSDF(p + vec2(0.0, h), numShapes, blend) - sceneSDF(p - vec2(0.0, h), numShapes, blend)) / (2.0 * h);
     
     // The cosine and sine between normal and the xy plane
-    float n_cos = max(thickness + sd, 0.0) / thickness;
+    float n_cos = max(thickness + d, 0.0) / thickness;
     float n_sin = sqrt(max(0.0, 1.0 - n_cos * n_cos));
     
     return normalize(vec3(dx * n_cos, dy * n_cos, n_sin));
