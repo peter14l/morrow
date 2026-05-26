@@ -173,10 +173,11 @@ class NavigationPaneThemeData with Diagnosticable {
     required Duration animationDuration,
     required Color highlightColor,
     required Typography typography,
+    Curve? animationCurve,
   }) {
     return NavigationPaneThemeData(
       animationDuration: animationDuration,
-      animationCurve: entranceCurve, // Use more fluid WinUI 3 entrance curve
+      animationCurve: animationCurve ?? entranceCurve, // Use more fluid WinUI 3 entrance curve
       backgroundColor: resources.solidBackgroundFillColorBase,
       overlayBackgroundColor: resources.systemFillColorSolidNeutralBackground,
       highlightColor: highlightColor,

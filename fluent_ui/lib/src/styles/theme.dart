@@ -586,7 +586,7 @@ class FluentThemeData with Diagnosticable {
     dialogTheme ??= const ContentDialogThemeData();
     tooltipTheme ??= const TooltipThemeData();
     dividerTheme ??= const DividerThemeData();
-    navigationPaneTheme = NavigationPaneThemeData.fromResources(
+    final resolvedNavigationPaneTheme = NavigationPaneThemeData.fromResources(
       resources: resources,
       animationCurve: animationCurve,
       animationDuration: fastAnimationDuration,
@@ -625,7 +625,7 @@ class FluentThemeData with Diagnosticable {
       focusTheme: focusTheme,
       iconTheme: iconTheme,
       infoBarTheme: infoBarTheme,
-      navigationPaneTheme: navigationPaneTheme,
+      navigationPaneTheme: resolvedNavigationPaneTheme,
       radioButtonTheme: radioButtonTheme,
       scrollbarTheme: scrollbarTheme,
       sliderTheme: sliderTheme,
