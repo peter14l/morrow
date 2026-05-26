@@ -1,6 +1,8 @@
 // Shape array uniforms - 6 floats per shape (type, centerX, centerY, sizeW, sizeH, cornerRadius)
 // Reduced from 64 to 16 shapes to fit Impeller's uniform buffer limit (16 * 6 = 96 floats vs 384)
+#ifndef MAX_SHAPES
 #define MAX_SHAPES 16
+#endif
 
 float sdfRRect( in vec2 p, in vec2 b, in float r ) {
     float shortest = min(b.x, b.y);

@@ -10,8 +10,6 @@ precision mediump float;
 #define DEBUG_GEOMETRY 0
 
 #include <flutter/runtime_effect.glsl>
-#include "displacement_encoding.glsl"
-#include "render.glsl"
 
 uniform vec2 uSize;
 uniform vec2 uGeometryOffset;
@@ -22,15 +20,18 @@ uniform vec3 uOpticalProps;
 uniform vec3 uLightConfig;
 uniform vec2 uLightDirection;
 
+uniform sampler2D uBackgroundTexture;
+uniform sampler2D uGeometryTexture;
+
+#include "displacement_encoding.glsl"
+#include "render.glsl"
+
 float uRefractiveIndex = uOpticalProps.x;
 float uChromaticAberration = uOpticalProps.y;
 float uThickness = uOpticalProps.z;
 float uLightIntensity = uLightConfig.x;
 float uAmbientStrength = uLightConfig.y;
 float uSaturation = uLightConfig.z;
-
-uniform sampler2D uBackgroundTexture;
-uniform sampler2D uGeometryTexture;
 
 layout(location = 0) out vec4 fragColor;
 

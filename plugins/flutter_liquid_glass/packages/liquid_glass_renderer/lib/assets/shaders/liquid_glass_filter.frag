@@ -12,11 +12,9 @@
 precision mediump float;
 
 #define DEBUG_NORMALS 0
+#define MAX_SHAPES 16
 
 #include <flutter/runtime_effect.glsl>
-#define BACKGROUND_TEXTURE uBlurredTexture
-#include "shared.glsl"
-#include "sdf.glsl"
 
 // Optimized uniform layout - grouped into vectors for better performance
 layout(location = 0) uniform vec2 uSize;                    // width, height
@@ -24,6 +22,14 @@ layout(location = 1) uniform vec4 uGlassColor;             // r, g, b, a
 layout(location = 2) uniform vec4 uOpticalProps;           // refractiveIndex, chromaticAberration, thickness, blend
 layout(location = 3) uniform vec4 uLightConfig;            // angle, intensity, ambient, saturation
 layout(location = 4) uniform vec2 uLightDirection;         // pre-computed cos(angle), sin(angle)
+layout(location = 5) uniform float uNumShapes;             // numShapes  
+layout(location = 6) uniform float uShapeData[MAX_SHAPES * 6];
+
+uniform sampler2D uBlurredTexture;
+
+#define BACKGROUND_TEXTURE uBlurredTexture
+#include "shared.glsl"
+#include "sdf.glsl"
 
 // Extract individual values for backward compatibility
 float uChromaticAberration = uOpticalProps.y;
@@ -35,10 +41,6 @@ float uRefractiveIndex = uOpticalProps.x;
 float uBlend = uOpticalProps.w;
 float uSaturation = uLightConfig.w;
 
-layout(location = 5) uniform float uNumShapes;             // numShapes  
-layout(location = 6) uniform float uShapeData[MAX_SHAPES * 6];
-
-uniform sampler2D uBlurredTexture;
 layout(location = 0) out vec4 fragColor;
 
 void main() {

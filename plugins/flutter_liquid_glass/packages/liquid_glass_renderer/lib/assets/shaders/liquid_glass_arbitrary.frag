@@ -3,14 +3,13 @@
 // Alternative liquid glass shader with different normal calculation approach
 // This demonstrates how the shared rendering pipeline makes it easy to create variants
 
-#version 320 es
+#version 460 core
 precision mediump float;
 
 #define DEBUG_NORMALS 0
 #define DEBUG_BLUR_MATTE 0
 
 #include <flutter/runtime_effect.glsl>
-#include "shared.glsl"
 
 // Optimized uniform layout - grouped into vectors for 50% fewer API calls
 layout(location = 0) uniform vec2 uSize;                    // width, height (auto-set by Flutter)
@@ -21,6 +20,16 @@ layout(location = 4) uniform vec4 uLightConfig;            // angle, intensity, 
 layout(location = 5) uniform vec2 uTransformData;          // offsetX, offsetY
 layout(location = 6) uniform vec2 uLightDirection;         // pre-computed cos(angle), sin(angle)
 layout(location = 7) uniform mat4 uTransform;              // transform matrix
+
+uniform sampler2D uBackgroundTexture;
+uniform sampler2D uForegroundTexture;
+
+// A pre-blurred version of the foreground texture.
+// This will be eroded, so that the alpha is always 0 at the edge.
+// This is used to calculate the normal.
+uniform sampler2D uForegroundBlurredTexture;
+
+#include "shared.glsl"
 
 // Extract individual values for backward compatibility
 float uChromaticAberration = uOpticalProps.y;
@@ -33,13 +42,6 @@ vec2 uOffset = uTransformData.xy;
 float uSaturation = uLightConfig.w;
 float uGaussianBlur = uOpticalProps.w;
 
-uniform sampler2D uBackgroundTexture;
-uniform sampler2D uForegroundTexture;
-
-// A pre-blurred version of the foreground texture.
-// This will be eroded, so that the alpha is always 0 at the edge.
-// This is used to calculate the normal.
-uniform sampler2D uForegroundBlurredTexture;
 layout(location = 0) out vec4 fragColor;
 
 
