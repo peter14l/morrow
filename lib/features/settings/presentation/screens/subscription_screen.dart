@@ -111,8 +111,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         ),
       );
 
-      if (isDesktop)
+      if (isDesktop) {
         return Material(color: Colors.transparent, child: proContent);
+      }
 
       return Scaffold(
         appBar: AppBar(
@@ -457,8 +458,9 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       ),
     );
 
-    if (isDesktop)
+    if (isDesktop) {
       return Material(color: Colors.transparent, child: upgradeContent);
+    }
 
     return Scaffold(
       backgroundColor: colorScheme.surface,

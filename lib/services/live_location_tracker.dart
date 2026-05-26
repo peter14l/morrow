@@ -47,7 +47,7 @@ class LiveLocationTracker {
     _expiresAt = DateTime.now().add(duration);
 
     // Initial position
-    Position position = await Geolocator.getCurrentPosition();
+    final Position position = await Geolocator.getCurrentPosition();
     await _updateLocationOnServer(position);
 
     _positionStream =

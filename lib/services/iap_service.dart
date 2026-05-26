@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class IAPService extends ChangeNotifier {
   static final IAPService _instance = IAPService._internal();
@@ -30,7 +28,7 @@ class IAPService extends ChangeNotifier {
     if (!_isAvailable) return;
 
     try {
-      Offerings offerings = await Purchases.getOfferings();
+      final Offerings offerings = await Purchases.getOfferings();
       if (offerings.current != null) {
         _packages = offerings.current!.availablePackages;
         notifyListeners();
@@ -56,8 +54,4 @@ class IAPService extends ChangeNotifier {
     }
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

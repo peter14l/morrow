@@ -3,7 +3,6 @@ import 'package:oasis/features/stories/domain/models/story_entity.dart';
 import 'package:oasis/services/spotify_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -796,9 +795,9 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               ],
             ),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Drag to choose which 15 seconds plays in your story',
-              style: const TextStyle(color: Colors.white38, fontSize: 12),
+              style: TextStyle(color: Colors.white38, fontSize: 12),
             ),
             const SizedBox(height: 8),
             // Trim slider
@@ -836,9 +835,9 @@ class _ArtworkPickerSheetState extends State<_ArtworkPickerSheet> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     '0:00',
-                    style: const TextStyle(color: Colors.white38, fontSize: 10),
+                    style: TextStyle(color: Colors.white38, fontSize: 10),
                   ),
                   Text(
                     _formatSeconds(_previewDurationSec / 2),

@@ -17,12 +17,13 @@ class RecognizedShape {
 
 class ShapeRecognizer {
   static RecognizedShape recognize(List<Offset> points) {
-    if (points.length < 10)
+    if (points.length < 10) {
       return RecognizedShape(
         type: RecognizedShapeType.unknown,
         bounds: Rect.zero,
         points: [],
       );
+    }
 
     double minX = points[0].dx;
     double maxX = points[0].dx;

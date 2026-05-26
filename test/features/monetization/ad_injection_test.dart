@@ -207,7 +207,7 @@ void main() {
         final callback = invocation.positionalArguments[0] as Function;
         return Future.value(ripples).then(
           (value) => callback(value),
-          onError: invocation.namedArguments[Symbol('onError')],
+          onError: invocation.namedArguments[const Symbol('onError')],
         );
       });
 
@@ -256,7 +256,7 @@ void main() {
         final callback = invocation.positionalArguments[0] as Function;
         return Future.value(ripples).then(
           (value) => callback(value),
-          onError: invocation.namedArguments[Symbol('onError')],
+          onError: invocation.namedArguments[const Symbol('onError')],
         );
       });
 

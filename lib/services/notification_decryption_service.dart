@@ -37,7 +37,7 @@ class NotificationDecryptionService {
     Map<String, dynamic> data, {
     String? targetUserId,
   }) async {
-    String? content = data['body'] ?? data['content'] ?? data['message'];
+    final String? content = data['body'] ?? data['content'] ?? data['message'];
     if (content == null) return null;
 
     // If it's the generic placeholder, try to find actual ciphertext in signal_sender_content or data['body']

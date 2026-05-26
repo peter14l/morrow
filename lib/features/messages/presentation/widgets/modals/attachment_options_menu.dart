@@ -41,56 +41,56 @@ class AttachmentOptionsMenu extends StatelessWidget {
       items: <PopupMenuEntry>[
         PopupMenuItem(
           onTap: onPhotoSelected,
-          child: Row(
+          child: const Row(
             children: [
               Icon(
                 Icons.image_rounded,
                 size: 20,
-                color: const Color(0xFF3D8BFF),
+                color: Color(0xFF3D8BFF),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text('Photo'),
             ],
           ),
         ),
         PopupMenuItem(
           onTap: onVideoSelected,
-          child: Row(
+          child: const Row(
             children: [
               Icon(
                 Icons.videocam_rounded,
                 size: 20,
-                color: const Color(0xFFFF6B6B),
+                color: Color(0xFFFF6B6B),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text('Video'),
             ],
           ),
         ),
         PopupMenuItem(
           onTap: onFileSelected,
-          child: Row(
+          child: const Row(
             children: [
               Icon(
                 Icons.insert_drive_file_rounded,
                 size: 20,
-                color: const Color(0xFF51CF66),
+                color: Color(0xFF51CF66),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text('File'),
             ],
           ),
         ),
         PopupMenuItem(
           onTap: onAudioSelected,
-          child: Row(
+          child: const Row(
             children: [
               Icon(
                 Icons.audio_file_rounded,
                 size: 20,
-                color: const Color(0xFFFFD43B),
+                color: Color(0xFFFFD43B),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text('Audio'),
             ],
           ),

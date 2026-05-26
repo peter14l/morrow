@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/subscription_service.dart';

@@ -58,7 +58,7 @@ class ChatSettingsProvider with ChangeNotifier {
           bgUrl = fetchedBgUrl;
           // Update local cache
           if (bgUrl != null) {
-            await prefs.setString(bgKey, bgUrl!);
+            await prefs.setString(bgKey, bgUrl);
           } else {
             await prefs.remove(bgKey);
           }
@@ -129,7 +129,7 @@ class ChatSettingsProvider with ChangeNotifier {
     final oldMode = currentWhisperMode ?? _whisperMode;
 
     // Toggle logic: OFF <-> Last Active
-    int newMode = oldMode == 0 ? _lastActiveWhisperMode : 0;
+    final int newMode = oldMode == 0 ? _lastActiveWhisperMode : 0;
 
     final ephemeralDuration = newMode == 1 ? 0 : 86400;
 

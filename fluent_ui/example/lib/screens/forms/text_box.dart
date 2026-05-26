@@ -3,7 +3,7 @@ import 'package:example/widgets/page.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
 class TextBoxPage extends StatelessWidget with PageMixin {
-  TextBoxPage({super.key});
+  const TextBoxPage({super.key});
 
   @override
   Widget build(final BuildContext context) {

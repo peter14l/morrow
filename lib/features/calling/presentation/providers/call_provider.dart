@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:oasis/services/call_service.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/core/providers/safe_change_notifier.dart';
 import '../../domain/models/call_entity.dart';
@@ -218,27 +217,20 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
         type: type,
       );
 
-      if (call != null) {
-        // 3. Connect to LiveKit room and start ringtone
-        await _callService.startSignaling(call);
-        await _callService.startRingtone();
+      // 3. Connect to LiveKit room and start ringtone
+      await _callService.startSignaling(call);
+      await _callService.startRingtone();
 
-        _state = _state.copyWith(activeCall: call, isLoading: false);
+      _state = _state.copyWith(activeCall: call, isLoading: false);
 
-        // 4. Start ringing timeout (30 seconds)
-        _ringingTimer?.cancel();
-        _ringingTimer = Timer(const Duration(seconds: 30), () {
-          if (_state.activeCall?.status == CallStatus.ringing) {
-            endCall();
-          }
-        });
-      } else {
-        _state = _state.copyWith(
-          isLoading: false,
-          error: 'Failed to create call',
-        );
-      }
-
+      // 4. Start ringing timeout (30 seconds)
+      _ringingTimer?.cancel();
+      _ringingTimer = Timer(const Duration(seconds: 30), () {
+        if (_state.activeCall?.status == CallStatus.ringing) {
+          endCall();
+        }
+      });
+    
       notifyListeners();
       return call;
     } catch (e) {

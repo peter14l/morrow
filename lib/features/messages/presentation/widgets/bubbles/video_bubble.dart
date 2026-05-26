@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/presentation/screens/image_preview_screen.dart';
@@ -134,7 +133,7 @@ class _VideoBubbleState extends State<VideoBubble> {
         decoration: BoxDecoration(
           color: widget.isMe
               ? Colors.black.withValues(alpha: 0.1)
-              : theme.colorScheme.surfaceVariant.withValues(alpha: 0.5),
+              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,

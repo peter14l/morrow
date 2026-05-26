@@ -24,7 +24,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/widgets/desktop_header.dart';
 import 'package:oasis/widgets/custom_text_field.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/routes/app_router.dart';
@@ -382,7 +381,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
     final useFluent = themeProvider.useFluentUI;
 
-    Widget desktopContent = Container(
+    final Widget desktopContent = Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [

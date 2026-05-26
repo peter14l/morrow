@@ -1,6 +1,5 @@
 import 'dart:ui';
 import 'package:universal_io/io.dart';
-import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart'
     show
         Colors,
@@ -106,14 +105,9 @@ import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/services/auth_service.dart';
-import 'package:oasis/features/messages/domain/models/message.dart';
-import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/widgets/moderation_dialogs.dart';
-import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/feed/presentation/widgets/polls/poll_widgets.dart';
 import 'package:oasis/widgets/spoiler_widget.dart';
-import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/features/circles/domain/models/circles_models.dart';
 import 'package:oasis/themes/theme_provider.dart';
@@ -886,7 +880,7 @@ class _PostCardState extends State<PostCard>
                         icon: const Icon(fluent.FluentIcons.share, size: 20),
                         onPressed: widget.onShare,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       fluent.IconButton(
                         icon: Icon(
                           widget.post.isBookmarked
@@ -1282,7 +1276,7 @@ class _PostCardState extends State<PostCard>
                         padding: const EdgeInsets.all(8),
                         constraints: null,
                       ),
-                      Spacer(),
+                      const Spacer(),
                       IconButton(
                         key: const ValueKey('post_card_bookmark_button'),
                         icon: Icon(

@@ -1,11 +1,8 @@
-import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/services/geofence_monitor_service.dart';
 import 'package:oasis/services/home_location_service.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
-import 'package:oasis/models/home_location.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -35,8 +32,8 @@ void main() {
 
         // Current location: ~50m away from home
         // 37.7754, -122.4198 is approximately 50m away
-        final currentLat = 37.7754;
-        final currentLon = -122.4198;
+        const currentLat = 37.7754;
+        const currentLon = -122.4198;
 
         final result = await service.isWithinGeofence(currentLat, currentLon);
 
@@ -49,8 +46,8 @@ void main() {
 
         // Current location: ~500m away from home
         // 37.78, -122.42 is approximately 600m away
-        final currentLat = 37.78;
-        final currentLon = -122.42;
+        const currentLat = 37.78;
+        const currentLon = -122.42;
 
         final result = await service.isWithinGeofence(currentLat, currentLon);
 

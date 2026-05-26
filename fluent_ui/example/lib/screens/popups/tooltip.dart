@@ -5,7 +5,7 @@ import 'package:example/widgets/page.dart';
 import 'package:fluent_ui/fluent_ui.dart';
 
 class TooltipPage extends StatelessWidget with PageMixin {
-  TooltipPage({super.key});
+  const TooltipPage({super.key});
 
   @override
   Widget build(final BuildContext context) {

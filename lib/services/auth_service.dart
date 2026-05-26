@@ -1,8 +1,6 @@
 import 'package:oasis/core/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer' as developer;
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/auth/domain/models/app_user.dart' as app_models;
@@ -346,8 +344,9 @@ class AuthService with ChangeNotifier {
     await _providersDelegate.signInWithGoogle(forceSignIn: forceSignIn);
 
     final user = _supabase.auth.currentUser;
-    if (user == null)
+    if (user == null) {
       throw const AuthException('Failed to sign in with Google');
+    }
 
     // Handle profile creation if needed
     await _ensureProfileExists(user);
@@ -392,8 +391,9 @@ class AuthService with ChangeNotifier {
         '_',
       );
       if (sanitizedUsername.length < 3) sanitizedUsername += '_user';
-      if (sanitizedUsername.length > 30)
+      if (sanitizedUsername.length > 30) {
         sanitizedUsername = sanitizedUsername.substring(0, 30);
+      }
 
       final existing = await _supabase
           .from(SupabaseConfig.profilesTable)

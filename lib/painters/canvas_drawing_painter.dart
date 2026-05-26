@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui' as ui;
 
 class DrawingPoint {
   final Offset point;
@@ -32,15 +31,13 @@ class CanvasDrawingPainter extends CustomPainter {
       }
 
       // Ensure we have a paint style for the current segment
-      if (currentPaint == null) {
-        currentPaint = Paint()
+      currentPaint ??= Paint()
           ..color = point.paint.color
           ..strokeCap = StrokeCap.round
           ..strokeJoin = StrokeJoin.round
           ..strokeWidth = point.paint.strokeWidth
           ..style = PaintingStyle.stroke
           ..isAntiAlias = true;
-      }
 
       if (path.getBounds().isEmpty) {
         path.moveTo(point.point.dx, point.point.dy);

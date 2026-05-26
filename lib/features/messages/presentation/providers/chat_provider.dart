@@ -316,7 +316,7 @@ class ChatProvider with ChangeNotifier {
     }
 
     // Fall back to RSA encryption (legacy)
-    String? recipientPublicKey = _publicKeyCache[recipientId];
+    final String? recipientPublicKey = _publicKeyCache[recipientId];
     if (recipientPublicKey != null) {
       try {
         final encrypted = await _encryptionService.encryptMessage(content, [
@@ -779,10 +779,12 @@ class ChatProvider with ChangeNotifier {
 
       final senderPublicKey = await _authService.getPublicKey(userId);
       final List<String> mediaRecipientPublicKeys = [];
-      if (recipientPublicKey != null)
+      if (recipientPublicKey != null) {
         mediaRecipientPublicKeys.add(recipientPublicKey);
-      if (senderPublicKey != null)
+      }
+      if (senderPublicKey != null) {
         mediaRecipientPublicKeys.add(senderPublicKey);
+      }
 
       // Use PQ-Aura -> Signal -> RSA fallback encryption
       if (_encryptionService.isInitialized && content.isNotEmpty) {
@@ -812,9 +814,9 @@ class ChatProvider with ChangeNotifier {
       String? finalMimeType;
       MediaUploadResult? uploadResult;
 
-      final onProgress = (double progress) {
+      void onProgress(double progress) {
         _updateMessageProgress(optimisticMessage.id, progress);
-      };
+      }
 
       if (imageFile != null) {
         uploadResult = await _chatMediaService.uploadAndEncryptMedia(
@@ -994,7 +996,7 @@ class ChatProvider with ChangeNotifier {
     setState((s) => s.copyWith(isSending: true, replyMessage: null));
 
     try {
-      String content = '[GIF]';
+      const String content = '[GIF]';
       final recipientId = otherUserId ?? state.otherUserId;
 
       EncryptedContent? encrypted;
@@ -1041,7 +1043,7 @@ class ChatProvider with ChangeNotifier {
     setState((s) => s.copyWith(isSending: true, replyMessage: null));
 
     try {
-      String content = '[STICKER]';
+      const String content = '[STICKER]';
       final recipientId = otherUserId ?? state.otherUserId;
 
       EncryptedContent? encrypted;
@@ -1543,10 +1545,12 @@ class ChatProvider with ChangeNotifier {
       final recipientPublicKey = await _authService.getPublicKey(recipientId);
       final senderPublicKey = await _authService.getPublicKey(userId);
       final List<String> mediaRecipientPublicKeys = [];
-      if (recipientPublicKey != null)
+      if (recipientPublicKey != null) {
         mediaRecipientPublicKeys.add(recipientPublicKey);
-      if (senderPublicKey != null)
+      }
+      if (senderPublicKey != null) {
         mediaRecipientPublicKeys.add(senderPublicKey);
+      }
 
       final uploadResult = await _chatMediaService.uploadAndEncryptMedia(
         filePath: audioPath,

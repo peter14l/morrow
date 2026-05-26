@@ -1,15 +1,7 @@
-import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
 import 'package:oasis/services/notification_decryption_service.dart';
 import 'package:oasis/features/notifications/domain/models/notification_entity.dart';
-import 'package:oasis/features/messages/data/encryption_service.dart';
-import 'package:oasis/features/messages/data/signal/signal_service.dart';
-import 'package:oasis/services/auth_service.dart';
 
-@GenerateMocks([EncryptionService, SignalService, AuthService])
-import 'notification_decryption_test.mocks.dart';
 
 void main() {
   late NotificationDecryptionService decryptionService;
@@ -36,7 +28,7 @@ void main() {
       'decryptMessage should return placeholder if content looks like ciphertext and metadata is missing',
       () async {
         // Long string without spaces (likely ciphertext)
-        final ciphertext =
+        const ciphertext =
             'SGVsbG8gd29ybGQgdGhpcyBpcyBhIHZlcnkgbG9uZyBlbmNyeXB0ZWQgbWVzc2FnZSB0aGF0IHNob3VsZCBiZSBkZXRlY3RlZA==';
         final data = {'body': ciphertext};
         final result = await decryptionService.decryptMessage(data);
@@ -48,7 +40,7 @@ void main() {
       'decryptMessage should return placeholder if content is short but looks like base64 and metadata is missing',
       () async {
         // Short base64 string
-        final ciphertext = 'SGVsbG8gd29ybGQ=';
+        const ciphertext = 'SGVsbG8gd29ybGQ=';
         final data = {'body': ciphertext};
         final result = await decryptionService.decryptMessage(data);
         expect(result, '🔒 Encrypted message');

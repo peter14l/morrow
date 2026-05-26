@@ -1,5 +1,4 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'hive_service.dart';
 
 /// Generic cache service with TTL support
 class CacheService<T> {

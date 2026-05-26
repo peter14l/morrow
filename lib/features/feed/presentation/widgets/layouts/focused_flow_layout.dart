@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
-import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
-import 'package:oasis/themes/app_colors.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
 
 class FocusedFlowLayout extends StatefulWidget {
@@ -114,12 +112,12 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
                 final post = posts[index];
 
                 // Calculate scale and opacity based on distance from current page
-                double relativePosition = index - _currentPage;
-                double scale = (1 - (relativePosition.abs() * 0.2)).clamp(
+                final double relativePosition = index - _currentPage;
+                final double scale = (1 - (relativePosition.abs() * 0.2)).clamp(
                   0.8,
                   1.0,
                 );
-                double opacity = (1 - (relativePosition.abs() * 0.5)).clamp(
+                final double opacity = (1 - (relativePosition.abs() * 0.5)).clamp(
                   0.4,
                   1.0,
                 );
@@ -187,7 +185,7 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
               child: Center(
                 child: motion.Animate(
                   onPlay: (c) => c.repeat(),
-                  effects: [
+                  effects: const [
                     motion.FadeEffect(duration: Duration(seconds: 2)),
                     motion.MoveEffect(
                       begin: Offset(0, 0),
@@ -233,7 +231,7 @@ class _FocusedFlowLayoutState extends State<FocusedFlowLayout> {
           Icon(Icons.timer_outlined, size: 14, color: colorScheme.primary),
           const SizedBox(width: 8),
           Text(
-            'Limit: ${wellbeing.totalMinutes}m / $threshold\m',
+            'Limit: ${wellbeing.totalMinutes}m / ${threshold}m',
             style: const TextStyle(
               fontSize: 10,
               color: Colors.white70,

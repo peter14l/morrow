@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';

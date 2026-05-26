@@ -19,27 +19,27 @@ void main() {
   print('Typing faster: ${typingInterval < msgInterval ? "OK" : "FAIL"}');
 
   // Test data handling
-  var empty = <dynamic>[];
+  final empty = <dynamic>[];
   print('Empty list: ${empty.isEmpty}');
 
   Map<String, dynamic>? nullMap;
   print('Null map: ${nullMap == null}');
 
-  var row = <String, dynamic>{'status': 'online'};
+  final row = <String, dynamic>{'status': 'online'};
   print('Map has status: ${row['status'] == "online"}');
 
   // Test dedupe
-  var seen = <String>{};
+  final seen = <String>{};
   seen.add('a');
   seen.add('a'); // duplicate
   print('Dedupe: ${seen.length == 1}');
 
   // Test filter
-  var receipts = [
+  final receipts = [
     {'msg': 'm1', 'conv': 'c1'},
     {'msg': 'm2', 'conv': 'c2'},
   ];
-  var filtered = receipts.where((r) => r['conv'] == 'c1').toList();
+  final filtered = receipts.where((r) => r['conv'] == 'c1').toList();
   print('Filter: ${filtered.length == 1}');
   print('Filter result: ${filtered.first['msg']}');
 

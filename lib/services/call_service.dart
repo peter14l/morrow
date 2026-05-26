@@ -48,10 +48,10 @@ class CallService extends ChangeNotifier {
   Future<void> _initBackgroundService() async {
     if (!kIsWeb && Platform.isAndroid) {
       try {
-        final androidConfig = FlutterBackgroundAndroidConfig(
+        const androidConfig = FlutterBackgroundAndroidConfig(
           notificationTitle: 'Oasis Call',
           notificationText: 'Active call in progress',
-          notificationImportance: AndroidNotificationImportance.Default,
+          notificationImportance: AndroidNotificationImportance.normal,
           notificationIcon:
               AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
         );
@@ -73,7 +73,7 @@ class CallService extends ChangeNotifier {
         ),
         iOS: AudioContextIOS(
           category: AVAudioSessionCategory.playAndRecord,
-          options: {
+          options: const {
             AVAudioSessionOptions.allowBluetooth,
             AVAudioSessionOptions.defaultToSpeaker,
           },
@@ -142,7 +142,7 @@ class CallService extends ChangeNotifier {
       _setupRoomListeners(listener);
 
       await _room!.connect(AppConfig.liveKitUrl, token, fastConnectOptions: FastConnectOptions(
-        microphone: TrackOption(enabled: true),
+        microphone: const TrackOption(enabled: true),
         camera: TrackOption(enabled: _isVideoOn),
       ));
 

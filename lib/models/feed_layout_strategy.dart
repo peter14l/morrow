@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 
 /// Enum representing different feed layout types
-enum FeedLayoutType { classic, spatial, focused, canvas }
+enum FeedLayoutType { classic, spatial, focused, canvas, standard, zenCarousel, pulseMap }
 
 /// Type of interaction with a post
 enum InteractionType { like, comment, share, bookmark, expand, view }
@@ -41,6 +41,12 @@ extension FeedLayoutTypeExtension on FeedLayoutType {
         return 'Focused Flow';
       case FeedLayoutType.canvas:
         return 'Living Canvas';
+      case FeedLayoutType.standard:
+        return 'Standard';
+      case FeedLayoutType.zenCarousel:
+        return 'Zen Carousel';
+      case FeedLayoutType.pulseMap:
+        return 'Pulse Map';
     }
   }
 
@@ -53,7 +59,13 @@ extension FeedLayoutTypeExtension on FeedLayoutType {
       case FeedLayoutType.focused:
         return Icons.filter_center_focus_rounded;
       case FeedLayoutType.canvas:
-        return Icons.brush_rounded;
+        return Icons.auto_awesome_mosaic_rounded;
+      case FeedLayoutType.standard:
+        return Icons.view_day_rounded;
+      case FeedLayoutType.zenCarousel:
+        return Icons.view_carousel_rounded;
+      case FeedLayoutType.pulseMap:
+        return Icons.hub_rounded;
     }
   }
 }

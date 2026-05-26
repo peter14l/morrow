@@ -1,5 +1,4 @@
 import 'package:oasis/services/subscription_service.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/feed/domain/repositories/feed_repository.dart';
 import 'package:oasis/features/feed/data/datasources/feed_remote_datasource.dart';

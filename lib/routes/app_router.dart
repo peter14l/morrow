@@ -31,7 +31,6 @@ import 'package:oasis/features/messages/presentation/screens/direct_messages_scr
 import 'package:oasis/features/messages/presentation/screens/chat_screen.dart';
 import 'package:oasis/features/messages/presentation/screens/new_message_screen.dart';
 import 'package:oasis/providers/conversation_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
@@ -39,8 +38,6 @@ import 'package:oasis/widgets/security_upgrade_banner.dart';
 import 'package:oasis/widgets/security_pin_sheet.dart';
 import 'package:oasis/widgets/encryption_pin_overlay.dart';
 import 'package:oasis/features/calling/presentation/screens/calling_screen.dart';
-import 'package:oasis/features/calling/domain/models/call_entity.dart';
-import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:oasis/screens/settings_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/subscription_screen.dart';
@@ -84,13 +81,9 @@ import '../features/capsules/presentation/screens/capsule_view_screen.dart';
 import '../features/circles/presentation/screens/circle_join_screen.dart';
 import 'package:oasis/features/ripples/presentation/screens/ripples_screen.dart';
 import 'package:oasis/features/ripples/presentation/screens/create_ripple_screen.dart';
-import '../screens/oasis_pro_screen.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
-import 'package:oasis/widgets/glassmorphic_fab.dart';
-import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 
-import 'package:oasis/features/wellness/presentation/screens/wellness_center_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/changelog_screen.dart';
 import 'package:oasis/features/auth/presentation/widgets/account_switcher_sheet.dart';
 import 'package:oasis/features/settings/presentation/screens/wellness_stats_screen.dart';
@@ -354,7 +347,7 @@ class _MainLayoutState extends State<MainLayout> {
           }
         }
 
-        Widget mainContent = widget.child;
+        final Widget mainContent = widget.child;
         final contentWithPanels = _buildMainContentWithPanels(
           mainContent: mainContent,
           isDesktop: isDesktop,
@@ -399,8 +392,8 @@ class _MainLayoutState extends State<MainLayout> {
                     body: contentWithPanels,
                   ),
                   fluent.PaneItem(
-                    icon: UnreadMessagesBadge(
-                      child: const Icon(FluentIcons.chat_24_regular),
+                    icon: const UnreadMessagesBadge(
+                      child: Icon(FluentIcons.chat_24_regular),
                     ),
                     title: const Text('Messages'),
                     body: contentWithPanels,
@@ -513,7 +506,7 @@ class _MainLayoutState extends State<MainLayout> {
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.spa_rounded,
                                       color: OasisColors.glow,
                                       size: 80,
@@ -564,23 +557,23 @@ class _MainLayoutState extends State<MainLayout> {
 
         if (isDesktop) {
           return Shortcuts(
-            shortcuts: <ShortcutActivator, Intent>{
-              const SingleActivator(LogicalKeyboardKey.digit1, control: true):
-                  const _SwitchTabIntent(0),
-              const SingleActivator(LogicalKeyboardKey.digit2, control: true):
-                  const _SwitchTabIntent(1),
-              const SingleActivator(LogicalKeyboardKey.digit3, control: true):
-                  const _SwitchTabIntent(2),
-              const SingleActivator(LogicalKeyboardKey.digit4, control: true):
-                  const _SwitchTabIntent(3),
-              const SingleActivator(LogicalKeyboardKey.digit5, control: true):
-                  const _SwitchTabIntent(4),
-              const SingleActivator(LogicalKeyboardKey.digit6, control: true):
-                  const _SwitchTabIntent(5),
-              const SingleActivator(LogicalKeyboardKey.keyF, control: true):
-                  const _SearchIntent(),
-              const SingleActivator(LogicalKeyboardKey.comma, control: true):
-                  const _SettingsIntent(),
+            shortcuts: const <ShortcutActivator, Intent>{
+              SingleActivator(LogicalKeyboardKey.digit1, control: true):
+                  _SwitchTabIntent(0),
+              SingleActivator(LogicalKeyboardKey.digit2, control: true):
+                  _SwitchTabIntent(1),
+              SingleActivator(LogicalKeyboardKey.digit3, control: true):
+                  _SwitchTabIntent(2),
+              SingleActivator(LogicalKeyboardKey.digit4, control: true):
+                  _SwitchTabIntent(3),
+              SingleActivator(LogicalKeyboardKey.digit5, control: true):
+                  _SwitchTabIntent(4),
+              SingleActivator(LogicalKeyboardKey.digit6, control: true):
+                  _SwitchTabIntent(5),
+              SingleActivator(LogicalKeyboardKey.keyF, control: true):
+                  _SearchIntent(),
+              SingleActivator(LogicalKeyboardKey.comma, control: true):
+                  _SettingsIntent(),
             },
             child: Actions(
               actions: <Type, Action<Intent>>{
@@ -682,7 +675,7 @@ class _MainLayoutState extends State<MainLayout> {
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.spa_rounded,
                                     color: OasisColors.glow,
                                     size: 80,

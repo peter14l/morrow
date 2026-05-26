@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart'
     show
         Colors,
@@ -71,7 +70,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/features/feed/domain/models/enhanced_poll.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 
 /// Widget for creating enhanced polls
@@ -247,12 +245,12 @@ class _PollCreatorState extends State<PollCreator> {
             if (_optionControllers.length < 6)
               fluent.Button(
                 onPressed: _addOption,
-                child: Row(
+                child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(fluent.FluentIcons.add, size: 12),
-                    const SizedBox(width: 8),
-                    const Text('Add Option'),
+                    Icon(fluent.FluentIcons.add, size: 12),
+                    SizedBox(width: 8),
+                    Text('Add Option'),
                   ],
                 ),
               ),

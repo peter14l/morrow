@@ -171,7 +171,6 @@ class NavigationPaneThemeData with Diagnosticable {
   factory NavigationPaneThemeData.fromResources({
     required ResourceDictionary resources,
     required Duration animationDuration,
-    required Curve animationCurve,
     required Color highlightColor,
     required Typography typography,
   }) {

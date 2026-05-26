@@ -11,28 +11,17 @@ import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
-import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/screens/shared_content_screen.dart';
 import 'package:oasis/widgets/moderation_dialogs.dart';
 import 'package:oasis/widgets/custom_text_field.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'package:oasis/core/utils/responsive_layout.dart';
-import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
-import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
-import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
-import 'package:oasis/services/notification_manager.dart';
-import 'package:oasis/services/app_initializer.dart';
-import 'package:oasis/features/messages/presentation/screens/chat_screen.dart';
-import 'package:oasis/features/messages/presentation/screens/direct_messages_screen.dart';
-import 'package:oasis/routes/app_router.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   final String conversationId;
@@ -123,7 +112,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  List<Message> _allMessages = [];
+  final List<Message> _allMessages = [];
   List<Message> _searchResults = [];
   RealtimeChannel? _conversationChannel;
 
@@ -535,7 +524,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                                     modalContext,
                                   ); // Close bottom sheet
                                   Navigator.pop(
-                                    this.context,
+                                    context,
                                   ); // Close ChatDetailsScreen
                                 },
                               );
@@ -1334,9 +1323,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               ...chatState.participantIds.map((userId) {
                 // Ideally we'd have a UserProvider to resolve these names
                 return ListTile(
-                  leading: CircleAvatar(
+                  leading: const CircleAvatar(
                     radius: 16,
-                    child: const Icon(Icons.person, size: 16),
+                    child: Icon(Icons.person, size: 16),
                   ),
                   title: FutureBuilder<String>(
                     future: _resolveUsername(userId),

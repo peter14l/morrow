@@ -340,8 +340,9 @@ class RipplesService extends ChangeNotifier {
       _ripples[index]['is_liked'] = false;
       _ripples[index]['likes_count'] =
           (_ripples[index]['likes_count'] ?? 0) - 1;
-      if (_ripples[index]['likes_count'] < 0)
+      if (_ripples[index]['likes_count'] < 0) {
         _ripples[index]['likes_count'] = 0;
+      }
       notifyListeners();
     }
 

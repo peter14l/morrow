@@ -57,11 +57,21 @@ class _PINResetScreenState extends State<PINResetScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    for (var c in _pinControllers) c.dispose();
-    for (var c in _confirmPinControllers) c.dispose();
-    for (var n in _pinFocusNodes) n.dispose();
-    for (var n in _confirmPinFocusNodes) n.dispose();
-    for (var n in _keyboardFocusNodes) n.dispose();
+    for (var c in _pinControllers) {
+      c.dispose();
+    }
+    for (var c in _confirmPinControllers) {
+      c.dispose();
+    }
+    for (var n in _pinFocusNodes) {
+      n.dispose();
+    }
+    for (var n in _confirmPinFocusNodes) {
+      n.dispose();
+    }
+    for (var n in _keyboardFocusNodes) {
+      n.dispose();
+    }
     super.dispose();
   }
 
@@ -623,7 +633,7 @@ class _PINResetScreenState extends State<PINResetScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
+          const Icon(Icons.check_circle_outline, size: 64, color: Colors.green),
           const SizedBox(height: 24),
           Text(
             'PIN Reset Complete',

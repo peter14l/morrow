@@ -18,7 +18,7 @@ class SessionDial extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
+    return SizedBox(
       width: 200,
       height: 200,
       child: Stack(
@@ -89,7 +89,7 @@ class DialPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
-    final strokeWidth = 12.0;
+    const strokeWidth = 12.0;
 
     // Track
     final trackPaint = Paint()

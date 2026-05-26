@@ -2,10 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
@@ -43,8 +41,8 @@ class AccountSwitcherSheet extends StatelessWidget {
         color: isSolid
             ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
             : (disableTransparency
-                  ? colorScheme.surface
-                  : colorScheme.surface.withValues(alpha: 0.8)),
+                ? colorScheme.surface
+                : colorScheme.surface.withValues(alpha: 0.8)),
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(isM3E ? 48 : 28),
         ),
@@ -87,120 +85,121 @@ class AccountSwitcherSheet extends StatelessWidget {
                   shrinkWrap: true,
                   itemCount: accounts.length,
                   itemBuilder: (context, index) {
-                  final account = accounts[index];
-                  final isCurrent = account.userId == currentUserId;
+                    final account = accounts[index];
+                    final isCurrent = account.userId == currentUserId;
 
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 4,
-                    ),
-                    leading: Container(
-                      padding: EdgeInsets.all(isM3E ? 2 : 0),
-                      decoration: BoxDecoration(
-                        shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-                        borderRadius: isM3E ? BorderRadius.circular(12) : null,
-                        border: isM3E
-                            ? Border.all(color: colorScheme.primary, width: 1.5)
-                            : null,
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 4,
                       ),
-                      child: ClipRRect(
-                        borderRadius: isM3E
-                            ? BorderRadius.circular(10)
-                            : BorderRadius.circular(20),
-                        child: SizedBox(
-                          width: 40,
-                          height: 40,
-                          child: (account.avatarUrl ?? '').isNotEmpty
-                              ? CachedNetworkImage(
-                                  imageUrl: account.avatarUrl!,
-                                  fit: BoxFit.cover,
-                                )
-                              : Container(
-                                  color: colorScheme.surfaceContainerHighest,
-                                  child: Center(
-                                    child: Text(
-                                      account.username[0].toUpperCase(),
-                                      style: TextStyle(
-                                        color: colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
+                      leading: Container(
+                        padding: EdgeInsets.all(isM3E ? 2 : 0),
+                        decoration: BoxDecoration(
+                          shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+                          borderRadius: isM3E ? BorderRadius.circular(12) : null,
+                          border: isM3E
+                              ? Border.all(color: colorScheme.primary, width: 1.5)
+                              : null,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: isM3E
+                              ? BorderRadius.circular(10)
+                              : BorderRadius.circular(20),
+                          child: SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: (account.avatarUrl ?? '').isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: account.avatarUrl!,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Container(
+                                    color: colorScheme.surfaceContainerHighest,
+                                    child: Center(
+                                      child: Text(
+                                        account.username[0].toUpperCase(),
+                                        style: TextStyle(
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
+                          ),
                         ),
                       ),
-                    ),
-                    title: Text(
-                      account.username,
-                      style: TextStyle(
-                        fontWeight: isCurrent
-                            ? (isM3E ? FontWeight.w900 : FontWeight.bold)
-                            : FontWeight.normal,
+                      title: Text(
+                        account.username,
+                        style: TextStyle(
+                          fontWeight: isCurrent
+                              ? (isM3E ? FontWeight.w900 : FontWeight.bold)
+                              : FontWeight.normal,
+                        ),
                       ),
-                    ),
-                    subtitle: Text(
-                      account.email,
-                      style: theme.textTheme.bodySmall,
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (isCurrent)
-                          Icon(Icons.check_circle, color: colorScheme.primary)
-                        else
-                          IconButton(
-                            icon: const Icon(Icons.logout_rounded, size: 20),
-                            tooltip: 'Remove account',
-                            onPressed: () async {
-                              final confirmed = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: const Text('Remove Account?'),
-                                  content: Text(
-                                    'Do you want to remove ${account.username} from this device?',
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      child: const Text('Cancel'),
+                      subtitle: Text(
+                        account.email,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isCurrent)
+                            Icon(Icons.check_circle, color: colorScheme.primary)
+                          else
+                            IconButton(
+                              icon: const Icon(Icons.logout_rounded, size: 20),
+                              tooltip: 'Remove account',
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Remove Account?'),
+                                    content: Text(
+                                      'Do you want to remove ${account.username} from this device?',
                                     ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      child: const Text(
-                                        'Remove',
-                                        style: TextStyle(color: Colors.red),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-
-                              if (confirmed == true) {
-                                await authService.removeAccount(
-                                  context,
-                                  account.userId,
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        child: const Text(
+                                          'Remove',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 );
-                              }
+
+                                if (confirmed == true) {
+                                  await authService.removeAccount(
+                                    context,
+                                    account.userId,
+                                  );
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                      onTap: isCurrent
+                          ? null
+                          : () async {
+                              Navigator.pop(context);
+                              await authService.switchAccount(
+                                context,
+                                account.userId,
+                              );
                             },
-                          ),
-                      ],
-                    ),
-                    onTap: isCurrent
-                        ? null
-                        : () async {
-                            Navigator.pop(context);
-                            await authService.switchAccount(
-                              context,
-                              account.userId,
-                            );
-                          },
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
 
             const Divider(),
 
@@ -230,10 +229,9 @@ class AccountSwitcherSheet extends StatelessWidget {
               },
             ),
           ],
-        ],
+        ),
       ),
-    ),
-  );
+    );
 
     if (isSolid || disableTransparency) {
       return sheetContent;

@@ -191,8 +191,9 @@ class ConversationProvider with ChangeNotifier, SafeChangeNotifier {
 
   /// Listen for read receipts and typing status for a specific conversation
   void _listenToConversationDetails(String conversationId) {
-    if (_readReceiptSubscriptions.containsKey(conversationId) || isDisposed)
+    if (_readReceiptSubscriptions.containsKey(conversationId) || isDisposed) {
       return;
+    }
 
     // Subscribe to read receipts (for "Seen" status)
     final readReceiptChannel = _messagingService.subscribeToReadReceipts(
@@ -277,8 +278,9 @@ class ConversationProvider with ChangeNotifier, SafeChangeNotifier {
   }
 
   void _setupPresenceSubscriptions() {
-    if (_presenceProvider == null || _conversations.isEmpty || isDisposed)
+    if (_presenceProvider == null || _conversations.isEmpty || isDisposed) {
       return;
+    }
     for (final conversation in _conversations) {
       _presenceProvider!.subscribeToUserPresence(conversation.otherUserId);
     }

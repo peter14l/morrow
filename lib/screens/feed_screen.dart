@@ -24,7 +24,6 @@ import 'package:oasis/services/wellness_service.dart';
 import 'package:oasis/widgets/wellbeing/lockout_overlay.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
-import 'package:oasis/services/app_initializer.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});

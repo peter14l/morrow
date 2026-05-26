@@ -14,7 +14,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:oasis/features/wellness/presentation/widgets/wellness_badge.dart';
 import 'package:oasis/features/auth/presentation/widgets/account_switcher_sheet.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/widgets/desktop_header.dart';
 import 'package:oasis/widgets/moderation_dialogs.dart';

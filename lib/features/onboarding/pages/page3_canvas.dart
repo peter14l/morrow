@@ -58,18 +58,18 @@ class Page3Canvas extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _FeatureIcon(
+              const _FeatureIcon(
                     icon: Icons.grid_view_outlined,
                     label: 'Infinite Space',
                   )
                   .animate(target: isActive ? 1 : 0)
                   .fadeIn(delay: 800.ms)
                   .slideY(begin: 0.1),
-              _FeatureIcon(icon: Icons.history, label: 'Timeline Scrub')
+              const _FeatureIcon(icon: Icons.history, label: 'Timeline Scrub')
                   .animate(target: isActive ? 1 : 0)
                   .fadeIn(delay: 950.ms)
                   .slideY(begin: 0.1),
-              _FeatureIcon(icon: Icons.group_outlined, label: 'Shared Circles')
+              const _FeatureIcon(icon: Icons.group_outlined, label: 'Shared Circles')
                   .animate(target: isActive ? 1 : 0)
                   .fadeIn(delay: 1100.ms)
                   .slideY(begin: 0.1),

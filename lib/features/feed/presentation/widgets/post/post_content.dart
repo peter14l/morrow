@@ -35,7 +35,7 @@ class PostContent extends StatelessWidget {
           if (post.poll != null)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: PollWidget(poll: post.poll!, onVote: onVote),
+              child: PollDisplay(poll: post.poll!, onVote: onVote),
             ),
         ],
       ),

@@ -119,7 +119,7 @@ class _InfiniteCanvasState extends State<InfiniteCanvas> {
                 Positioned.fill(
                   child: Padding(
                     padding: const EdgeInsets.all(0),
-                    child: widget.drawingLayer!,
+                    child: widget.drawingLayer,
                   ),
                 ),
             ],

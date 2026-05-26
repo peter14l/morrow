@@ -369,7 +369,7 @@ class FeedProvider with ChangeNotifier, SafeChangeNotifier {
       if (newPosts[i].id == postId) {
         final post = newPosts[i];
         if (post.isLiked == isLiked) return;
-        int newLikes = isLiked ? post.likes + 1 : post.likes - 1;
+        final int newLikes = isLiked ? post.likes + 1 : post.likes - 1;
         newPosts[i] = post.copyWith(
           isLiked: isLiked,
           likes: newLikes < 0 ? 0 : newLikes,

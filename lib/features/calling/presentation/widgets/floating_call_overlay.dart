@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
-import 'package:oasis/features/calling/domain/models/call_entity.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/calling_screen.dart';
 
@@ -148,7 +147,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
     final remoteParticipant = room.remoteParticipants.values.firstOrNull;
     if (remoteParticipant != null) {
       final videoTrack = remoteParticipant.videoTrackPublications.firstOrNull?.track;
-      if (videoTrack != null && videoTrack is VideoTrack) {
+      if (videoTrack != null) {
         return VideoTrackRenderer(
           videoTrack,
           fit: VideoViewFit.cover,
@@ -158,7 +157,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
 
     if (provider.isVideoOn) {
       final localVideoTrack = room.localParticipant?.videoTrackPublications.firstOrNull?.track;
-      if (localVideoTrack != null && localVideoTrack is VideoTrack) {
+      if (localVideoTrack != null) {
         return VideoTrackRenderer(
           localVideoTrack,
           fit: VideoViewFit.cover,

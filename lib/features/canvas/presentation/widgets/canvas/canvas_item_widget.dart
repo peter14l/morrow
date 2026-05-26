@@ -481,7 +481,7 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
       final double w = (widget.item.metadata['w'] as num?)?.toDouble() ?? 200.0;
       final double h = (widget.item.metadata['h'] as num?)?.toDouble() ?? 200.0;
 
-      return Container(
+      return SizedBox(
         width: w,
         height: h,
         // Add a background color during debugging if needed

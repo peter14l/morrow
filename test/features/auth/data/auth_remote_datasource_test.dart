@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:oasis/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:oasis/features/auth/domain/models/auth_models.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_remote_datasource_test.mocks.dart';
 

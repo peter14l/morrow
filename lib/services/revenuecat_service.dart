@@ -38,7 +38,7 @@ class RevenueCatService extends ChangeNotifier {
       return;
     }
 
-    PurchasesConfiguration configuration = PurchasesConfiguration(apiKey);
+    final PurchasesConfiguration configuration = PurchasesConfiguration(apiKey);
 
     // Identify user with Supabase ID if logged in
     final currentUser = Supabase.instance.client.auth.currentUser;

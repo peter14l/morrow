@@ -11,15 +11,12 @@ import 'package:oasis/features/canvas/presentation/widgets/canvas/starry_night_b
 import 'package:oasis/features/canvas/presentation/widgets/canvas/timeline_scrubber.dart';
 import 'package:oasis/features/canvas/presentation/widgets/canvas/pulse_ripple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:oasis/services/canvas_service.dart';
 import 'package:oasis/widgets/share_sheet.dart';
-import 'package:oasis/services/canvas_audio_service.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:oasis/services/notification_service.dart';
 import 'package:oasis/features/canvas/presentation/widgets/canvas/scattered_polaroid_spread.dart';
 import 'package:oasis/features/canvas/presentation/widgets/canvas/canvas_item_widget.dart';
 import 'package:google_fonts/google_fonts.dart';

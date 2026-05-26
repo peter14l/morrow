@@ -14,9 +14,12 @@ class PQAuraService {
 
   bool get isReady => false;
 
-  Future<void> init() async {}
+  Future<bool> init() async { return false; }
 
   bool hasSession(String remoteUserId) => false;
+
+  /// Clear all data (logout)
+  Future<void> clearAllData() async {}
 
   /// Get or create a PQ-Aura session
   Future<bool> getOrCreateSession(String remoteUserId) async {

@@ -26,10 +26,8 @@ class PostHeader extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 20,
-            backgroundImage: post.authorAvatar != null
-                ? NetworkImage(post.authorAvatar!)
-                : null,
-            child: post.authorAvatar == null ? Text(post.authorName[0]) : null,
+            backgroundImage: NetworkImage(post.authorAvatar),
+            child: null,
           ),
           const SizedBox(width: 12),
           Expanded(

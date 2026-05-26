@@ -6,8 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:record/record.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/vault_service.dart';
@@ -23,7 +21,6 @@ import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/providers/providers.dart';
-import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_app_bar.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_background.dart';
@@ -37,7 +34,6 @@ import 'package:oasis/features/messages/presentation/widgets/previews/video_prev
 import 'package:oasis/features/messages/presentation/widgets/previews/audio_preview.dart';
 import 'package:oasis/features/messages/presentation/widgets/previews/file_preview.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/attachment_options_sheet.dart';
-import 'package:oasis/features/messages/presentation/widgets/modals/attachment_options_menu.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/message_options_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/message_options_menu.dart';
 import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart';
@@ -302,7 +298,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     if (success == true) {
       // Encryption is now ready, reinitialize the provider
       _chatProvider.setState(
-        (s) => (s as ChatState).copyWith(encryptionReady: true),
+        (s) => (s).copyWith(encryptionReady: true),
       );
       await _chatProvider.loadMessages(silent: true);
     }
@@ -416,12 +412,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         final isSticker = gif.type == 'sticker';
         if (isSticker) {
           _chatProvider.sendSticker(
-            gif.images!.original!.url!,
+            gif.images!.original!.url,
             replyMessage: _chatProvider.state.replyMessage,
           );
         } else {
           _chatProvider.sendGif(
-            gif.images!.original!.url!,
+            gif.images!.original!.url,
             replyMessage: _chatProvider.state.replyMessage,
           );
         }

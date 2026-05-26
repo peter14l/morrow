@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/features/stories/presentation/providers/stories_provider.dart';
-import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
 import 'package:oasis/features/feed/presentation/widgets/stories_bar.dart';
 import 'package:oasis/features/capsules/presentation/widgets/capsule_carousel.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -167,7 +166,7 @@ class ClassicFeedLayout extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Today\'s Feed time: ${wellbeing.totalMinutes}m / $threshold\m limit (Feed + Ripples)',
+              'Today\'s Feed time: ${wellbeing.totalMinutes}m / ${threshold}m limit (Feed + Ripples)',
               style: TextStyle(
                 fontSize: 11,
                 color: colorScheme.onSurfaceVariant,

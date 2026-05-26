@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/config/supabase_config.dart';
-import 'package:oasis/core/config/r2_config.dart';
 import 'package:oasis/services/s3_storage_service.dart';
 import 'package:oasis/features/ripples/domain/models/ripple_entity.dart';
 

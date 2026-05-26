@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/moderation_service.dart';
 import 'package:oasis/models/moderation.dart';
 import 'package:oasis/themes/app_colors.dart';
@@ -536,9 +534,9 @@ class _FluentReportDialogState extends State<FluentReportDialog> {
           fluent.displayInfoBar(
             context,
             builder: (context, close) {
-              return fluent.InfoBar(
-                title: const Text('Success'),
-                content: const Text('Report submitted successfully'),
+              return const fluent.InfoBar(
+                title: Text('Success'),
+                content: Text('Report submitted successfully'),
                 severity: fluent.InfoBarSeverity.success,
               );
             },
@@ -657,9 +655,9 @@ This report was also submitted to our moderation system.
             ),
           ),
           const SizedBox(height: 16),
-          fluent.InfoBar(
-            title: const Text('Note'),
-            content: const Text(
+          const fluent.InfoBar(
+            title: Text('Note'),
+            content: Text(
               'Report details will be shared with Oasis Support via email for further review.',
             ),
             severity: fluent.InfoBarSeverity.info,

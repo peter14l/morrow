@@ -51,7 +51,7 @@ class Card extends StatelessWidget {
     this.margin,
     this.backgroundColor,
     this.borderColor,
-    this.borderRadius = const BorderRadius.all(Radius.circular(8.0)),
+    this.borderRadius = const BorderRadius.all(Radius.circular(8)),
   });
 
   /// The widget below this widget in the tree.

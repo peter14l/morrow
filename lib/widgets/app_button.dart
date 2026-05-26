@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 
 class AppButton extends StatelessWidget {
@@ -76,7 +75,7 @@ class AppButton extends StatelessWidget {
   Widget _buildFluentButton(BuildContext context) {
     // final fluentTheme = fluent.FluentTheme.of(context);
 
-    Widget child = isLoading
+    final Widget child = isLoading
         ? const fluent.ProgressRing(strokeWidth: 2)
         : material.Row(
             mainAxisSize: material.MainAxisSize.min,

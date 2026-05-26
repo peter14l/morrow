@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/network/supabase_client.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Model for voice transcription result with multilingual support
 class VoiceTranscript {

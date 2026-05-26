@@ -134,10 +134,10 @@ class _LivingCanvasLayoutState extends State<LivingCanvasLayout> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.timer_outlined, size: 14, color: OasisColors.glow),
+            const Icon(Icons.timer_outlined, size: 14, color: OasisColors.glow),
             const SizedBox(width: 8),
             Text(
-              'Intentional Limit: ${wellbeing.totalMinutes}m / $threshold\m',
+              'Intentional Limit: ${wellbeing.totalMinutes}m / ${threshold}m',
               style: const TextStyle(
                 fontSize: 10,
                 color: Colors.white60,
@@ -189,8 +189,8 @@ class FiberPainter extends CustomPainter {
 
     // Draw some flowing fibers that move with scroll
     for (int i = 0; i < 5; i++) {
-      double xStart = size.width * (0.2 + (i * 0.15));
-      double xControl = xStart + (size.width * 0.1 * (i % 2 == 0 ? 1 : -1));
+      final double xStart = size.width * (0.2 + (i * 0.15));
+      final double xControl = xStart + (size.width * 0.1 * (i % 2 == 0 ? 1 : -1));
 
       path.moveTo(xStart, -500 + (scrollOffset * 0.2));
       path.quadraticBezierTo(

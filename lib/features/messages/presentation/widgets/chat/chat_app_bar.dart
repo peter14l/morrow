@@ -7,7 +7,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
@@ -450,7 +449,7 @@ class ChatAppBar extends StatelessWidget {
                   icon: const Icon(FluentIcons.search_24_regular, size: 18),
                   onPressed: onSearchPressed,
                 ),
-                fluent.CommandBarSeparator(),
+                const fluent.CommandBarSeparator(),
                 fluent.CommandBarButton(
                   icon: Icon(
                     isDetailsOpen

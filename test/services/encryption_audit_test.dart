@@ -1,8 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:oasis/services/time_capsule_service.dart';
-import 'package:oasis/services/canvas_service.dart';
-import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:mockito/annotations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

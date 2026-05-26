@@ -13,9 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/auth_service.dart';
 import 'package:camera/camera.dart';
 
 import 'package:oasis/services/stories_service.dart';
@@ -70,8 +68,8 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
 
   // Layout Mode State
   List<File?> _layoutImages = [null, null, null, null];
-  bool _isLayoutMode = false;
-  int _layoutStyle = 0; // 0: 2x2, 1: 2x1, 2: 1x2
+  final bool _isLayoutMode = false;
+  final int _layoutStyle = 0; // 0: 2x2, 1: 2x1, 2: 1x2
 
   // Text Overlay State
   List<StoryText> _texts = [];
@@ -1459,7 +1457,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.photo_library_outlined,
                       size: 64,
                       color: Colors.white54,

@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:gal/gal.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 
 import 'package:oasis/core/config/feature_flags.dart';
 import 'package:url_launcher/url_launcher.dart';

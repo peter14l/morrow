@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/network/supabase_client.dart';
@@ -57,7 +56,7 @@ class S3StorageService {
       );
 
       final String url = presignedData['url'];
-      final dynamic data = bytes ?? (file != null ? file.openRead() : null);
+      final dynamic data = bytes ?? (file?.openRead());
       if (data == null) throw Exception('No data to upload');
 
       final int totalSize =

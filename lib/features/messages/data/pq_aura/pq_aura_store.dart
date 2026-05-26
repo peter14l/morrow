@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -87,9 +86,7 @@ class PQAuraStore {
     await _secureStorage.write(
       key: _identityKeyPairKey,
       value:
-          base64Encode(Uint8List.fromList(keyPair.publicKey)) +
-          ':' +
-          base64Encode(Uint8List.fromList(keyPair.secretKey)),
+          '${base64Encode(Uint8List.fromList(keyPair.publicKey))}:${base64Encode(Uint8List.fromList(keyPair.secretKey))}',
     );
 
     return keyPair;
@@ -116,7 +113,7 @@ class PQAuraStore {
   ) async {
     await _secureStorage.write(
       key: _identityKeyPairKey,
-      value: base64Encode(publicKey) + ':' + base64Encode(secretKey),
+      value: '${base64Encode(publicKey)}:${base64Encode(secretKey)}',
     );
   }
 

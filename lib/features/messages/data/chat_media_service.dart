@@ -212,7 +212,7 @@ class ChatMediaService {
         // Assuming path is like /images/<userId>/<fileName>
         final type = pathSegments[pathSegments.length - 3];
         final userId = pathSegments[pathSegments.length - 2];
-        final fileName = pathSegments.length > 0 ? pathSegments.last : '';
+        final fileName = pathSegments.isNotEmpty ? pathSegments.last : '';
 
         final fileId = '$userId/$fileName';
 

@@ -21,9 +21,7 @@ import 'package:oasis/services/screen_time_service.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
-import 'package:oasis/themes/app_colors.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/features/feed/presentation/widgets/layouts/classic_feed_layout.dart';
 import 'package:oasis/features/feed/presentation/widgets/layouts/focused_flow_layout.dart';
@@ -33,7 +31,6 @@ import 'package:oasis/features/feed/presentation/widgets/layouts/living_canvas_l
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 
 import 'package:oasis/widgets/glassmorphic_fab.dart';
-import 'package:oasis/widgets/morphing_liquid_fab.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
@@ -440,6 +437,18 @@ class _FeedScreenState extends State<FeedScreen>
       case FeedLayoutType.canvas:
         layout = LivingCanvasLayout(
           onRefresh: _refreshFeed,
+          mobileHeader: _buildMobileHeader(colorScheme, isM3E),
+          buildPostItem: _buildPostItem,
+        );
+        break;
+      case FeedLayoutType.standard:
+      case FeedLayoutType.zenCarousel:
+      case FeedLayoutType.pulseMap:
+        layout = ClassicFeedLayout(
+          scrollController: _scrollController,
+          onRefresh: _refreshFeed,
+          isDesktop: isDesktop,
+          isScrolled: _isScrolled,
           mobileHeader: _buildMobileHeader(colorScheme, isM3E),
           buildPostItem: _buildPostItem,
         );
@@ -1061,9 +1070,9 @@ class _FeedScreenState extends State<FeedScreen>
 
               if (isFollowing) {
                 return useFluent
-                    ? fluent.HyperlinkButton(
+                    ? const fluent.HyperlinkButton(
                         onPressed: null,
-                        child: const Text('Following'),
+                        child: Text('Following'),
                       )
                     : const Text(
                         'Following',

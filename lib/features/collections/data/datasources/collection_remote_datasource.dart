@@ -13,8 +13,9 @@ class CollectionRemoteDatasource {
 
   Future<List<CollectionEntity>> getUserCollections() async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
+    if (userId == null) {
       throw const AuthenticationException('Not authenticated');
+    }
 
     final response = await _supabase.rpc(
       'get_user_collections',
@@ -34,8 +35,9 @@ class CollectionRemoteDatasource {
     bool isPrivate = true,
   }) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
+    if (userId == null) {
       throw const AuthenticationException('Not authenticated');
+    }
 
     final isPro = SubscriptionService().isPro;
     if (!isPro) {
@@ -86,8 +88,9 @@ class CollectionRemoteDatasource {
 
   Future<bool> addToCollection(String collectionId, String postId) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
+    if (userId == null) {
       throw const AuthenticationException('Not authenticated');
+    }
 
     final isPro = SubscriptionService().isPro;
     if (!isPro) {
@@ -123,8 +126,9 @@ class CollectionRemoteDatasource {
 
   Future<List<Post>> getCollectionItems(String collectionId) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
+    if (userId == null) {
       throw const AuthenticationException('Not authenticated');
+    }
 
     final response = await _supabase.rpc(
       'get_collection_items',
@@ -165,8 +169,9 @@ class CollectionRemoteDatasource {
 
   Future<List<CollectionEntity>> getCollectionsForPost(String postId) async {
     final userId = _supabase.auth.currentUser?.id;
-    if (userId == null)
+    if (userId == null) {
       throw const AuthenticationException('Not authenticated');
+    }
 
     final response = await _supabase
         .from('collection_items')

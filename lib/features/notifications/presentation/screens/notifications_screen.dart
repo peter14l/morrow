@@ -8,15 +8,10 @@ import 'package:oasis/features/notifications/presentation/providers/notification
     as state;
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/services/auth_service.dart';
-import 'package:oasis/themes/app_theme.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:oasis/core/utils/responsive_layout.dart';
-import 'package:oasis/widgets/desktop_header.dart';
 import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
-import 'dart:ui';
 
 class NotificationsScreen extends StatefulWidget {
   final bool isPanel;
@@ -30,7 +25,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   AppNotification? _selectedNotification;
   String _filterType = 'all';
   bool _showUnreadOnly = false;
-  bool _showSidebar = true;
+  final bool _showSidebar = true;
 
   @override
   void initState() {
@@ -121,8 +116,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final provider = context.read<NotificationProvider>();
     var filtered = provider.notifications;
     if (_showUnreadOnly) filtered = filtered.where((n) => !n.isRead).toList();
-    if (_filterType != 'all')
+    if (_filterType != 'all') {
       filtered = filtered.where((n) => n.type == _filterType).toList();
+    }
     filtered = filtered.where((n) => n.type != 'call').toList();
     return filtered;
   }
@@ -145,9 +141,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         notification.timestamp.month,
         notification.timestamp.day,
       );
-      if (notifDate.isAtSameMomentAs(today))
+      if (notifDate.isAtSameMomentAs(today)) {
         grouped['Today']!.add(notification);
-      else if (notifDate.isAtSameMomentAs(yesterday))
+      } else if (notifDate.isAtSameMomentAs(yesterday))
         grouped['Yesterday']!.add(notification);
       else if (notifDate.isAfter(thisWeek))
         grouped['This Week']!.add(notification);
@@ -292,12 +288,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   followingId: currentUserId,
                                 );
                             await _markAsRead(notification);
-                            if (mounted)
+                            if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Follow request accepted'),
                                 ),
                               );
+                            }
                           }
                         }
                       },
@@ -318,12 +315,13 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   followingId: currentUserId,
                                 );
                             await _markAsRead(notification);
-                            if (mounted)
+                            if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Follow request declined'),
                                 ),
                               );
+                            }
                           }
                         }
                       },
@@ -344,7 +342,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    if (widget.isPanel)
+    if (widget.isPanel) {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Notifications'),
@@ -352,6 +350,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         ),
         body: _buildNotificationsList(),
       );
+    }
 
     return AdaptiveScaffold(
       title: const Text('Notifications'),
@@ -379,8 +378,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildNotificationsList() {
     final provider = context.watch<NotificationProvider>();
-    if (provider.state.loadingState == state.NotificationLoadingState.loading)
+    if (provider.state.loadingState == state.NotificationLoadingState.loading) {
       return const Center(child: CircularProgressIndicator());
+    }
     if (_filteredNotifications.isEmpty) return _buildEmptyState();
     final grouped = _groupedNotifications;
     return ListView.builder(
@@ -388,7 +388,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       itemCount: grouped.length * 2,
       itemBuilder: (context, index) {
         final groupKey = grouped.keys.elementAt(index ~/ 2);
-        if (index.isEven)
+        if (index.isEven) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
@@ -399,6 +399,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
             ),
           );
+        }
         return Column(
           children: grouped[groupKey]!
               .map(
@@ -455,8 +456,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildDetailPanel() {
-    if (_selectedNotification == null)
+    if (_selectedNotification == null) {
       return const Center(child: Text('Select a notification'));
+    }
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(

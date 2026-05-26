@@ -9,8 +9,9 @@ class PostFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Current post footer for circles/mentions/hashtags
-    if (post.hashtags.isEmpty && post.mentions.isEmpty)
+    if (post.hashtags.isEmpty && post.mentions.isEmpty) {
       return const SizedBox.shrink();
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

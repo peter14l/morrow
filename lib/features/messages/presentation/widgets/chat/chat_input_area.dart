@@ -92,7 +92,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
   String _formatDuration(int seconds) {
     final minutes = seconds ~/ 60;
     final remainingSeconds = seconds % 60;
-    return '${minutes}:${remainingSeconds.toString().padLeft(2, '0')}';
+    return '$minutes:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -144,7 +144,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                 color: widget.backgroundUrl != null
                     ? material.Colors.white70
                     : colorScheme.onSurfaceVariant,
-                fontFeatures: [ui.FontFeature.tabularFigures()],
+                fontFeatures: const [ui.FontFeature.tabularFigures()],
                 fontWeight: material.FontWeight.w500,
               ),
             );
@@ -252,7 +252,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                         key: material.ValueKey('leading-hidden'),
                       )
                     : material.Row(
-                        key: material.ValueKey('leading-visible'),
+                        key: const material.ValueKey('leading-visible'),
                         mainAxisSize: material.MainAxisSize.min,
                         children: [
                           widget.isDesktop
@@ -347,7 +347,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                                         },
                                       );
                                     },
-                                    icon: material.Icon(
+                                    icon: const material.Icon(
                                       material.Icons.add_circle_outline,
                                       color: material.Colors.white70,
                                       size: 24,
@@ -474,12 +474,12 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                                       ),
                                     );
                                   }),
-                              style: material.TextStyle(
+                              style: const material.TextStyle(
                                 color: material.Colors.white,
                                 fontSize: 14,
                                 height: 1.4,
                               ),
-                              placeholderStyle: material.TextStyle(
+                              placeholderStyle: const material.TextStyle(
                                 color: material.Colors.white38,
                                 fontSize: 14,
                               ),

@@ -38,6 +38,13 @@ abstract class Post with _$Post {
 
   const Post._();
 
+  String get authorName => username;
+  String get authorAvatar => userAvatar;
+  DateTime get createdAt => timestamp;
+  int get likeCount => likes;
+  int get commentCount => comments;
+  List<String> get mentions => [];
+
   factory Post.fromJson(Map<String, dynamic> json) =>
       _$PostFromJson(_normalizePostJson(json));
 

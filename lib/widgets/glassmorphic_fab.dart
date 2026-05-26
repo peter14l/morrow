@@ -43,7 +43,7 @@ class GlassmorphicFAB extends StatelessWidget {
     }
 
     if (tooltip != null) {
-      return Tooltip(message: tooltip!, child: fab);
+      return Tooltip(message: tooltip, child: fab);
     }
 
     return fab;

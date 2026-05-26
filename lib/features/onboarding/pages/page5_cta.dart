@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:go_router/go_router.dart';
 import '../../../core/theme/oasis_colors.dart';
 import '../../../core/theme/oasis_text_styles.dart';
 import '../widgets/oasis_logo_mark.dart';
@@ -66,7 +65,7 @@ class Page5CTA extends StatelessWidget {
               ).animate(target: isActive ? 1 : 0).fadeIn(delay: 900.ms),
               const SizedBox(height: 14),
               Text.rich(
-                TextSpan(
+                const TextSpan(
                   text: 'By continuing, you agree to our ',
                   children: [
                     TextSpan(
@@ -76,7 +75,7 @@ class Page5CTA extends StatelessWidget {
                         decoration: TextDecoration.underline,
                       ),
                     ),
-                    const TextSpan(text: '.'),
+                    TextSpan(text: '.'),
                   ],
                 ),
                 style: OasisTextStyles.onboardingSubtitle.copyWith(

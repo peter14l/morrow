@@ -121,11 +121,11 @@ class _WindowButtonState extends State<_WindowButton> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    Color hoverColor = widget.isClose
+    final Color hoverColor = widget.isClose
         ? Colors.red.withValues(alpha: 0.8)
         : theme.colorScheme.onSurface.withValues(alpha: 0.1);
 
-    Color iconColor = (_isHovered && widget.isClose)
+    final Color iconColor = (_isHovered && widget.isClose)
         ? Colors.white
         : theme.colorScheme.onSurface.withValues(alpha: 0.7);
 

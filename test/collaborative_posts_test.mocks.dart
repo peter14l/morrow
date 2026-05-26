@@ -139,6 +139,15 @@ class MockAuthService extends _i1.Mock implements _i8.AuthService {
           as List<_i9.RegisteredAccount>);
 
   @override
+  bool get isLoadingRegistry =>
+      (super.noSuchMethod(
+            Invocation.getter(#isLoadingRegistry),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   _i10.Stream<_i7.AuthState> get authStateChanges =>
       (super.noSuchMethod(
             Invocation.getter(#authStateChanges),
@@ -301,9 +310,15 @@ class MockAuthService extends _i1.Mock implements _i8.AuthService {
           as _i10.Future<_i2.AppUser>);
 
   @override
-  _i10.Future<void> signOut({_i11.BuildContext? context}) =>
+  _i10.Future<void> signOut({
+    _i11.BuildContext? context,
+    bool? forgetAccount = true,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#signOut, [], {#context: context}),
+            Invocation.method(#signOut, [], {
+              #context: context,
+              #forgetAccount: forgetAccount,
+            }),
             returnValue: _i10.Future<void>.value(),
             returnValueForMissingStub: _i10.Future<void>.value(),
           )
@@ -859,6 +874,15 @@ class MockCircleProvider extends _i1.Mock implements _i5.CircleProvider {
           as bool);
 
   @override
+  bool get isDisposed =>
+      (super.noSuchMethod(
+            Invocation.getter(#isDisposed),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
   _i10.Future<void> loadCircleFeed(
     String? circleId,
     String? userId, {
@@ -1060,6 +1084,15 @@ class MockCircleProvider extends _i1.Mock implements _i5.CircleProvider {
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i10.Future<void> runSafe(_i16.AsyncCallback? task) =>
+      (super.noSuchMethod(
+            Invocation.method(#runSafe, [task]),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
 }
 
 /// A class which mocks [UserSettingsProvider].
@@ -1173,6 +1206,15 @@ class MockUserSettingsProvider extends _i1.Mock
   bool get hasListeners =>
       (super.noSuchMethod(
             Invocation.getter(#hasListeners),
+            returnValue: false,
+            returnValueForMissingStub: false,
+          )
+          as bool);
+
+  @override
+  bool get isDisposed =>
+      (super.noSuchMethod(
+            Invocation.getter(#isDisposed),
             returnValue: false,
             returnValueForMissingStub: false,
           )
@@ -1300,6 +1342,15 @@ class MockUserSettingsProvider extends _i1.Mock
     Invocation.method(#notifyListeners, []),
     returnValueForMissingStub: null,
   );
+
+  @override
+  _i10.Future<void> runSafe(_i16.AsyncCallback? task) =>
+      (super.noSuchMethod(
+            Invocation.method(#runSafe, [task]),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
+          )
+          as _i10.Future<void>);
 }
 
 /// A class which mocks [SupabaseClient].

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/services/post_service.dart';
 import 'package:oasis/services/auth_service.dart';
@@ -173,10 +172,10 @@ class _CollaborationRequestBubbleState
     if (_status == 'accepted') {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(Icons.check_circle, color: Colors.green, size: 16),
-            const SizedBox(width: 8),
+            Icon(Icons.check_circle, color: Colors.green, size: 16),
+            SizedBox(width: 8),
             Text(
               'Collaboration Accepted',
               style: TextStyle(
@@ -193,10 +192,10 @@ class _CollaborationRequestBubbleState
     if (_status == 'denied') {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
+        child: const Row(
           children: [
-            const Icon(Icons.cancel, color: Colors.red, size: 16),
-            const SizedBox(width: 8),
+            Icon(Icons.cancel, color: Colors.red, size: 16),
+            SizedBox(width: 8),
             Text(
               'Collaboration Declined',
               style: TextStyle(

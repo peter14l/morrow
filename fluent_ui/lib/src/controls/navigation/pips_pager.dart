@@ -1,5 +1,4 @@
 import 'package:fluent_ui/fluent_ui.dart';
-import 'package:flutter/foundation.dart';
 
 /// A control that lets the user navigate through a collection of pages using
 /// a series of glyphs (pips).
@@ -27,8 +26,7 @@ import 'package:flutter/foundation.dart';
 class PipsPager extends StatelessWidget {
   /// Creates a pips pager.
   const PipsPager({
-    super.key,
-    required this.numberOfPages,
+    required this.numberOfPages, super.key,
     this.selectedPageIndex = 0,
     this.onPageIndexChanged,
     this.orientation = Axis.horizontal,
@@ -75,7 +73,7 @@ class PipsPager extends StatelessWidget {
                 : null,
             builder: (context, states) {
               return Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.all(4),
                 child: AnimatedContainer(
                   duration: theme.fasterAnimationDuration,
                   curve: theme.animationCurve,

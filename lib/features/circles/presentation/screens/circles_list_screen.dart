@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/circles/presentation/widgets/circles/circle_list_card.dart';
 
@@ -131,7 +130,7 @@ class _CirclesListScreenState extends State<CirclesListScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   sliver: SliverGrid.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       mainAxisSpacing: 20,
                       crossAxisSpacing: 20,

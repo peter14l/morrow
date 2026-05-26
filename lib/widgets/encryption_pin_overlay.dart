@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/widgets/recovery_key_sheet.dart';
 import 'package:oasis/features/auth/presentation/screens/pin_reset_screen.dart';
-import 'package:oasis/themes/app_colors.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class EncryptionPinOverlay extends StatefulWidget {

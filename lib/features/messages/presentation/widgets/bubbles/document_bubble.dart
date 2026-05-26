@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:oasis/services/media_cache_service.dart';
 import 'package:oasis/features/messages/data/chat_media_service.dart';
@@ -162,7 +161,7 @@ class _DocumentBubbleState extends State<DocumentBubble> {
         decoration: BoxDecoration(
           color: widget.isMe
               ? Colors.black.withValues(alpha: 0.1)
-              : colorScheme.surfaceVariant.withValues(alpha: 0.5),
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,
@@ -217,7 +216,7 @@ class _DocumentBubbleState extends State<DocumentBubble> {
                             ),
                             Text(
                               Message.formatBytes(
-                                widget.message.mediaFileSize!,
+                                widget.message.mediaFileSize,
                               ),
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: color.withValues(alpha: 0.7),

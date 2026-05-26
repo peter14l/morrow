@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'dart:io';
 import 'package:basic_utils/basic_utils.dart';
 import 'package:crypto/crypto.dart';
@@ -511,9 +510,7 @@ class EncryptionService {
 
     if (userId == null && !_isInitialized) await init();
 
-    if (_cachedAllKeys == null) {
-      _cachedAllKeys = await _secureStorage.readAll();
-    }
+    _cachedAllKeys ??= await _secureStorage.readAll();
 
     return await compute(
       _isolateDecrypt,
@@ -613,8 +610,7 @@ class EncryptionService {
       }
 
       // 2. Fallback to RSA
-      if (_cachedAllKeys == null)
-        _cachedAllKeys = await _secureStorage.readAll();
+      _cachedAllKeys ??= await _secureStorage.readAll();
 
       return await compute(
         _isolateMediaDecrypt,

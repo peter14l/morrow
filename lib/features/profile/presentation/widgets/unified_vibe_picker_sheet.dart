@@ -187,8 +187,8 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                 controller: _pulseTextController,
                 decoration: InputDecoration(
                   hintText: _selectedPulse == PulseStatus.withFriend
-                      ? "Who are you with?"
-                      : "Where are you?",
+                      ? 'Who are you with?'
+                      : 'Where are you?',
                   filled: true,
                   fillColor: colorScheme.surfaceContainerHighest,
                   border: OutlineInputBorder(
@@ -212,10 +212,11 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                     if (_selectedPulse == PulseStatus.withFriend ||
                         _selectedPulse == PulseStatus.atLocation) {
                       customText = _pulseTextController.text.trim();
-                      if (customText.isEmpty)
+                      if (customText.isEmpty) {
                         return; // Prevent setting empty custom pulse
+                      }
                     }
-                    widget.onPulseSelect(_selectedPulse!, customText);
+                    widget.onPulseSelect(_selectedPulse, customText);
                   }
                   Navigator.pop(context);
                 },

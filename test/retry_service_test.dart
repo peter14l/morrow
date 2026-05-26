@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oasis/core/network/retry_service.dart';
-import 'dart:async';
 
 void main() {
   group('Retry Service', () {
@@ -19,7 +18,7 @@ void main() {
 
     test('Failed operation retries maxAttempts before throwing', () async {
       int calls = 0;
-      final config = RetryConfig(
+      const config = RetryConfig(
         maxAttempts: 3,
         initialDelay: Duration(milliseconds: 10),
       );
@@ -38,7 +37,7 @@ void main() {
 
     test('Exponential backoff increases delay', () async {
       final List<Duration> delays = [];
-      final config = RetryConfig(
+      const config = RetryConfig(
         maxAttempts: 4,
         initialDelay: Duration(milliseconds: 100),
         multiplier: 2.0,

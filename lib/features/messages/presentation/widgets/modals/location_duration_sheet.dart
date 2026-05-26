@@ -112,7 +112,7 @@ class LocationDurationSheet extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: theme.colorScheme.surfaceVariant.withAlpha(
+          color: theme.colorScheme.surfaceContainerHighest.withAlpha(
             (255 * 0.5).toInt(),
           ),
         ),

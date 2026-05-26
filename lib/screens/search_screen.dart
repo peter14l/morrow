@@ -14,7 +14,6 @@ import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
 import 'package:oasis/widgets/desktop_header.dart';
 import 'package:oasis/widgets/wellbeing/lockout_overlay.dart';
 import 'package:oasis/widgets/custom_snackbar.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
@@ -340,22 +339,22 @@ class _SearchScreenState extends State<SearchScreen>
                       onChanged: (v) {
                         if (v != null) setState(() => _selectedFilter = v);
                       },
-                      child: Column(
+                      child: const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           fluent.RadioButton<String>(
                             value: 'all',
-                            content: const Text('All'),
+                            content: Text('All'),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           fluent.RadioButton<String>(
                             value: 'users',
-                            content: const Text('Users'),
+                            content: Text('Users'),
                           ),
-                          const SizedBox(height: 12),
+                          SizedBox(height: 12),
                           fluent.RadioButton<String>(
                             value: 'posts',
-                            content: const Text('Posts'),
+                            content: Text('Posts'),
                           ),
                         ],
                       ),

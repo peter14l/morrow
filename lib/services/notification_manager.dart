@@ -11,13 +11,11 @@ import 'package:oasis/routes/app_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:oasis/services/notification_decryption_service.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/call_service.dart';
-import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/sqlite_init.dart';
@@ -67,7 +65,7 @@ class NotificationManager {
   bool _isPaused = false;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-  int _notificationId = 1000;
+  final int _notificationId = 1000;
 
   static const MethodChannel _nativeNotificationChannel = MethodChannel(
     'oasis/notification_tap',
@@ -158,10 +156,11 @@ class NotificationManager {
         await _initLocalNotifications();
         // FCM initialization usually happens in the main isolate,
         // but the background handler needs local notifications setup.
-        if (kDebugMode)
+        if (kDebugMode) {
           debugPrint(
             'NotificationManager: Mobile local notifications initialized',
           );
+        }
 
         // Only init FCM if we are in the main isolate
         if (!isBackground) {
@@ -242,8 +241,9 @@ class NotificationManager {
         conversationId =
             data['conversation_id'] ?? data['sender_id'] ?? data['actor_id'];
       } catch (_) {
-        if (payload.length > 20 && !payload.contains('{'))
+        if (payload.length > 20 && !payload.contains('{')) {
           conversationId = payload;
+        }
       }
     }
 
@@ -442,19 +442,19 @@ class NotificationManager {
         visibility: commonAndroidDetails.visibility,
         category: commonAndroidDetails.category,
         styleInformation: MessagingStyleInformation(
-          Person(name: 'Me'), // Receiver
+          const Person(name: 'Me'), // Receiver
           conversationTitle: group.length > 1 ? 'Messages from $title' : null,
           messages: messages,
         ),
         actions: [
-          AndroidNotificationAction(
+          const AndroidNotificationAction(
             'reply_action',
             'Reply',
             inputs: [
               AndroidNotificationActionInput(label: 'Type a message...'),
             ],
           ),
-          AndroidNotificationAction('like_action', 'Like'),
+          const AndroidNotificationAction('like_action', 'Like'),
         ],
       );
     }
@@ -481,7 +481,7 @@ class NotificationManager {
           largeIcon: FilePathAndroidBitmap(largeIconPath),
           actions: conversationId != null
               ? [
-                  AndroidNotificationAction(
+                  const AndroidNotificationAction(
                     'reply_action',
                     'Reply',
                     inputs: [
@@ -490,7 +490,7 @@ class NotificationManager {
                       ),
                     ],
                   ),
-                  AndroidNotificationAction('like_action', 'Like'),
+                  const AndroidNotificationAction('like_action', 'Like'),
                 ]
               : null,
         );
@@ -520,14 +520,14 @@ class NotificationManager {
       category: commonAndroidDetails.category,
       actions: conversationId != null
           ? [
-              AndroidNotificationAction(
+              const AndroidNotificationAction(
                 'reply_action',
                 'Reply',
                 inputs: [
                   AndroidNotificationActionInput(label: 'Type a message...'),
                 ],
               ),
-              AndroidNotificationAction('like_action', 'Like'),
+              const AndroidNotificationAction('like_action', 'Like'),
             ]
           : null,
     );
@@ -654,7 +654,7 @@ class NotificationManager {
               .from('conversation_participants')
               .select('profiles(public_key)')
               .eq('conversation_id', conversationId)
-              .neq('user_id', userId!);
+              .neq('user_id', userId);
 
           final List<String> publicKeys = [];
           for (final p in participants) {
@@ -1041,7 +1041,7 @@ class NotificationManager {
           return;
         }
 
-        String title =
+        final String title =
             message.notification?.title ??
             message.data['title'] ??
             'New Notification';

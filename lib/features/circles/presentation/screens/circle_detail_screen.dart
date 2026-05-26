@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/services/auth_service.dart';
-import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
 import 'package:oasis/features/feed/presentation/screens/comments_screen.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
@@ -246,7 +244,7 @@ class _FeedTab extends StatelessWidget {
                       if (context.mounted) {
                         ScaffoldMessenger.of(
                           context,
-                        ).showSnackBar(SnackBar(content: Text('Post deleted')));
+                        ).showSnackBar(const SnackBar(content: Text('Post deleted')));
                       }
                     } catch (e) {
                       if (context.mounted) {

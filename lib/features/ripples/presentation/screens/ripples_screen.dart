@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:go_router/go_router.dart';
@@ -9,14 +8,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/features/ripples/domain/models/ripple_entity.dart'
     show RipplesLayoutType, RippleEntity, RippleCommentEntity;
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart'; // For ThemeProvider
+// For ThemeProvider
 import 'package:oasis/services/digital_wellbeing_service.dart';
-import 'package:oasis/services/auth_service.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/widgets/wellbeing/grayscale_detox.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -554,9 +551,9 @@ class _RipplesScreenState extends State<RipplesScreen>
               children: [
                 Container(
                   padding: const EdgeInsets.all(2),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [Colors.blueAccent, Colors.purpleAccent],
                     ),
                   ),

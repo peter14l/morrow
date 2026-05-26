@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/widgets/messages/voice_message_player.dart';
@@ -163,7 +162,7 @@ class _VoiceBubbleState extends State<VoiceBubble> {
         decoration: BoxDecoration(
           color: widget.isMe
               ? Colors.black.withValues(alpha: 0.1)
-              : colorScheme.surfaceVariant.withValues(alpha: 0.5),
+              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         clipBehavior: Clip.antiAlias,

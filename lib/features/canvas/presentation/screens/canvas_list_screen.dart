@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/canvas/domain/models/canvas_models.dart';
 import 'package:oasis/features/canvas/presentation/widgets/canvas/canvas_list_tile.dart';

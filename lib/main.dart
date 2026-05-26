@@ -17,7 +17,6 @@ import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/routes/app_router.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/services/auth_service.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
 import 'package:oasis/services/desktop_window_service.dart';
 import 'package:oasis/services/energy_meter_service.dart';
@@ -181,7 +180,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.checkIn();
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-              material.SnackBar(
+              const material.SnackBar(
                 content: Text('❤️ Your partner has been notified!'),
                 backgroundColor: material.Colors.green,
               ),
@@ -193,7 +192,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
           await checkinService.verifyCheckIn(wasAccurate: false);
           if (mounted) {
             material.ScaffoldMessenger.of(context).showSnackBar(
-              material.SnackBar(
+              const material.SnackBar(
                 content: Text('⚠️ Your partner has been warned'),
                 backgroundColor: material.Colors.orange,
               ),
@@ -229,7 +228,7 @@ class _MyAppState extends State<MyApp> {
   material.ColorScheme? _cachedLightScheme;
   material.ColorScheme? _cachedDarkScheme;
   String _cachedSettingsKey = '';
-  bool _themeSettingsChanged = true;
+  final bool _themeSettingsChanged = true;
   bool? _cachedIsDark;
   bool? _cachedMicaEnabled;
   String? _cachedWindowEffect;
@@ -718,7 +717,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                         if (Platform.isWindows)
                           const WindowsTitleBar(height: 32),
-                        FloatingCallOverlay(),
+                        const FloatingCallOverlay(),
                       ],
                     ),
                   );
@@ -753,7 +752,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                     ),
                     if (Platform.isWindows) const WindowsTitleBar(height: 32),
-                    FloatingCallOverlay(),
+                    const FloatingCallOverlay(),
                   ],
                 );
               },
@@ -781,7 +780,7 @@ class CallNavigator extends StatelessWidget {
       String location = '';
       try {
         location =
-            GoRouter.of(context).routeInformationProvider?.value.uri.path ?? '';
+            GoRouter.of(context).routeInformationProvider.value.uri.path ?? '';
       } catch (e) {
         location =
             AppRouter.router.routerDelegate.currentConfiguration.uri.path;
@@ -813,7 +812,7 @@ class CallNavigator extends StatelessWidget {
       }
     }
 
-    Widget childWidget = child;
+    final Widget childWidget = child;
 
     final bool canUseTransparency =
         !kIsWeb && (Platform.isWindows || Platform.isMacOS);
@@ -1078,18 +1077,18 @@ void callingMain() async {
   // We fetch intent data using a dedicated method channel we defined in OasisCallActivity
   const channel = services.MethodChannel('oasis/call_intent');
 
-  String callerName = "Unknown";
-  String callId = "";
-  String callerAvatar = "";
+  String callerName = 'Unknown';
+  String callId = '';
+  String callerAvatar = '';
 
   try {
     final data = await channel.invokeMapMethod<String, dynamic>(
       'getIncomingCallData',
     );
     if (data != null) {
-      callerName = data['callerName'] ?? "Unknown";
-      callId = data['callId'] ?? "";
-      callerAvatar = data['callerAvatar'] ?? "";
+      callerName = data['callerName'] ?? 'Unknown';
+      callId = data['callId'] ?? '';
+      callerAvatar = data['callerAvatar'] ?? '';
     }
   } catch (e) {
     material.debugPrint('Failed to get intent data: $e');

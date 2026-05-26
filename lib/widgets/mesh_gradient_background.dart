@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:oasis/themes/app_colors.dart';
 
 class MeshGradientBackground extends StatefulWidget {
   final Widget child;

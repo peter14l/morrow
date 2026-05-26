@@ -3,8 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('CallService Glare Handling Logic (Polite/Impolite Strategy)', () {
     test('String comparison determines initiator correctly to avoid glare', () {
-      final userA = 'user-1234';
-      final userB = 'user-5678';
+      const userA = 'user-1234';
+      const userB = 'user-5678';
 
       // Rule in CallService: if (userId.compareTo(pUserId) > 0) { initiate }
 
@@ -24,8 +24,8 @@ void main() {
     test('Decryption failure fallback logic', () {
       // In CallService: if (decryptedJson.startsWith('🔒')) { continue; }
 
-      final goodJson = '{"type": "offer", "sdp": "v=0..."}';
-      final badJson = '🔒 Optimizing secure connection...';
+      const goodJson = '{"type": "offer", "sdp": "v=0..."}';
+      const badJson = '🔒 Optimizing secure connection...';
 
       expect(goodJson.startsWith('🔒'), isFalse);
       expect(badJson.startsWith('🔒'), isTrue);

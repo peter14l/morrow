@@ -29,8 +29,6 @@ class AdService {
           .select()
           .eq('is_active', true);
 
-      if (response == null) return [];
-
       final List<dynamic> data = response as List<dynamic>;
       return data.map((json) {
         return Post(

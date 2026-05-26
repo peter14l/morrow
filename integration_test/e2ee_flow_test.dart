@@ -1,15 +1,8 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:oasis/features/messages/data/signal/signal_store.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();

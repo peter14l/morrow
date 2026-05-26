@@ -5,7 +5,6 @@ import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
 import 'package:oasis/features/messages/presentation/screens/live_location_screen.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
-import 'package:oasis/core/config/supabase_config.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

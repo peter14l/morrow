@@ -4,7 +4,6 @@ import 'package:libsignal_protocol_dart/libsignal_protocol_dart.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'signal_store.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignalService {
   static final SignalService _instance = SignalService._internal();
@@ -214,8 +213,9 @@ class SignalService {
     int deviceId = 1,
   }) async {
     final store = _getStore(localUserId);
-    if (store == null)
+    if (store == null) {
       throw Exception('No store found for local user $localUserId');
+    }
 
     final address = SignalProtocolAddress(remoteUserId, deviceId);
 

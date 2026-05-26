@@ -30,13 +30,6 @@ class CircleRemoteDatasource {
           .eq('circle_members.user_id', userId)
           .order('created_at', ascending: false);
 
-      if (response == null) {
-        debugPrint(
-          '[CircleRemoteDatasource] fetchUserCircles: response was null',
-        );
-        return [];
-      }
-
       final List<dynamic> rows = response as List<dynamic>;
       debugPrint(
         '[CircleRemoteDatasource] fetchUserCircles: found ${rows.length} circles',
@@ -93,7 +86,7 @@ class CircleRemoteDatasource {
             .eq('created_by', userId)
             .order('created_at', ascending: false);
 
-        if (createdResponse != null && (createdResponse as List).isNotEmpty) {
+        if ((createdResponse as List).isNotEmpty) {
           debugPrint(
             '[CircleRemoteDatasource] Found ${(createdResponse as List).length} circles by created_by fallback',
           );
@@ -375,12 +368,7 @@ class CircleRemoteDatasource {
         response = directResponse;
       }
 
-      if (response == null) {
-        debugPrint('[CircleRemoteDatasource] getCircleFeed: response is null');
-        return [];
-      }
-
-      final List<Map<String, dynamic>> posts = (response as List)
+      final List<Map<String, dynamic>> posts = (response)
           .cast<Map<String, dynamic>>();
       debugPrint(
         '[CircleRemoteDatasource] getCircleFeed: returned ${posts.length} posts for circle $circleId',

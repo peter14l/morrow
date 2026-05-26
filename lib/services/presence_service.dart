@@ -46,17 +46,17 @@ class PresenceService {
     final channel = _supabase.channel(channelName);
 
     // Use debounce to avoid false offline during initial sync
-    Timer? _emptyStateDebounce;
+    Timer? emptyStateDebounce;
 
     channel
         .onPresenceSync((payload) {
           // Clear any pending empty state timer
-          _emptyStateDebounce?.cancel();
+          emptyStateDebounce?.cancel();
 
           final presenceState = channel.presenceState();
           if (presenceState.isEmpty) {
             // Debounce empty state - might be initial sync, wait 500ms
-            _emptyStateDebounce = Timer(const Duration(milliseconds: 500), () {
+            emptyStateDebounce = Timer(const Duration(milliseconds: 500), () {
               onUpdate('offline', null);
             });
             return;

@@ -47,6 +47,45 @@ class LiquidGlassConfig {
   );
 }
 
+/// A simplified renderer for liquid glass effect
+class LiquidGlassRenderer extends StatelessWidget {
+  final Widget child;
+  final double borderRadius;
+  final double thickness;
+  final double blur;
+  final Color glassColor;
+  final double lightIntensity;
+  final double saturation;
+
+  const LiquidGlassRenderer({
+    super.key,
+    required this.child,
+    required this.borderRadius,
+    required this.thickness,
+    required this.blur,
+    required this.glassColor,
+    this.lightIntensity = 1.0,
+    this.saturation = 1.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LiquidGlass.withOwnLayer(
+      shape: LiquidRoundedRectangle(
+        borderRadius: borderRadius,
+      ),
+      settings: LiquidGlassSettings(
+        thickness: thickness,
+        blur: blur,
+        glassColor: glassColor,
+        lightIntensity: lightIntensity,
+        saturation: saturation,
+      ),
+      child: child,
+    );
+  }
+}
+
 /// Wrapper that provides liquid glass effect based on user settings
 class LiquidGlassWrapper extends StatelessWidget {
   final Widget child;

@@ -55,8 +55,9 @@ class CanvasAudioService {
       int attempts = 0;
       while (duration == null && attempts < 10 && _isPlaying) {
         duration = await activePlayer.getDuration();
-        if (duration == null)
+        if (duration == null) {
           await Future.delayed(const Duration(milliseconds: 500));
+        }
         attempts++;
       }
 

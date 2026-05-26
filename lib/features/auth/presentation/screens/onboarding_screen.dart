@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart' as material;
-import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,7 +7,6 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart'
     as system_icons;
 import 'dart:ui';
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 
 /// Onboarding Screen

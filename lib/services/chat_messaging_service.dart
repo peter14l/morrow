@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:uuid/uuid.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/core/config/supabase_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
-import 'package:oasis/services/notification_service.dart';
 
 /// Service dedicated to message transport and lifecycle management.
 ///
@@ -281,9 +279,9 @@ class ChatMessagingService {
 
             // OPTIMIZATION: Derive message type early to avoid deep construction lag
             if (messageData['message_type'] == null) {
-              if (messageData['voice_url'] != null)
+              if (messageData['voice_url'] != null) {
                 messageData['message_type'] = 'voice';
-              else if (messageData['image_url'] != null)
+              } else if (messageData['image_url'] != null)
                 messageData['message_type'] = 'image';
               else
                 messageData['message_type'] = 'text';
@@ -297,8 +295,9 @@ class ChatMessagingService {
           schema: 'public',
           table: SupabaseConfig.messagesTable,
           callback: (payload) {
-            if (onDeleteMessage != null)
+            if (onDeleteMessage != null) {
               onDeleteMessage(payload.oldRecord['id'] as String);
+            }
           },
         )
         .subscribe((status, [error]) {

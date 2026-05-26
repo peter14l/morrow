@@ -130,8 +130,9 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   void _toggleType(bool isStickers) {
     if (_isStickers == isStickers) return;
-    if (_isUsingKlipy)
+    if (_isUsingKlipy) {
       return; // Klipy doesn't support stickers in current service impl
+    }
 
     HapticUtils.lightImpact();
     setState(() {

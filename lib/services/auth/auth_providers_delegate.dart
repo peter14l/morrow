@@ -81,8 +81,9 @@ class AuthProvidersDelegate {
         ),
       );
       final response = await googleSignInDesktop.signIn();
-      if (response == null)
+      if (response == null) {
         throw const AuthException('Google sign in was cancelled');
+      }
       idToken = response.idToken;
       accessToken = response.accessToken;
     } else {
@@ -96,8 +97,9 @@ class AuthProvidersDelegate {
             await _googleSignIn.signIn();
       }
 
-      if (googleUser == null)
+      if (googleUser == null) {
         throw const AuthException('Google sign in was cancelled');
+      }
 
       final googleAuth = await googleUser.authentication;
       idToken = googleAuth.idToken;

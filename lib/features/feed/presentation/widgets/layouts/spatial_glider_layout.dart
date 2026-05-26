@@ -1,10 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
-import 'package:oasis/themes/app_colors.dart';
 import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/services/digital_wellbeing_service.dart';
 
@@ -163,7 +161,7 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout>
             Icon(Icons.timer_outlined, size: 14, color: colorScheme.primary),
             const SizedBox(width: 8),
             Text(
-              'Intentional Limit: ${wellbeing.totalMinutes}m / $threshold\m',
+              'Intentional Limit: ${wellbeing.totalMinutes}m / ${threshold}m',
               style: const TextStyle(
                 fontSize: 10,
                 color: Colors.white60,
@@ -183,7 +181,7 @@ class _SpatialGliderLayoutState extends State<SpatialGliderLayout>
     int index,
   ) {
     // Parallax & Depth logic - create a more 'spatial' feeling
-    double scrollOffset = _scrollController.hasClients
+    final double scrollOffset = _scrollController.hasClients
         ? _scrollController.offset
         : 0.0;
 

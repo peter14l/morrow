@@ -119,7 +119,7 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
     );
 
     if (widget.tooltip != null) {
-      fab = Tooltip(message: widget.tooltip!, child: fab);
+      fab = Tooltip(message: widget.tooltip, child: fab);
     }
 
     return fab;
@@ -372,9 +372,9 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
 
     // Calculate positions for child FABs (arc distribution above main FAB)
     final count = widget.options.length;
-    final angleSpread = math.pi * 0.6; // 60 degrees spread
-    final startAngle = -math.pi / 2 - angleSpread / 2;
-    final radius = 90.0;
+    const angleSpread = math.pi * 0.6; // 60 degrees spread
+    const startAngle = -math.pi / 2 - angleSpread / 2;
+    const radius = 90.0;
 
     return SizedBox(
       width: 200,
@@ -621,7 +621,7 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
     final morphAmount = math.sin(morphValue * math.pi * 2 + index * 0.5) * 0.08;
     final morphRadius = (widget.childFABSize / 2) + (morphAmount * 4);
 
-    Widget fab = Tooltip(
+    final Widget fab = Tooltip(
       message: option.label,
       child: GestureDetector(
         onTap: () {

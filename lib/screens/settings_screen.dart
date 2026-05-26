@@ -4,7 +4,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -18,9 +17,7 @@ import 'package:oasis/features/settings/presentation/screens/download_data_scree
 import 'package:oasis/features/settings/presentation/screens/storage_usage_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/font_size_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/help_support_screen.dart';
-import 'package:oasis/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:oasis/features/messages/presentation/screens/encryption_setup_screen.dart';
-import 'package:oasis/screens/oasis_pro_screen.dart';
 import 'package:oasis/screens/moderation/moderation_screens.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
@@ -29,17 +26,11 @@ import 'package:oasis/features/profile/presentation/providers/profile_provider.d
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/providers/community_provider.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
-import 'package:oasis/services/desktop_window_service.dart';
 import 'package:universal_io/io.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'package:oasis/features/profile/presentation/screens/account_management_screen.dart';
 import 'package:oasis/widgets/desktop_header.dart';
-import 'package:oasis/features/settings/presentation/screens/home_location_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:oasis/core/config/app_config.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/widgets/adaptive/adaptive_dialog.dart';
 import 'package:oasis/widgets/app_button.dart';
 import 'dart:ui';
@@ -1246,16 +1237,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (useFluent) {
       return fluent.Button(
         onPressed: _handleSignOut,
-        child: Row(
+        child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const material.Icon(
+            material.Icon(
               FluentIcons.sign_out_24_regular,
               color: material.Colors.red,
               size: 20,
             ),
-            const SizedBox(width: 8),
-            const fluent.Text(
+            SizedBox(width: 8),
+            fluent.Text(
               'Sign Out',
               style: TextStyle(color: material.Colors.red),
             ),
@@ -1404,12 +1395,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: borderRadius,
         child: Column(
           children: List.generate(children.length * 2 - 1, (idx) {
-            if (idx.isOdd)
+            if (idx.isOdd) {
               return material.Divider(
                 height: 1,
                 indent: 56,
                 color: colorScheme.outlineVariant.withValues(alpha: 0.3),
               );
+            }
             return children[idx ~/ 2];
           }),
         ),

@@ -1,7 +1,6 @@
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/config/supabase_config.dart';
-import 'package:oasis/core/config/r2_config.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/notification_service.dart';
@@ -382,7 +381,7 @@ class PostService {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      if (response == null || (response as List).isEmpty) return [];
+      if ((response as List).isEmpty) return [];
 
       final List<Post> posts = [];
       for (final item in response as List) {
@@ -484,7 +483,7 @@ class PostService {
           .order('created_at', ascending: false)
           .range(offset, offset + limit - 1);
 
-      if (response == null || (response as List).isEmpty) return [];
+      if ((response as List).isEmpty) return [];
 
       final List<Post> posts = [];
       for (final item in response as List) {

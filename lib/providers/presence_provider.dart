@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/services/presence_service.dart';
 import 'package:oasis/services/auth_service.dart';
-import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 class UserPresence {

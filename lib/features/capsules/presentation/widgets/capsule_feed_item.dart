@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:oasis/features/capsules/domain/models/time_capsule_entity.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:oasis/themes/app_colors.dart';
