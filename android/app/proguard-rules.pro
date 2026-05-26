@@ -150,3 +150,8 @@
 -keepclasseswithmembers class * {
     public void onPayment*(...);
 }
+
+# Keep LocalBroadcastManager to prevent NoClassDefFoundError
+-keep class androidx.localbroadcastmanager.content.LocalBroadcastManager { *; }
+-keep class androidx.localbroadcastmanager.content.LocalBroadcastManager$** { *; }
+
