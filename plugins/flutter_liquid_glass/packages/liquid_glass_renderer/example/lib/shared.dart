@@ -73,11 +73,11 @@ class ImagePageView extends HookWidget {
               1 => const Grid(),
               2 => const VerticalStripes(),
               _ => LayoutBuilder(
-                builder: (context, constraints) => Image.network(
-                  'https://picsum.photos/2000/2000?random=$index',
-                  fit: BoxFit.cover,
+                  builder: (context, constraints) => Image.network(
+                    'https://picsum.photos/2000/2000?random=$index',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
             };
           },
         ),

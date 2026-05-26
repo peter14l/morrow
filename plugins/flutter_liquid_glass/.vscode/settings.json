@@ -1,0 +1,10 @@
+{
+  "dart.flutterTestAdditionalArgs": [
+    "--enable-impeller",
+    "--coverage"
+  ],
+  "dart.flutterRunAdditionalArgs": [
+    "--enable-impeller"
+  ],
+  "dart.flutterSdkPath": ".fvm/versions/3.41.6"
+}

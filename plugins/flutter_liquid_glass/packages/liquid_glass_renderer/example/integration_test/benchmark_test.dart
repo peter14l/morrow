@@ -177,19 +177,18 @@ class _MultiTestApp extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: switch ((withGlass, shareLayer)) {
             (true, true) => LiquidGlass(
-              key: Key('liquid_glass_$index'),
-              shape: LiquidRoundedSuperellipse(borderRadius: 15),
-              child: listItem,
-            ),
-            (true, false) => LiquidGlassLayer(
-              settings: settings,
-              child: LiquidGlass(
                 key: Key('liquid_glass_$index'),
                 shape: LiquidRoundedSuperellipse(borderRadius: 15),
                 child: listItem,
               ),
-            ),
-
+            (true, false) => LiquidGlassLayer(
+                settings: settings,
+                child: LiquidGlass(
+                  key: Key('liquid_glass_$index'),
+                  shape: LiquidRoundedSuperellipse(borderRadius: 15),
+                  child: listItem,
+                ),
+              ),
             (false, _) => listItem,
           },
         );
@@ -198,21 +197,20 @@ class _MultiTestApp extends StatelessWidget {
 
     return switch (shareLayer) {
       false => MaterialApp(
-        home: Scaffold(
-          body: _GridPaperBackground(child: Center(child: content)),
+          home: Scaffold(
+            body: _GridPaperBackground(child: Center(child: content)),
+          ),
         ),
-      ),
-
       true => MaterialApp(
-        home: Scaffold(
-          body: _GridPaperBackground(
-            child: LiquidGlassLayer(
-              settings: settings,
-              child: Center(child: content),
+          home: Scaffold(
+            body: _GridPaperBackground(
+              child: LiquidGlassLayer(
+                settings: settings,
+                child: Center(child: content),
+              ),
             ),
           ),
         ),
-      ),
     };
   }
 }

@@ -14,6 +14,7 @@ precision mediump float;
 #define DEBUG_NORMALS 0
 
 #include <flutter/runtime_effect.glsl>
+#define BACKGROUND_TEXTURE uBlurredTexture
 #include "shared.glsl"
 #include "sdf.glsl"
 
@@ -52,7 +53,7 @@ void main() {
     #endif
     
     // Generate shape and calculate normal using shader-specific method
-    float sd = sceneSDF(fragCoord, int(uNumShapes), uShapeData, uBlend);
+    float sd = sceneSDF(fragCoord, int(uNumShapes), uBlend);
     float foregroundAlpha = 1.0 - smoothstep(-2.0, 0.0, sd);
 
     // Early discard for pixels outside glass shapes to reduce overdraw
@@ -77,7 +78,6 @@ void main() {
         uLightDirection, 
         uLightIntensity, 
         uAmbientStrength, 
-        uBlurredTexture, 
         normal,
         foregroundAlpha,
         0.0,

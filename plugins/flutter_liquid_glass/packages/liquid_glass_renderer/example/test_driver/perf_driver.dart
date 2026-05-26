@@ -9,13 +9,12 @@ Future<void> main() {
         final timelineKeys = data.keys
             .where((key) => data[key] is Map<String, dynamic>)
             .where((key) {
-              final value = data[key] as Map<String, dynamic>;
-              // Check if it looks like timeline data (has events array)
-              return value.containsKey('traceEvents') ||
-                  value.containsKey('events') ||
-                  key.toString().toLowerCase().contains('timeline');
-            })
-            .toList();
+          final value = data[key] as Map<String, dynamic>;
+          // Check if it looks like timeline data (has events array)
+          return value.containsKey('traceEvents') ||
+              value.containsKey('events') ||
+              key.toString().toLowerCase().contains('timeline');
+        }).toList();
 
         print(
           'Found ${timelineKeys.length} timeline datasets: ${timelineKeys.join(', ')}',

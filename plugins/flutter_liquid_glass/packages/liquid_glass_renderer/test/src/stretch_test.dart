@@ -63,8 +63,8 @@ void main() {
 
           final center = tester.getCenter(find.byKey(buttonKey));
           final gesture = await tester.startGesture(center);
-          // Hold the pointer down while the button's tap recognizer competes 
-          // with the parent pan; onPanStart must not run until the pan wins, 
+          // Hold the pointer down while the button's tap recognizer competes
+          // with the parent pan; onPanStart must not run until the pan wins,
           // so the interaction scale should stay at 1.0.
           await tester.pump(const Duration(milliseconds: 100));
           final scaleFinder = find.descendant(

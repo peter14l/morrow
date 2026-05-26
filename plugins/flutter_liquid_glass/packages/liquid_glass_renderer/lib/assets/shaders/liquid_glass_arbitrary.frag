@@ -84,78 +84,6 @@ vec2 findShapeCenter(vec2 currentUV) {
 
 
 
-// Helper for robust, multi-scale gradient calculation using a Sobel operator.
-// This is more noise-resistant than simple central differences.
-vec2 calculateGradient(sampler2D tex, vec2 uv, vec2 texelSize) {
-    vec2 gradient = vec2(0.0);
-    float totalWeight = 0.0;
-
-    // Sample at different scales (1x, 2x, 4x) to capture both fine and broad details.
-    // This creates a smooth gradient, even from noisy or wide-blurred textures.
-    // Unrolled for Skia/SkSL compatibility.
-    
-    // Scale 1.0
-    {
-        float scale = 1.0;
-        float weight = 1.0;
-        vec2 d = texelSize * scale;
-        float tl = texture(tex, uv - d).a;
-        float tm = texture(tex, uv - vec2(0.0, d.y)).a;
-        float tr = texture(tex, uv + vec2(d.x, -d.y)).a;
-        float ml = texture(tex, uv - vec2(d.x, 0.0)).a;
-        float mr = texture(tex, uv + vec2(d.x, 0.0)).a;
-        float bl = texture(tex, uv + vec2(-d.x, d.y)).a;
-        float bm = texture(tex, uv + vec2(0.0, d.y)).a;
-        float br = texture(tex, uv + d).a;
-        float sobelX = (tr + 2.0 * mr + br) - (tl + 2.0 * ml + bl);
-        float sobelY = (bl + 2.0 * bm + br) - (tl + 2.0 * tm + tr);
-        gradient += vec2(sobelX, sobelY) * weight;
-        totalWeight += weight;
-    }
-    
-    // Scale 2.0
-    {
-        float scale = 2.0;
-        float weight = 0.5;
-        vec2 d = texelSize * scale;
-        float tl = texture(tex, uv - d).a;
-        float tm = texture(tex, uv - vec2(0.0, d.y)).a;
-        float tr = texture(tex, uv + vec2(d.x, -d.y)).a;
-        float ml = texture(tex, uv - vec2(d.x, 0.0)).a;
-        float mr = texture(tex, uv + vec2(d.x, 0.0)).a;
-        float bl = texture(tex, uv + vec2(-d.x, d.y)).a;
-        float bm = texture(tex, uv + vec2(0.0, d.y)).a;
-        float br = texture(tex, uv + d).a;
-        float sobelX = (tr + 2.0 * mr + br) - (tl + 2.0 * ml + bl);
-        float sobelY = (bl + 2.0 * bm + br) - (tl + 2.0 * tm + tr);
-        gradient += vec2(sobelX, sobelY) * weight;
-        totalWeight += weight;
-    }
-    
-    // Scale 4.0
-    {
-        float scale = 4.0;
-        float weight = 0.25;
-        vec2 d = texelSize * scale;
-        float tl = texture(tex, uv - d).a;
-        float tm = texture(tex, uv - vec2(0.0, d.y)).a;
-        float tr = texture(tex, uv + vec2(d.x, -d.y)).a;
-        float ml = texture(tex, uv - vec2(d.x, 0.0)).a;
-        float mr = texture(tex, uv + vec2(d.x, 0.0)).a;
-        float bl = texture(tex, uv + vec2(-d.x, d.y)).a;
-        float bm = texture(tex, uv + vec2(0.0, d.y)).a;
-        float br = texture(tex, uv + d).a;
-        float sobelX = (tr + 2.0 * mr + br) - (tl + 2.0 * ml + bl);
-        float sobelY = (bl + 2.0 * bm + br) - (tl + 2.0 * tm + tr);
-        gradient += vec2(sobelX, sobelY) * weight;
-        totalWeight += weight;
-    }
-    
-    // Normalize the summed gradients.
-    // The 0.125 factor is an approximation to normalize the Sobel kernel (1/8).
-    return (gradient / totalWeight) * 0.125;
-}
-
 vec3 getReconstructedNormal(vec2 p, float thickness) {
     vec2 uv = p / uForegroundSize;
     
@@ -254,7 +182,6 @@ void main() {
         uLightDirection, 
         uLightIntensity, 
         uAmbientStrength, 
-        uBackgroundTexture, 
         normal,
         foregroundColor.a,
         uGaussianBlur,

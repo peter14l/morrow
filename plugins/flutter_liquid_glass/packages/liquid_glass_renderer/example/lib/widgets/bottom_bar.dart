@@ -86,8 +86,7 @@ class _LiquidGlassBottomBarState extends State<LiquidGlassBottomBar> {
     final brightness = MediaQuery.platformBrightnessOf(context);
     final isDark = brightness == Brightness.dark;
 
-    final glassSettings =
-        widget.glassSettings ??
+    final glassSettings = widget.glassSettings ??
         LiquidGlassSettings(
           refractiveIndex: 1.21,
           thickness: 30,
@@ -199,9 +198,8 @@ class _BottomBarTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = CupertinoTheme.of(context);
-    final iconColor = selected
-        ? theme.primaryColor
-        : theme.textTheme.textStyle.color;
+    final iconColor =
+        selected ? theme.primaryColor : theme.textTheme.textStyle.color;
 
     return GestureDetector(
       onTap: onTap,
@@ -233,8 +231,8 @@ class _BottomBarTab extends StatelessWidget {
                           transform: selected
                               ? Matrix4.identity()
                               : (Matrix4.identity()
-                                  ..scale(0.4)
-                                  ..rotateZ(-math.pi)),
+                                ..scale(0.4)
+                                ..rotateZ(-math.pi)),
                           child: AnimatedOpacity(
                             duration: const Duration(milliseconds: 300),
                             opacity: selected ? 1 : 0,
@@ -472,15 +470,15 @@ class _TabIndicatorState extends State<_TabIndicator>
           1.0,
         ); // 0.3s projection
         targetTabIndex = (projectedX / tabWidth).round().clamp(
-          0,
-          widget.tabCount - 1,
-        );
+              0,
+              widget.tabCount - 1,
+            );
 
         // Ensure we move at least one tab if velocity is strong enough
         final currentTabIndex = (currentRelativeX / tabWidth).round().clamp(
-          0,
-          widget.tabCount - 1,
-        );
+              0,
+              widget.tabCount - 1,
+            );
         if (velocityX > velocityThreshold &&
             targetTabIndex <= currentTabIndex &&
             currentTabIndex < widget.tabCount - 1) {
@@ -493,9 +491,9 @@ class _TabIndicatorState extends State<_TabIndicator>
       } else {
         // Low velocity - snap to nearest tab
         targetTabIndex = (currentRelativeX / tabWidth).round().clamp(
-          0,
-          widget.tabCount - 1,
-        );
+              0,
+              widget.tabCount - 1,
+            );
       }
     }
     xAlign = computeXAlignmentForTab(targetTabIndex);
@@ -509,8 +507,7 @@ class _TabIndicatorState extends State<_TabIndicator>
   @override
   Widget build(BuildContext context) {
     final theme = CupertinoTheme.of(context);
-    final indicatorColor =
-        widget.indicatorColor ??
+    final indicatorColor = widget.indicatorColor ??
         theme.textTheme.textStyle.color?.withValues(alpha: .1);
     final targetAlignment = computeXAlignmentForTab(widget.tabIndex);
 
@@ -535,8 +532,7 @@ class _TabIndicatorState extends State<_TabIndicator>
               snapToEnd: true,
               duration: Duration(milliseconds: 300),
             ),
-            value:
-                widget.visible &&
+            value: widget.visible &&
                     (_isDown || (alignment.x - targetAlignment).abs() > 0.30)
                 ? 1.0
                 : 0.0,
@@ -586,7 +582,6 @@ class _TabIndicatorState extends State<_TabIndicator>
                           chromaticAberration: .5,
                           blur: 0,
                         ),
-
                         shape: const LiquidRoundedSuperellipse(
                           borderRadius: 64,
                         ),

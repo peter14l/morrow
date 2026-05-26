@@ -69,48 +69,48 @@ void main() {
       testWidgets(
         'gestureDetector: no glow until pan wins over nested button',
         (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: GlassGlowLayer(
-              child: GlassGlow(
-                gestureMode: GestureMode.gestureDetector,
-                child: ElevatedButton(
-                  key: buttonKey,
-                  onPressed: () {},
-                  child: const Text('Press me'),
+          await tester.pumpWidget(
+            MaterialApp(
+              home: GlassGlowLayer(
+                child: GlassGlow(
+                  gestureMode: GestureMode.gestureDetector,
+                  child: ElevatedButton(
+                    key: buttonKey,
+                    onPressed: () {},
+                    child: const Text('Press me'),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
+          );
 
-        RenderObject? glowRo;
-        void findGlowRo(RenderObject ro) {
-          if (ro.runtimeType.toString() == '_RenderGlassGlowLayer') {
-            glowRo = ro;
-            return;
+          RenderObject? glowRo;
+          void findGlowRo(RenderObject ro) {
+            if (ro.runtimeType.toString() == '_RenderGlassGlowLayer') {
+              glowRo = ro;
+              return;
+            }
+            ro.visitChildren(findGlowRo);
           }
-          ro.visitChildren(findGlowRo);
-        }
 
-        double glowAlpha() {
-          glowRo = null;
-          findGlowRo(tester.renderObject(find.byType(GlassGlowLayer)));
-          expect(glowRo, isNotNull);
-          return ((glowRo! as dynamic).glowColor as Color).a;
-        }
+          double glowAlpha() {
+            glowRo = null;
+            findGlowRo(tester.renderObject(find.byType(GlassGlowLayer)));
+            expect(glowRo, isNotNull);
+            return ((glowRo! as dynamic).glowColor as Color).a;
+          }
 
-        expect(glowAlpha(), 0);
+          expect(glowAlpha(), 0);
 
-        final center = tester.getCenter(find.byKey(buttonKey));
-        final gesture = await tester.startGesture(center);
-        await tester.pump(const Duration(milliseconds: 100));
-        expect(glowAlpha(), 0);
+          final center = tester.getCenter(find.byKey(buttonKey));
+          final gesture = await tester.startGesture(center);
+          await tester.pump(const Duration(milliseconds: 100));
+          expect(glowAlpha(), 0);
 
-        await gesture.up();
-        await tester.pumpAndSettle();
-        expect(glowAlpha(), 0);
-      },
+          await gesture.up();
+          await tester.pumpAndSettle();
+          expect(glowAlpha(), 0);
+        },
       );
 
       testWidgets('gestureDetector mode with drag', (tester) async {
