@@ -98,6 +98,12 @@ class OasisMessagingService : FirebaseMessagingService() {
     }
 
     private fun decryptAndShowNotification(data: Map<String, String>) {
+        if (!PqAuraNative.isAvailable) {
+            Log.w(TAG, "PqAura native library not available, skipping decryption")
+            showNotification(data["title"] ?: "New Message", "🔒 Encrypted message", data)
+            return
+        }
+
         var statePtr: Long = 0
         try {
             val senderId = data["sender_id"] ?: data["actor_id"] ?: return

@@ -2,8 +2,17 @@ package com.oasis.app
 
 class PqAuraNative {
     companion object {
+        var isAvailable = false
+            private set
+
         init {
-            System.loadLibrary("pq_aura")
+            try {
+                System.loadLibrary("pq_aura")
+                isAvailable = true
+            } catch (e: UnsatisfiedLinkError) {
+                // Native library not found, handle gracefully
+                isAvailable = false
+            }
         }
 
         @JvmStatic

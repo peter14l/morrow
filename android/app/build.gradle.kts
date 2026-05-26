@@ -10,7 +10,7 @@ buildDir = File(rootDir, "../build/app")
 
 android {
     namespace = "com.oasis.app"
-    compileSdk = 36
+    compileSdk = 35
     ndkVersion = "28.2.13676358"
 
     compileOptions {
@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId = "com.oasis.app" // Production: com.oasis.app
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
