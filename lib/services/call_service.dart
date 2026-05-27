@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:oasis/core/config/app_config.dart';
@@ -156,7 +157,7 @@ class CallService extends ChangeNotifier {
         final keyProvider = await BaseKeyProvider.create();
         await keyProvider.setKey(base64Encode(e2eeKey!));
         final e2eeOptions = E2EEOptions(keyProvider: keyProvider);
-        roomOptions = RoomOptions(e2ee: e2eeOptions);
+        roomOptions = RoomOptions(encryption: e2eeOptions);
         _recordStep('E2EE initialized with PQ-DR key');
       }
 
@@ -415,7 +416,7 @@ class DisabledCallService extends CallService {
   @override
   Future<void> initLocalStream(bool isVideo) async {}
   @override
-  Future<void> startSignaling(CallEntity call) async {}
+  Future<void> startSignaling(CallEntity call, [Uint8List? key]) async {}
   @override
   void startIncomingCallListener() {}
   @override
