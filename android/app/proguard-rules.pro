@@ -155,3 +155,78 @@
 -keep class androidx.localbroadcastmanager.content.LocalBroadcastManager { *; }
 -keep class androidx.localbroadcastmanager.content.LocalBroadcastManager$** { *; }
 
+# ============================================================
+# LiveKit (livekit_client 2.7.0) — WebRTC-based calling
+# R8 strips these aggressively without these rules, causing
+# UnsatisfiedLinkError / ClassNotFoundException on startup.
+# ============================================================
+-keep class livekit.** { *; }
+-keep class io.livekit.** { *; }
+-keep class livekit.org.webrtc.** { *; }
+-dontwarn livekit.**
+-dontwarn io.livekit.**
+
+# Keep all JNI native method entry points (WebRTC, LiveKit, FFI)
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# ============================================================
+# flutter_background (de.julianassmann) — foreground service
+# for keeping calls alive in the background on Android.
+# ============================================================
+-keep class de.julianassmann.flutter_background.** { *; }
+-keepclassmembers class de.julianassmann.flutter_background.** { *; }
+-dontwarn de.julianassmann.flutter_background.**
+
+# ============================================================
+# flutter_callkit_incoming (^3.0.0) — native incoming call UI
+# ============================================================
+-keep class com.hiennv.flutter_callkit_incoming.** { *; }
+-keepclassmembers class com.hiennv.flutter_callkit_incoming.** { *; }
+-dontwarn com.hiennv.flutter_callkit_incoming.**
+
+# ============================================================
+# audioplayers (^6.5.1) — ringtone / audio playback
+# ============================================================
+-keep class xyz.luan.audioplayers.** { *; }
+-keepclassmembers class xyz.luan.audioplayers.** { *; }
+-dontwarn xyz.luan.audioplayers.**
+
+# ============================================================
+# permission_handler — microphone / camera permissions
+# ============================================================
+-keep class com.baseflow.permissionhandler.** { *; }
+-keepclassmembers class com.baseflow.permissionhandler.** { *; }
+-dontwarn com.baseflow.permissionhandler.**
+
+# ============================================================
+# flutter_secure_storage / androidx.security
+# ============================================================
+-keep class com.it_nomads.fluttersecurestorage.** { *; }
+-dontwarn com.it_nomads.fluttersecurestorage.**
+
+# ============================================================
+# Kotlin reflection & coroutines (used by many plugins)
+# ============================================================
+-keep class kotlin.** { *; }
+-keep class kotlin.Metadata { *; }
+-keepclassmembers class kotlin.Metadata { *; }
+-dontwarn kotlin.**
+-keep class kotlinx.coroutines.** { *; }
+-dontwarn kotlinx.coroutines.**
+
+# ============================================================
+# Firebase Messaging (FCM) — background handler
+# @pragma('vm:entry-point') alone is not enough with R8
+# ============================================================
+-keep class com.google.firebase.messaging.** { *; }
+-keep class com.google.firebase.iid.** { *; }
+
+# ============================================================
+# Gson / Serialization — used by Supabase & plugins
+# ============================================================
+-keep class com.google.gson.** { *; }
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}

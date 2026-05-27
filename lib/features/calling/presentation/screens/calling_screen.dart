@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:livekit_client/livekit_client.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -20,6 +21,7 @@ class CallingScreen extends StatefulWidget {
 
 class _CallingScreenState extends State<CallingScreen> {
   bool _isCallDataTimeout = false;
+  bool _hasPopped = false;
   CallProvider? _callProvider;
 
   @override
@@ -93,8 +95,12 @@ class _CallingScreenState extends State<CallingScreen> {
 
     if (!isWaitingForIncomingCall && !hasActiveCall && !hasIncomingCall) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && Navigator.canPop(context)) {
-          Navigator.pop(context);
+        if (mounted && !_hasPopped) {
+          _hasPopped = true;
+          final router = GoRouter.of(context);
+          if (router.canPop()) {
+            router.pop();
+          }
         }
       });
       return const Scaffold(

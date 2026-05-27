@@ -306,6 +306,9 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
 
   /// End current call
   Future<void> endCall() async {
+    // Guard against concurrent calls — if already ending, do nothing.
+    if (_isEnding) return;
+
     try {
       final callId = _state.activeCall?.id ?? _state.incomingCall?.id;
       if (callId == null) return;
@@ -317,10 +320,14 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
         clearError: true,
         clearActiveCall: true,
         clearIncomingCall: true,
+        isMinimized: false,
       );
       notifyListeners();
 
       await _endCall.call(callId);
+      // _callService.endCall() calls _cleanup() which calls notifyListeners()
+      // internally, but _onCallServiceUpdate is already guarded by _isEnding,
+      // so that extra notification won't cause a state conflict.
       await _callService.endCall();
 
       _state = _state.copyWith(isLoading: false);

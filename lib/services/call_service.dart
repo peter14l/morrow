@@ -67,15 +67,25 @@ class CallService extends ChangeNotifier {
     _audioPlayer.setAudioContext(
       AudioContext(
         android: const AudioContextAndroid(
-          usageType: AndroidUsageType.notificationRingtone,
+          // voiceCommunicationSignalling is correct for incoming call ringtones.
+          // notificationRingtone bypasses the active audio output device on Android.
+          usageType: AndroidUsageType.voiceCommunicationSignalling,
           contentType: AndroidContentType.sonification,
-          audioFocus: AndroidAudioFocus.none,
+          // Request exclusive transient focus so Android routes audio to the
+          // currently active output device (Bluetooth headset, speaker, etc.)
+          // instead of blasting through all available outputs simultaneously.
+          audioFocus: AndroidAudioFocus.gainTransientExclusive,
         ),
         iOS: AudioContextIOS(
           category: AVAudioSessionCategory.playAndRecord,
           options: const {
+            // allowBluetooth: routes to Bluetooth HFP (mono call profile)
             AVAudioSessionOptions.allowBluetooth,
-            AVAudioSessionOptions.defaultToSpeaker,
+            // allowBluetoothA2DP: routes to Bluetooth A2DP (stereo profile)
+            AVAudioSessionOptions.allowBluetoothA2DP,
+            // Do NOT include defaultToSpeaker — it overrides Bluetooth routing
+            // and forces audio to the built-in speaker even when a headset is
+            // connected, which causes the double-output the user is experiencing.
           },
         ),
       ),
