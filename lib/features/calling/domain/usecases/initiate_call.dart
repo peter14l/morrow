@@ -13,12 +13,14 @@ class InitiateCall {
     required String callerId,
     required String receiverId,
     required CallType type,
+    Map<String, dynamic>? offer,
   }) {
     return _repository.createCall(
       conversationId: conversationId,
       callerId: callerId,
       receiverId: receiverId,
       type: type,
+      offer: offer,
     );
   }
 }

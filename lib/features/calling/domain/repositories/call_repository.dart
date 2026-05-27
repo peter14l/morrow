@@ -8,6 +8,7 @@ abstract class CallRepository {
     required String callerId,
     required String receiverId,
     required CallType type,
+    Map<String, dynamic>? offer,
   });
 
   /// Get call by ID

@@ -13,6 +13,7 @@ class CallRepositoryImpl implements CallRepository {
     required String callerId,
     required String receiverId,
     required CallType type,
+    Map<String, dynamic>? offer,
   }) async {
     final now = DateTime.now();
 
@@ -25,6 +26,7 @@ class CallRepositoryImpl implements CallRepository {
           'type': type.name,
           'status': CallStatus.ringing.name,
           'created_at': now.toIso8601String(),
+          if (offer != null) 'offer': offer,
         })
         .select()
         .single();

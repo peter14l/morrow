@@ -11,6 +11,8 @@ import 'package:universal_io/io.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service_io.dart';
 
 class CallService extends ChangeNotifier {
   static CallService? _instance;
@@ -20,11 +22,11 @@ class CallService extends ChangeNotifier {
   final AudioPlayer _audioPlayer;
   bool _isPlayingRingtone = false;
 
-  Room? _room;
-
   CallEntity? _currentCall;
   CallEntity? _incomingCall;
   String? _currentCallId;
+  Uint8List? e2eeKey;
+  Room? _room;
   String? _lastEndedCallId;
   DateTime? _lastEndedTimestamp;
 
@@ -128,10 +130,13 @@ class CallService extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> startSignaling(CallEntity call) async {
+  Future<void> startSignaling(CallEntity call, [Uint8List? key]) async {
     _recordStep('startSignaling for call: ${call.id}');
     _currentCall = call;
     _currentCallId = call.id;
+    if (key != null) {
+      e2eeKey = key;
+    }
 
     final user = _supabase.auth.currentUser;
     if (user == null) return;
@@ -145,7 +150,17 @@ class CallService extends ChangeNotifier {
 
       // Connect to room
     try {
-      _room = Room();
+      RoomOptions roomOptions = const RoomOptions();
+
+      if (e2eeKey != null) {
+        final keyProvider = await BaseKeyProvider.create();
+        await keyProvider.setKey(base64Encode(e2eeKey!));
+        final e2eeOptions = E2EEOptions(keyProvider: keyProvider);
+        roomOptions = RoomOptions(e2ee: e2eeOptions);
+        _recordStep('E2EE initialized with PQ-DR key');
+      }
+
+      _room = Room(roomOptions: roomOptions);
       
       // Use createListener() to listen for Room events
       final listener = _room!.createListener();
@@ -231,7 +246,7 @@ class CallService extends ChangeNotifier {
         .from('calls')
         .stream(primaryKey: ['id'])
         .eq('receiver_id', userId)
-        .listen((data) {
+        .listen((data) async {
           if (data.isNotEmpty) {
             final ringingCalls = data
                 .where(
@@ -250,6 +265,12 @@ class CallService extends ChangeNotifier {
               if (_currentCallId == null &&
                   _incomingCall?.id != call.id &&
                   !isRecentlyEnded) {
+                
+                // Decrypt PQ-DR E2EE Key from the offer
+                if (call.offer != null) {
+                  e2eeKey = await PQAuraService.instance.decryptMediaKey(call.callerId, call.offer!);
+                }
+
                 _incomingCall = call;
                 _playRingtone();
                 DesktopCallNotifier.instance.handleIncomingCall(

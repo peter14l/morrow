@@ -10,6 +10,9 @@ import '../../domain/usecases/initiate_call.dart';
 import '../../domain/usecases/accept_call.dart';
 import '../../domain/usecases/end_call.dart';
 import '../../domain/usecases/get_active_calls.dart';
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service_io.dart';
 
 /// Immutable state for calling feature using LiveKit
 class CallState {
@@ -209,16 +212,24 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       // 1. Initialize local tracks
       await _callService.initLocalStream(type == CallType.video);
 
-      // 2. Create call in DB (No WebRTC offer needed)
+      // 1a. Generate random E2EE key
+      final random = Random.secure();
+      final e2eeKey = Uint8List.fromList(List.generate(32, (_) => random.nextInt(256)));
+      
+      // 1b. Encrypt via PQAuraService
+      final encryptedOffer = await PQAuraService.instance.encryptMediaKey(receiverId, e2eeKey);
+
+      // 2. Create call in DB with the offer
       final call = await _initiateCall.call(
         conversationId: conversationId,
         callerId: callerId,
         receiverId: receiverId,
         type: type,
+        offer: encryptedOffer,
       );
 
       // 3. Connect to LiveKit room and start ringtone
-      await _callService.startSignaling(call);
+      await _callService.startSignaling(call, e2eeKey);
       await _callService.startRingtone();
 
       _state = _state.copyWith(activeCall: call, isLoading: false);
@@ -261,7 +272,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       );
 
       // 3. Connect to LiveKit room
-      await _callService.startSignaling(acceptedCall);
+      await _callService.startSignaling(acceptedCall, _callService.e2eeKey);
 
       _state = _state.copyWith(
         isLoading: false,
