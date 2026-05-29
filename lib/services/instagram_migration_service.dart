@@ -199,13 +199,16 @@ class InstagramMigrationService with ChangeNotifier {
           if (uri == null) continue;
 
           // Find the file in the media list
-          final matchingFile = _postMediaFiles.firstWhere(
-            (f) => f.name.toLowerCase().contains(uri.toLowerCase()) || uri.toLowerCase().contains(f.name.toLowerCase()),
-            orElse: () => ArchiveFile('', 0, null),
-          );
+          ArchiveFile? matchingFile;
+          for (final f in _postMediaFiles) {
+            if (f.name.toLowerCase().contains(uri.toLowerCase()) || uri.toLowerCase().contains(f.name.toLowerCase())) {
+              matchingFile = f;
+              break;
+            }
+          }
 
           String? publicUrl;
-          if (matchingFile.name.isNotEmpty && matchingFile.content != null) {
+          if (matchingFile != null && matchingFile.content != null) {
             // Write to a temporary file
             final ext = uri.split('.').last;
             final fileName = '${_uuid.v4()}.$ext';

@@ -366,7 +366,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               AppButton.secondary(
                 text: 'Import from Instagram',
                 onPressed: _isLoading ? null : () => context.push('/instagram-migration'),
-                icon: const Icon(Icons.instagram, color: Colors.white, size: 20),
+                icon: const Icon(Icons.camera_alt, color: Colors.white, size: 20),
               ),
 
               const SizedBox(height: 16.0),

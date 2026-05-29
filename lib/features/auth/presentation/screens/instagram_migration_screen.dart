@@ -29,6 +29,12 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  final _usernameFocus = FocusNode();
+  final _nameFocus = FocusNode();
+  final _bioFocus = FocusNode();
+  final _emailFocus = FocusNode();
+  final _passwordFocus = FocusNode();
+
   bool _isProcessingZip = false;
   bool _isRegistering = false;
   bool _obscurePassword = true;
@@ -41,6 +47,11 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
     _bioController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _usernameFocus.dispose();
+    _nameFocus.dispose();
+    _bioFocus.dispose();
+    _emailFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -228,7 +239,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                         child: CircleAvatar(
                           radius: 18,
                           backgroundColor: OasisColors.glow,
-                          child: Icon(Icons.instagram, color: OasisColors.deep, size: 20),
+                          child: Icon(Icons.camera_alt, color: OasisColors.deep, size: 20),
                         ),
                       ),
                     ],
@@ -237,6 +248,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                 const SizedBox(height: 24),
                 CustomTextField(
                   controller: _nameController,
+                  focusNode: _nameFocus,
                   hint: 'Full Name',
                   prefixIcon: Icons.person_outline,
                   validator: (val) => val == null || val.isEmpty ? 'Name is required' : null,
@@ -244,6 +256,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                 const SizedBox(height: 10),
                 CustomTextField(
                   controller: _usernameController,
+                  focusNode: _usernameFocus,
                   hint: 'Username',
                   prefixIcon: Icons.alternate_email,
                   validator: (val) => val == null || val.isEmpty ? 'Username is required' : null,
@@ -251,6 +264,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                 const SizedBox(height: 10),
                 CustomTextField(
                   controller: _bioController,
+                  focusNode: _bioFocus,
                   hint: 'Bio',
                   prefixIcon: Icons.chat_bubble_outline,
                   maxLines: 3,
@@ -258,6 +272,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                 const SizedBox(height: 10),
                 CustomTextField(
                   controller: _emailController,
+                  focusNode: _emailFocus,
                   hint: 'Email Address',
                   prefixIcon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
@@ -266,6 +281,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                 const SizedBox(height: 10),
                 CustomTextField(
                   controller: _passwordController,
+                  focusNode: _passwordFocus,
                   hint: 'Create Oasis Password',
                   prefixIcon: Icons.lock_outline,
                   obscureText: _obscurePassword,

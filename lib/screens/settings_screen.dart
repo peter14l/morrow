@@ -468,8 +468,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 children: [
                   const material.Icon(
-                    material.Icons.instagram,
-                    color: Colors.pinkAccent,
+                    material.Icons.sync,
+                    color: material.Colors.pinkAccent,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -491,10 +491,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               if (migrationService.isMigrating) ...[
                 const SizedBox(height: 12),
-                LinearProgressIndicator(
+                material.LinearProgressIndicator(
                   value: migrationService.progress,
                   backgroundColor: colorScheme.surfaceContainer,
-                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                  valueColor: material.AlwaysStoppedAnimation<material.Color>(colorScheme.primary),
                 ),
                 const SizedBox(height: 8),
                 material.Text(
