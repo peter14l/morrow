@@ -8,6 +8,7 @@ import 'pages/page1_welcome.dart';
 import 'pages/page2_slow_social.dart';
 import 'pages/page3_canvas.dart';
 import 'pages/page4_wellbeing.dart';
+import 'pages/page5_contacts.dart';
 import 'pages/page5_cta.dart';
 import '../auth/presentation/screens/onboarding_screen.dart';
 
@@ -48,7 +49,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
 
   void _onSkip() {
     _pageController.animateToPage(
-      4,
+      5,
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeInOutCubic,
     );
@@ -63,7 +64,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isLastPage = _currentPage == 4;
+    final isLastPage = _currentPage == 5;
 
     return Scaffold(
       body: OasisBackground(
@@ -74,7 +75,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
               builder: (context, child) {
                 return PageView.builder(
                   controller: _pageController,
-                  itemCount: 5,
+                  itemCount: 6,
                   itemBuilder: (context, index) {
                     double offset = 0.0;
                     if (_pageController.position.haveDimensions) {
@@ -118,7 +119,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
                       const Spacer(),
                       SmoothPageIndicator(
                         controller: _pageController,
-                        count: 5,
+                        count: 6,
                         effect: const WormEffect(
                           activeDotColor: OasisColors.glow,
                           dotColor: OasisColors.sage,
@@ -157,8 +158,10 @@ class _OnboardingShellState extends State<OnboardingShell> {
       case 3:
         return Page4Wellbeing(isActive: _currentPage == 3);
       case 4:
+        return Page5Contacts(isActive: _currentPage == 4);
+      case 5:
         return Page5CTA(
-          isActive: _currentPage == 4,
+          isActive: _currentPage == 5,
           onComplete: () => _completeOnboarding(route: '/register'),
           onSignIn: () => _completeOnboarding(route: '/login'),
         );

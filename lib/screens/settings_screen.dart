@@ -34,6 +34,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/widgets/adaptive/adaptive_dialog.dart';
 import 'package:oasis/widgets/app_button.dart';
 import 'dart:ui';
+import 'package:oasis/services/instagram_migration_service.dart';
 
 enum SettingsCategory {
   account,
@@ -112,6 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               _buildSupportEmailNote(),
+              _buildInstagramMigrationProgress(),
               _buildSettingsGroup(context, [
                 _buildSettingsTile(
                   context,
@@ -438,6 +440,73 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _showSupportEmailNote = false;
       });
     }
+  }
+
+  Widget _buildInstagramMigrationProgress() {
+    final migrationService = InstagramMigrationService();
+    return ListenableBuilder(
+      listenable: migrationService,
+      builder: (context, _) {
+        if (!migrationService.isMigrating && migrationService.progress == 0.0) {
+          return const SizedBox.shrink();
+        }
+
+        final theme = material.Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceVariant.withOpacity(0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colorScheme.primary.withOpacity(0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const material.Icon(
+                    material.Icons.instagram,
+                    color: Colors.pinkAccent,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: material.Text(
+                      'Instagram Sync Status',
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              material.Text(
+                migrationService.currentStatus,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (migrationService.isMigrating) ...[
+                const SizedBox(height: 12),
+                LinearProgressIndicator(
+                  value: migrationService.progress,
+                  backgroundColor: colorScheme.surfaceContainer,
+                  valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                ),
+                const SizedBox(height: 8),
+                material.Text(
+                  '${(migrationService.progress * 100).toStringAsFixed(0)}% Completed (${migrationService.processedPosts}/${migrationService.totalPosts})',
+                  style: theme.textTheme.labelSmall,
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildSupportEmailNote() {

@@ -64,6 +64,7 @@ import '../features/auth/presentation/screens/login_screen.dart'
     as login_screen;
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
+import '../features/auth/presentation/screens/instagram_migration_screen.dart';
 import '../features/feed/presentation/screens/feed_screen.dart';
 import '../screens/search_screen.dart';
 import '../features/feed/presentation/screens/create_post_screen.dart';
@@ -1384,6 +1385,14 @@ class AppRouter {
           name: 'register',
           pageBuilder: (context, state) =>
               MaterialPage(key: state.pageKey, child: const RegisterScreen()),
+        ),
+        GoRoute(
+          path: '/instagram-migration',
+          name: 'instagram_migration',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const InstagramMigrationScreen(),
+          ),
         ),
         GoRoute(
           path: '/reset-password',
