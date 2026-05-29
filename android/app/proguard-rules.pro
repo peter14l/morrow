@@ -232,8 +232,8 @@
 }
 
 # ============================================================
-# Post-Quantum Aura Cryptography Native Bindings (JNI / FFI)
+# Post-Quantum Aura Cryptography Native Bindings & App Packages (JNI / FFI)
 # ============================================================
--keep class com.oasis.app.PqAuraNative { *; }
--keepclassmembers class com.oasis.app.PqAuraNative { *; }
+-keep class com.oasis.app.** { *; }
+-keepclassmembers class com.oasis.app.** { *; }
 
