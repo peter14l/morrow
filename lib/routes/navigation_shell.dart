@@ -9,6 +9,7 @@ import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Navigation shell with bottom navigation bar
 class NavigationShell extends material.StatelessWidget {
@@ -250,19 +251,14 @@ class NavigationShell extends material.StatelessWidget {
         ),
       );
     }
-    // For real mode, fall back to fake for bottom nav (better performance)
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            color: brightness == material.Brightness.dark
-                ? material.Colors.white.withValues(alpha: 0.15)
-                : material.Colors.white.withValues(alpha: 0.4),
-          ),
-          child: navBar,
-        ),
-      ),
+    // For real mode, use the platform-safe LiquidGlassWrapper which handles Android/iOS rendering
+    return LiquidGlassWrapper(
+      borderRadius: 0,
+      config: LiquidGlassConfig.Light,
+      backgroundColor: brightness == material.Brightness.dark
+          ? material.Colors.white.withValues(alpha: 0.1)
+          : material.Colors.white.withValues(alpha: 0.3),
+      child: navBar,
     );
   }
 

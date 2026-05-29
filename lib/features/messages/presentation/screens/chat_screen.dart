@@ -23,6 +23,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/features/messages/presentation/providers/providers.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_app_bar.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_background.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_message_list.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/chat_typing_indicator.dart';
@@ -452,46 +453,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   /// Wrap bottom sheet content with liquid glass effect
   Widget _wrapWithLiquidGlass({required Widget child}) {
-    final liquidGlassMode = context
-        .watch<UserSettingsProvider>()
-        .liquidGlassMode;
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final isSolid = ContextX(context).shouldUseSolidBackground;
-
-    if (liquidGlassMode == LiquidGlassMode.disabled) {
-      return child;
-    }
-
-    if (isSolid) {
-      return Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1A1D24) : Colors.white,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: child,
-      );
-    }
-
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.1)
-                : Colors.white.withValues(alpha: 0.4),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
-          child: child,
-        ),
-      ),
-    );
+    return child.asLiquidGlassBottomSheet();
   }
 
   void _sendMessage() async {

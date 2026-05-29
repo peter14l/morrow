@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
@@ -134,7 +135,9 @@ class LiquidGlassWrapper extends StatelessWidget {
             ? Colors.white.withValues(alpha: 0.1)
             : Colors.white.withValues(alpha: 0.3));
 
-    if (mode == LiquidGlassMode.fake) {
+    final isMobile = defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
+
+    if (mode == LiquidGlassMode.fake || !isMobile) {
       return _FakeGlassWrapper(
         borderRadius: borderRadius ?? 20,
         padding: padding,
