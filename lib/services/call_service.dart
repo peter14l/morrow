@@ -13,7 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_background/flutter_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
-import 'package:oasis/features/messages/data/pq_aura/pq_aura_service_io.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 class CallService extends ChangeNotifier {
   static CallService? _instance;

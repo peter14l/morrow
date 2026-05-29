@@ -87,6 +87,7 @@ import 'package:flutter_animate/flutter_animate.dart' as motion;
 import 'package:oasis/features/settings/presentation/screens/changelog_screen.dart';
 import 'package:oasis/features/auth/presentation/widgets/account_switcher_sheet.dart';
 import 'package:oasis/features/settings/presentation/screens/wellness_stats_screen.dart';
+import 'package:oasis/features/monetization/presentation/screens/shop_screen.dart';
 
 class UnreadMessagesBadge extends StatelessWidget {
   final Widget child;
@@ -1675,7 +1676,6 @@ class AppRouter {
           },
         ),
 
-        // Oasis Pro Screen (now pointing to SubscriptionScreen)
         GoRoute(
           path: '/oasis-pro',
           name: 'oasis_pro',
@@ -1684,7 +1684,7 @@ class AppRouter {
             return MaterialPage(
               key: state.pageKey,
               fullscreenDialog: true,
-              child: const SubscriptionScreen(),
+              child: const ShopScreen(),
             );
           },
         ),

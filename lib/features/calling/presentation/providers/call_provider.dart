@@ -12,7 +12,7 @@ import '../../domain/usecases/end_call.dart';
 import '../../domain/usecases/get_active_calls.dart';
 import 'dart:math';
 import 'dart:typed_data';
-import 'package:oasis/features/messages/data/pq_aura/pq_aura_service_io.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 
 /// Immutable state for calling feature using LiveKit
 class CallState {

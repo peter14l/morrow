@@ -8,6 +8,8 @@ import 'package:oasis/features/feed/presentation/screens/comments_screen.dart';
 import 'package:oasis/widgets/messages/share_to_dm_modal.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/feed/presentation/screens/create_post_screen.dart';
+import 'package:oasis/features/monetization/presentation/widgets/boost_dialog.dart';
+import 'package:oasis/features/monetization/data/services/privacy_ad_service.dart';
 
 class CircleDetailScreen extends StatefulWidget {
   final String circleId;
@@ -46,6 +48,10 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
             '[CircleDetailScreen] Feed loaded: ${provider.circleFeed.length} posts',
           );
         }
+      }
+      // Fetch ad catalog in background for contextual ads
+      if (mounted) {
+        context.read<PrivacyAdService>().fetchAdCatalog();
       }
     });
 
@@ -105,6 +111,23 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
           },
         ),
         actions: [
+          // Boost Button
+          Consumer<CircleProvider>(
+            builder: (context, provider, _) {
+              final circle = provider.activeCircle;
+              return IconButton(
+                icon: const Icon(FluentIcons.rocket_20_regular),
+                tooltip: 'Boost this Circle',
+                onPressed: circle == null
+                    ? null
+                    : () => BoostDialog.show(
+                          context,
+                          circleId: circle.id,
+                          circleName: circle.name,
+                        ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(FluentIcons.settings_24_regular),
             onPressed: () {

@@ -13,6 +13,20 @@ class AppConfig {
   /// If false, calling features are disabled (e.g. during major platform stability fixes)
   static bool enableCalls = true;
 
+  /// If true, the first-party privacy-preserving contextual ad engine is active.
+  /// Ads are matched locally on-device — no user data is ever sent to ad servers.
+  static bool get enablePrivacyAds {
+    const fromEnv = bool.fromEnvironment('ENABLE_PRIVACY_ADS', defaultValue: true);
+    return fromEnv;
+  }
+
+  /// If true, the Oasis Aura cosmetic shop and Circle Boosting system is enabled.
+  static bool get enableOasisAura {
+    const fromEnv = bool.fromEnvironment('ENABLE_OASIS_AURA', defaultValue: true);
+    return fromEnv;
+  }
+
+
   /// If true, the app runs in "Investor Pitch Mode"
   /// - Silences harmless debug logs
   /// - Auto-grants local Pro status for demo purposes

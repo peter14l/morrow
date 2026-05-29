@@ -86,6 +86,8 @@ import 'package:oasis/features/calling/domain/usecases/get_active_calls.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
+import 'package:oasis/features/monetization/data/services/customization_service.dart';
+import 'package:oasis/features/monetization/data/services/privacy_ad_service.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 
@@ -559,6 +561,12 @@ class AppInitializer {
         ),
         ChangeNotifierProvider<SubscriptionService>.value(
           value: services.subscriptionService,
+        ),
+        ChangeNotifierProvider<CustomizationService>(
+          create: (_) => CustomizationService(),
+        ),
+        ChangeNotifierProvider<PrivacyAdService>(
+          create: (_) => PrivacyAdService(),
         ),
         ChangeNotifierProvider<IAPService>.value(value: services.iapService),
         ChangeNotifierProvider<RevenueCatService>.value(
