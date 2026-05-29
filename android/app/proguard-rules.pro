@@ -245,3 +245,24 @@
 -keep class androidx.security.crypto.** { *; }
 -dontwarn androidx.security.crypto.**
 
+# ============================================================
+# Local Auth (Biometric Authentication)
+# ============================================================
+-keep class androidx.biometric.** { *; }
+-dontwarn androidx.biometric.**
+
+# ============================================================
+# Video Player (ExoPlayer / Media3)
+# ============================================================
+-keep class com.google.android.exoplayer2.** { *; }
+-dontwarn com.google.android.exoplayer2.**
+-keep class androidx.media3.** { *; }
+-dontwarn androidx.media3.**
+
+# ============================================================
+# RevenueCat (purchases_flutter)
+# ============================================================
+-keep class com.revenuecat.purchases.** { *; }
+-dontwarn com.revenuecat.purchases.**
+
+
