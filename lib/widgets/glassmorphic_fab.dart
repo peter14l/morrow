@@ -126,7 +126,6 @@ class GlassmorphicFAB extends StatelessWidget {
           lightIntensity: 1.0,
           saturation: 1.0,
           refractiveIndex: 1.45,
-          outlineIntensity: 1.0,
           lightAngle: -0.75,
         ),
         shape: LiquidRoundedSuperellipse(borderRadius: size / 2),

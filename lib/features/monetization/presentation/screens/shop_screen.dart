@@ -46,7 +46,7 @@ class _ShopScreenState extends State<ShopScreen> {
       description: 'Vibrant neon outlines and deep dark blur effects.',
       price: '\$0.99',
       category: 'theme',
-      icon: FluentIcons.window_glass_20_regular,
+      icon: FluentIcons.window_multiple_20_regular,
     ),
     ShopItem(
       id: 'boost_1',
