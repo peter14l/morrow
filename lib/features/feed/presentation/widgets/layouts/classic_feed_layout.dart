@@ -7,6 +7,7 @@ import 'package:oasis/features/feed/presentation/widgets/stories_bar.dart';
 import 'package:oasis/features/capsules/presentation/widgets/capsule_carousel.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
+import 'package:oasis/features/monetization/presentation/widgets/privacy_ad_banner.dart';
 
 class ClassicFeedLayout extends StatelessWidget {
   final ScrollController scrollController;
@@ -114,12 +115,16 @@ class ClassicFeedLayout extends StatelessWidget {
                         mainAxisSpacing: 24,
                         crossAxisSpacing: 24,
                         itemBuilder: (context, index) {
-                          final post = posts[index];
+                          if ((index + 1) % 6 == 0) {
+                            return const PrivacyAdBanner(screenCategory: 'feed');
+                          }
+                          final postIndex = index - (index / 6).floor();
+                          final post = posts[postIndex];
                           return RepaintBoundary(
                             child: buildPostItem(post, provider, true),
                           );
                         },
-                        childCount: posts.length,
+                        childCount: posts.length + (posts.length / 5).floor(),
                       ),
                     );
                   }
@@ -128,14 +133,17 @@ class ClassicFeedLayout extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 0),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        final post = posts[index];
+                        if ((index + 1) % 6 == 0) {
+                          return const PrivacyAdBanner(screenCategory: 'feed');
+                        }
+                        final postIndex = index - (index / 6).floor();
+                        final post = posts[postIndex];
                         return RepaintBoundary(
                           child: buildPostItem(post, provider, false),
                         );
-                      }, childCount: posts.length),
+                      }, childCount: posts.length + (posts.length / 5).floor()),
                     ),
-                  );
-                },
+                  );                },
               ),
               const SliverToBoxAdapter(child: SizedBox(height: 120)),
             ],

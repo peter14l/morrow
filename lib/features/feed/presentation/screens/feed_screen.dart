@@ -34,6 +34,7 @@ import 'package:oasis/widgets/glassmorphic_fab.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
+import 'package:oasis/features/monetization/data/services/privacy_ad_service.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -80,6 +81,7 @@ class _FeedScreenState extends State<FeedScreen>
       if (mounted) {
         _wellbeingService = context.read<DigitalWellbeingService>();
         _wellbeingService?.startTracking('feed');
+        context.read<PrivacyAdService>().fetchAdCatalog();
       }
     });
   }

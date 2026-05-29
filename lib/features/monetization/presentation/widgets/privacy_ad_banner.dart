@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:oasis/services/subscription_service.dart';
 import 'package:oasis/core/config/app_config.dart';
 import '../../data/services/privacy_ad_service.dart';
 import '../../data/models/ad_campaign.dart';
@@ -48,6 +49,10 @@ class _PrivacyAdBannerState extends State<PrivacyAdBanner> {
   Widget build(BuildContext context) {
     // Gate: only show if feature flag is enabled
     if (!AppConfig.enablePrivacyAds) return const SizedBox.shrink();
+
+    // Gate: do not show if user is a Pro member
+    final isPro = context.watch<SubscriptionService>().isPro;
+    if (isPro) return const SizedBox.shrink();
 
     // Gate: only show if we have a matched ad
     if (_matchedAd == null) return const SizedBox.shrink();

@@ -10,6 +10,7 @@ import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/feed/presentation/screens/create_post_screen.dart';
 import 'package:oasis/features/monetization/presentation/widgets/boost_dialog.dart';
 import 'package:oasis/features/monetization/data/services/privacy_ad_service.dart';
+import 'package:oasis/features/monetization/presentation/widgets/privacy_ad_banner.dart';
 
 class CircleDetailScreen extends StatefulWidget {
   final String circleId;
@@ -211,10 +212,12 @@ class _FeedTab extends StatelessWidget {
           child: ListView.builder(
             controller: scrollController,
             padding: const EdgeInsets.symmetric(vertical: 16),
-            itemCount:
-                provider.circleFeed.length + (provider.hasMoreFeed ? 1 : 0),
+            itemCount: provider.circleFeed.length +
+                (provider.circleFeed.length / 5).floor() +
+                (provider.hasMoreFeed ? 1 : 0),
             itemBuilder: (context, index) {
-              if (index == provider.circleFeed.length) {
+              final totalPostAndAdCount = provider.circleFeed.length + (provider.circleFeed.length / 5).floor();
+              if (index == totalPostAndAdCount) {
                 return const Center(
                   child: Padding(
                     padding: EdgeInsets.all(16.0),
@@ -223,7 +226,12 @@ class _FeedTab extends StatelessWidget {
                 );
               }
 
-              final post = provider.circleFeed[index];
+              if ((index + 1) % 6 == 0) {
+                return const PrivacyAdBanner(screenCategory: 'circles');
+              }
+
+              final postIndex = index - (index / 6).floor();
+              final post = provider.circleFeed[postIndex];
               return PostCard(
                 post: post,
                 showInteractionButtons: true,
