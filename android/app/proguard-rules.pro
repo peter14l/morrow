@@ -230,3 +230,10 @@
 -keepclassmembers,allowobfuscation class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
+
+# ============================================================
+# Post-Quantum Aura Cryptography Native Bindings (JNI / FFI)
+# ============================================================
+-keep class com.oasis.app.PqAuraNative { *; }
+-keepclassmembers class com.oasis.app.PqAuraNative { *; }
+
