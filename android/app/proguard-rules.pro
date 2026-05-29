@@ -237,3 +237,11 @@
 -keep class com.oasis.app.** { *; }
 -keepclassmembers class com.oasis.app.** { *; }
 
+# ============================================================
+# AndroidX Security & Tink (used by flutter_secure_storage)
+# ============================================================
+-keep class com.google.crypto.tink.** { *; }
+-dontwarn com.google.crypto.tink.**
+-keep class androidx.security.crypto.** { *; }
+-dontwarn androidx.security.crypto.**
+
