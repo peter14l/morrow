@@ -80,6 +80,9 @@ class LiquidGlassRenderer extends StatelessWidget {
         glassColor: glassColor,
         lightIntensity: lightIntensity,
         saturation: saturation,
+        refractiveIndex: 1.45,
+        outlineIntensity: 1.0,
+        lightAngle: -0.75,
       ),
       child: child,
     );

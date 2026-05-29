@@ -276,6 +276,9 @@ class _MorphingLiquidFABState extends State<MorphingLiquidFAB>
           glassColor: baseColor.withValues(alpha: 0.4),
           lightIntensity: 1.4,
           saturation: 1.2,
+          refractiveIndex: 1.45,
+          outlineIntensity: 1.0,
+          lightAngle: -0.75,
         ),
         shape: shape,
         child: SizedBox(
@@ -591,6 +594,9 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
           glassColor: baseColor.withValues(alpha: 0.4),
           lightIntensity: 1.4,
           saturation: 1.2,
+          refractiveIndex: 1.45,
+          outlineIntensity: 1.0,
+          lightAngle: -0.75,
         ),
         shape: LiquidRoundedSuperellipse(borderRadius: morphRadius),
         child: Center(
@@ -681,6 +687,9 @@ class _LiquidFABClusterState extends State<LiquidFABCluster>
                         .withValues(alpha: 0.3),
                     lightIntensity: 1.2,
                     saturation: 1.1,
+                    refractiveIndex: 1.45,
+                    outlineIntensity: 1.0,
+                    lightAngle: -0.75,
                   ),
                   shape: LiquidRoundedSuperellipse(borderRadius: morphRadius),
                   child: Center(
