@@ -18,6 +18,15 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
