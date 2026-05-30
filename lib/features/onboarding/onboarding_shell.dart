@@ -10,6 +10,7 @@ import 'pages/page3_canvas.dart';
 import 'pages/page4_wellbeing.dart';
 import 'pages/page5_contacts.dart';
 import 'pages/page5_cta.dart';
+import 'pages/page6_instagram.dart';
 import '../auth/presentation/screens/onboarding_screen.dart';
 
 class OnboardingShell extends StatefulWidget {
@@ -49,7 +50,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
 
   void _onSkip() {
     _pageController.animateToPage(
-      5,
+      6,
       duration: const Duration(milliseconds: 800),
       curve: Curves.easeInOutCubic,
     );
@@ -64,7 +65,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isLastPage = _currentPage == 5;
+    final isLastPage = _currentPage == 6;
 
     return Scaffold(
       body: OasisBackground(
@@ -75,7 +76,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
               builder: (context, child) {
                 return PageView.builder(
                   controller: _pageController,
-                  itemCount: 6,
+                  itemCount: 7,
                   itemBuilder: (context, index) {
                     double offset = 0.0;
                     if (_pageController.position.haveDimensions) {
@@ -119,7 +120,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
                       const Spacer(),
                       SmoothPageIndicator(
                         controller: _pageController,
-                        count: 6,
+                        count: 7,
                         effect: const WormEffect(
                           activeDotColor: OasisColors.glow,
                           dotColor: OasisColors.sage,
@@ -160,8 +161,10 @@ class _OnboardingShellState extends State<OnboardingShell> {
       case 4:
         return Page5Contacts(isActive: _currentPage == 4);
       case 5:
+        return Page6Instagram(isActive: _currentPage == 5);
+      case 6:
         return Page5CTA(
-          isActive: _currentPage == 5,
+          isActive: _currentPage == 6,
           onComplete: () => _completeOnboarding(route: '/register'),
           onSignIn: () => _completeOnboarding(route: '/login'),
         );

@@ -1,6 +1,6 @@
 package com.oasis.app
 
-import io.flutter.app.FlutterApplication
+import android.app.Application
 
-class MainApplication : FlutterApplication() {
+class MainApplication : Application() {
 }
