@@ -166,6 +166,28 @@
 -dontwarn livekit.**
 -dontwarn io.livekit.**
 
+# Kotlin Serialization
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
+-keepclassmembers class kotlinx.serialization.json.** { *** Companion; }
+-keepclasseswithmembers class kotlinx.serialization.json.** { kotlinx.serialization.KSerializer serializer(...); }
+-keep,includedescriptorclasses class io.livekit.android.**$$serializer { *; }
+-keepclasseswithmembers class io.livekit.android.** { kotlinx.serialization.KSerializer serializer(...); }
+
+# WebRTC JNI & Native preservation
+-keepclasseswithmembernames,includedescriptorclasses class livekit.org.webrtc.** { native <methods>; }
+-keepclasseswithmembers,includedescriptorclasses class * { @livekit.**.CalledByNative <methods>; }
+-keepclasseswithmembers,includedescriptorclasses class * { @livekit.**.CalledByNativeUnchecked <methods>; }
+
+# NIST SDP Parser
+-keep class android.gov.nist.javax.sdp.parser.*Parser { *; }
+-keep class android.gov.nist.javax.sdp.parser.ParserFactory { *; }
+-keep class android.gov.nist.javax.sdp.parser.SDPParser { *; }
+-keep class android.gov.nist.** { *; }
+
+# Protobuf
+-keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+
 # Keep all JNI native method entry points (WebRTC, LiveKit, FFI)
 -keepclasseswithmembernames class * {
     native <methods>;
