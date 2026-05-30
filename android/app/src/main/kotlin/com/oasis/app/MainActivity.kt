@@ -13,7 +13,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val GEOFENCE_CHANNEL = "oasis/geofence"
     private val CALL_CHANNEL = "oasis/call"
     private val NOTIFICATION_CHANNEL = "oasis/notification_tap"
-    private lateinit var geofenceManager: OasisGeofenceManager
+    private val geofenceManager by lazy { OasisGeofenceManager(this) }
     private var geofenceMethodChannel: MethodChannel? = null
     private var callMethodChannel: MethodChannel? = null
     private var notificationMethodChannel: MethodChannel? = null
@@ -35,7 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        geofenceManager = OasisGeofenceManager(this)
+
         geofenceMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GEOFENCE_CHANNEL)
         callMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CALL_CHANNEL)
         notificationMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NOTIFICATION_CHANNEL)
