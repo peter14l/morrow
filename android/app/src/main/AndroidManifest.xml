@@ -3,7 +3,7 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <application
         android:label="Oasis"
-        android:name=".MainApplication"
+        android:name="android.app.Application"
         android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="false"
