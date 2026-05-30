@@ -61,7 +61,7 @@ android {
         getByName("release") {
             // Release build: com.oasis.app
             
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             isShrinkResources = false
             
             // Use release signing config for local builds if available
