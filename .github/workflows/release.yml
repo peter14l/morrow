@@ -84,9 +84,9 @@ jobs:
       - name: Decode Keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
-      - name: Build Release APKs (Split per ABI)
+      - name: Build Release APK
         run: |
-          flutter build apk --release --split-per-abi --dart-define-from-file=".env"
+          flutter build apk --release --dart-define-from-file=".env"
 
       - name: Sign APKs
         uses: r0adkll/sign-android-release@v1
