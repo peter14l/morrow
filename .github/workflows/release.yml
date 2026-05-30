@@ -87,11 +87,6 @@ jobs:
       - name: Build Release APKs (Split per ABI)
         run: |
           flutter build apk --release --split-per-abi --dart-define-from-file=".env"
-        env:
-          RELEASE_STORE_FILE: release.keystore
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Sign APKs
         uses: r0adkll/sign-android-release@v1
