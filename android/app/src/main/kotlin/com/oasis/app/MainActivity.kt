@@ -36,9 +36,14 @@ class MainActivity : FlutterFragmentActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
-        geofenceMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, GEOFENCE_CHANNEL)
-        callMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CALL_CHANNEL)
-        notificationMethodChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NOTIFICATION_CHANNEL)
+        try {
+            val messenger = flutterEngine.dartExecutor
+            geofenceMethodChannel = MethodChannel(messenger, GEOFENCE_CHANNEL)
+            callMethodChannel = MethodChannel(messenger, CALL_CHANNEL)
+            notificationMethodChannel = MethodChannel(messenger, NOTIFICATION_CHANNEL)
+        } catch (e: Exception) {
+            android.util.Log.e("MainActivity", "Failed to initialize method channels: $e")
+        }
 
         // Handle retrieval of data received during cold start
         notificationMethodChannel?.setMethodCallHandler { call, result ->
