@@ -107,11 +107,10 @@
             android:name="flutterEmbedding"
             android:value="2" />
         
-        <!-- Impeller renderer for liquid glass effects -->
-        <meta-data
-            android:name="io.flutter.embedding.android.EnableImpeller"
-            android:value="true" />
-        
+        <!-- Impeller: rely on Flutter's default device capability detection.
+             Hard-forcing EnableImpeller=true causes SIGSEGV crashes on some Android 16
+             devices due to Vulkan driver initialization failures in libflutter.so -->
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCPyRXR3YUMng8R3ijX7QlWryXNQ_SLptU"/>

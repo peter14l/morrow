@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- On Android 15 (API 35) and below, Razorpay UI needs edge-to-edge opt-out.
+         On Android 16 (API 36+), this attribute is forbidden and causes a crash,
+         so we place it here (values-v35 = max API 35) to keep it off Android 16+. -->
+    <style name="RazorpayTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

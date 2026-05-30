@@ -17,6 +17,8 @@
     </style>
 
     <style name="RazorpayTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <!-- windowOptOutEdgeToEdgeEnforcement is intentionally omitted here.
+             Android 16 (API 36) enforces edge-to-edge and crashes apps that opt out.
+             The opt-out is only applied on API 35 and below via values-v35/styles.xml -->
     </style>
 </resources>
