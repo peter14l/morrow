@@ -1312,8 +1312,8 @@ class AppRouter {
         path == '/register' ||
         path == '/splash' ||
         path == '/reset-password' || // accessible with a recovery session
-        path ==
-            '/set-password'; // accessible with a recovery session (for Google users)
+        path == '/set-password' || // accessible with a recovery session (for Google users)
+        path == '/instagram-migration';
   }
 
   /// Routes that a fully-authenticated user should be bounced away from
