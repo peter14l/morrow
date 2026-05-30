@@ -107,7 +107,8 @@ class MainActivity : FlutterFragmentActivity() {
         handleIntent(intent)
     }
 
-    private fun handleIntent(intent: Intent) {
+    private fun handleIntent(intent: Intent?) {
+        if (intent == null) return
         if (intent.getBooleanExtra("accept_call", false)) {
             val callId = intent.getStringExtra("callId")
             pendingCallId = callId
