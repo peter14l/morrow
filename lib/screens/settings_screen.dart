@@ -1388,13 +1388,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildSectionHeader(BuildContext context, String title) {
     final theme = material.Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
+      padding: const EdgeInsets.only(left: 8, bottom: 8, top: 4),
       child: Text(
-        title,
-        style: theme.textTheme.titleSmall?.copyWith(
-          fontWeight: FontWeight.bold,
-          color: theme.colorScheme.primary,
-          letterSpacing: 0.5,
+        title.toUpperCase(),
+        style: theme.textTheme.labelMedium?.copyWith(
+          fontWeight: FontWeight.w600,
+          color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+          letterSpacing: 1.2,
+          fontSize: 11,
         ),
       ),
     );
@@ -1415,39 +1416,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final theme = material.Theme.of(context);
     final colorScheme = theme.colorScheme;
     final isM3E = themeProvider.isM3EEnabled;
-    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
 
-    BorderRadius borderRadius;
-    if (isM3E) {
-      switch (index % 3) {
-        case 0:
-          borderRadius = BorderRadius.circular(32);
-          break;
-        case 1:
-          borderRadius = const BorderRadius.only(
-            topLeft: Radius.circular(48),
-            bottomRight: Radius.circular(48),
-            topRight: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
-          );
-          break;
-        case 2:
-          borderRadius = BorderRadius.circular(16);
-          break;
-        default:
-          borderRadius = BorderRadius.circular(24);
-      }
-    } else {
-      borderRadius = BorderRadius.circular(16);
-    }
+    // Use a clean, consistent border radius for all settings groups
+    final borderRadius = BorderRadius.circular(12);
 
-    final bgColor = isM3E
-        ? (disableTransparency
-              ? (index % 2 == 0
-                    ? colorScheme.surfaceContainerHigh
-                    : colorScheme.surfaceContainerLow)
-              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3))
-        : colorScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    // Use a consistent background opacity without alternating heights
+    final bgColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.12);
 
     return Container(
       decoration: BoxDecoration(
@@ -1455,9 +1429,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: borderRadius,
         border: Border.all(
           color: colorScheme.outlineVariant.withValues(
-            alpha: isM3E ? 0.3 : 0.5,
+            alpha: 0.15,
           ),
-          width: isM3E ? 1.5 : 1,
+          width: 0.8,
         ),
       ),
       child: ClipRRect(
@@ -1467,8 +1441,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             if (idx.isOdd) {
               return material.Divider(
                 height: 1,
-                indent: 56,
-                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                indent: 48,
+                color: colorScheme.outlineVariant.withValues(alpha: 0.1),
               );
             }
             return children[idx ~/ 2];
@@ -1503,28 +1477,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final theme = material.Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isM3E = themeProvider.isM3EEnabled;
 
     return material.ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Container(
-        padding: EdgeInsets.all(isM3E ? 10 : 8),
-        decoration: BoxDecoration(
-          color: (iconColor ?? colorScheme.primary).withValues(
-            alpha: isM3E ? 0.15 : 0.1,
-          ),
-          borderRadius: BorderRadius.circular(isM3E ? 16 : 10),
-        ),
-        child: material.Icon(
-          icon,
-          color: iconColor ?? colorScheme.primary,
-          size: isM3E ? 22 : 24,
-        ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+      // Clean, flat outline icon without any surrounding box container (Instagram style)
+      leading: material.Icon(
+        icon,
+        color: iconColor ?? colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+        size: 22,
       ),
       title: Text(
         title,
         style: theme.textTheme.titleMedium?.copyWith(
-          fontWeight: isM3E ? FontWeight.w600 : FontWeight.w500,
+          fontWeight: FontWeight.w500,
+          fontSize: 15,
           color: textColor,
         ),
       ),
@@ -1532,7 +1498,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? Text(
               subtitle,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
+                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                fontSize: 12,
               ),
             )
           : null,
@@ -1541,7 +1508,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           (onTap != null
               ? material.Icon(
                   material.Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
+                  color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                  size: 20,
                 )
               : null),
       onTap: onTap,
