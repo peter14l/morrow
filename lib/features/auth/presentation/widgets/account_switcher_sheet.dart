@@ -188,12 +188,12 @@ class AccountSwitcherSheet extends StatelessWidget {
                       ),
                       onTap: isCurrent
                           ? null
-                          : () async {
-                              Navigator.pop(context);
-                              await authService.switchAccount(
+                          : () {
+                              authService.switchAccount(
                                 context,
                                 account.userId,
                               );
+                              Navigator.pop(context);
                             },
                     );
                   },
@@ -222,10 +222,11 @@ class AccountSwitcherSheet extends StatelessWidget {
                 ),
               ),
               onTap: () {
-                Navigator.pop(context);
+                final router = GoRouter.of(context);
                 authService.setAddingAccount(true);
                 authService.resetProviders(context);
-                context.push('/login?add_account=true');
+                Navigator.pop(context);
+                router.push('/login?add_account=true');
               },
             ),
           ],
@@ -356,10 +357,11 @@ class AccountSwitcherSheet extends StatelessWidget {
         const fluent.Divider(),
         fluent.HoverButton(
           onPressed: () {
-            Navigator.pop(context);
+            final router = GoRouter.of(context);
             authService.setAddingAccount(true);
             authService.resetProviders(context);
-            context.push('/login?add_account=true');
+            Navigator.pop(context);
+            router.push('/login?add_account=true');
           },
           builder: (context, states) {
             return Container(
