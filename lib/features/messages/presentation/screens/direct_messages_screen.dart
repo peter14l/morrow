@@ -63,6 +63,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
   List<String> _previewDecryptedMessages = [];
   bool _isListView = false;
   Map<String, String> _conversationLabels = {};
+  String? _selectedFilterLabel;
 
   @override
   void initState() {
@@ -895,8 +896,14 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
         final List<Conversation> filteredConversations = allConversations.where(
           (c) {
             final query = _searchQuery.toLowerCase();
-            return c.otherUserName.toLowerCase().contains(query) ||
+            final matchesQuery = c.otherUserName.toLowerCase().contains(query) ||
                 (c.lastMessage?.toLowerCase().contains(query) ?? false);
+            if (!matchesQuery) return false;
+
+            if (_selectedFilterLabel != null) {
+              return _conversationLabels[c.id] == _selectedFilterLabel;
+            }
+            return true;
           },
         ).toList();
 
@@ -918,65 +925,105 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-              child: useFluent && isDesktop
-                  ? fluent.TextBox(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      placeholder: 'Search...',
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      prefix: const Padding(
-                        padding: EdgeInsets.only(left: 12),
-                        child: Icon(fluent.FluentIcons.search, size: 12),
-                      ),
-                      suffix: _searchController.text.isNotEmpty
-                          ? fluent.IconButton(
-                              icon: const Icon(
-                                fluent.FluentIcons.chrome_close,
-                                size: 8,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  useFluent && isDesktop
+                      ? fluent.TextBox(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          placeholder: 'Search...',
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          prefix: const Padding(
+                            padding: EdgeInsets.only(left: 12),
+                            child: Icon(fluent.FluentIcons.search, size: 12),
+                          ),
+                          suffix: _searchController.text.isNotEmpty
+                              ? fluent.IconButton(
+                                  icon: const Icon(
+                                    fluent.FluentIcons.chrome_close,
+                                    size: 8,
+                                  ),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchQuery = '');
+                                  },
+                                )
+                              : null,
+                          onChanged: (val) =>
+                              setState(() => _searchQuery = val),
+                        )
+                      : Container(
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.2,
                               ),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() => _searchQuery = '');
-                              },
-                            )
-                          : null,
-                      onChanged: (val) =>
-                          setState(() => _searchQuery = val),
-                    )
-                  : Container(
-                      height: 46,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest
-                            .withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(
-                          color: colorScheme.outlineVariant.withValues(
-                            alpha: 0.2,
+                            ),
+                          ),
+                          child: CustomTextField(
+                            controller: _searchController,
+                            focusNode: _searchFocusNode,
+                            hint: 'Search...',
+                            prefixIcon: Icons.search_rounded,
+                            onChanged: (val) =>
+                                setState(() => _searchQuery = val),
+                            fillColor: Colors.transparent,
+                            borderRadius: 32,
+                            margin: EdgeInsets.zero,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: 16,
+                            ),
                           ),
                         ),
-                      ),
-                      child: CustomTextField(
-                        controller: _searchController,
-                        focusNode: _searchFocusNode,
-                        hint: 'Search...',
-                        prefixIcon: Icons.search_rounded,
-                        onChanged: (val) =>
-                            setState(() => _searchQuery = val),
-                        fillColor: Colors.transparent,
-                        borderRadius: 32,
-                        margin: EdgeInsets.zero,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 16,
-                        ),
+                  if (_conversationLabels.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          ChoiceChip(
+                            label: const Text('All'),
+                            selected: _selectedFilterLabel == null,
+                            onSelected: (selected) {
+                              if (selected) {
+                                setState(() => _selectedFilterLabel = null);
+                              }
+                            },
+                          ),
+                          ..._conversationLabels.values.toSet().map((label) {
+                            final isSelected = _selectedFilterLabel == label;
+                            return Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: ChoiceChip(
+                                label: Text(label),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedFilterLabel = selected ? label : null;
+                                  });
+                                },
+                              ),
+                            );
+                          }),
+                        ],
                       ),
                     ),
+                  ],
+                ],
+              ),
             ),
           ),
         );
