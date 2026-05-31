@@ -2231,7 +2231,9 @@ class _ConversationListTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    conversation.lastMessage.isNotEmpty ? conversation.lastMessage : 'No messages yet',
+                    (conversation.lastMessage != null && conversation.lastMessage!.isNotEmpty)
+                        ? conversation.lastMessage!
+                        : 'No messages yet',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: hasUnread
                           ? colorScheme.onSurface
@@ -2246,7 +2248,7 @@ class _ConversationListTile extends StatelessWidget {
             ),
             const SizedBox(width: 16),
             Text(
-              _formatLastMessageTime(conversation.lastMessageTime),
+              _formatLastMessageTime(conversation.lastMessageTime ?? DateTime.now()),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: hasUnread ? colorScheme.primary : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
                 fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
