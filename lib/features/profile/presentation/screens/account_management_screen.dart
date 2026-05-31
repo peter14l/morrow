@@ -55,6 +55,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                 const SizedBox(height: 32),
                 // _buildSubscriptionSection(context),
                 // const SizedBox(height: 32),
+                _buildSecuritySection(context),
+                const SizedBox(height: 32),
                 _buildDangerZone(context),
               ],
             ),
@@ -384,6 +386,47 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
           MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
         ),
       ),
+    );
+  }
+
+  Widget _buildSecuritySection(BuildContext context) {
+    final theme = Theme.of(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isM3E = themeProvider.isM3EEnabled;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Text(
+            'Security',
+            style: theme.textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(isM3E ? 28 : 16),
+            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+          ),
+          child: ListTile(
+            leading: Icon(
+              Icons.password,
+              color: theme.colorScheme.onSurface,
+            ),
+            title: Text(
+              'Change Password',
+              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
+            ),
+            subtitle: const Text('Update your password'),
+            trailing: Icon(Icons.chevron_right, color: theme.colorScheme.onSurface),
+            onTap: () => context.push('/settings/change-password'),
+          ),
+        ),
+      ],
     );
   }
 

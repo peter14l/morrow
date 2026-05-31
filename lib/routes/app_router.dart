@@ -45,6 +45,7 @@ import 'package:oasis/features/settings/presentation/screens/account_privacy_scr
 import 'package:oasis/features/settings/presentation/screens/two_factor_auth_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/download_data_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/storage_usage_screen.dart';
+import 'package:oasis/features/settings/presentation/screens/change_password_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/font_size_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/help_support_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/about_app_screen.dart';
@@ -1837,6 +1838,14 @@ class AppRouter {
           pageBuilder: (context, state) => MaterialPage(
             key: state.pageKey,
             child: const AccountManagementScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/settings/change-password',
+          name: 'change_password',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const ChangePasswordScreen(),
           ),
         ),
 
