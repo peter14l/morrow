@@ -61,12 +61,15 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
   Conversation? _previewConversation;
   Offset _previewPosition = Offset.zero;
   List<String> _previewDecryptedMessages = [];
+  bool _isListView = false;
+  Map<String, String> _conversationLabels = {};
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadConversationSizes();
+    _loadViewPreferences();
     _startRefreshTimer();
     _scrollController.addListener(_onScroll);
 
@@ -211,6 +214,118 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     // }
   }
 
+  Future<void> _loadViewPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final isList = prefs.getBool('dm_view_is_list') ?? false;
+      final labelsStr = prefs.getString('conversation_labels') ?? '{}';
+      final Map<String, dynamic> decodedLabels = jsonDecode(labelsStr);
+      if (!mounted) return;
+      setState(() {
+        _isListView = isList;
+        _conversationLabels = decodedLabels.map((k, v) => MapEntry(k, v as String));
+      });
+    } catch (e) {
+      debugPrint('Error loading view preferences: $e');
+    }
+  }
+
+  Future<void> _saveViewPreferences() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('dm_view_is_list', _isListView);
+    } catch (e) {
+      debugPrint('Error saving view preference: $e');
+    }
+  }
+
+  Future<void> _saveConversationLabels() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('conversation_labels', jsonEncode(_conversationLabels));
+    } catch (e) {
+      debugPrint('Error saving labels: $e');
+    }
+  }
+
+  void _showLabelDialog(Conversation conversation) {
+    final customController = TextEditingController(
+      text: _conversationLabels[conversation.id] ?? '',
+    );
+    final standardLabels = ['Family', 'Friends', 'Work', 'School', 'Important'];
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Label for ${conversation.otherUserName}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Choose a label or enter a custom one:'),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: standardLabels.map((label) {
+                final isSelected = _conversationLabels[conversation.id] == label;
+                return ChoiceChip(
+                  label: Text(label),
+                  selected: isSelected,
+                  onSelected: (selected) {
+                    Navigator.pop(context);
+                    _saveLabel(conversation.id, selected ? label : '');
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: customController,
+              decoration: const InputDecoration(
+                labelText: 'Custom Label',
+                hintText: 'e.g., Neighbors, Gym',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _saveLabel(conversation.id, '');
+            },
+            child: const Text('Clear Label', style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _saveLabel(conversation.id, customController.text.trim());
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _saveLabel(String conversationId, String label) {
+    setState(() {
+      if (label.isEmpty) {
+        _conversationLabels.remove(conversationId);
+      } else {
+        _conversationLabels[conversationId] = label;
+      }
+    });
+    _saveConversationLabels();
+  }
+
+
   void _handleLongPressBubble(Conversation conversation, Offset position) {
     _showContextMenu(context, position, conversation);
   }
@@ -301,6 +416,22 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
               ),
               const SizedBox(width: 12),
               const Text('Resize Grid'),
+            ],
+          ),
+        ),
+        PopupMenuItem(
+          onTap: () {
+            _showLabelDialog(conversation);
+          },
+          child: Row(
+            children: [
+              Icon(
+                FluentIcons.tag_24_regular,
+                size: 20,
+                color: colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              const Text('Set Label'),
             ],
           ),
         ),
@@ -478,6 +609,19 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
         title: const Text('Messages'),
         actions: [
           fluent.Tooltip(
+            message: _isListView ? 'Switch to Bubble Layout' : 'Switch to List Layout',
+            child: fluent.IconButton(
+              icon: Icon(_isListView ? Icons.bubble_chart_outlined : Icons.view_list_outlined, size: 20),
+              onPressed: () {
+                setState(() {
+                  _isListView = !_isListView;
+                });
+                _saveViewPreferences();
+                HapticFeedback.lightImpact();
+              },
+            ),
+          ),
+          fluent.Tooltip(
             message: 'New Group',
             child: fluent.IconButton(
               icon: const Icon(FluentIcons.people_add_24_regular, size: 20),
@@ -511,6 +655,17 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             DesktopHeader(
               title: 'Messages',
               actions: [
+                IconButton(
+                  icon: Icon(_isListView ? Icons.bubble_chart_outlined : Icons.view_list_outlined),
+                  onPressed: () {
+                    setState(() {
+                      _isListView = !_isListView;
+                    });
+                    _saveViewPreferences();
+                    HapticFeedback.lightImpact();
+                  },
+                  tooltip: _isListView ? 'Switch to Bubble Layout' : 'Switch to List Layout',
+                ),
                 IconButton(
                   icon: const Icon(FluentIcons.people_add_24_regular),
                   onPressed: () => context.push('/messages/new-group'),
@@ -568,6 +723,20 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             ),
             centerTitle: true,
             actions: [
+              IconButton(
+                icon: Icon(
+                  _isListView ? Icons.bubble_chart_outlined : Icons.view_list_outlined,
+                  color: colorScheme.onSurface,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isListView = !_isListView;
+                  });
+                  _saveViewPreferences();
+                  HapticFeedback.lightImpact();
+                },
+                tooltip: _isListView ? 'Switch to Bubble Layout' : 'Switch to List Layout',
+              ),
               IconButton(
                 icon: const Icon(FluentIcons.people_add_24_regular),
                 onPressed: () => context.push('/messages/new-group'),
@@ -742,150 +911,85 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
         final useFluent = themeProvider.useFluentUI;
         final isM3E = themeProvider.isM3EEnabled;
 
-        return RefreshIndicator(
-          onRefresh: () => provider.loadConversations(silent: false),
-          child: CustomScrollView(
-            controller: _scrollController,
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  child: useFluent && isDesktop
-                      ? SizedBox(
-                          height: 36,
-                          child: fluent.TextBox(
-                            controller: _searchController,
-                            focusNode: _searchFocusNode,
-                            placeholder: 'Search...',
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            prefix: const Padding(
-                              padding: EdgeInsets.only(left: 12),
-                              child: Icon(fluent.FluentIcons.search, size: 12),
-                            ),
-                            suffix: _searchController.text.isNotEmpty
-                                ? fluent.IconButton(
-                                    icon: const Icon(
-                                      fluent.FluentIcons.chrome_close,
-                                      size: 8,
-                                    ),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() => _searchQuery = '');
-                                    },
-                                  )
-                                : null,
-                            onChanged: (val) =>
-                                setState(() => _searchQuery = val),
-                            decoration: fluent.WidgetStateProperty.resolveWith((
-                              states,
-                            ) {
-                              return fluent.BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.85),
-                                borderRadius: BorderRadius.circular(32),
-                                border: Border.all(
-                                  color: states.contains(WidgetState.focused)
-                                      ? fluent.FluentTheme.of(
-                                          context,
-                                        ).accentColor
-                                      : Colors.white.withValues(alpha: 0.1),
-                                  width: 1.0,
-                                ),
-                              );
-                            }),
-                          ),
-                        )
-                      : Container(
-                          height: 46,
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(32),
-                            border: Border.all(
-                              color: colorScheme.outlineVariant.withValues(
-                                alpha: 0.2,
+        final List<Widget> slivers = [];
+
+        // Search Box Sliver
+        slivers.add(
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+              child: useFluent && isDesktop
+                  ? fluent.TextBox(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      placeholder: 'Search...',
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      prefix: const Padding(
+                        padding: EdgeInsets.only(left: 12),
+                        child: Icon(fluent.FluentIcons.search, size: 12),
+                      ),
+                      suffix: _searchController.text.isNotEmpty
+                          ? fluent.IconButton(
+                              icon: const Icon(
+                                fluent.FluentIcons.chrome_close,
+                                size: 8,
                               ),
-                            ),
-                          ),
-                          child: CustomTextField(
-                            controller: _searchController,
-                            focusNode: _searchFocusNode,
-                            hint: 'Search...',
-                            prefixIcon: Icons.search_rounded,
-                            onChanged: (val) =>
-                                setState(() => _searchQuery = val),
-                            fillColor: Colors.transparent,
-                            borderRadius: 32,
-                            margin: EdgeInsets.zero,
-                            border: InputBorder.none,
-                            enabledBorder: InputBorder.none,
-                            focusedBorder: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: 16,
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              if (pinnedConversations.isNotEmpty) ...[
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'FAVORITES',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.3),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchQuery = '');
+                              },
+                            )
+                          : null,
+                      onChanged: (val) =>
+                          setState(() => _searchQuery = val),
+                    )
+                  : Container(
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.2,
                           ),
                         ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _isEditingFavorites = !_isEditingFavorites;
-                            });
-                          },
-                          child: Text(
-                            _isEditingFavorites ? 'DONE' : 'EDIT',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: colorScheme.primary,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
+                      ),
+                      child: CustomTextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        hint: 'Search...',
+                        prefixIcon: Icons.search_rounded,
+                        onChanged: (val) =>
+                            setState(() => _searchQuery = val),
+                        fillColor: Colors.transparent,
+                        borderRadius: 32,
+                        margin: EdgeInsets.zero,
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 16,
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverToBoxAdapter(
-                    child: _BentoPinnedGrid(
-                      conversations: pinnedConversations,
-                      onTap: (c) => _handleConversationTap(c, isDesktop),
-                      isSelected: (c) =>
-                          isDesktop && _selectedConversation?.id == c.id,
-                      conversationSizes: _conversationSizes,
-                      onToggleSize: _toggleSize,
-                      onTogglePin: _togglePin,
-                      isEditing: _isEditingFavorites,
-                    ),
-                  ),
-                ),
-              ],
+            ),
+          ),
+        );
+
+        if (_isListView) {
+          // List View Layout
+          if (pinnedConversations.isNotEmpty) {
+            slivers.addAll([
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                   child: Text(
-                    'RECENT BUBBLES',
+                    'FAVORITES',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.3),
                       fontWeight: FontWeight.w900,
@@ -894,29 +998,158 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                sliver: SliverToBoxAdapter(
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 24,
-                    children: regularConversations
-                        .map(
-                          (c) => _FloatingBubble(
-                            key: ValueKey(c.id),
-                            conversation: c,
-                            onTap: () => _handleConversationTap(c, isDesktop),
-                            onLongPress: _handleLongPressBubble,
-                          ),
-                        )
-                        .toList(),
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final c = pinnedConversations[index];
+                    return _ConversationListTile(
+                      conversation: c,
+                      label: _conversationLabels[c.id],
+                      onTap: () => _handleConversationTap(c, isDesktop),
+                      onLongPress: _handleLongPressBubble,
+                    );
+                  },
+                  childCount: pinnedConversations.length,
+                ),
+              ),
+            ]);
+          }
+
+          if (regularConversations.isNotEmpty) {
+            slivers.addAll([
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+                  child: Text(
+                    'ALL MESSAGES',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 1.5,
+                    ),
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 120)),
-            ],
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final c = regularConversations[index];
+                    return _ConversationListTile(
+                      conversation: c,
+                      label: _conversationLabels[c.id],
+                      onTap: () => _handleConversationTap(c, isDesktop),
+                      onLongPress: _handleLongPressBubble,
+                    );
+                  },
+                  childCount: regularConversations.length,
+                ),
+              ),
+            ]);
+          }
+        } else {
+          // Bubble Grid Layout
+          if (pinnedConversations.isNotEmpty) {
+            slivers.addAll([
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'FAVORITES',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _isEditingFavorites = !_isEditingFavorites;
+                          });
+                        },
+                        child: Text(
+                          _isEditingFavorites ? 'DONE' : 'EDIT',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.5,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: _BentoPinnedGrid(
+                    conversations: pinnedConversations,
+                    onTap: (c) => _handleConversationTap(c, isDesktop),
+                    isSelected: (c) =>
+                        isDesktop && _selectedConversation?.id == c.id,
+                    conversationSizes: _conversationSizes,
+                    onToggleSize: _toggleSize,
+                    onTogglePin: _togglePin,
+                    isEditing: _isEditingFavorites,
+                  ),
+                ),
+              ),
+            ]);
+          }
+
+          slivers.addAll([
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 32, 20, 16),
+                child: Text(
+                  'RECENT BUBBLES',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(
+                child: Wrap(
+                  spacing: 20,
+                  runSpacing: 24,
+                  children: regularConversations
+                      .map(
+                        (c) => _FloatingBubble(
+                          key: ValueKey(c.id),
+                          conversation: c,
+                          label: _conversationLabels[c.id],
+                          onTap: () => _handleConversationTap(c, isDesktop),
+                          onLongPress: _handleLongPressBubble,
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ),
+          ]);
+        }
+
+        slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 120)));
+
+        return RefreshIndicator(
+          onRefresh: () => provider.loadConversations(silent: false),
+          child: CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            slivers: slivers,
           ),
         );
+      },
+    );
       },
     );
   }
@@ -1428,11 +1661,13 @@ class _BentoItem extends StatelessWidget {
 
 class _FloatingBubble extends StatelessWidget {
   final Conversation conversation;
+  final String? label;
   final VoidCallback onTap;
   final Function(Conversation, Offset) onLongPress;
   const _FloatingBubble({
     super.key,
     required this.conversation,
+    this.label,
     required this.onTap,
     required this.onLongPress,
   });
@@ -1566,19 +1801,44 @@ class _FloatingBubble extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             width: 70,
-            child: Text(
-              conversation.otherUserName.split(' ')[0],
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: conversation.unreadCount > 0
-                    ? FontWeight.w900
-                    : FontWeight.w600,
-                fontSize: 11,
-                color: colorScheme.onSurface.withValues(alpha: 0.7),
-                letterSpacing: 0.5,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  conversation.otherUserName.split(' ')[0],
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: conversation.unreadCount > 0
+                        ? FontWeight.w900
+                        : FontWeight.w600,
+                    fontSize: 11,
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    letterSpacing: 0.5,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (label != null && label!.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      label!,
+                      style: TextStyle(
+                        fontSize: 8,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.primary,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -1856,4 +2116,159 @@ Color _getVibeColor(String name) {
     const Color(0xFFA3E635),
   ];
   return colors[hash.abs() % colors.length];
+}
+
+class _ConversationListTile extends StatelessWidget {
+  final Conversation conversation;
+  final String? label;
+  final VoidCallback onTap;
+  final Function(Conversation, Offset) onLongPress;
+
+  const _ConversationListTile({
+    required this.conversation,
+    required this.label,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final vibeColor = _getVibeColor(conversation.otherUserName);
+    final hasUnread = conversation.unreadCount > 0;
+
+    return InkWell(
+      onTap: onTap,
+      onLongPress: () {
+        final RenderBox renderBox = context.findRenderObject() as RenderBox;
+        final position = renderBox.localToGlobal(Offset.zero);
+        onLongPress(conversation, position + const Offset(100, 30));
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Row(
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Consumer<PresenceProvider>(
+                  builder: (context, provider, child) => Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: provider.isUserOnline(conversation.otherUserId)
+                            ? Colors.green
+                            : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child: conversation.otherUserAvatar.isNotEmpty
+                          ? CachedNetworkImage(
+                              imageUrl: conversation.otherUserAvatar,
+                              fit: BoxFit.cover,
+                            )
+                          : Center(
+                              child: Text(
+                                conversation.otherUserName.isNotEmpty
+                                    ? conversation.otherUserName[0].toUpperCase()
+                                    : 'U',
+                                style: TextStyle(
+                                  color: vibeColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                ),
+                if (hasUnread)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: UnreadBadgeWidget(count: conversation.unreadCount),
+                  ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          conversation.otherUserName,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: hasUnread ? FontWeight.bold : FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (label != null && label!.isNotEmpty) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: colorScheme.primary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            label!,
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    conversation.lastMessage.isNotEmpty ? conversation.lastMessage : 'No messages yet',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: hasUnread
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      fontWeight: hasUnread ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              _formatLastMessageTime(conversation.lastMessageTime),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: hasUnread ? colorScheme.primary : colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+                fontWeight: hasUnread ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatLastMessageTime(DateTime time) {
+    final now = DateTime.now();
+    final difference = now.difference(time);
+    if (difference.inDays == 0) {
+      return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else {
+      return '${time.month}/${time.day}/${time.year}';
+    }
+  }
 }
