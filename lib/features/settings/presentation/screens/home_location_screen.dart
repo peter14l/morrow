@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
 import 'package:oasis/models/home_location.dart';
@@ -33,8 +34,92 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
   }
 
   Future<void> _setLocation() async {
-    // For now, use a simple coordinate input dialog
-    // In a full implementation, this would open a map picker
+    setState(() => _isSaving = true);
+
+    try {
+      // 1. Check if location services are enabled
+      final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw 'Location services are disabled. Please enable GPS on your device.';
+      }
+
+      // 2. Request and check permission
+      var permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw 'Location permissions were denied.';
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        throw 'Location permissions are permanently denied. Please enable them in your device settings.';
+      }
+
+      // 3. Fetch current location
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+        timeLimit: const Duration(seconds: 15),
+      );
+
+      // 4. Save location
+      await _homeLocationService.setHomeLocation(
+        position.latitude,
+        position.longitude,
+      );
+      await _loadCurrentLocation();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Home location auto-detected and saved!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorDialog(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
+  }
+
+  void _showErrorDialog(String error) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.error_outline, color: Colors.red),
+            SizedBox(width: 8),
+            Text('Auto-Detection Failed'),
+          ],
+        ),
+        content: Text(
+          '$error\n\nWould you like to enter your coordinates manually instead?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _enterCoordinatesManually();
+            },
+            child: const Text('Enter Manually'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _enterCoordinatesManually() async {
     final coordinates = await _showCoordinateInputDialog();
     if (coordinates != null) {
       setState(() => _isSaving = true);
@@ -48,7 +133,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Home location saved'),
+            content: Text('Home location saved manually'),
             backgroundColor: Colors.green,
           ),
         );
@@ -319,14 +404,26 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                           ? const SizedBox(
                               width: 16,
                               height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
                             )
-                          : const Icon(Icons.add_location_alt),
+                          : const Icon(Icons.my_location),
                       label: Text(
                         _currentLocation == null
-                            ? 'Set Home Location'
-                            : 'Update Location',
+                            ? 'Auto-detect Location'
+                            : 'Auto-detect Location',
                       ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      onPressed: _isSaving ? null : _enterCoordinatesManually,
+                      icon: const Icon(Icons.edit_location_alt_outlined),
+                      label: const Text('Enter Coordinates Manually'),
                     ),
                   ),
 
