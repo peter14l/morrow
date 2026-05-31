@@ -1150,8 +1150,6 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
         );
       },
     );
-      },
-    );
   }
 
   // List<Conversation> _generateMockConversations() {
