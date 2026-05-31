@@ -85,28 +85,22 @@ jobs:
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
 
       - name: Build Release APKs (Split per ABI)
+        env:
+          RELEASE_STORE_FILE: "release.keystore"
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           flutter build apk --release --split-per-abi --dart-define-from-file=".env"
-
-      - name: Sign APKs
-        uses: r0adkll/sign-android-release@v1
-        id: sign_app
-        with:
-          releaseDirectory: build/app/outputs/flutter-apk
-          signingKeyBase64: ${{ secrets.KEYSTORE_BASE64 }}
-          alias: ${{ secrets.KEY_ALIAS }}
-          keyStorePassword: ${{ secrets.KEYSTORE_PASSWORD }}
-          keyPassword: ${{ secrets.KEY_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: "34.0.0"
 
       - name: Upload Signed APKs
         uses: actions/upload-artifact@v4
         with:
           name: signed-apks
           path: |
-            build/app/outputs/flutter-apk/*-signed.apk
+            build/app/outputs/flutter-apk/*-release.apk
           retention-days: 7
+
 
   build-ios:
     name: Build iOS (IPA)
