@@ -99,7 +99,69 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
             style: TextStyle(fontSize: 16, color: Colors.grey),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 24),
+          // Included Items Section
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.teal.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.teal.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'What\'s included in the export:',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.teal,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildExportItem(
+                  icon: Icons.person_outline,
+                  title: 'Profile & Account settings',
+                  format: 'JSON format (profile.json)',
+                ),
+                const Divider(height: 16),
+                _buildExportItem(
+                  icon: Icons.chat_bubble_outline,
+                  title: 'Direct Messages & Posts',
+                  format: 'JSON format (messages.json, posts.json)',
+                ),
+                const Divider(height: 16),
+                _buildExportItem(
+                  icon: Icons.image_outlined,
+                  title: 'Photos & Videos',
+                  format: 'Original format (JPEG, PNG, MP4)',
+                ),
+                const Divider(height: 16),
+                _buildExportItem(
+                  icon: Icons.palette_outlined,
+                  title: 'Canvas Art drawings',
+                  format: 'PNG image & JSON coordinates',
+                ),
+                const Divider(height: 16),
+                _buildExportItem(
+                  icon: Icons.lock_outline,
+                  title: 'Encrypted Time Capsules',
+                  format: 'JSON metadata & binary ciphertexts',
+                ),
+                const Divider(height: 16),
+                _buildExportItem(
+                  icon: Icons.analytics_outlined,
+                  title: 'Curation & interaction history',
+                  format: 'JSON format (curation.json)',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           if (_isSuccess)
             Container(
               padding: const EdgeInsets.all(16),
@@ -148,14 +210,49 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
       ),
     );
 
-    if (isDesktop) return Material(color: Colors.transparent, child: content);
+    if (isDesktop) return Material(color: Colors.transparent, child: SingleChildScrollView(child: content));
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Download Your Data'),
         centerTitle: true,
       ),
-      body: content,
+      body: SingleChildScrollView(child: content),
+    );
+  }
+
+  Widget _buildExportItem({
+    required IconData icon,
+    required String title,
+    required String format,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 24, color: Colors.teal),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                format,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
