@@ -38,11 +38,9 @@ class AccountSwitcherSheet extends StatelessWidget {
     final sheetContent = Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: isSolid
-            ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
-            : (disableTransparency
-                ? colorScheme.surface
-                : colorScheme.surface.withValues(alpha: 0.8)),
+        color: (isSolid || disableTransparency)
+            ? (isDark ? const Color(0xFF1E3A2F) : Colors.white)
+            : colorScheme.surface.withValues(alpha: 0.8),
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(isM3E ? 48 : 28),
         ),
@@ -177,6 +175,9 @@ class AccountSwitcherSheet extends StatelessWidget {
                                 );
 
                                 if (confirmed == true) {
+                                  // Guard against context being unmounted
+                                  // after the async showDialog completes.
+                                  if (!context.mounted) return;
                                   await authService.removeAccount(
                                     context,
                                     account.userId,
@@ -210,7 +211,9 @@ class AccountSwitcherSheet extends StatelessWidget {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(isM3E ? 12 : 20),
+                  // NOTE: Do NOT set borderRadius when shape is BoxShape.circle —
+                  // Flutter throws an assertion error during paint.
+                  borderRadius: isM3E ? BorderRadius.circular(12) : null,
                   shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
                 ),
                 child: Icon(Icons.add, color: colorScheme.onPrimaryContainer),
@@ -223,10 +226,19 @@ class AccountSwitcherSheet extends StatelessWidget {
               ),
               onTap: () {
                 final router = GoRouter.of(context);
+                // Capture the root navigator context BEFORE popping the sheet.
+                // This context lives for the entire app lifetime and is safe
+                // to use in post-frame callbacks after the sheet is dismissed.
+                final rootContext =
+                    Navigator.of(context, rootNavigator: true).context;
                 authService.setAddingAccount(true);
-                authService.resetProviders(context);
                 Navigator.pop(context);
-                router.push('/login?add_account=true');
+                // Reset providers and navigate after the sheet has fully
+                // dismissed to avoid notifyListeners during sheet teardown.
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  authService.resetProviders(rootContext);
+                  router.push('/login?add_account=true');
+                });
               },
             ),
           ],
@@ -358,10 +370,14 @@ class AccountSwitcherSheet extends StatelessWidget {
         fluent.HoverButton(
           onPressed: () {
             final router = GoRouter.of(context);
+            final rootContext =
+                Navigator.of(context, rootNavigator: true).context;
             authService.setAddingAccount(true);
-            authService.resetProviders(context);
             Navigator.pop(context);
-            router.push('/login?add_account=true');
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              authService.resetProviders(rootContext);
+              router.push('/login?add_account=true');
+            });
           },
           builder: (context, states) {
             return Container(
