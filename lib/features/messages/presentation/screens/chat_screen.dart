@@ -460,6 +460,18 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     final content = _messageController.text.trim();
     final state = _chatProvider.state;
 
+    // Handle editing
+    final editingMessage = state.editingMessage;
+    if (editingMessage != null) {
+      if (content.isNotEmpty && content != editingMessage.content) {
+        await _chatProvider.editMessage(editingMessage.id, content);
+      }
+      _chatProvider.setState((s) => s.copyWith(editingMessage: null));
+      _messageController.clear();
+      _textNotifier.value = '';
+      return;
+    }
+
     // Capture media state locally before clearing (for the call to provider)
     final images = state.selectedImages;
     final videoFile = state.selectedVideo;
@@ -531,6 +543,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         isOwnMessage: isOwn,
         position: position,
         onReply: () => _setReplyMessage(message),
+        onEdit: () => _startEditing(message),
         onForward: () {},
         onCopy: () {
           Clipboard.setData(ClipboardData(text: message.content));
@@ -563,6 +576,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             message: message,
             isOwnMessage: isOwn,
             onReply: () => _setReplyMessage(message),
+            onEdit: () => _startEditing(message),
             onForward: () {},
             onCopy: () {
               Clipboard.setData(ClipboardData(text: message.content));
@@ -604,20 +618,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _focusNode.requestFocus();
   }
 
+  void _startEditing(Message message) {
+    _messageController.text = message.content;
+    _chatProvider.setState((s) => s.copyWith(editingMessage: message));
+    _focusNode.requestFocus();
+  }
+
   void _showAttachmentOptions() {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,
-      builder: (context) => _wrapWithLiquidGlass(
-        child: AttachmentOptionsSheet(
-          onPhotoSelected: _pickImage,
-          onVideoSelected: _pickVideo,
-          onFileSelected: _pickFile,
-          onAudioSelected: _pickAudio,
-          onLocationSelected: _showLocationDurationOptions,
-        ),
+      builder: (context) => AttachmentOptionsSheet(
+        onPhotoSelected: _pickImage,
+        onVideoSelected: _pickVideo,
+        onFileSelected: _pickFile,
+        onAudioSelected: _pickAudio,
+        onLocationSelected: _showLocationDurationOptions,
       ),
     );
   }
@@ -789,8 +807,41 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         if (state.replyMessage != null)
                           ReplyPreview(
                             message: state.replyMessage!,
-                            onDismiss: () => chatProvider.setState(
+                            onDismiss: () => _chatProvider.setState(
                               (s) => s.copyWith(replyMessage: null),
+                            ),
+                          ),
+                        // Edit preview
+                        if (state.editingMessage != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.edit, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('Editing Message', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                      Text(
+                                        state.editingMessage!.content,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 20),
+                                  onPressed: () {
+                                    _chatProvider.setState((s) => s.copyWith(editingMessage: null));
+                                    _messageController.clear();
+                                  },
+                                ),
+                              ],
                             ),
                           ),
 

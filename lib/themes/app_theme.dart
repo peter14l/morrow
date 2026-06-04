@@ -184,9 +184,9 @@ class AppTheme {
 
     // Base colors for transparency
     final Color micaBase = isDark
-        ? Colors.white
-        : Colors.black; // Flip base for glow
-    final Color micaTint = micaBase.withValues(alpha: isDark ? 0.05 : 0.1);
+        ? Colors.black
+        : Colors.white;
+    final Color micaTint = micaBase.withValues(alpha: isDark ? 0.3 : 0.5);
     final Color micaSurface = micaBase.withValues(alpha: 0.01);
 
     if (isM3E) {
@@ -361,9 +361,7 @@ class AppTheme {
               : SystemUiOverlayStyle.dark,
         ),
         bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: micaEnabled
-              ? micaTint
-              : (isDark ? OasisColors.deep : _m3eLightSurface),
+          backgroundColor: isDark ? OasisColors.deep : _m3eLightSurface,
           surfaceTintColor: Colors.transparent,
           elevation: 0,
           shape: const RoundedRectangleBorder(
@@ -508,9 +506,7 @@ class AppTheme {
             : SystemUiOverlayStyle.dark,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: micaEnabled
-            ? micaTint
-            : (isDark ? OasisColors.deep : _lightBackgroundColor),
+        backgroundColor: isDark ? OasisColors.deep : _lightBackgroundColor,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -940,6 +936,11 @@ class AppTheme {
     errorContainer: _m3eLightErrorContainer,
     onErrorContainer: _m3eLightOnErrorContainer,
     surface: _m3eLightSurface,
+    surfaceContainerLowest: _m3eLightSurfaceContainerLowest,
+    surfaceContainerLow: _m3eLightSurfaceContainerLow,
+    surfaceContainer: _m3eLightSurfaceContainer,
+    surfaceContainerHigh: _m3eLightSurfaceContainerHigh,
+    surfaceContainerHighest: _m3eLightSurfaceContainerHighest,
     onSurface: _m3eLightOnSurface,
     outline: _m3eLightOutline,
     outlineVariant: _m3eLightOutlineVariant,
@@ -1000,6 +1001,11 @@ class AppTheme {
     errorContainer: _m3eDarkErrorContainer,
     onErrorContainer: _m3eDarkOnErrorContainer,
     surface: _m3eDarkSurface,
+    surfaceContainerLowest: _m3eDarkSurfaceContainerLowest,
+    surfaceContainerLow: _m3eDarkSurfaceContainerLow,
+    surfaceContainer: _m3eDarkSurfaceContainer,
+    surfaceContainerHigh: _m3eDarkSurfaceContainerHigh,
+    surfaceContainerHighest: _m3eDarkSurfaceContainerHighest,
     onSurface: _m3eDarkOnSurface,
     outline: _m3eDarkOutline,
     outlineVariant: _m3eDarkOutlineVariant,

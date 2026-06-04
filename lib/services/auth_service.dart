@@ -219,6 +219,7 @@ class AuthService with ChangeNotifier {
   Future<void> removeAccount(BuildContext context, String userId) async {
     final isCurrent = _supabase.auth.currentUser?.id == userId;
 
+    await _notificationService.removeFcmToken(userId);
     await _accountRegistry.removeAccount(userId);
 
     if (isCurrent) {
@@ -462,6 +463,7 @@ class AuthService with ChangeNotifier {
           
           if (forgetAccount) {
             // Only remove from registry if explicitly requested
+            await _notificationService.removeFcmToken(currentUserId);
             await _accountRegistry.removeAccount(currentUserId);
             // Also sign out from Supabase to invalidate the session
             await _providersDelegate.signOut();
@@ -476,6 +478,7 @@ class AuthService with ChangeNotifier {
       // Fallback: Full sign out
       debugPrint('[AuthService] Performing full sign out');
       if (currentUserId != null && forgetAccount) {
+        await _notificationService.removeFcmToken(currentUserId);
         await _accountRegistry.removeAccount(currentUserId);
       }
       

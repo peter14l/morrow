@@ -3,23 +3,24 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Check, Globe, ShieldAlert } from "lucide-react";
+import { PricingGem } from "../3d/DecorativeObjects";
 
 // PPP mapping (Expanded for major regions)
 const PPP_PRICES: Record<string, { price: string; symbol: string }> = {
-  IN: { price: "199", symbol: "₹" },
-  US: { price: "9.99", symbol: "$" },
-  GB: { price: "7.99", symbol: "£" },
-  EU: { price: "8.99", symbol: "€" },
-  DE: { price: "8.99", symbol: "€" },
-  FR: { price: "8.99", symbol: "€" },
-  CA: { price: "12.99", symbol: "CA$" },
-  AU: { price: "14.99", symbol: "A$" },
-  BR: { price: "29.90", symbol: "R$" },
-  NG: { price: "2500", symbol: "₦" },
-  PK: { price: "850", symbol: "₨" },
-  BD: { price: "750", symbol: "৳" },
+  US: { price: "4.99", symbol: "$" },
+  GB: { price: "4.49", symbol: "£" },
+  EU: { price: "4.99", symbol: "€" },
+  DE: { price: "4.99", symbol: "€" },
+  FR: { price: "4.99", symbol: "€" },
+  CA: { price: "6.99", symbol: "CA$" },
+  AU: { price: "7.99", symbol: "A$" },
+  IN: { price: "149", symbol: "₹" },
+  BR: { price: "14.90", symbol: "R$" },
+  MX: { price: "49", symbol: "$" },
+  ID: { price: "39000", symbol: "Rp" },
+  PH: { price: "149", symbol: "₱" },
   // Default fallback
-  DEFAULT: { price: "9.99", symbol: "$" },
+  DEFAULT: { price: "4.99", symbol: "$" },
 };
 
 export default function Pricing() {
@@ -56,9 +57,10 @@ export default function Pricing() {
       name: "Free",
       price: `${activePricing.symbol}0`,
       features: [
-        "Basic Time Capsules",
-        "Public Circles",
         "End-to-end encryption",
+        "14-Day Cloud Media Storage",
+        "Local Device Storage",
+        "Public Circles",
         "Mindful feed access",
       ],
       cta: "Join Waitlist",
@@ -68,12 +70,12 @@ export default function Pricing() {
       name: "Pro",
       price: `${activePricing.symbol}${activePricing.price}`,
       features: [
-        "Extended Time Capsules",
+        "Unlimited Cloud Media Storage",
+        "Unlimited Vault & Capsules",
         "Private & Hidden Circles",
         "Enhanced Wellness Insights",
-        "Priority Support",
-        "No Data Retention",
         "Custom UI Themes",
+        "Priority Support",
       ],
       cta: "Upgrade to Pro",
       highlight: true,
@@ -82,7 +84,8 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="py-24 px-6 bg-oasis-deep relative overflow-hidden">
-      <div className="max-w-5xl mx-auto">
+      <PricingGem />
+      <div className="max-w-5xl mx-auto relative z-10">
         <div className="mb-16 text-center">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}

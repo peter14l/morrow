@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:oasis/core/config/r2_config.dart';
+import 'package:oasis/core/config/b2_config.dart';
 
 /// Chat background image with opacity and brightness control.
 /// Extracted from the Positioned.fill background in chat_screen.dart.
@@ -27,13 +27,13 @@ class ChatBackground extends StatelessWidget {
       // or: https://<id>.r2.cloudflarestorage.com/oasis/<folder>/<userId>/<fileId>
       final parts = url.split('/oasis/');
       if (parts.length > 1) {
-        url = '${R2Config.r2PublicBaseUrl}/${parts.last}';
+        url = '${B2Config.b2PublicBaseUrl}/${parts.last}';
       }
     }
 
     // 2. Fix URLs that are missing the folder prefix (e.g. backgrounds/)
     // This occurs if the upload service returned a URL without the folder segment.
-    if (url.startsWith(R2Config.r2PublicBaseUrl)) {
+    if (url.startsWith(B2Config.b2PublicBaseUrl)) {
       final uri = Uri.tryParse(url);
       if (uri != null) {
         final segments = uri.pathSegments;
@@ -41,7 +41,7 @@ class ChatBackground extends StatelessWidget {
         // For ChatBackground, this folder is almost always 'backgrounds'.
         if (segments.length == 2) {
           url =
-              '${R2Config.r2PublicBaseUrl}/backgrounds/${segments[0]}/${segments[1]}';
+              '${B2Config.b2PublicBaseUrl}/backgrounds/${segments[0]}/${segments[1]}';
         }
       }
     }

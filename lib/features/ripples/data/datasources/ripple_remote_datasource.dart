@@ -31,7 +31,7 @@ class RippleRemoteDatasource {
 
     /* Original Backblaze Logic:
     return _s3StorageService.uploadFile(
-      bucket: R2Config.b2RipplesBucketName,
+      bucket: B2Config.b2RipplesBucketName,
       fileId: fileId,
       type: 'ripples',
       file: file,

@@ -16,6 +16,7 @@ class MessageOptionsSheet extends StatelessWidget {
     required this.message,
     required this.isOwnMessage,
     required this.onReply,
+    this.onEdit,
     required this.onForward,
     required this.onCopy,
     required this.onUnsend,
@@ -25,6 +26,7 @@ class MessageOptionsSheet extends StatelessWidget {
   final Message message;
   final bool isOwnMessage;
   final VoidCallback onReply;
+  final VoidCallback? onEdit;
   final VoidCallback onForward;
   final VoidCallback onCopy;
   final VoidCallback onUnsend;
@@ -87,6 +89,15 @@ class MessageOptionsSheet extends StatelessWidget {
             );
           },
         ),
+        if (isOwnMessage && message.messageType == MessageType.text && onEdit != null && message.content != '🔒 Message encrypted')
+          _ModalAction(
+            icon: Icons.edit_rounded,
+            label: 'Edit',
+            onTap: () {
+              Navigator.pop(context);
+              onEdit!();
+            },
+          ),
         if (message.messageType == MessageType.text &&
             message.content != '🔒 Message encrypted')
           _ModalAction(

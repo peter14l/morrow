@@ -15,6 +15,7 @@ class MessageOptionsMenu extends StatelessWidget {
     required this.isOwnMessage,
     required this.position,
     required this.onReply,
+    this.onEdit,
     required this.onForward,
     required this.onCopy,
     required this.onUnsend,
@@ -25,6 +26,7 @@ class MessageOptionsMenu extends StatelessWidget {
   final bool isOwnMessage;
   final Offset position;
   final VoidCallback onReply;
+  final VoidCallback? onEdit;
   final VoidCallback onForward;
   final VoidCallback onCopy;
   final VoidCallback onUnsend;
@@ -120,6 +122,17 @@ class MessageOptionsMenu extends StatelessWidget {
             ],
           ),
         ),
+        if (isOwnMessage && message.messageType == MessageType.text && onEdit != null && message.content != '🔒 Message encrypted')
+          PopupMenuItem(
+            onTap: onEdit,
+            child: const Row(
+              children: [
+                Icon(FluentIcons.edit_24_regular, size: 20),
+                SizedBox(width: 12),
+                Text('Edit'),
+              ],
+            ),
+          ),
         if (message.messageType == MessageType.text &&
             message.content != '🔒 Message encrypted')
           PopupMenuItem(

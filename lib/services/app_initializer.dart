@@ -64,6 +64,7 @@ import 'package:oasis/features/profile/data/repositories/profile_repository_impl
 import 'package:oasis/providers/typing_indicator_provider.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/features/couples/presentation/providers/partner_provider.dart';
 import 'package:oasis/features/settings/data/repositories/settings_repository_impl.dart';
 import 'package:oasis/features/settings/domain/usecases/settings_usecases.dart';
 import 'package:oasis/features/stories/presentation/providers/stories_provider.dart';
@@ -597,6 +598,7 @@ class AppInitializer {
               conversationProvider!..updatePresenceProvider(presenceProvider),
         ),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => PartnerProvider()),
         ChangeNotifierProvider(create: (_) => CanvasProvider()),
         ChangeNotifierProvider(
           create: (_) => CircleProvider(repository: CircleRepositoryImpl()),

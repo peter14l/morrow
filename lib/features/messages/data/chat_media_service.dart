@@ -2,7 +2,7 @@ import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-import 'package:oasis/core/config/r2_config.dart';
+import 'package:oasis/core/config/b2_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/subscription_service.dart';
 import 'package:oasis/services/s3_storage_service.dart';
@@ -61,7 +61,7 @@ class ChatMediaService {
       final storagePath = '$userId/$uniqueFileId';
 
       final remoteUrl = await _s3StorageService.uploadFile(
-        bucket: R2Config.r2BucketName,
+        bucket: B2Config.b2BucketName,
         fileId: storagePath,
         type: folder,
         file: encryptedBytes == null ? file : null,
@@ -74,7 +74,7 @@ class ChatMediaService {
 
       // Return the public access URL instead of the S3 endpoint
       // We must include the folder prefix as the edge function puts files in folder/userId/uniqueFileId
-      return '${R2Config.r2PublicBaseUrl}/$folder/$storagePath';
+      return '${B2Config.b2PublicBaseUrl}/$folder/$storagePath';
     } catch (e) {
       debugPrint('[ChatMediaService] Upload Error: $e');
       rethrow;
@@ -127,7 +127,7 @@ class ChatMediaService {
       final storagePath = '$userId/$uniqueFileId';
 
       final remoteUrl = await _s3StorageService.uploadFile(
-        bucket: R2Config.r2BucketName,
+        bucket: B2Config.b2BucketName,
         fileId: storagePath,
         type: type,
         bytes: encryptedBytes,
@@ -168,7 +168,7 @@ class ChatMediaService {
     try {
       // 1. Download encrypted bytes
       final encryptedBytes = await _s3StorageService.downloadFile(
-        bucket: R2Config.r2BucketName,
+        bucket: B2Config.b2BucketName,
         fileId: fileId,
         type: type,
       );
@@ -217,7 +217,7 @@ class ChatMediaService {
         final fileId = '$userId/$fileName';
 
         await _s3StorageService.deleteFile(
-          bucket: R2Config.r2BucketName,
+          bucket: B2Config.b2BucketName,
           fileId: fileId,
           type: type,
         );

@@ -53,6 +53,40 @@ class MessageOperationsService {
     }
   }
 
+  /// Edits a message text content.
+  Future<void> editMessage(
+    String messageId,
+    String newContent, {
+    Map<String, dynamic>? encryptedKeys,
+    String? iv,
+    int? signalMessageType,
+    String? pqAuraHeader,
+    String? pqAuraPayload,
+    String? signalSenderContent,
+    String? pqAuraSenderPayload,
+  }) async {
+    try {
+      final updates = <String, dynamic>{
+        'content': newContent,
+      };
+      if (encryptedKeys != null) updates['encrypted_keys'] = encryptedKeys;
+      if (iv != null) updates['iv'] = iv;
+      if (signalMessageType != null) updates['signal_message_type'] = signalMessageType;
+      if (pqAuraHeader != null) updates['pq_aura_header'] = pqAuraHeader;
+      if (pqAuraPayload != null) updates['pq_aura_payload'] = pqAuraPayload;
+      if (signalSenderContent != null) updates['signal_sender_content'] = signalSenderContent;
+      if (pqAuraSenderPayload != null) updates['pq_aura_sender_payload'] = pqAuraSenderPayload;
+
+      await _supabase
+          .from(SupabaseConfig.messagesTable)
+          .update(updates)
+          .eq('id', messageId);
+    } catch (e) {
+      debugPrint('[MessageOps] Error editing message: $e');
+      rethrow;
+    }
+  }
+
   /// Clears chat for the current user only (sets cleared_at timestamp).
   Future<void> clearChatForMe(String conversationId) async {
     try {

@@ -388,7 +388,7 @@ class _OasisProScreenState extends State<OasisProScreen> {
                     _buildFeatureItem(
                       FluentIcons.cloud_24_regular,
                       'Unlimited Media Storage',
-                      'Keep your photos and videos forever. No 30-day limits.',
+                      'Keep your photos and videos forever. No 14-day limits.',
                     ),
                     const SizedBox(height: 40),
 

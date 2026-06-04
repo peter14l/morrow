@@ -1,5 +1,5 @@
-class R2Config {
-  static const String r2BucketName = 'oasis';
+class B2Config {
+  static const String b2BucketName = 'oasis';
   static const String b2FeedBucketName = 'oasis-feed';
   static const String b2RipplesBucketName = 'oasis-ripples';
 
@@ -11,7 +11,7 @@ class R2Config {
   // and credentials securely on the backend.
   static const String presignedUrlFunctionName = 'generate-presigned-url';
 
-  // Public access URL for files in R2 (unencrypted only)
-  static const String r2PublicBaseUrl =
-      'https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev';
+  // Public access URL for files in B2 (unencrypted only)
+  static const String b2PublicBaseUrl =
+      'https://f000.backblazeb2.com/file/oasis';
 }

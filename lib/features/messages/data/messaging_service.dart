@@ -284,6 +284,30 @@ class MessagingService extends ChangeNotifier {
   Future<void> deleteMessage(String messageId) =>
       _messageOpsService.deleteMessage(messageId);
 
+  /// Edits a message.
+  Future<void> editMessage(
+    String messageId,
+    String newContent, {
+    Map<String, dynamic>? encryptedKeys,
+    String? iv,
+    int? signalMessageType,
+    String? pqAuraHeader,
+    String? pqAuraPayload,
+    String? signalSenderContent,
+    String? pqAuraSenderPayload,
+  }) =>
+      _messageOpsService.editMessage(
+        messageId,
+        newContent,
+        encryptedKeys: encryptedKeys,
+        iv: iv,
+        signalMessageType: signalMessageType,
+        pqAuraHeader: pqAuraHeader,
+        pqAuraPayload: pqAuraPayload,
+        signalSenderContent: signalSenderContent,
+        pqAuraSenderPayload: pqAuraSenderPayload,
+      );
+
   /// Clears chat history for the current user only.
   Future<void> clearChatForMe(String conversationId) =>
       _messageOpsService.clearChatForMe(conversationId);

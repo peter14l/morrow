@@ -94,22 +94,25 @@ class HomeCheckinRepository {
       }
 
       final partnerFcm = partnerProfile['fcm_token'] as String?;
-      final partnerName = partnerProfile['full_name'] as String? ?? 'Partner';
 
       // Send via Supabase RPC or FCM directly
       if (partnerFcm != null && partnerFcm.isNotEmpty) {
         // Send push notification to partner
-        await _sendPushNotification(
-          token: partnerFcm,
-          title: '❤️ $username arrived home',
-          body: '$username has reached home safely',
-          data: {
-            'type': 'home_checkin',
-            'sender_id': currentUser.id,
-            'sender_name': username,
-            'status': 'arrived',
-          },
-        );
+        try {
+          await _sendPushNotification(
+            token: partnerFcm,
+            title: '❤️ $username arrived home',
+            body: '$username has reached home safely',
+            data: {
+              'type': 'home_checkin',
+              'sender_id': currentUser.id,
+              'sender_name': username,
+              'status': 'arrived',
+            },
+          );
+        } catch (e) {
+          debugPrint('[HomeCheckinRepository] Push to partner failed (non-fatal): $e');
+        }
       }
 
       // Also send local notification if app is open
@@ -151,17 +154,21 @@ class HomeCheckinRepository {
       final partnerFcm = partnerProfile['fcm_token'] as String?;
 
       if (partnerFcm != null && partnerFcm.isNotEmpty) {
-        await _sendPushNotification(
-          token: partnerFcm,
-          title: '⚠️ Check-in issue',
-          body: '$username says they have NOT actually reached home',
-          data: {
-            'type': 'home_checkin_warning',
-            'sender_id': currentUser.id,
-            'sender_name': username,
-            'status': 'not_arrived',
-          },
-        );
+        try {
+          await _sendPushNotification(
+            token: partnerFcm,
+            title: '⚠️ Check-in issue',
+            body: '$username says they have NOT actually reached home',
+            data: {
+              'type': 'home_checkin_warning',
+              'sender_id': currentUser.id,
+              'sender_name': username,
+              'status': 'not_arrived',
+            },
+          );
+        } catch (e) {
+          debugPrint('[HomeCheckinRepository] Push to partner failed (non-fatal): $e');
+        }
       }
 
       await NotificationManager.instance.showNotification(
@@ -195,11 +202,8 @@ class HomeCheckinRepository {
         body: {'token': token, 'title': title, 'body': body, 'data': data},
       );
     } catch (e) {
-      // Fallback: Try sending via REST API to FCM
-      // Note: This would require server-side FCM key configuration
-      debugPrint(
-        '[HomeCheckinRepository] Push send via function failed, trying REST: $e',
-      );
+      debugPrint('[HomeCheckinRepository] Push notification failed: $e');
+      rethrow;
     }
   }
 }

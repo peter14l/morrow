@@ -11,37 +11,37 @@ const features = [
     title: "Wellness Center",
     description: "Built-in study sessions, energy metering, and mindful detox modes to help you stay present.",
     icon: Activity,
-    className: "md:col-span-2 md:row-span-2",
+    className: "md:col-span-2",
   },
   {
     title: "PQ-Aura Security",
     description: "Post-quantum double-ratchet encryption ensuring your conversations stay private forever.",
     icon: ShieldCheck,
-    className: "md:col-span-1 md:row-span-1",
+    className: "md:col-span-1",
   },
   {
     title: "Digital Sanctuary",
     description: "Private communities designed for deep connection, free from algorithmic noise.",
     icon: Waves,
-    className: "md:col-span-1 md:row-span-2",
+    className: "md:col-span-1",
   },
   {
     title: "Time Capsules",
     description: "Plant memories today and harvest them in the future when the moment is right.",
     icon: Clock,
-    className: "md:col-span-1 md:row-span-1",
+    className: "md:col-span-2",
   },
   {
     title: "Privacy by Design",
     description: "Local-first data sovereignty and E2EE for all your journals and communications.",
     icon: Lock,
-    className: "md:col-span-1 md:row-span-1",
+    className: "md:col-span-2",
   },
   {
     title: "Intentional Stories",
     description: "Share your life with mindful limits that prevent the infinite scroll trap.",
     icon: Layers,
-    className: "md:col-span-2 md:row-span-1",
+    className: "md:col-span-1",
   },
 ];
 
@@ -70,7 +70,7 @@ export default function FeaturesGrid() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[200px]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[minmax(220px,auto)]">
           {features.map((feature, i) => {
             const Icon = feature.icon;
             return (
@@ -82,21 +82,20 @@ export default function FeaturesGrid() {
                 transition={{ delay: i * 0.1 }}
                 className={feature.className}
               >
-                <BentoCard className="h-full">
-                  <div className="flex flex-col gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-oasis-moss flex items-center justify-center text-oasis-glow group-hover:bg-oasis-glow group-hover:text-oasis-deep transition-colors duration-300">
-                      <Icon size={24} />
-                    </div>
-                    <div>
-                      <h3 className="font-dm-serif text-xl text-oasis-sand mb-2">{feature.title}</h3>
-                      <p className="font-geist text-sm text-oasis-mist leading-relaxed opacity-80">
-                        {feature.description}
-                      </p>
+                <BentoCard className="h-full hover:border-oasis-glow/40 hover:shadow-[0_0_40px_rgba(93,201,168,0.1)]">
+                  <div className="flex justify-end">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-oasis-moss to-oasis-deep border border-oasis-sage/30 flex items-center justify-center text-oasis-glow shadow-inner group-hover:scale-110 transition-transform duration-500">
+                      <Icon size={22} />
                     </div>
                   </div>
                   
-                  <div className="mt-4 flex justify-end">
-                    <div className="w-8 h-1 bg-oasis-sage/30 rounded-full group-hover:bg-oasis-glow/50 transition-colors" />
+                  <div className="mt-8">
+                    <h3 className="font-dm-serif text-2xl text-oasis-sand mb-3 group-hover:text-oasis-glow transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="font-geist text-base text-oasis-mist leading-relaxed opacity-80 group-hover:opacity-100 transition-opacity">
+                      {feature.description}
+                    </p>
                   </div>
                 </BentoCard>
               </motion.div>

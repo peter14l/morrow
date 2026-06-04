@@ -54,14 +54,14 @@ class HomeCheckinService {
       // Store check-in timestamp
       final now = DateTime.now().millisecondsSinceEpoch;
       await _prefs.writeInt(_keyLastCheckInTime, now);
-      await _prefs.writeBool(_keyPendingVerification, false);
 
       // Clear pending verification
       await _prefs.writeBool(_keyPendingVerification, false);
 
       // Get partner info and send notification
       final partnerId = await _repository.getCouplePartnerId();
-      if (partnerId != null) {
+      final notifyEnabled = _prefs.readBool('partner_notify_enabled') ?? true;
+      if (partnerId != null && notifyEnabled) {
         await _repository.sendHomeArrivedNotification(partnerId);
         debugPrint(
           '[HomeCheckinService] Sent home arrival notification to partner',

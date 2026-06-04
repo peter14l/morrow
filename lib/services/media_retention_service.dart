@@ -1,14 +1,14 @@
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/network/supabase_client.dart';
-import 'package:oasis/core/config/r2_config.dart';
+import 'package:oasis/core/config/b2_config.dart';
 import 'package:oasis/services/s3_storage_service.dart';
 import 'package:oasis/services/subscription_service.dart';
 
 /// Service to enforce media retention policies:
-/// - Free users: 30-day retention (server-side media deleted after 30 days)
+/// - Free users: 14-day retention (server-side media deleted after 14 days)
 /// - Pro users: Unlimited retention (media kept indefinitely)
 ///
-/// Note: This handles server-side R2 storage retention.
+/// Note: This handles server-side storage retention.
 /// Local cached media is a separate concern handled by MediaCacheService.
 class MediaRetentionService {
   static MediaRetentionService? _instance;
@@ -30,9 +30,9 @@ class MediaRetentionService {
       return true;
     }
 
-    // Free users: 30-day retention policy
-    final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
-    return mediaCreatedAt.isAfter(thirtyDaysAgo);
+    // Free users: 14-day retention policy
+    final fourteenDaysAgo = DateTime.now().subtract(const Duration(days: 14));
+    return mediaCreatedAt.isAfter(fourteenDaysAgo);
   }
 
   /// Cleanup old media for free users
@@ -58,7 +58,7 @@ class MediaRetentionService {
         return 0;
       }
 
-      final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+      final fourteenDaysAgo = DateTime.now().subtract(const Duration(days: 14));
 
       // Query messages with old media attachments
       // Note: This requires the messages table to have created_at and media_url fields
@@ -66,7 +66,7 @@ class MediaRetentionService {
           .from('messages')
           .select('id, media_urls, created_at')
           .eq('sender_id', userId)
-          .lt('created_at', thirtyDaysAgo.toIso8601String())
+          .lt('created_at', fourteenDaysAgo.toIso8601String())
           .not('media_urls', 'is', null);
 
       int deletedCount = 0;
@@ -116,7 +116,7 @@ class MediaRetentionService {
         final fileId = '$userId/$fileName';
 
         await _s3Service.deleteFile(
-          bucket: R2Config.r2BucketName,
+          bucket: B2Config.b2BucketName,
           fileId: fileId,
           type: type,
         );
@@ -135,7 +135,7 @@ class MediaRetentionService {
       return null; // Unlimited
     }
 
-    final expiresAt = mediaCreatedAt.add(const Duration(days: 30));
+    final expiresAt = mediaCreatedAt.add(const Duration(days: 14));
     final remaining = expiresAt.difference(DateTime.now()).inDays;
 
     return remaining > 0 ? remaining : 0;

@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/core/network/supabase_client.dart';
-import 'package:oasis/core/config/r2_config.dart';
+import 'package:oasis/core/config/b2_config.dart';
 
 class S3StorageService {
   final Dio _dio = Dio();
@@ -17,7 +17,7 @@ class S3StorageService {
   }) async {
     try {
       final response = await _supabase.functions.invoke(
-        R2Config.presignedUrlFunctionName,
+        B2Config.presignedUrlFunctionName,
         body: {
           'bucket': bucket,
           'fileId': fileId,

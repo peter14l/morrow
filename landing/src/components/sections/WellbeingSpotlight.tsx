@@ -4,6 +4,8 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Lock, Timer, Mail } from "lucide-react";
 
+import { TimeRings, QuantumLock, TimeCapsule } from "../3d/SpotlightObjects";
+
 const spotlightBlocks = [
   {
     title: "Your time is your life.",
@@ -11,32 +13,8 @@ const spotlightBlocks = [
     icon: Timer,
     color: "var(--oasis-glow)",
     graphic: (
-      <div className="relative w-48 h-48 flex items-center justify-center">
-        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
-          <circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="var(--oasis-sage)"
-            strokeWidth="1.5"
-            opacity="0.2"
-          />
-          <motion.circle
-            cx="50"
-            cy="50"
-            r="45"
-            fill="none"
-            stroke="var(--oasis-glow)"
-            strokeWidth="1.5"
-            strokeDasharray="283"
-            initial={{ strokeDashoffset: 283 }}
-            whileInView={{ strokeDashoffset: 100 }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            viewport={{ once: true }}
-          />
-        </svg>
-        <div className="absolute font-space-mono text-oasis-glow text-2xl font-bold">15:00</div>
+      <div className="relative w-64 h-64 flex items-center justify-center">
+        <TimeRings />
       </div>
     ),
   },
@@ -46,19 +24,8 @@ const spotlightBlocks = [
     icon: Lock,
     color: "#5DC9A8",
     graphic: (
-      <div className="relative w-48 h-48 flex items-center justify-center">
-        <motion.div
-          animate={{
-            scale: [1, 1.05, 1],
-            rotate: [0, 5, -5, 0]
-          }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="w-36 h-36 bg-oasis-glow/5 rounded-[2rem] flex items-center justify-center border border-oasis-glow/20 shadow-[0_0_60px_rgba(93,201,168,0.1)]"
-        >
-          <div className="w-20 h-20 bg-oasis-glow/10 rounded-full flex items-center justify-center border border-oasis-glow/20">        
-            <Lock className="text-oasis-glow" size={32} />
-          </div>
-        </motion.div>
+      <div className="relative w-64 h-64 flex items-center justify-center">
+        <QuantumLock />
       </div>
     ),
   },
@@ -68,20 +35,8 @@ const spotlightBlocks = [
     icon: Mail,
     color: "var(--oasis-sand)",
     graphic: (
-      <div className="relative w-48 h-48 flex items-center justify-center">
-        <div className="w-32 h-44 bg-oasis-sand/5 rounded-2xl border border-oasis-sand/20 relative overflow-hidden backdrop-blur-sm">   
-          <div className="absolute top-0 left-0 w-full h-14 bg-oasis-sand/10 border-b border-oasis-sand/20 flex items-center px-4">     
-             <div className="w-2 h-2 rounded-full bg-oasis-sand/40 mr-2" />
-             <div className="w-12 h-1 bg-oasis-sand/20 rounded-full" />
-          </div>
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 w-16 h-1 bg-oasis-sand/30 rounded-full shadow-[0_0_20px_rgba(227,209,180,0.2)]"
-          />
-        </div>
-        <div className="absolute -bottom-2 w-40 h-1 bg-oasis-sand/10 blur-sm rounded-full" />
+      <div className="relative w-64 h-64 flex items-center justify-center">
+        <TimeCapsule />
       </div>
     ),
   },

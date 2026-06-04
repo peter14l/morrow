@@ -273,4 +273,32 @@ class NotificationService {
       debugPrint('Error updating FCM token: $e');
     }
   }
+
+  /// Remove FCM token for the user (on logout)
+  Future<void> removeFcmToken(String userId) async {
+    try {
+      if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
+
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken != null) {
+        // Only remove if it matches current token, to avoid removing a token from another device
+        // if they logged in elsewhere.
+        final profile = await _supabase
+            .from(SupabaseConfig.profilesTable)
+            .select('fcm_token')
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (profile != null && profile['fcm_token'] == fcmToken) {
+          await _supabase
+              .from(SupabaseConfig.profilesTable)
+              .update({'fcm_token': null})
+              .eq('id', userId);
+          debugPrint('FCM Token removed for user: $userId');
+        }
+      }
+    } catch (e) {
+      debugPrint('Error removing FCM token: $e');
+    }
+  }
 }

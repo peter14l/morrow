@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
 import 'package:oasis/models/home_location.dart';
 import 'package:oasis/services/home_location_service.dart';
+import 'package:oasis/features/couples/presentation/providers/partner_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeLocationScreen extends StatefulWidget {
   const HomeLocationScreen({super.key});
@@ -257,6 +260,7 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final partnerProvider = context.watch<PartnerProvider>();
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -444,6 +448,110 @@ class _HomeLocationScreenState extends State<HomeLocationScreen> {
                       ),
                     ),
                   ],
+
+                  const SizedBox(height: 32),
+
+                  // Partner section
+                  Text(
+                    'Partner Notifications',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (partnerProvider.isLoading)
+                    const SizedBox(
+                      height: 60,
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (partnerProvider.currentPartner != null)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundImage: partnerProvider.currentPartner!.avatarUrl != null
+                                    ? CachedNetworkImageProvider(partnerProvider.currentPartner!.avatarUrl!)
+                                    : null,
+                                child: partnerProvider.currentPartner!.avatarUrl == null
+                                    ? Text(partnerProvider.currentPartner!.username[0].toUpperCase())
+                                    : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      partnerProvider.currentPartner!.displayName ?? partnerProvider.currentPartner!.username,
+                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      '@${partnerProvider.currentPartner!.username}',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () async {
+                                  final success = await partnerProvider.dissolvePartnership();
+                                  if (success && mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Partnership removed')),
+                                    );
+                                  }
+                                },
+                                child: const Text('Unlink'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SwitchListTile(
+                          title: const Text('Notify partner when I arrive home'),
+                          subtitle: const Text('Sends a push notification to your linked partner'),
+                          value: partnerProvider.partnerNotifyEnabled,
+                          onChanged: (v) => partnerProvider.setPartnerNotify(v),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ],
+                    )
+                  else if (partnerProvider.sentInviteReceiverId != null)
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.hourglass_empty, color: Colors.orange),
+                          SizedBox(width: 12),
+                          Expanded(child: Text('⏳ Invite sent — waiting for them to accept')),
+                        ],
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/settings/partner-setup'),
+                        icon: const Icon(Icons.person_add),
+                        label: const Text('+ Link a Partner'),
+                      ),
+                    ),
 
                   const SizedBox(height: 32),
 

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import LaunchCountdown from "./LaunchCountdown";
+import OasisSphere from "../3d/OasisSphere";
 
 export default function Hero() {
   const scrollToDownload = () => {
@@ -72,13 +73,13 @@ export default function Hero() {
           className="hidden lg:flex justify-center relative"
         >
           <div className="relative w-[500px] h-[500px]">
-            {/* Abstract Organic Shape */}
-            <div className="absolute inset-0 bg-oasis-glow/10 rounded-[40%_60%_70%_30%/_40%_50%_60%_50%] animate-float border border-oasis-glow/20 backdrop-blur-3xl overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-br from-oasis-glow/20 to-transparent" />
+            {/* 3D Organic Sphere */}
+            <div className="absolute inset-0 flex items-center justify-center">
+               <OasisSphere />
             </div>
             
             {/* Launch Countdown Overlay */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full z-10">
               <LaunchCountdown />
             </div>
           </div>

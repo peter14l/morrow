@@ -15,6 +15,7 @@ class ChatState {
   final bool isRecording;
   final int recordDuration;
   final Message? replyMessage;
+  final Message? editingMessage;
   final List<String> smartReplies;
   final bool showingSmartReplies;
   final ChatTheme? activeTheme;
@@ -51,6 +52,7 @@ class ChatState {
     this.isRecording = false,
     this.recordDuration = 0,
     this.replyMessage,
+    this.editingMessage,
     this.smartReplies = const [],
     this.showingSmartReplies = false,
     this.activeTheme,
@@ -88,6 +90,7 @@ class ChatState {
     bool? isRecording,
     int? recordDuration,
     Object? replyMessage = _sentinel,
+    Object? editingMessage = _sentinel,
     List<String>? smartReplies,
     bool? showingSmartReplies,
     ChatTheme? activeTheme,
@@ -126,6 +129,9 @@ class ChatState {
       replyMessage: replyMessage == _sentinel
           ? this.replyMessage
           : (replyMessage as Message?),
+      editingMessage: editingMessage == _sentinel
+          ? this.editingMessage
+          : editingMessage as Message?,
       smartReplies: smartReplies ?? this.smartReplies,
       showingSmartReplies: showingSmartReplies ?? this.showingSmartReplies,
       activeTheme: activeTheme ?? this.activeTheme,

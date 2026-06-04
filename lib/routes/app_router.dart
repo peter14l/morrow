@@ -52,6 +52,7 @@ import 'package:oasis/features/settings/presentation/screens/about_app_screen.da
 import 'package:oasis/features/settings/presentation/screens/delete_account_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/update_settings_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/home_location_screen.dart';
+import 'package:oasis/features/couples/presentation/screens/partner_setup_screen.dart';
 import 'package:oasis/features/profile/presentation/screens/account_management_screen.dart';
 import 'package:oasis/screens/moderation/moderation_screens.dart';
 import 'package:oasis/features/stories/domain/models/story_entity.dart';
@@ -828,7 +829,7 @@ class _MainLayoutState extends State<MainLayout> {
 
     final navBar = NavigationBarM3E(
       backgroundColor: disableTransparency
-          ? theme.colorScheme.surfaceContainer
+          ? (theme.brightness == Brightness.dark ? const Color(0xFF1E3A2F) : const Color(0xFFF3EDF7)) // OasisColors.moss or light surface
           : Colors.transparent,
       elevation: disableTransparency ? 3 : 0,
       selectedIndex: currentIndex,
@@ -1934,6 +1935,14 @@ class AppRouter {
           pageBuilder: (context, state) => MaterialPage(
             key: state.pageKey,
             child: const HomeLocationScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/settings/partner-setup',
+          name: 'partner_setup',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const PartnerSetupScreen(),
           ),
         ),
         GoRoute(

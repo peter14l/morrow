@@ -988,6 +988,79 @@ class ChatProvider with ChangeNotifier {
     }
   }
 
+  /// Edit a sent message.
+  Future<void> editMessage(String messageId, String newContent) async {
+    final userId = _authService.currentUser?.id;
+    if (userId == null) return;
+    
+    final recipientId = otherUserId ?? state.otherUserId;
+    EncryptedContent? encrypted;
+    
+    String? signalSenderContent;
+    Map<String, dynamic>? encryptedKeys;
+    String? iv;
+
+    if (_encryptionService.isInitialized && recipientId != null) {
+      encrypted = await _encryptContent(recipientId, newContent);
+      
+      encryptedKeys = encrypted?.encryptedKeys?.map((k, v) => MapEntry(k, v.toString()));
+      iv = encrypted?.iv;
+
+      if (encrypted != null && encrypted.protocol != 'rsa' && newContent.isNotEmpty) {
+        try {
+          final String? recipientPublicKey = _publicKeyCache[recipientId];
+          final String? senderPublicKey = _publicKeyCache[userId];
+          
+          final List<String> publicKeys = [];
+          if (recipientPublicKey != null) publicKeys.add(recipientPublicKey);
+          if (senderPublicKey != null) publicKeys.add(senderPublicKey);
+
+          if (publicKeys.isNotEmpty) {
+            final fallbackEncryption = await _encryptionService.encryptMessage(
+              newContent,
+              publicKeys,
+            );
+            signalSenderContent = fallbackEncryption.encryptedContent;
+            encryptedKeys = fallbackEncryption.encryptedKeys;
+            iv = fallbackEncryption.iv;
+          }
+        } catch (e) {
+          debugPrint('Failed to generate dual-layer fallback for edit: $e');
+        }
+      }
+    }
+    final contentToSave = encrypted?.content ?? newContent;
+
+    // Optimistically update locally (we show plaintext)
+    final index = state.messages.indexWhere((m) => m.id == messageId);
+    if (index != -1) {
+      final updatedMessages = List<Message>.from(state.messages);
+      updatedMessages[index] = updatedMessages[index].copyWith(
+        content: newContent,
+      );
+      setState((s) => s.copyWith(messages: updatedMessages));
+      // Save optimistically to cache so it persists even if Supabase Realtime delays
+      settingsProvider.saveMessagesToCache(updatedMessages);
+    }
+
+    try {
+      await _messagingService.editMessage(
+        messageId,
+        contentToSave,
+        encryptedKeys: encryptedKeys,
+        iv: iv,
+        signalMessageType: encrypted?.signalMessageType,
+        pqAuraHeader: encrypted?.pqAuraHeader,
+        pqAuraPayload: encrypted?.pqAuraPayload,
+        signalSenderContent: signalSenderContent,
+      );
+    } catch (e) {
+      debugPrint('Error editing message: $e');
+      onError?.call('Failed to edit message');
+      onReloadRequested?.call();
+    }
+  }
+
   /// Send a GIF message.
   Future<void> sendGif(String gifUrl, {Message? replyMessage}) async {
     final userId = _authService.currentUser?.id;

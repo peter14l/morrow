@@ -4,12 +4,15 @@ import React from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import Link from "next/link";
+import OasisSphere from "@/components/3d/OasisSphere";
 
 export default function AuthSuccessPage() {
   return (
     <main className="min-h-screen bg-oasis-deep flex items-center justify-center p-6 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-oasis-glow/5 rounded-full blur-[120px]" />
+      {/* 3D Ambient Background */}
+      <div className="absolute inset-0 opacity-50 scale-150">
+        <OasisSphere />
+      </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
