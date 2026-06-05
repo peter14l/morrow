@@ -370,6 +370,11 @@ class _MainLayoutState extends State<MainLayout> {
                   ),
                   child: _buildFluentCreateButton(context),
                 ),
+                autoSuggestBox: fluent.AutoSuggestBox(
+                  items: const [],
+                  placeholder: 'Search...',
+                ),
+                autoSuggestBoxReplacement: const Icon(FluentIcons.search_24_regular),
                 selected: currentIndex,
                 size: const fluent.NavigationPaneSize(compactWidth: 54),
                 onChanged: (index) => _onDestinationSelected(

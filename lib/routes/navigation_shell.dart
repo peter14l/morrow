@@ -10,6 +10,8 @@ import 'package:oasis/services/app_initializer.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/widgets/liquid_glass_wrapper.dart';
+import 'package:oasis/widgets/windows_title_bar.dart';
+import 'package:window_manager/window_manager.dart';
 
 /// Navigation shell with bottom navigation bar
 class NavigationShell extends material.StatelessWidget {
@@ -57,6 +59,21 @@ class NavigationShell extends material.StatelessWidget {
   ) {
     return fluent.NavigationView(
       pane: fluent.NavigationPane(
+        header: const fluent.Padding(
+          padding: fluent.EdgeInsets.symmetric(horizontal: 16.0),
+          child: fluent.Text(
+            'Oasis (Fluent)',
+            style: fluent.TextStyle(
+              fontSize: 20,
+              fontWeight: fluent.FontWeight.bold,
+            ),
+          ),
+        ),
+        autoSuggestBox: fluent.AutoSuggestBox(
+          items: const [],
+          placeholder: 'Search...',
+        ),
+        autoSuggestBoxReplacement: const material.Icon(FluentIcons.search_24_regular),
         selected: currentIndex,
         size: const fluent.NavigationPaneSize(compactWidth: 54),
         onChanged: (index) => _onDestinationSelected(context, index),
@@ -272,6 +289,16 @@ class NavigationShell extends material.StatelessWidget {
       body: material.Row(
         children: [
           material.NavigationRail(
+            leading: const material.Padding(
+              padding: material.EdgeInsets.only(top: 8.0, bottom: 16.0),
+              child: material.Text(
+                'Oasis',
+                style: material.TextStyle(
+                  fontSize: 20,
+                  fontWeight: material.FontWeight.bold,
+                ),
+              ),
+            ),
             selectedIndex: currentIndex,
             onDestinationSelected: (index) =>
                 _onDestinationSelected(context, index),
