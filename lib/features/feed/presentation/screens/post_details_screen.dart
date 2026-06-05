@@ -150,9 +150,59 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final useFluent = context.watch<ThemeProvider>().useFluentUI;
+
+    if (isDesktop && useFluent) {
+      return fluent.ScaffoldPage(
+        header: Padding(
+          padding: const EdgeInsets.only(left: 8.0),
+          child: fluent.PageHeader(
+            title: const Text(
+              'Post Details',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 24,
+                letterSpacing: -0.5,
+              ),
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: fluent.IconButton(
+                icon: const Icon(fluent.FluentIcons.chevron_left),
+                onPressed: () {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop();
+                  } else {
+                    context.go('/feed');
+                  }
+                },
+              ),
+            ),
+          ),
+        ),
+        content: material.Material(
+          color: material.Colors.transparent,
+          child: Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 680),
+              child: _buildBody(),
+            ),
+          ),
+        ),
+      );
+    }
+
     return AdaptiveScaffold(
       title: const Text('Post Details'),
-      body: _buildBody(),
+      body: isDesktop
+          ? Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 680),
+                child: _buildBody(),
+              ),
+            )
+          : _buildBody(),
     );
   }
 

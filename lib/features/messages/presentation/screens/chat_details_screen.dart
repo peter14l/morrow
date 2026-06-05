@@ -1138,19 +1138,25 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           }
         },
         child: fluent.ScaffoldPage(
-          header: fluent.PageHeader(
-            title: Text(
-              'Details',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 24,
-                letterSpacing: -0.5,
-                color: colorScheme.onSurface,
+          header: Padding(
+            padding: const EdgeInsets.only(left: 8.0),
+            child: fluent.PageHeader(
+              title: Text(
+                'Details',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 24,
+                  letterSpacing: -0.5,
+                  color: colorScheme.onSurface,
+                ),
               ),
-            ),
-            leading: fluent.IconButton(
-              icon: const Icon(fluent.FluentIcons.chevron_left),
-              onPressed: () => Navigator.of(context).maybePop(),
+              leading: Padding(
+                padding: const EdgeInsets.only(right: 16.0),
+                child: fluent.IconButton(
+                  icon: const Icon(fluent.FluentIcons.chevron_left),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
+              ),
             ),
           ),
           content: Material(color: Colors.transparent, child: bodyContent),
