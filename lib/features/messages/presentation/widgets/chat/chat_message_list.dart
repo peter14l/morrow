@@ -50,30 +50,35 @@ class ChatMessageList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading && messages.isEmpty) {
-      return _buildSkeletonLoading(context);
-    }
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (isLoading && messages.isEmpty) {
+          return _buildSkeletonLoading(context, constraints.maxWidth);
+        }
 
-    if (messages.isEmpty) {
-      return _buildEmptyState(context);
-    }
+        if (messages.isEmpty) {
+          return _buildEmptyState(context);
+        }
 
-    return ListView.builder(
-      reverse: true,
-      controller: scrollController,
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + headerHeight + 16,
-        bottom: 16,
-        left: 16,
-        right: 16,
-      ),
-      itemCount: messages.length,
-      itemBuilder: (context, index) {
-        final message = messages[messages.length - 1 - index];
-        final isMe = message.senderId == currentUserId;
-        final isHighlighted = message.id == highlightedMessageId;
-        return _buildMessageItem(context, message, isMe, isHighlighted);
+        return ListView.builder(
+          reverse: true,
+          controller: scrollController,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.only(
+            top: MediaQuery.of(context).padding.top + headerHeight + 16,
+            bottom: 16,
+            left: 16,
+            right: 16,
+          ),
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            final message = messages[messages.length - 1 - index];
+            final isMe = message.senderId == currentUserId;
+            final isHighlighted = message.id == highlightedMessageId;
+            return _buildMessageItem(
+                context, message, isMe, isHighlighted, constraints.maxWidth);
+          },
+        );
       },
     );
   }
@@ -83,6 +88,7 @@ class ChatMessageList extends StatelessWidget {
     Message message,
     bool isMe,
     bool isHighlighted,
+    double maxWidth,
   ) {
     if (message.messageType == MessageType.system) {
       return SystemMessageBubble(content: message.content);
@@ -110,6 +116,7 @@ class ChatMessageList extends StatelessWidget {
         bubbleColorReceived: bubbleColorReceived,
         textColorSent: textColorSent,
         textColorReceived: textColorReceived,
+        maxWidth: maxWidth,
         onLongPress: () => onMessageLongPress(message, null),
         onDoubleTap: () => onMessageDoubleTap(message),
         onReactionsTap: onReactionsTap,
@@ -117,7 +124,7 @@ class ChatMessageList extends StatelessWidget {
     );
   }
 
-  Widget _buildSkeletonLoading(BuildContext context) {
+  Widget _buildSkeletonLoading(BuildContext context, double maxWidth) {
     return ListView.builder(
       reverse: true,
       padding: EdgeInsets.only(
@@ -190,6 +197,7 @@ class MessageBubble extends StatelessWidget {
     this.textColorSent,
     this.textColorReceived,
     this.onReactionsTap,
+    required this.maxWidth,
   });
 
   final Message message;
@@ -202,6 +210,7 @@ class MessageBubble extends StatelessWidget {
   final Color? textColorSent;
   final Color? textColorReceived;
   final VoidCallback? onReactionsTap;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -428,8 +437,8 @@ class MessageBubble extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           constraints: BoxConstraints(
             maxWidth: isDesktop
-                ? MediaQuery.of(context).size.width * 0.85
-                : MediaQuery.of(context).size.width * 0.75,
+                ? maxWidth * 0.85
+                : maxWidth * 0.75,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
