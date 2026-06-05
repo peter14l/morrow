@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -162,8 +163,7 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
             icon: const Icon(FluentIcons.people_add_24_regular),
             onPressed: () {
               if (canvas != null) {
-                showModalBottomSheet(
-                  context: context,
+                context.showResponsiveSheet(
                   isScrollControlled: true,
                   backgroundColor: Colors.transparent,
                   builder: (context) => ShareSheet(
@@ -301,8 +301,7 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
   void _addTextNote(BuildContext context) {
     final controller = TextEditingController();
     final authorId = _getAuthorId();
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => Padding(
@@ -431,8 +430,7 @@ class _CanvasDetailScreenState extends State<CanvasDetailScreen> {
       '📚',
     ];
     final authorId = _getAuthorId();
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (_) => Container(
         padding: const EdgeInsets.all(24),

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -111,8 +112,7 @@ class DesktopContextMenu {
   }) async {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return await showModalBottomSheet<T>(
-      context: context,
+    return await context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),

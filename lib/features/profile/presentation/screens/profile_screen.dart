@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -2307,8 +2308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: IconButton(
               icon: const Icon(Icons.more_vert_rounded),
               onPressed: () {
-                showModalBottomSheet(
-                  context: context,
+                context.showResponsiveSheet(
                   builder: (context) => SafeArea(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

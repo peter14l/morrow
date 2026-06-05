@@ -754,8 +754,7 @@ class _MainLayoutState extends State<MainLayout> {
       // Feed tab FAB — hidden when kill-switch is active
       return FloatingActionButton(
         onPressed: () {
-          showModalBottomSheet(
-            context: context,
+          context.showResponsiveSheet(
             backgroundColor: Colors.transparent,
             builder: (context) => Container(
               padding: const EdgeInsets.all(24),

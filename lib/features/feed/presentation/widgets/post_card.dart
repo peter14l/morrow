@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:ui';
 import 'package:universal_io/io.dart';
 import 'package:flutter/material.dart'
@@ -353,8 +354,7 @@ class _PostCardState extends State<PostCard>
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => SafeArea(
         child: Container(
@@ -1300,9 +1300,34 @@ class _PostCardState extends State<PostCard>
           );
 
     return MouseRegion(
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
-      child: AnimatedScale(
+      child: GestureDetector(
+        onSecondaryTapDown: (details) {
+          showMenu(
+            context: context,
+            position: RelativeRect.fromLTRB(
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+              details.globalPosition.dx,
+              details.globalPosition.dy,
+            ),
+            items: [
+              const PopupMenuItem(
+                value: 'share',
+                child: Row(children: [Icon(FluentIcons.share_24_regular, size: 20), SizedBox(width: 8), Text('Share')]),
+              ),
+              const PopupMenuItem(
+                value: 'report',
+                child: Row(children: [Icon(FluentIcons.flag_24_regular, size: 20), SizedBox(width: 8), Text('Report')]),
+              ),
+            ],
+          ).then((value) {
+            if (value == 'share' && widget.onShare != null) widget.onShare!();
+          });
+        },
+        child: AnimatedScale(
         scale: isDesktop && _isHovered ? 1.01 : 1.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
@@ -1371,6 +1396,7 @@ class _PostCardState extends State<PostCard>
                     ),
                   ),
               ],
+            ),
             ),
           ),
         ),

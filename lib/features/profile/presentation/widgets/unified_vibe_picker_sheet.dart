@@ -277,8 +277,7 @@ Future<void> showUnifiedVibePicker({
   required VoidCallback onClearMood,
   required VoidCallback onClearPulse,
 }) {
-  return showModalBottomSheet(
-    context: context,
+  return context.showResponsiveSheet(
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
     builder: (context) => UnifiedVibePickerSheet(

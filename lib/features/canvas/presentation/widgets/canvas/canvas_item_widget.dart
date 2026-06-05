@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/canvas/domain/models/canvas_models.dart';
@@ -84,8 +85,7 @@ class _CanvasItemWidgetState extends State<CanvasItemWidget> {
     final currentUserId = context.read<ProfileProvider>().currentProfile?.id;
     final isAuthor = widget.item.authorId == currentUserId;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),

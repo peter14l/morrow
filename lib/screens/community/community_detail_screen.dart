@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -321,8 +322,7 @@ class _CommunityDetailScreenState extends State<CommunityDetailScreen> {
                         }
                       },
                       onComment: () {
-                        showModalBottomSheet(
-                          context: context,
+                        context.showResponsiveSheet(
                           isScrollControlled: true,
                           useRootNavigator: true,
                           backgroundColor: Colors.transparent,

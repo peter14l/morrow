@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -236,8 +237,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen> {
   }
 
   void _showNewMessageDialog() {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: const Color(0xFF1E232D),
       shape: const RoundedRectangleBorder(

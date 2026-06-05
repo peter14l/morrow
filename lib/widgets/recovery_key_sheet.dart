@@ -19,8 +19,7 @@ class RecoveryKeySheet extends StatefulWidget {
     String? recoveryKey,
     bool isConfirmMode = false,
   }) {
-    return showModalBottomSheet<String>(
-      context: context,
+    return context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => RecoveryKeySheet(

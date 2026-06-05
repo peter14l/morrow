@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -39,8 +40,7 @@ class ShareSheet extends StatefulWidget {
     String? storyId,
     String? externalMessage,
   }) {
-    return showModalBottomSheet(
-      context: context,
+    return context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => ShareSheet(

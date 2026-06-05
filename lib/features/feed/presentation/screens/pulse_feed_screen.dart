@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'dart:async';
 import 'dart:math';
@@ -412,8 +413,7 @@ class _PulseFeedScreenState extends State<PulseFeedScreen>
                                   }
                                 },
                                 onComment: () {
-                                  showModalBottomSheet(
-                                    context: context,
+                                  context.showResponsiveSheet(
                                     isScrollControlled: true,
                                     useRootNavigator: true,
                                     backgroundColor: Colors.transparent,

@@ -13,8 +13,7 @@ class SecurityPinSheet extends StatefulWidget {
   const SecurityPinSheet({super.key, required this.status, this.onComplete});
 
   static Future<bool?> show(BuildContext context, EncryptionStatus status) {
-    return showModalBottomSheet<bool>(
-      context: context,
+    return context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => SecurityPinSheet(status: status),

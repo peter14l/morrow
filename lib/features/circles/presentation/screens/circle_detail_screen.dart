@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -243,16 +244,14 @@ class _FeedTab extends StatelessWidget {
                   }
                 },
                 onComment: () {
-                  showModalBottomSheet(
-                    context: context,
+                  context.showResponsiveSheet(
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (context) => CommentsScreen(postId: post.id),
                   );
                 },
                 onShare: () {
-                  showModalBottomSheet(
-                    context: context,
+                  context.showResponsiveSheet(
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (context) => ShareToDirectMessageModal(

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/material.dart' as material;
@@ -469,8 +470,7 @@ class _SearchScreenState extends State<SearchScreen>
   }
 
   void _showPanelFilters(BuildContext context, bool isM3E) {
-    material.showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: material.Theme.of(context).colorScheme.surface,
       shape: material.RoundedRectangleBorder(
         borderRadius: material.BorderRadius.vertical(

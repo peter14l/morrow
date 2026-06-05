@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:ui';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -170,8 +171,7 @@ class _FeedScreenState extends State<FeedScreen>
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,

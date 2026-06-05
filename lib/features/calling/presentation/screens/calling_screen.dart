@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:livekit_client/livekit_client.dart';
@@ -645,8 +646,7 @@ class CallControlBar extends StatelessWidget {
           onPressed: () {
             final room = provider.room;
             if (room != null) {
-              showModalBottomSheet(
-                context: context,
+              context.showResponsiveSheet(
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (context) => AddParticipantSheet(

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 
@@ -267,8 +268,7 @@ class LongPressQuickActions extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(16),

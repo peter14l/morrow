@@ -133,4 +133,42 @@ extension ContextX on BuildContext {
       builder: builder,
     );
   }
+
+  /// Show a responsive sheet (dialog on desktop, bottom sheet on mobile)
+  Future<T?> showResponsiveSheet<T>({
+    required WidgetBuilder builder,
+    bool isScrollControlled = true,
+    Color? backgroundColor,
+    double? maxHeight,
+  }) {
+    final isDesktop = Theme.of(this).platform == TargetPlatform.windows || 
+                      Theme.of(this).platform == TargetPlatform.macOS || 
+                      Theme.of(this).platform == TargetPlatform.linux ||
+                      MediaQuery.of(this).size.width > 600;
+                      
+    if (isDesktop) {
+      return showAppDialog<T>(
+        builder: (context) => Dialog(
+          backgroundColor: backgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 400,
+              maxHeight: maxHeight ?? MediaQuery.of(this).size.height * 0.8,
+            ),
+            child: builder(context),
+          ),
+        ),
+      );
+    } else {
+      return showAppBottomSheet<T>(
+        builder: builder,
+        isScrollControlled: isScrollControlled,
+        backgroundColor: backgroundColor,
+        maxHeight: maxHeight,
+      );
+    }
+  }
 }

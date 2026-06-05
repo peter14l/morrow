@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:universal_io/io.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -244,8 +245,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   void _showCollaboratorPicker() async {
-    final List<Map<String, dynamic>>? result = await showModalBottomSheet(
-      context: context,
+    final List<Map<String, dynamic>>? result = await context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CollaboratorPickerSheet(

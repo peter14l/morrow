@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -24,8 +25,7 @@ class BoostDialog extends StatefulWidget {
     required String circleId,
     required String circleName,
   }) {
-    return showModalBottomSheet(
-      context: context,
+    return context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) => BoostDialog(

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/feed/domain/models/comment.dart';
@@ -247,8 +248,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final userId = _authService.currentUser?.id;
     final isOwnComment = comment.userId == userId;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

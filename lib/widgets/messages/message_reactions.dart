@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/domain/models/message_reaction.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
@@ -17,8 +18,7 @@ class MessageReactionPicker extends StatelessWidget {
   });
 
   void _showFullEmojiPicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/widgets/messages/forward_message_modal.dart';
@@ -104,8 +105,7 @@ class MessageOptionsMenu extends StatelessWidget {
             if (ResponsiveLayout.isDesktop(context)) {
               _showForwardDialog(context);
             } else {
-              showModalBottomSheet(
-                context: context,
+              context.showResponsiveSheet(
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
                 useRootNavigator: true,

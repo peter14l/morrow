@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/stories/domain/models/story_entity.dart';
 import 'package:oasis/services/spotify_service.dart';
@@ -143,8 +144,7 @@ class _MusicPickerSheetState extends State<MusicPickerSheet>
     if (mounted) setState(() => _playingTrackId = null);
 
     if (!mounted) return;
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => _ArtworkPickerSheet(

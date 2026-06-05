@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:async';
 import 'package:oasis/widgets/custom_snackbar.dart';
 import 'package:universal_io/io.dart';
@@ -134,8 +135,7 @@ class SharingService {
   }
 
   void _showShareModal(BuildContext context, List<SharedMediaFile> files) {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => ShareToChatModal(files: files),

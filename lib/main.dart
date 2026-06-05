@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -52,6 +53,23 @@ import 'package:oasis/services/home_checkin_service.dart';
 import 'package:oasis/features/couples/data/home_checkin_repository.dart';
 import 'package:oasis/widgets/verification_dialog.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+
+// ---------------------------------------------------------------------------
+// Global Shortcuts and Scroll
+// ---------------------------------------------------------------------------
+
+class EscapeIntent extends material.Intent {
+  const EscapeIntent();
+}
+
+class AppScrollBehavior extends material.ScrollBehavior {
+  @override
+  Set<ui.PointerDeviceKind> get dragDevices => {
+        ui.PointerDeviceKind.touch,
+        ui.PointerDeviceKind.mouse,
+        ui.PointerDeviceKind.trackpad,
+      };
+}
 
 // ---------------------------------------------------------------------------
 // LifecycleManager
@@ -390,8 +408,7 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    material.showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: material.Colors.transparent,
       builder: (context) => material.Container(
@@ -695,6 +712,7 @@ class _MyAppState extends State<MyApp> {
                     : themeProvider.themeMode == material.ThemeMode.dark
                     ? fluent.ThemeMode.dark
                     : fluent.ThemeMode.light,
+                scrollBehavior: AppScrollBehavior(),
                 routerConfig: router,
                 builder: (context, child) {
                   return material.ScaffoldMessenger(
@@ -711,7 +729,22 @@ class _MyAppState extends State<MyApp> {
                               ),
                             ),
                             child: GlobalWellnessWrapper(
-                              child: CallNavigator(child: child!),
+                              child: material.Shortcuts(
+                                shortcuts: <material.LogicalKeySet, material.Intent>{
+                                  material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
+                                },
+                                child: material.Actions(
+                                  actions: <Type, material.Action<material.Intent>>{
+                                    EscapeIntent: material.CallbackAction<EscapeIntent>(
+                                      onInvoke: (EscapeIntent intent) {
+                                        if (router.canPop()) router.pop();
+                                        return null;
+                                      },
+                                    ),
+                                  },
+                                  child: CallNavigator(child: child!),
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -731,6 +764,7 @@ class _MyAppState extends State<MyApp> {
               theme: theme,
               darkTheme: darkTheme,
               themeMode: themeProvider.themeMode,
+              scrollBehavior: AppScrollBehavior(),
               routerConfig: router,
               builder: (context, child) {
                 return material.Stack(
@@ -747,7 +781,22 @@ class _MyAppState extends State<MyApp> {
                           boldText: false,
                         ),
                         child: GlobalWellnessWrapper(
-                          child: CallNavigator(child: child!),
+                          child: material.Shortcuts(
+                            shortcuts: <material.LogicalKeySet, material.Intent>{
+                              material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
+                            },
+                            child: material.Actions(
+                              actions: <Type, material.Action<material.Intent>>{
+                                EscapeIntent: material.CallbackAction<EscapeIntent>(
+                                  onInvoke: (EscapeIntent intent) {
+                                    if (router.canPop()) router.pop();
+                                    return null;
+                                  },
+                                ),
+                              },
+                              child: CallNavigator(child: child!),
+                            ),
+                          ),
                         ),
                       ),
                     ),

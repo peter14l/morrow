@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:universal_io/io.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
@@ -889,8 +890,7 @@ class _CreateStoryScreenState extends State<CreateStoryScreen> {
 
   void _openMusicPicker() async {
     final StoryMusicEntity? result =
-        await showModalBottomSheet<StoryMusicEntity>(
-          context: context,
+        await context.showResponsiveSheet(
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (context) => const MusicPickerSheet(),

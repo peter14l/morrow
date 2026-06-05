@@ -425,8 +425,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       }
     } else {
       // Fallback to custom picker (Klipy) if Giphy key is missing
-      showModalBottomSheet(
-        context: context,
+      context.showResponsiveSheet(
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         useRootNavigator: true,
@@ -566,8 +565,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         },
       );
     } else {
-      showModalBottomSheet(
-        context: context,
+      context.showResponsiveSheet(
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         useRootNavigator: true,
@@ -625,8 +623,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _showAttachmentOptions() {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,
@@ -641,8 +638,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _showLocationDurationOptions() {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       useRootNavigator: true,

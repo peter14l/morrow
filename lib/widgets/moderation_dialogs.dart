@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
@@ -42,8 +43,7 @@ class ReportDialog extends StatefulWidget {
       );
     }
 
-    return showModalBottomSheet<bool>(
-      context: context,
+    return context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ReportDialog(

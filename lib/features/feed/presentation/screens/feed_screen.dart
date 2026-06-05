@@ -194,8 +194,7 @@ class _FeedScreenState extends State<FeedScreen>
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       useRootNavigator: true,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -344,8 +343,7 @@ class _FeedScreenState extends State<FeedScreen>
     final isSolid = context.shouldUseSolidBackground;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: EdgeInsets.fromLTRB(

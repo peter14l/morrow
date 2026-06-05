@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
@@ -535,8 +536,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
 
   void _showInviteSheet(OasisCanvas? canvas) {
     if (canvas == null) return;
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ShareSheet(
@@ -550,8 +550,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     final controller = TextEditingController();
     final authorId = _getAuthorId();
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Padding(
@@ -991,8 +990,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     String selectedColor = colors[0];
     DateTime? unlockAt;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
@@ -1133,8 +1131,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     final colors = ['#F59E0B', '#8B5CF6', '#EC4899', '#10B981', '#3B82F6'];
     String selectedColor = colors[0];
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => StatefulBuilder(
@@ -1276,8 +1273,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
   void _showStickerPicker(BuildContext context) {
     final stickers = ['❤️', '🔥', '✨', '😂', '🎉', '🌟', '👍', '💡'];
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
@@ -1333,8 +1329,7 @@ class _TimelineCanvasScreenState extends State<TimelineCanvasScreen> {
     bool isRecording = false;
     String? recordPath;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isDismissible: false,
       enableDrag: false,
       backgroundColor: Colors.transparent,

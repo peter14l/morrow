@@ -414,8 +414,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   void _showSearchModal() {
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       useRootNavigator: true,

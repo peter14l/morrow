@@ -672,8 +672,7 @@ class _RipplesScreenState extends State<RipplesScreen>
     final isSolid = context.shouldUseSolidBackground;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => Container(
@@ -710,8 +709,7 @@ class _RipplesScreenState extends State<RipplesScreen>
     final isSolid = context.shouldUseSolidBackground;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => Container(
         padding: const EdgeInsets.all(24),
@@ -1029,8 +1027,7 @@ class _RipplesScreenState extends State<RipplesScreen>
   }
 
   void _shareToDM(RippleEntity ripple) {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => ShareToDirectMessageModal(

@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/feed/domain/models/hashtag.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
@@ -149,8 +150,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
   }
 
   void _handleComment(Post post) {
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => CommentsModal(postId: post.id),
@@ -159,8 +159,7 @@ class _HashtagScreenState extends State<HashtagScreen> {
 
   void _handleShare(Post post) {
     final shareText = post.content ?? '#${widget.tag}';
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => ShareSheet(
         title: 'Share Post',

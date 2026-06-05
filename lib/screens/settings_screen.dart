@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -1565,8 +1566,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return;
     }
 
-    material.showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: material.Colors.transparent,
       builder: (context) {
         return Container(

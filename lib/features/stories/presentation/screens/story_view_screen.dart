@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -185,8 +186,7 @@ class _StoryViewScreenState extends State<StoryViewScreen>
 
   void _showViewers() {
     _pauseStory();
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) =>
@@ -562,8 +562,7 @@ class _StoryViewScreenState extends State<StoryViewScreen>
 
   void _showOptionsSheet(StoryEntity story, bool isOwner) {
     _pauseStory();
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,

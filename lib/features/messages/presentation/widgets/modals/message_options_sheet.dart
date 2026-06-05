@@ -79,8 +79,7 @@ class MessageOptionsSheet extends StatelessWidget {
           label: 'Forward',
           onTap: () {
             Navigator.pop(context);
-            showModalBottomSheet(
-              context: context,
+            context.showResponsiveSheet(
               backgroundColor: Colors.transparent,
               isScrollControlled: true,
               useRootNavigator: true,

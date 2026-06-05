@@ -1,3 +1,4 @@
+import 'package:oasis/core/extensions/context_extensions.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart'
@@ -348,8 +349,7 @@ class _CommentsModalState extends State<CommentsModal> {
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
+    context.showResponsiveSheet(
       backgroundColor: Colors.transparent,
       builder: (context) => SafeArea(
         child: Container(
