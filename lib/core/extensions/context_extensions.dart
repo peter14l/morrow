@@ -103,6 +103,7 @@ extension ContextX on BuildContext {
     bool useRootNavigator = false,
     bool isDismissible = true,
     ShapeBorder? shape,
+    bool enableDrag = true,
   }) {
     final isDark = theme.brightness == Brightness.dark;
 
@@ -120,6 +121,7 @@ extension ContextX on BuildContext {
       ),
       useRootNavigator: useRootNavigator,
       isDismissible: isDismissible,
+      enableDrag: enableDrag,
       constraints: maxHeight != null
           ? BoxConstraints(maxHeight: maxHeight)
           : null,
@@ -148,6 +150,7 @@ extension ContextX on BuildContext {
     bool useRootNavigator = false,
     bool isDismissible = true,
     ShapeBorder? shape,
+    bool enableDrag = true,
   }) {
     final isDesktop = Theme.of(this).platform == TargetPlatform.windows || 
                       Theme.of(this).platform == TargetPlatform.macOS || 
@@ -180,6 +183,7 @@ extension ContextX on BuildContext {
         useRootNavigator: useRootNavigator,
         isDismissible: isDismissible,
         shape: shape,
+        enableDrag: enableDrag,
       );
     }
   }
