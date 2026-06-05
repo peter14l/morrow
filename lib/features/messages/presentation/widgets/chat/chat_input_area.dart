@@ -189,10 +189,6 @@ class _ChatInputAreaState extends State<ChatInputArea> {
             onPressed: widget.isSending
                 ? null
                 : (showMic ? widget.onToggleRecording : widget.onSend),
-            padding: widget.isDesktop ? const material.EdgeInsets.all(8) : null,
-            constraints: widget.isDesktop
-                ? const material.BoxConstraints()
-                : null,
             icon: widget.isSending
                 ? material.SizedBox(
                     width: 20,
@@ -219,9 +215,9 @@ class _ChatInputAreaState extends State<ChatInputArea> {
     }
 
     final Widget inputArea = material.Container(
-      padding: material.EdgeInsets.symmetric(
-        horizontal: widget.isDesktop ? 8 : 4,
-        vertical: widget.isDesktop ? 4 : 2,
+      padding: const material.EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 2,
       ),
       decoration: decoration,
       child: material.Row(
@@ -373,12 +369,6 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                                   : colorScheme.primary,
                               size: widget.isDesktop ? 24 : null,
                             ),
-                            constraints: widget.isDesktop
-                                ? const material.BoxConstraints()
-                                : null,
-                            padding: widget.isDesktop
-                                ? const material.EdgeInsets.all(8)
-                                : null,
                             tooltip: 'Stickers & GIFs',
                           ),
                           const material.SizedBox(width: 4),
@@ -446,51 +436,44 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                       },
                     },
                     child: widget.isDesktop
-                        ? material.Container(
-                            constraints: const material.BoxConstraints(
-                              minHeight: 36,
-                              maxHeight: 120,
+                        ? fluent.TextBox(
+                            controller: widget.controller,
+                            focusNode: widget.focusNode,
+                            placeholder: widget.hintText ?? 'Type a message...',
+                            padding: const material.EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
                             ),
-                            child: fluent.TextBox(
-                              controller: widget.controller,
-                              focusNode: widget.focusNode,
-                              placeholder:
-                                  widget.hintText ?? 'Type a message...',
-                              padding: const material.EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 8,
-                              ),
-                              decoration:
-                                  fluent.WidgetStateProperty.resolveWith((
-                                    states,
-                                  ) {
-                                    return fluent.BoxDecoration(
-                                      color: material.Colors.transparent,
-                                      borderRadius:
-                                          material.BorderRadius.circular(12),
-                                      border: material.Border.all(
-                                        color: material.Colors.transparent,
-                                        width: 0,
-                                      ),
-                                    );
-                                  }),
-                              style: const material.TextStyle(
-                                color: material.Colors.white,
-                                fontSize: 14,
-                                height: 1.4,
-                              ),
-                              placeholderStyle: const material.TextStyle(
-                                color: material.Colors.white38,
-                                fontSize: 14,
-                              ),
-                              cursorColor: fluent.FluentTheme.of(
-                                context,
-                              ).accentColor,
-                              scrollPhysics:
-                                  const material.BouncingScrollPhysics(),
-                              maxLines: null,
-                              minLines: 1,
+                            decoration: fluent.WidgetStateProperty.resolveWith((
+                              states,
+                            ) {
+                              return fluent.BoxDecoration(
+                                color: material.Colors.transparent,
+                                borderRadius:
+                                    material.BorderRadius.circular(12),
+                                border: material.Border.all(
+                                  color: material.Colors.transparent,
+                                  width: 0,
+                                ),
+                              );
+                            }),
+                            style: const material.TextStyle(
+                              color: material.Colors.white,
+                              fontSize: 14,
+                              height: 1.2,
                             ),
+                            placeholderStyle: const material.TextStyle(
+                              color: material.Colors.white38,
+                              fontSize: 14,
+                              height: 1.2,
+                            ),
+                            cursorColor: fluent.FluentTheme.of(
+                              context,
+                            ).accentColor,
+                            scrollPhysics:
+                                const material.BouncingScrollPhysics(),
+                            maxLines: null,
+                            minLines: 1,
                           )
                         : CustomTextField(
                             controller: widget.controller,
