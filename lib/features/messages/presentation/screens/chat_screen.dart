@@ -657,6 +657,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   void _openChatDetails() {
+    if (widget.onDetailsToggle != null) {
+      widget.onDetailsToggle!();
+      return;
+    }
+
     final state = _chatProvider.state;
     Navigator.push(
       context,
