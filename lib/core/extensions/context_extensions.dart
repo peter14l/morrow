@@ -100,6 +100,9 @@ extension ContextX on BuildContext {
     bool isScrollControlled = true,
     Color? backgroundColor,
     double? maxHeight,
+    bool useRootNavigator = false,
+    bool isDismissible = true,
+    ShapeBorder? shape,
   }) {
     final isDark = theme.brightness == Brightness.dark;
 
@@ -112,9 +115,11 @@ extension ContextX on BuildContext {
           (shouldUseSolidBackground
               ? (isDark ? const Color(0xFF0D1F1A) : Colors.white)
               : Colors.transparent),
-      shape: const RoundedRectangleBorder(
+      shape: shape ?? const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
+      useRootNavigator: useRootNavigator,
+      isDismissible: isDismissible,
       constraints: maxHeight != null
           ? BoxConstraints(maxHeight: maxHeight)
           : null,
@@ -140,6 +145,9 @@ extension ContextX on BuildContext {
     bool isScrollControlled = true,
     Color? backgroundColor,
     double? maxHeight,
+    bool useRootNavigator = false,
+    bool isDismissible = true,
+    ShapeBorder? shape,
   }) {
     final isDesktop = Theme.of(this).platform == TargetPlatform.windows || 
                       Theme.of(this).platform == TargetPlatform.macOS || 
@@ -148,6 +156,7 @@ extension ContextX on BuildContext {
                       
     if (isDesktop) {
       return showAppDialog<T>(
+        barrierDismissible: isDismissible,
         builder: (context) => Dialog(
           backgroundColor: backgroundColor,
           shape: RoundedRectangleBorder(
@@ -168,6 +177,9 @@ extension ContextX on BuildContext {
         isScrollControlled: isScrollControlled,
         backgroundColor: backgroundColor,
         maxHeight: maxHeight,
+        useRootNavigator: useRootNavigator,
+        isDismissible: isDismissible,
+        shape: shape,
       );
     }
   }
