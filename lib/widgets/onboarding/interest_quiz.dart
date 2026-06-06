@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/core/utils/haptic_utils.dart';
+import 'package:oasis/themes/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 /// Interest categories for onboarding discovery quiz
 class InterestCategory {
@@ -26,7 +28,7 @@ class InterestCategories {
       id: 'art',
       name: 'Art & Design',
       emoji: '🎨',
-      color: Color(0xFFE91E63),
+      color: material.Color(0xFFE91E63),
       subcategories: [
         'Digital Art',
         'Photography',
@@ -39,7 +41,7 @@ class InterestCategories {
       id: 'music',
       name: 'Music',
       emoji: '🎵',
-      color: Color(0xFF9C27B0),
+      color: material.Color(0xFF9C27B0),
       subcategories: [
         'Pop',
         'Hip Hop',
@@ -53,28 +55,28 @@ class InterestCategories {
       id: 'tech',
       name: 'Technology',
       emoji: '💻',
-      color: Color(0xFF2196F3),
+      color: material.Color(0xFF2196F3),
       subcategories: ['Programming', 'AI/ML', 'Startups', 'Gaming', 'Gadgets'],
     ),
     InterestCategory(
       id: 'fitness',
       name: 'Fitness & Health',
       emoji: '💪',
-      color: Color(0xFF4CAF50),
+      color: material.Color(0xFF4CAF50),
       subcategories: ['Gym', 'Yoga', 'Running', 'Nutrition', 'Mental Health'],
     ),
     InterestCategory(
       id: 'travel',
       name: 'Travel',
       emoji: '✈️',
-      color: Color(0xFF00BCD4),
+      color: material.Color(0xFF00BCD4),
       subcategories: ['Adventure', 'Beach', 'City', 'Nature', 'Culture'],
     ),
     InterestCategory(
       id: 'food',
       name: 'Food & Cooking',
       emoji: '🍕',
-      color: Color(0xFFFF9800),
+      color: material.Color(0xFFFF9800),
       subcategories: [
         'Recipes',
         'Restaurants',
@@ -87,7 +89,7 @@ class InterestCategories {
       id: 'fashion',
       name: 'Fashion & Style',
       emoji: '👗',
-      color: Color(0xFFFF5722),
+      color: material.Color(0xFFFF5722),
       subcategories: [
         'Streetwear',
         'Luxury',
@@ -100,21 +102,21 @@ class InterestCategories {
       id: 'sports',
       name: 'Sports',
       emoji: '⚽',
-      color: Color(0xFF795548),
+      color: material.Color(0xFF795548),
       subcategories: ['Football', 'Basketball', 'Tennis', 'F1', 'Esports'],
     ),
     InterestCategory(
       id: 'entertainment',
       name: 'Entertainment',
       emoji: '🎬',
-      color: Color(0xFF673AB7),
+      color: material.Color(0xFF673AB7),
       subcategories: ['Movies', 'TV Shows', 'Anime', 'K-Drama', 'Podcasts'],
     ),
     InterestCategory(
       id: 'lifestyle',
       name: 'Lifestyle',
       emoji: '🌿',
-      color: Color(0xFF8BC34A),
+      color: material.Color(0xFF8BC34A),
       subcategories: [
         'Minimalism',
         'Self-care',
@@ -127,7 +129,7 @@ class InterestCategories {
       id: 'business',
       name: 'Business',
       emoji: '💼',
-      color: Color(0xFF607D8B),
+      color: material.Color(0xFF607D8B),
       subcategories: [
         'Entrepreneurship',
         'Marketing',
@@ -140,7 +142,7 @@ class InterestCategories {
       id: 'science',
       name: 'Science',
       emoji: '🔬',
-      color: Color(0xFF3F51B5),
+      color: material.Color(0xFF3F51B5),
       subcategories: [
         'Space',
         'Biology',
@@ -410,7 +412,7 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
               }
 
               return material.Material(
-                color: Colors.transparent,
+                color: material.Colors.transparent,
                 child: material.InkWell(
                   onTap: () => _toggleCategory(category.id),
                   borderRadius: material.BorderRadius.circular(16),

@@ -2,8 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// Primary brand color for Oasis
-const Color _primaryColor = Color(0xFF10B981); // Emerald green
 
 /// Splash screen shown during app initialization
 /// Uses the app's logo from assets and displays a loading indicator
@@ -21,7 +19,7 @@ class _SplashScreenState extends State<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
-  Timer? _initTimer;
+
 
   @override
   void initState() {

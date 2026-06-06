@@ -14,7 +14,7 @@ class WindowsTitleBar extends StatelessWidget {
     if (!Platform.isWindows) return const SizedBox.shrink();
 
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+
 
     return Container(
       height: height,
@@ -69,8 +69,7 @@ class WindowCaptionButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final color = theme.colorScheme.onSurface;
+
 
     return Row(
       children: [
@@ -119,7 +118,6 @@ class _WindowButtonState extends State<_WindowButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     final Color hoverColor = widget.isClose
         ? Colors.red.withValues(alpha: 0.8)

@@ -170,67 +170,6 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
     }
   }
 
-  Future<void> _handleForgotPin() async {
-    final recoveryKey = await RecoveryKeySheet.show(context);
-    if (recoveryKey == null || recoveryKey.isEmpty) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      final encryptionService = context.read<EncryptionService>();
-      final success = await encryptionService.restoreWithRecoveryKey(
-        recoveryKey,
-      );
-
-      if (success) {
-        if (mounted) {
-          // Keys restored! Now force user to set a NEW PIN so they don't get locked out again.
-          setState(() {
-            _isLoading = false;
-            _isConfirming = false;
-            _firstPin = '';
-            for (var c in _controllers) {
-              c.clear();
-            }
-            // Temporarily change status to setup so the UI prompts for a new PIN
-            // but we need to ensure it's handled as an upgrade/reset.
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Recovery successful! Please set a new 6-digit PIN.',
-              ),
-            ),
-          );
-
-          // Re-running handle submit with setup context is tricky,
-          // let's just pop and show the setup screen again or similar.
-          // For now, let's stay in the sheet but change internal mode.
-          // Actually, the simplest is to pop with success and let the parent handle it,
-          // but we want to be sure they set a PIN.
-
-          // Better: stay in sheet, change state to needsSecurityUpgrade
-          // so they set a PIN immediately.
-          Navigator.pop(context, true);
-          widget.onComplete?.call(true);
-        }
-      } else {
-        setState(() {
-          _isLoading = false;
-          _error = 'Invalid recovery key. Please check and try again.';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _error = 'Recovery failed. Please try again.';
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
