@@ -52,9 +52,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildProfileSection(context),
+                _buildSubscriptionSection(context),
                 const SizedBox(height: 32),
-                // _buildSubscriptionSection(context),
-                // const SizedBox(height: 32),
                 _buildSecuritySection(context),
                 const SizedBox(height: 32),
                 _buildDangerZone(context),

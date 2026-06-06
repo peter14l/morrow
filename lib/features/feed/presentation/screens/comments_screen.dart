@@ -16,8 +16,9 @@ import 'package:oasis/widgets/moderation_dialogs.dart';
 
 class CommentsScreen extends StatefulWidget {
   final String postId;
+  final bool isOverlay;
 
-  const CommentsScreen({super.key, required this.postId});
+  const CommentsScreen({super.key, required this.postId, this.isOverlay = false});
 
   @override
   State<CommentsScreen> createState() => _CommentsScreenState();
@@ -294,7 +295,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
     final userId = _authService.currentUser?.id;
 
     final content = Scaffold(
-      appBar: AppBar(title: const Text('Comments'), elevation: 0),
+      appBar: AppBar(
+        title: const Text('Comments'),
+        elevation: 0,
+        automaticallyImplyLeading: !widget.isOverlay,
+      ),
       body: Column(
         children: [
           // Comments List
@@ -325,19 +330,12 @@ class _CommentsScreenState extends State<CommentsScreen> {
                         Icon(
                           Icons.chat_bubble_outline,
                           size: 48,
-                          color: colorScheme.onSurfaceVariant,
+                          color: colorScheme.onSurfaceVariant.withOpacity(0.5),
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No comments yet',
+                          'No Comments Available',
                           style: theme.textTheme.titleLarge,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Be the first to comment!',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurfaceVariant,
-                          ),
                         ),
                       ],
                     ),

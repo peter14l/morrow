@@ -1008,8 +1008,21 @@ class ChatProvider with ChangeNotifier {
 
       if (encrypted != null && encrypted.protocol != 'rsa' && newContent.isNotEmpty) {
         try {
-          final String? recipientPublicKey = _publicKeyCache[recipientId];
-          final String? senderPublicKey = _publicKeyCache[userId];
+          String? recipientPublicKey = _publicKeyCache[recipientId];
+          if (recipientPublicKey == null) {
+            recipientPublicKey = await _authService.getPublicKey(recipientId);
+            if (recipientPublicKey != null) {
+              _publicKeyCache[recipientId] = recipientPublicKey;
+            }
+          }
+
+          String? senderPublicKey = _publicKeyCache[userId];
+          if (senderPublicKey == null) {
+            senderPublicKey = await _authService.getPublicKey(userId);
+            if (senderPublicKey != null) {
+              _publicKeyCache[userId] = senderPublicKey;
+            }
+          }
           
           final List<String> publicKeys = [];
           if (recipientPublicKey != null) publicKeys.add(recipientPublicKey);

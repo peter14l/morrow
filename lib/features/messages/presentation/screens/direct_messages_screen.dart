@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:oasis/features/messages/domain/models/conversation.dart';
 import 'package:oasis/widgets/messages/unread_badge_widget.dart';
 import 'package:oasis/features/messages/presentation/screens/chat_screen.dart';
-import 'package:oasis/features/messages/presentation/screens/chat_details_screen.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -571,36 +570,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
               ),
             ),
           ),
-          // Pane 3: Details (Floating)
-          if (_selectedConversation != null && _showDetails) ...[
-            const SizedBox(width: 12),
-            Container(
-              width: 350,
-              decoration: BoxDecoration(
-                color: disableTransparency
-                    ? colorScheme.surfaceContainerHigh
-                    : colorScheme.surface.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
-                border: isM3E
-                    ? Border.all(
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.3,
-                        ),
-                        width: 1,
-                      )
-                    : Border.all(color: Colors.white.withValues(alpha: 0.05)),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
-                child: disableTransparency
-                    ? _buildDetailsPane()
-                    : BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: _buildDetailsPane(),
-                      ),
-              ),
-            ),
-          ],
+          // Details pane is handled internally by ChatScreen via isDetailsOpen
         ],
       ),
     );
@@ -767,8 +737,6 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     bool isM3E,
     ThemeData theme,
   ) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
     final fluentTheme = fluent.FluentTheme.of(context);
     final dividerColor = fluentTheme.resources.dividerStrokeColorDefault;
 
@@ -790,17 +758,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
             // Pane 2: Chat
             Expanded(child: _buildChatPane(isM3E, theme)),
 
-            // Pane 3: Details (Integrated)
-            if (_selectedConversation != null && _showDetails)
-              Container(
-                width: 350,
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: dividerColor, width: 1),
-                  ),
-                ),
-                child: _buildDetailsPane(),
-              ),
+            // Details pane is handled internally by ChatScreen via isDetailsOpen
           ],
         ),
         if (_previewConversation != null)
@@ -857,21 +815,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     );
   }
 
-  Widget _buildDetailsPane() {
-    return ChatDetailsScreen(
-      conversationId: _selectedConversation!.id,
-      otherUserName: _selectedConversation!.otherUserName,
-      otherUserAvatar: _selectedConversation!.otherUserAvatar,
-      otherUserId: _selectedConversation!.otherUserId,
-      whisperMode: _selectedConversation!.whisperMode,
-      onBackgroundSettingsChanged: (opacity, brightness) {
-        setState(() {
-          _bgOpacity = opacity;
-          _bgBrightness = brightness;
-        });
-      },
-    );
-  }
+
 
   Widget _buildConversationList({required bool isDesktop}) {
     final theme = Theme.of(context);
@@ -916,7 +860,6 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
 
         final themeProvider = Provider.of<ThemeProvider>(context);
         final useFluent = themeProvider.useFluentUI;
-        final isM3E = themeProvider.isM3EEnabled;
 
         final List<Widget> slivers = [];
 

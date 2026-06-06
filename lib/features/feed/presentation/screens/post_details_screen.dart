@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/features/feed/presentation/widgets/post_card.dart';
+import 'package:oasis/features/feed/presentation/screens/comments_screen.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/post_service.dart';
 import 'package:oasis/themes/theme_provider.dart';
@@ -151,42 +152,71 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     final isDesktop = ResponsiveLayout.isDesktop(context);
-    final useFluent = context.watch<ThemeProvider>().useFluentUI;
+    final theme = material.Theme.of(context);
 
-    if (isDesktop && useFluent) {
-      return fluent.ScaffoldPage(
-        header: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: fluent.PageHeader(
-            title: const Text(
-              'Post Details',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                fontSize: 24,
-                letterSpacing: -0.5,
-              ),
+    if (isDesktop) {
+      return material.Scaffold(
+        backgroundColor: material.Colors.transparent,
+        body: Center(
+          child: material.Container(
+            width: 1000,
+            constraints: material.BoxConstraints(
+              maxHeight: material.MediaQuery.of(context).size.height * 0.85,
             ),
-            leading: Padding(
-              padding: const EdgeInsets.only(right: 16.0),
-              child: fluent.IconButton(
-                icon: const Icon(fluent.FluentIcons.chevron_left),
-                onPressed: () {
-                  if (Navigator.of(context).canPop()) {
-                    Navigator.of(context).pop();
-                  } else {
-                    context.go('/feed');
-                  }
-                },
+            margin: const EdgeInsets.all(24),
+            decoration: material.BoxDecoration(
+              color: theme.scaffoldBackgroundColor,
+              borderRadius: material.BorderRadius.circular(16),
+              border: material.Border.all(
+                color: theme.colorScheme.outlineVariant,
               ),
+              boxShadow: const [
+                material.BoxShadow(
+                  color: material.Colors.black26,
+                  blurRadius: 20,
+                  spreadRadius: 5,
+                )
+              ],
             ),
-          ),
-        ),
-        content: material.Material(
-          color: material.Colors.transparent,
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 680),
-              child: _buildBody(),
+            child: material.ClipRRect(
+              borderRadius: material.BorderRadius.circular(16),
+              child: material.Row(
+                crossAxisAlignment: material.CrossAxisAlignment.stretch,
+                children: [
+                  // Left Pane: Post Details
+                  material.Expanded(
+                    flex: 5,
+                    child: material.Scaffold(
+                      appBar: material.AppBar(
+                        leading: material.IconButton(
+                          icon: const material.Icon(material.Icons.close),
+                          onPressed: () {
+                            if (Navigator.of(context).canPop()) {
+                              Navigator.of(context).pop();
+                            } else {
+                              context.go('/feed');
+                            }
+                          },
+                        ),
+                        title: const material.Text('Post Details'),
+                        elevation: 0,
+                        backgroundColor: material.Colors.transparent,
+                      ),
+                      body: material.Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: _buildBody(),
+                      ),
+                    ),
+                  ),
+                  // Divider
+                  material.VerticalDivider(width: 1, thickness: 1, color: theme.colorScheme.outlineVariant),
+                  // Right Pane: Comments
+                  material.Expanded(
+                    flex: 4,
+                    child: _post == null ? const material.SizedBox() : CommentsScreen(postId: _post!.id, isOverlay: true),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -195,14 +225,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
     return AdaptiveScaffold(
       title: const Text('Post Details'),
-      body: isDesktop
-          ? Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 680),
-                child: _buildBody(),
-              ),
-            )
-          : _buildBody(),
+      body: _buildBody(),
     );
   }
 
@@ -212,7 +235,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     }
 
     if (_error != null) {
-      final theme = material.ThemeData.light(); // Fallback or use context theme
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

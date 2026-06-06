@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -43,8 +44,7 @@ import 'package:oasis/features/messages/core/chat_api_config.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
-import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
-import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
@@ -752,7 +752,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             child: GestureDetector(
               onTap: () => FocusScope.of(context).unfocus(),
               behavior: HitTestBehavior.translucent,
-              child: Scaffold(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Scaffold(
                 extendBodyBehindAppBar: true,
                 body: Stack(
                   children: [
@@ -1279,10 +1282,77 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       ),
                   ],
                 ),
+                  ),
+                  ),
+                  if (widget.isDetailsOpen && isDesktop) ...[
+                    const SizedBox(width: 12),
+                    _buildDetailsPane(context, theme, colorScheme),
+                  ],
+                ],
               ),
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildDetailsPane(BuildContext context, ThemeData theme, ColorScheme colorScheme) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isM3E = themeProvider.isM3EEnabled;
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+    final useFluent = themeProvider.useFluentUI;
+    final fluentTheme = useFluent ? fluent.FluentTheme.of(context) : null;
+    final dividerColor = useFluent ? fluentTheme!.resources.dividerStrokeColorDefault : null;
+
+    final detailsContent = ChatDetailsScreen(
+      conversationId: widget.conversationId,
+      otherUserName: widget.otherUserName ?? _chatProvider.state.otherUserName ?? 'Unknown',
+      otherUserAvatar: widget.otherUserAvatar ?? '',
+      otherUserId: widget.otherUserId ?? _chatProvider.state.otherUserId ?? '',
+      whisperMode: _chatProvider.state.whisperMode,
+      currentBackground: _chatProvider.state.backgroundUrl,
+      onBackgroundSettingsChanged: (opacity, brightness) {
+        _chatProvider.setState(
+          (s) => s.copyWith(bgOpacity: opacity, bgBrightness: brightness),
+        );
+      },
+    );
+
+    if (useFluent) {
+      return Container(
+        width: 350,
+        decoration: BoxDecoration(
+          border: Border(
+            left: BorderSide(color: dividerColor!, width: 1),
+          ),
+        ),
+        child: detailsContent,
+      );
+    }
+
+    return Container(
+      width: 350,
+      decoration: BoxDecoration(
+        color: disableTransparency
+            ? colorScheme.surfaceContainerHigh
+            : colorScheme.surface.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
+        border: isM3E
+            ? Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                width: 1,
+              )
+            : Border.all(color: Colors.white.withValues(alpha: 0.05)),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
+        child: disableTransparency
+            ? detailsContent
+            : BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: detailsContent,
+              ),
       ),
     );
   }

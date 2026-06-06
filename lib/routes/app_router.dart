@@ -1800,6 +1800,19 @@ class AppRouter {
           name: 'post_details',
           pageBuilder: (context, state) {
             final postId = state.pathParameters['postId']!;
+            final isDesktop = ResponsiveLayout.isDesktop(context);
+            if (isDesktop) {
+              return CustomTransitionPage(
+                key: state.pageKey,
+                opaque: false,
+                barrierColor: Colors.black54,
+                barrierDismissible: true,
+                child: PostDetailsScreen(postId: postId),
+                transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                  return FadeTransition(opacity: animation, child: child);
+                },
+              );
+            }
             return MaterialPage(
               key: state.pageKey,
               child: PostDetailsScreen(postId: postId),
