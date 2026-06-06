@@ -1,21 +1,21 @@
 {
   "android": {
-    "latestVersion": "1.1.12",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.12.apk",
+    "latestVersion": "1.1.13",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.13.apk",
     "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
     "releaseDate": "2026-05-15T10:00:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.12",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.12.msix",
+    "latestVersion": "1.1.13",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.13.msix",
     "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
     "releaseDate": "2026-05-15T10:00:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.12",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.12.dmg",
+    "latestVersion": "1.1.13",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.13.dmg",
     "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
     "isRequired": false,
     "releaseDate": "2026-05-15T10:00:00Z"

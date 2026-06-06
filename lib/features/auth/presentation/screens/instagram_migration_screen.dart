@@ -124,7 +124,7 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
         }
 
         // 4. Start background posts import (runs asynchronously)
-        _migrationService.startBackgroundPostMigration(user.id);
+        _migrationService.startBackgroundPostMigration(user.id, _migrationService.availablePosts);
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -295,6 +295,98 @@ class _InstagramMigrationScreenState extends State<InstagramMigrationScreen> {
                   validator: (val) => val == null || val.length < 6 ? 'Password must be at least 6 characters' : null,
                 ),
                 const SizedBox(height: 32),
+
+                // Step 3: Post Selection UI
+                if (_migrationService.availablePosts.isNotEmpty) ...[
+                  Text(
+                    'Select Posts to Migrate',
+                    style: OasisTextStyles.onboardingHeadline.copyWith(fontSize: 20),
+                    textAlign: TextAlign.left,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Choose which posts to import. Type a Circle name below a post to auto-create a private Circle for it, or leave blank for your main feed.',
+                    style: OasisTextStyles.onboardingSubtitle,
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 300,
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        childAspectRatio: 0.65,
+                      ),
+                      itemCount: _migrationService.availablePosts.length,
+                      itemBuilder: (context, index) {
+                        final post = _migrationService.availablePosts[index];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: OasisColors.sage.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: post.isSelected ? OasisColors.glow : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                  child: Image.file(
+                                    post.tempMediaFile,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Checkbox(
+                                          value: post.isSelected,
+                                          activeColor: OasisColors.glow,
+                                          onChanged: (val) {
+                                            setState(() {
+                                              post.isSelected = val ?? false;
+                                            });
+                                          },
+                                        ),
+                                        const Expanded(child: Text('Import', style: TextStyle(color: Colors.white, fontSize: 12))),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 32,
+                                      child: TextField(
+                                        style: const TextStyle(color: Colors.white, fontSize: 12),
+                                        decoration: const InputDecoration(
+                                          hintText: 'Circle Name (Optional)',
+                                          hintStyle: TextStyle(color: OasisColors.mist, fontSize: 10),
+                                          isDense: true,
+                                          contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                        ),
+                                        onChanged: (val) {
+                                          post.targetCircleName = val.trim();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+
                 AppButton.primary(
                   text: 'Finish Migration & Register',
                   onPressed: _isRegistering ? null : _finishMigrationAndRegister,

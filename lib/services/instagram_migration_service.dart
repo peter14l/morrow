@@ -8,6 +8,26 @@ import 'package:oasis/core/config/supabase_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:uuid/uuid.dart';
 
+class MigratedPostItem {
+  final String tempId;
+  final String? caption;
+  final int? timestamp;
+  final File tempMediaFile;
+  bool isSelected;
+  String? targetCircleId; // null means public feed/private feed
+  String? targetCircleName; // Used to auto-create a circle
+
+  MigratedPostItem({
+    required this.tempId,
+    this.caption,
+    this.timestamp,
+    required this.tempMediaFile,
+    this.isSelected = true,
+    this.targetCircleId,
+    this.targetCircleName,
+  });
+}
+
 class InstagramMigrationService with ChangeNotifier {
   static final InstagramMigrationService _instance = InstagramMigrationService._internal();
   factory InstagramMigrationService() => _instance;
@@ -35,7 +55,9 @@ class InstagramMigrationService with ChangeNotifier {
   String? bio;
   File? profilePhotoFile;
   List<ArchiveFile> _postMediaFiles = [];
-  List<Map<String, dynamic>> _parsedPosts = [];
+  List<MigratedPostItem> _availablePosts = [];
+
+  List<MigratedPostItem> get availablePosts => _availablePosts;
 
   void reset() {
     _isMigrating = false;
@@ -49,7 +71,7 @@ class InstagramMigrationService with ChangeNotifier {
     bio = null;
     profilePhotoFile = null;
     _postMediaFiles = [];
-    _parsedPosts = [];
+    _availablePosts = [];
     notifyListeners();
   }
 
@@ -64,6 +86,8 @@ class InstagramMigrationService with ChangeNotifier {
       final bytes = await File(zipPath).readAsBytes();
       final archive = ZipDecoder().decodeBytes(bytes);
       final tempDir = await getTemporaryDirectory();
+      
+      final List<Map<String, dynamic>> _rawParsedPosts = [];
 
       // Look for profile info and posts json
       for (final file in archive) {
@@ -133,11 +157,14 @@ class InstagramMigrationService with ChangeNotifier {
             final content = utf8.decode(file.content as List<int>);
             final data = json.decode(content);
             if (data is List) {
+              List<Map<String, dynamic>> tempParsed = [];
               for (var item in data) {
                 if (item is Map) {
-                  _parsedPosts.add(Map<String, dynamic>.from(item));
+                  tempParsed.add(Map<String, dynamic>.from(item));
                 }
               }
+              // We will process tempParsed into _availablePosts after collecting media files
+              _rawParsedPosts.addAll(tempParsed);
             }
           } catch (e) {
             debugPrint('[Migration] Error parsing posts JSON: $e');
@@ -154,8 +181,48 @@ class InstagramMigrationService with ChangeNotifier {
         }
       }
 
-      _totalPosts = _parsedPosts.length;
-      _currentStatus = 'Zip analyzed. Found $_totalPosts posts.';
+      // Now match _rawParsedPosts with _postMediaFiles and create MigratedPostItem
+      _availablePosts.clear();
+      for (var i = 0; i < _rawParsedPosts.length; i++) {
+        final post = _rawParsedPosts[i];
+        final mediaList = post['media'] as List?;
+        if (mediaList == null || mediaList.isEmpty) continue;
+
+        final firstMedia = mediaList.first as Map?;
+        final uri = firstMedia?['uri'] as String?;
+        final title = firstMedia?['title'] as String? ?? '';
+        final timestamp = firstMedia?['creation_timestamp'] as int?;
+
+        if (uri == null) continue;
+
+        ArchiveFile? matchingFile;
+        for (final f in _postMediaFiles) {
+          if (f.name.toLowerCase().contains(uri.toLowerCase()) || uri.toLowerCase().contains(f.name.toLowerCase())) {
+            matchingFile = f;
+            break;
+          }
+        }
+
+        if (matchingFile != null && matchingFile.content != null) {
+          final ext = uri.split('.').last;
+          final fileName = 'preview_${_uuid.v4()}.$ext';
+          final tempFile = File('${tempDir.path}/$fileName');
+          await tempFile.writeAsBytes(matchingFile.content as List<int>);
+
+          _availablePosts.add(
+            MigratedPostItem(
+              tempId: _uuid.v4(),
+              caption: title,
+              timestamp: timestamp,
+              tempMediaFile: tempFile,
+              isSelected: true,
+            ),
+          );
+        }
+      }
+
+      _totalPosts = _availablePosts.length;
+      _currentStatus = 'Zip analyzed. Found $_totalPosts posts ready for review.';
       _isMigrating = false;
       notifyListeners();
       return true;
@@ -167,56 +234,69 @@ class InstagramMigrationService with ChangeNotifier {
     }
   }
 
-  /// Starts the post-migration process in the background.
-  Future<void> startBackgroundPostMigration(String userId) async {
-    if (_parsedPosts.isEmpty) {
-      _currentStatus = 'No posts to migrate.';
+  /// Starts the post-migration process for the selected posts.
+  Future<void> startBackgroundPostMigration(String userId, List<MigratedPostItem> selectedPosts) async {
+    final postsToMigrate = selectedPosts.where((p) => p.isSelected).toList();
+    
+    if (postsToMigrate.isEmpty) {
+      _currentStatus = 'No posts selected to migrate.';
       notifyListeners();
       return;
     }
 
     _isMigrating = true;
+    _totalPosts = postsToMigrate.length;
     _processedPosts = 0;
     _progress = 0.0;
     _currentStatus = 'Starting background post sync...';
     notifyListeners();
 
-    final tempDir = await getTemporaryDirectory();
-
     // Process posts sequentially in the background
     Future.microtask(() async {
       try {
-        for (var i = 0; i < _parsedPosts.length; i++) {
-          final post = _parsedPosts[i];
-          final mediaList = post['media'] as List?;
-          if (mediaList == null || mediaList.isEmpty) continue;
+        // Cache newly created circles during this session
+        final Map<String, String> createdCircles = {};
 
-          final firstMedia = mediaList.first as Map?;
-          final uri = firstMedia?['uri'] as String?;
-          final title = firstMedia?['title'] as String? ?? '';
-          final timestamp = firstMedia?['creation_timestamp'] as int?;
+        for (var i = 0; i < postsToMigrate.length; i++) {
+          final post = postsToMigrate[i];
+          final tempFile = post.tempMediaFile;
 
-          if (uri == null) continue;
+          // Auto-create circle if requested
+          if (post.targetCircleName != null && post.targetCircleName!.isNotEmpty) {
+            if (createdCircles.containsKey(post.targetCircleName)) {
+              post.targetCircleId = createdCircles[post.targetCircleName];
+            } else {
+              final newCircleId = _uuid.v4();
+              final now = DateTime.now().toIso8601String();
+              
+              await _supabase.from('circles').insert({
+                'id': newCircleId,
+                'name': post.targetCircleName,
+                'emoji': '✨',
+                'created_by': userId,
+                'streak_count': 0,
+                'created_at': now,
+              });
 
-          // Find the file in the media list
-          ArchiveFile? matchingFile;
-          for (final f in _postMediaFiles) {
-            if (f.name.toLowerCase().contains(uri.toLowerCase()) || uri.toLowerCase().contains(f.name.toLowerCase())) {
-              matchingFile = f;
-              break;
+              await _supabase.from('circle_members').insert({
+                'circle_id': newCircleId,
+                'user_id': userId,
+                'role': 'admin',
+                'joined_at': now,
+              });
+
+              createdCircles[post.targetCircleName!] = newCircleId;
+              post.targetCircleId = newCircleId;
             }
           }
 
           String? publicUrl;
-          if (matchingFile != null && matchingFile.content != null) {
-            // Write to a temporary file
-            final ext = uri.split('.').last;
+          if (await tempFile.exists()) {
+            final ext = tempFile.path.split('.').last;
             final fileName = '${_uuid.v4()}.$ext';
-            final tempFile = File('${tempDir.path}/$fileName');
-            await tempFile.writeAsBytes(matchingFile.content as List<int>);
-
-            // Upload to Supabase Storage
             final path = '$userId/$fileName';
+            
+            // Upload to Supabase Storage
             await _supabase.storage
                 .from(SupabaseConfig.postImagesBucket)
                 .upload(path, tempFile);
@@ -224,9 +304,6 @@ class InstagramMigrationService with ChangeNotifier {
             publicUrl = _supabase.storage
                 .from(SupabaseConfig.postImagesBucket)
                 .getPublicUrl(path);
-
-            // Clean up temp file
-            await tempFile.delete();
           }
 
           // Create the post in database
@@ -234,17 +311,23 @@ class InstagramMigrationService with ChangeNotifier {
           final postData = {
             'id': postId,
             'user_id': userId,
-            'content': title,
+            'content': post.caption ?? '',
             'image_url': publicUrl,
             'media_urls': publicUrl != null ? [publicUrl] : [],
             'media_types': ['image'],
-            'created_at': timestamp != null 
-                ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000).toIso8601String()
+            'circle_id': post.targetCircleId, // Granular routing!
+            'created_at': post.timestamp != null 
+                ? DateTime.fromMillisecondsSinceEpoch(post.timestamp! * 1000).toIso8601String()
                 : DateTime.now().toIso8601String(),
             'storage_provider': 'supabase',
           };
 
           await _supabase.from(SupabaseConfig.postsTable).insert(postData);
+
+          // Clean up temp file after successful upload
+          if (await tempFile.exists()) {
+            await tempFile.delete();
+          }
 
           _processedPosts++;
           _progress = _processedPosts / _totalPosts;

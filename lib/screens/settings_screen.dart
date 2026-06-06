@@ -11,6 +11,7 @@ import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/settings/presentation/screens/vault_settings_screen.dart';
 import 'package:oasis/features/wellness/presentation/screens/wellness_center_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/account_privacy_screen.dart';
+import 'package:oasis/screens/instagram_import_settings_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/privacy_heartbeat_screen.dart';
 import 'package:oasis/features/settings/presentation/widgets/privacy_transparency_card.dart';
 import 'package:oasis/features/settings/presentation/screens/two_factor_auth_screen.dart';
@@ -1226,6 +1227,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 value: userSettingsProvider.dataSaver,
                 onChanged: (v) => userSettingsProvider.setDataSaver(v),
               ),
+      ),
+      _buildSettingsTile(
+        context,
+        icon: material.Icons.import_export_outlined,
+        title: 'Import from Instagram',
+        subtitle: 'Migrate your posts and media',
+        iconColor: material.Colors.pink,
+        onTap: () =>
+            _navigateToSubPage('Import from Instagram', const InstagramImportSettingsScreen()),
       ),
     ]);
   }
