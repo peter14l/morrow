@@ -339,6 +339,9 @@ class UpdateService extends ChangeNotifier {
           _updateState(
             _currentProgress.copyWith(status: UpdateStatus.completed),
           );
+          // Wait for the installer prompt to appear, then exit to allow clean installation
+          await Future.delayed(const Duration(seconds: 2));
+          _quitApp();
         } else {
           _addLog('Installation failed: ${result.message}');
           _updateState(
@@ -380,12 +383,14 @@ class UpdateService extends ChangeNotifier {
   }
 
   void _quitApp() {
-    if (Platform.isAndroid || Platform.isIOS) {
+    if (Platform.isIOS) {
       SystemNavigator.pop();
     } else if (Platform.isWindows) {
       // Use window_manager to destroy window cleanly
       windowManager.destroy();
     } else {
+      // Use exit(0) on Android to ensure the process is fully terminated 
+      // so the system can complete the APK installation cleanly.
       exit(0);
     }
   }
