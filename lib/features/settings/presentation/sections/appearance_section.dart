@@ -10,6 +10,7 @@ import 'dart:io';
 
 import 'package:oasis/features/settings/presentation/widgets/settings_group.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_tile.dart';
+import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 
 class AppearanceSection extends StatelessWidget {
   final int index;
