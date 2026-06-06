@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <!--
     If you are serving your web app in a path other than the root, change the
@@ -18,21 +18,77 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Oasis — A modern social platform for sharing moments, connecting with communities, and staying close to the people who matter.">
+  <meta name="theme-color" content="#010D1B">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Oasis">
+  <meta property="og:description" content="A modern social platform for sharing moments and connecting with communities.">
+  <meta property="og:type" content="website">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="oasis">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Oasis">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>oasis</title>
+  <title>Oasis</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Prevent flash of white background before Flutter renders */
+    body {
+      background-color: #010D1B;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 </head>
 <body>
+  <!--
+    PQ-Aura WASM Integration
+    =======================
+    The PQ-Aura post-quantum crypto library can be compiled to WASM via:
+      cd PQ-DR && wasm-pack build --target web --out-dir ../web/pkg --release
+
+    The WASM module is loaded asynchronously before Flutter starts.
+    If the WASM file is absent (e.g. dev mode without a WASM build),
+    the app falls back gracefully to the RSA/Signal encryption layer.
+
+    The Flutter Dart side uses pq_aura_service_web.dart which calls
+    window._pqAuraWasm once this loader sets it.
+  -->
+  <script>
+    // PQ-Aura WASM loader — runs before Flutter bootstrap
+    window._pqAuraWasm = null;
+    window._pqAuraWasmReady = false;
+
+    async function loadPqAuraWasm() {
+      try {
+        // Check if the WASM pkg exists before attempting to import
+        const response = await fetch('/pkg/pq_aura_bg.wasm', { method: 'HEAD' });
+        if (!response.ok) {
+          console.info('[PQ-Aura] WASM bundle not found at /pkg/ — using fallback encryption.');
+          return;
+        }
+        const pqAura = await import('/pkg/pq_aura.js');
+        await pqAura.default(); // Initialize WASM module
+        window._pqAuraWasm = pqAura;
+        window._pqAuraWasmReady = true;
+        console.info('[PQ-Aura] WASM module loaded successfully.');
+      } catch (e) {
+        console.warn('[PQ-Aura] WASM load failed — using fallback encryption.', e);
+      }
+    }
+
+    // Fire and forget — Flutter will check window._pqAuraWasmReady
+    loadPqAuraWasm();
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

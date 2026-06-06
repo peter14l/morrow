@@ -1,0 +1,62 @@
+name: Build PQ-Aura WASM
+
+on:
+  push:
+    paths:
+      - 'PQ-DR/**'
+  workflow_dispatch:
+
+jobs:
+  build-wasm:
+    name: Compile Rust → WASM
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            PQ-DR/target
+          key: ${{ runner.os }}-cargo-wasm-${{ hashFiles('PQ-DR/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-wasm-
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Build PQ-Aura WASM module
+        working-directory: PQ-DR
+        run: |
+          wasm-pack build \
+            --target web \
+            --out-dir ../web/pkg \
+            --release \
+            -- --features wasm-bindgen
+
+      - name: List generated WASM artifacts
+        run: ls -lh web/pkg/
+
+      - name: Upload WASM pkg as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pq-aura-wasm-pkg
+          path: web/pkg/
+          retention-days: 30
+
+      - name: Commit WASM pkg to repo (web/pkg/)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build(wasm): update PQ-Aura WASM bundle [skip ci]"
+          file_pattern: web/pkg/*
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
