@@ -880,7 +880,7 @@ class _RipplesScreenState extends State<RipplesScreen>
           animation: _pageController,
           builder: (context, child) {
             double value = 0;
-            if (_pageController.position.haveDimensions) {
+            if (_pageController.hasClients && _pageController.position.haveDimensions) {
               value = _pageController.page! - index;
             }
             final scale = 1.0 - (value.abs() * 0.2).clamp(0.0, 1.0);

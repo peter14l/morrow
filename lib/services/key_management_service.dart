@@ -52,26 +52,17 @@ class KeyManagementService {
 
   /// Derives a secure 32-byte AES key from a 6-digit PIN and a Salt using Argon2id.
   encrypt.Key deriveSecureBackupKey(String pin, String saltBase64) {
-    final salt = base64.decode(saltBase64);
-    final pinBytes = utf8.encode(pin);
+    final derived = deriveSecureBackupKeyIsolate(Argon2DeriveParams(pin, saltBase64));
+    return encrypt.Key(derived);
+  }
 
-    // Argon2id parameters tuned for mobile (takes ~0.5s - 1s)
-    final parameters = Argon2Parameters(
-      Argon2Parameters.ARGON2_id,
-      salt,
-      version: Argon2Parameters.ARGON2_VERSION_13,
-      iterations: 3,
-      memoryPowerOf2: 15, // 32MB
-      lanes: 2,
-      desiredKeyLength: 32,
+  /// Derives a secure 32-byte AES key asynchronously using compute().
+  Future<encrypt.Key> deriveSecureBackupKeyAsync(String pin, String saltBase64) async {
+    final derived = await compute(
+      deriveSecureBackupKeyIsolate,
+      Argon2DeriveParams(pin, saltBase64),
     );
-
-    final argon2 = Argon2BytesGenerator();
-    argon2.init(parameters);
-
-    // Generate exactly 32 bytes for the AES-256 key
-    final derivedKey = argon2.process(Uint8List.fromList(pinBytes));
-    return encrypt.Key(Uint8List.fromList(derivedKey.sublist(0, 32)));
+    return encrypt.Key(derived);
   }
 
   /// Generates a random 24-character recovery key grouped by dashes.
@@ -152,3 +143,34 @@ class KeyManagementService {
 AsymmetricKeyPair _generateKeyPairInternal(int keySize) {
   return CryptoUtils.generateRSAKeyPair(keySize: keySize);
 }
+
+/// Parameters for Argon2 key derivation in background isolates.
+class Argon2DeriveParams {
+  final String pin;
+  final String saltBase64;
+
+  Argon2DeriveParams(this.pin, this.saltBase64);
+}
+
+/// Background isolate top-level function for Argon2 key derivation.
+Uint8List deriveSecureBackupKeyIsolate(Argon2DeriveParams params) {
+  final salt = base64.decode(params.saltBase64);
+  final pinBytes = utf8.encode(params.pin);
+
+  final parameters = Argon2Parameters(
+    Argon2Parameters.ARGON2_id,
+    salt,
+    version: Argon2Parameters.ARGON2_VERSION_13,
+    iterations: kIsWeb ? 1 : 3,
+    memoryPowerOf2: kIsWeb ? 12 : 15, // 32MB on mobile, 4MB on web
+    lanes: kIsWeb ? 1 : 2,
+    desiredKeyLength: 32,
+  );
+
+  final argon2 = Argon2BytesGenerator();
+  argon2.init(parameters);
+
+  final derivedKey = argon2.process(Uint8List.fromList(pinBytes));
+  return derivedKey.sublist(0, 32);
+}
+

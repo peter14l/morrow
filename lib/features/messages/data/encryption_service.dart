@@ -252,7 +252,7 @@ class EncryptionService {
         return false;
       }
 
-      final secureKey = _keyManager.deriveSecureBackupKey(pin, salt);
+      final secureKey = await _keyManager.deriveSecureBackupKeyAsync(pin, salt);
       final privateKeyPem = _keyManager.decryptWithKey(
         encryptedPrivateKey,
         secureKey,
@@ -345,7 +345,7 @@ class EncryptionService {
       final salt = _keyManager.generateSalt();
       final recoveryKey = _keyManager.generateRecoveryKey();
 
-      final secureKey = _keyManager.deriveSecureBackupKey(pin, salt);
+      final secureKey = await _keyManager.deriveSecureBackupKeyAsync(pin, salt);
       final recoveryDerivedKey = _keyManager.deriveRecoveryKey(
         recoveryKey,
         salt,
@@ -403,7 +403,7 @@ class EncryptionService {
         final salt = _keyManager.generateSalt();
         recoveryKey = _keyManager.generateRecoveryKey();
 
-        final secureKey = _keyManager.deriveSecureBackupKey(pin, salt);
+        final secureKey = await _keyManager.deriveSecureBackupKeyAsync(pin, salt);
         final recoveryDerivedKey = _keyManager.deriveRecoveryKey(
           recoveryKey,
           salt,

@@ -37,6 +37,23 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
   String _firstPin = '';
 
   @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < 6; i++) {
+      _focusNodes[i].onKeyEvent = (node, event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.backspace &&
+            _controllers[i].text.isEmpty &&
+            i > 0) {
+          _focusNodes[i - 1].requestFocus();
+          return KeyEventResult.handled;
+        }
+        return KeyEventResult.ignored;
+      };
+    }
+  }
+
+  @override
   void dispose() {
     for (var controller in _controllers) {
       controller.dispose();
@@ -58,15 +75,6 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
     }
   }
 
-  void _onKeyEvent(KeyEvent event, int index) {
-    if (event is KeyDownEvent &&
-        event.logicalKey == LogicalKeyboardKey.backspace &&
-        _controllers[index].text.isEmpty &&
-        index > 0) {
-      _focusNodes[index - 1].requestFocus();
-    }
-  }
-
   Future<void> _handleSubmit() async {
     final pin = _currentPin;
     if (pin.length < 6) return;
@@ -75,6 +83,8 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
       _isLoading = true;
       _error = null;
     });
+
+    await Future.delayed(const Duration(milliseconds: 100));
 
     try {
       final encryptionService = context.read<EncryptionService>();
@@ -238,35 +248,31 @@ class _SecurityPinSheetState extends State<SecurityPinSheet> {
               6,
               (index) => SizedBox(
                 width: 45,
-                child: KeyboardListener(
-                  focusNode: FocusNode(),
-                  onKeyEvent: (event) => _onKeyEvent(event, index),
-                  child: TextField(
-                    controller: _controllers[index],
-                    focusNode: _focusNodes[index],
-                    textAlign: TextAlign.center,
-                    keyboardType: TextInputType.number,
-                    obscureText: true,
-                    maxLength: 1,
-                    style: theme.textTheme.headlineMedium,
-                    decoration: InputDecoration(
-                      counterText: '',
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.outlineVariant,
-                          width: 2,
-                        ),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: theme.colorScheme.primary,
-                          width: 2,
-                        ),
+                child: TextField(
+                  controller: _controllers[index],
+                  focusNode: _focusNodes[index],
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  obscureText: true,
+                  maxLength: 1,
+                  style: theme.textTheme.headlineMedium,
+                  decoration: InputDecoration(
+                    counterText: '',
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.outlineVariant,
+                        width: 2,
                       ),
                     ),
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    onChanged: (value) => _onChanged(value, index),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: theme.colorScheme.primary,
+                        width: 2,
+                      ),
+                    ),
                   ),
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (value) => _onChanged(value, index),
                 ),
               ),
             ),

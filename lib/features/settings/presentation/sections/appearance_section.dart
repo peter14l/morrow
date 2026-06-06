@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 import 'package:oasis/features/settings/presentation/widgets/settings_group.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_tile.dart';

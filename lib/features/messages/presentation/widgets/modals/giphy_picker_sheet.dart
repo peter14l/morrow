@@ -38,8 +38,7 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
 
   Timer? _searchDebounce;
 
-  bool get _isUsingKlipy =>
-      widget.useKlipy || ChatApiConfig.giphyApiKey.isEmpty;
+  bool get _isUsingKlipy => true;
 
   @override
   void initState() {

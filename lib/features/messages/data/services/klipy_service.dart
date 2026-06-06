@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
-import 'package:oasis/features/messages/core/chat_api_config.dart';
+import 'package:universal_io/io.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 
 /// Result wrapper that includes error information for debugging
 class KlipyResult<T> {
@@ -16,38 +16,42 @@ class KlipyResult<T> {
 }
 
 class KlipyService {
-  final String _baseUrl = 'https://api.klipy.com/api/v1';
   final bool _debugMode = true; // Set to false in production
+
+  String _getPlatformString() {
+    if (kIsWeb) return 'web';
+    if (Platform.isAndroid) return 'android';
+    if (Platform.isIOS) return 'ios';
+    if (Platform.isWindows) return 'windows';
+    if (Platform.isMacOS) return 'macos';
+    return 'web';
+  }
 
   Future<KlipyResult<List<KlipyMedia>>> search(
     String query, {
     int limit = 20,
     int offset = 0,
   }) async {
-    if (ChatApiConfig.klipyApiKey.isEmpty) {
-      return KlipyResult.failure(
-        'API key is empty. Check .env KLIPY keys (KLIPY_WEB_KEY, etc.)',
-        statusCode: 0,
-      );
-    }
-
     try {
-      final apiKey = ChatApiConfig.klipyApiKey;
-      final uri = Uri.parse(
-        '$_baseUrl/$apiKey/gifs/search?q=$query&limit=$limit&offset=$offset',
+      final response = await SupabaseService().client.functions.invoke(
+        'klipy-proxy',
+        body: {
+          'endpoint': 'search',
+          'query': query,
+          'limit': limit,
+          'offset': offset,
+          'platform': _getPlatformString(),
+        },
       );
-      final response = await http.get(uri);
 
       if (_debugMode) {
-        debugPrint('[Klipy] Search request: $uri');
-        debugPrint('[Klipy] Search response status: ${response.statusCode}');
-        debugPrint(
-          '[Klipy] Search response body length: ${response.body.length}',
-        );
+        debugPrint('[Klipy] Search response status: ${response.status}');
       }
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+      if (response.status == 200 && response.data != null) {
+        final Map<String, dynamic> data = response.data is String 
+            ? json.decode(response.data) 
+            : response.data;
         final Map<String, dynamic>? innerData =
             data['data'] as Map<String, dynamic>?;
         final List results = (innerData != null)
@@ -56,16 +60,13 @@ class KlipyService {
         return KlipyResult.success(
           results.map((e) => KlipyMedia.fromJson(e)).toList(),
         );
-      } else if (response.statusCode == 204) {
-        // No Content - return empty list successfully
-        return KlipyResult.success([]);
       }
       return KlipyResult.failure(
-        'HTTP ${response.statusCode}: ${response.body}',
-        statusCode: response.statusCode,
+        'HTTP ${response.status}: ${response.data}',
+        statusCode: response.status,
       );
     } catch (e) {
-      return KlipyResult.failure('Network error: $e', statusCode: -1);
+      return KlipyResult.failure('Network/Proxy error: $e', statusCode: -1);
     }
   }
 
@@ -73,30 +74,25 @@ class KlipyService {
     int limit = 20,
     int offset = 0,
   }) async {
-    if (ChatApiConfig.klipyApiKey.isEmpty) {
-      return KlipyResult.failure(
-        'API key is empty. Check .env KLIPY keys (KLIPY_WEB_KEY, etc.)',
-        statusCode: 0,
-      );
-    }
-
     try {
-      final apiKey = ChatApiConfig.klipyApiKey;
-      final uri = Uri.parse(
-        '$_baseUrl/$apiKey/gifs/trending?limit=$limit&offset=$offset',
+      final response = await SupabaseService().client.functions.invoke(
+        'klipy-proxy',
+        body: {
+          'endpoint': 'trending',
+          'limit': limit,
+          'offset': offset,
+          'platform': _getPlatformString(),
+        },
       );
-      final response = await http.get(uri);
 
       if (_debugMode) {
-        debugPrint('[Klipy] Trending request: $uri');
-        debugPrint('[Klipy] Trending response status: ${response.statusCode}');
-        debugPrint(
-          '[Klipy] Trending response body length: ${response.body.length}',
-        );
+        debugPrint('[Klipy] Trending response status: ${response.status}');
       }
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+      if (response.status == 200 && response.data != null) {
+        final Map<String, dynamic> data = response.data is String 
+            ? json.decode(response.data) 
+            : response.data;
         final Map<String, dynamic>? innerData =
             data['data'] as Map<String, dynamic>?;
         final List results = (innerData != null)
@@ -105,16 +101,13 @@ class KlipyService {
         return KlipyResult.success(
           results.map((e) => KlipyMedia.fromJson(e)).toList(),
         );
-      } else if (response.statusCode == 204) {
-        // No Content - return empty list successfully
-        return KlipyResult.success([]);
       }
       return KlipyResult.failure(
-        'HTTP ${response.statusCode}: ${response.body}',
-        statusCode: response.statusCode,
+        'HTTP ${response.status}: ${response.data}',
+        statusCode: response.status,
       );
     } catch (e) {
-      return KlipyResult.failure('Network error: $e', statusCode: -1);
+      return KlipyResult.failure('Network/Proxy error: $e', statusCode: -1);
     }
   }
 }

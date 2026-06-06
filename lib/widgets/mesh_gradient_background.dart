@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 class MeshGradientBackground extends StatefulWidget {
   final Widget child;
@@ -40,6 +41,25 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final backgroundColor = theme.scaffoldBackgroundColor;
+
+    // If running on Web, use a static layout-neutral gradient to prevent GPU lag
+    if (kIsWeb) {
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              backgroundColor,
+              colorScheme.primary.withValues(alpha: 0.08),
+              colorScheme.secondary.withValues(alpha: 0.05),
+              backgroundColor,
+            ],
+          ),
+        ),
+        child: widget.child,
+      );
+    }
 
     // If animation is disabled, just show a static background
     if (!widget.animate) {

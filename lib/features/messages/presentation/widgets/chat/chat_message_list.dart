@@ -11,7 +11,7 @@ import 'package:oasis/widgets/skeleton_container.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/swipe_to_reply.dart';
 import 'package:oasis/features/messages/presentation/widgets/chat/dissolve_effect.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 /// Chat message list with skeleton loading, empty state, and message rendering.
 class ChatMessageList extends StatelessWidget {

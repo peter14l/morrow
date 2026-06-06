@@ -5,7 +5,7 @@ import 'package:oasis/core/config/supabase_config.dart';
 import 'package:oasis/services/revenuecat_service.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'dart:io';
+import 'package:universal_io/io.dart';
 
 class SubscriptionService extends ChangeNotifier {
   static SubscriptionService? _instance;

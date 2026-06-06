@@ -399,7 +399,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   // =========================================================================
 
   void _showGiphyPicker() async {
-    final apiKey = ChatApiConfig.giphyApiKey;
+    const apiKey = '';
 
     if (apiKey.isNotEmpty) {
       // Use GiphyGet SDK if API key is available

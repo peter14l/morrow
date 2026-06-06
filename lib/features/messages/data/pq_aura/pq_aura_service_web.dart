@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -36,10 +37,12 @@ class PQAuraService {
   Future<bool> init() async {
     try {
       // Check if the WASM loader in index.html has finished
-      final ready = globalContext.getProperty<JSBoolean?>(
-        '_pqAuraWasmReady'.toJS,
-      );
-      _wasmReady = ready?.toDart ?? false;
+      if (globalContext.hasProperty('_pqAuraWasmReady'.toJS).toDart) {
+        final ready = globalContext.getProperty<JSBoolean>('_pqAuraWasmReady'.toJS);
+        _wasmReady = ready.toDart;
+      } else {
+        _wasmReady = false;
+      }
       if (_wasmReady) {
         debugPrint('[PQAura-Web] WASM module is ready.');
       } else {

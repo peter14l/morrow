@@ -79,7 +79,7 @@ class _OnboardingShellState extends State<OnboardingShell> {
                   itemCount: 7,
                   itemBuilder: (context, index) {
                     double offset = 0.0;
-                    if (_pageController.position.haveDimensions) {
+                    if (_pageController.hasClients && _pageController.position.haveDimensions) {
                       offset = (_pageController.page ?? 0) - index;
                     }
 

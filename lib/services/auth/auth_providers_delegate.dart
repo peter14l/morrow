@@ -1,9 +1,6 @@
 import 'package:oasis/core/config/app_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:google_sign_in_all_platforms/google_sign_in_all_platforms.dart'
-    as all_platforms;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:universal_io/io.dart';
 // import 'package:passkeys/passkeys.dart' as pk;
@@ -13,27 +10,6 @@ class AuthProvidersDelegate {
   // final pk.PasskeyAuthenticator _authenticator = pk.PasskeyAuthenticator();
 
   AuthProvidersDelegate(this._supabase);
-
-  static String get _googleWebClientId {
-    const fromEnv = String.fromEnvironment('GOOGLE_WEB_CLIENT_ID');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    return '';
-  }
-
-  static String get _googleWebClientSecret {
-    const fromEnv = String.fromEnvironment('GOOGLE_WEB_CLIENT_SECRET');
-    if (fromEnv.isNotEmpty) return fromEnv;
-    return '';
-  }
-
-  static final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb ? _googleWebClientId : null,
-    serverClientId: kIsWeb ? null : _googleWebClientId,
-    scopes: ['email', 'profile'],
-  );
-
-  // Removed static initialization of _googleSignInDesktop to avoid assertion errors on Windows
-  // when client ID/Secret are not provided in the environment.
 
   Future<AuthResponse> signInWithEmailAndPassword(
     String email,
@@ -68,51 +44,7 @@ class AuthProvidersDelegate {
   }
 
   Future<void> signInWithGoogle({bool forceSignIn = false}) async {
-    String? idToken;
-    String? accessToken;
-
-    if (!kIsWeb && Platform.isWindows) {
-      final googleSignInDesktop = all_platforms.GoogleSignIn(
-        params: all_platforms.GoogleSignInParams(
-          clientId: _googleWebClientId,
-          clientSecret: _googleWebClientSecret,
-          redirectPort: 3000,
-          scopes: ['email', 'profile', 'openid'],
-        ),
-      );
-      final response = await googleSignInDesktop.signIn();
-      if (response == null) {
-        throw const AuthException('Google sign in was cancelled');
-      }
-      idToken = response.idToken;
-      accessToken = response.accessToken;
-    } else {
-      GoogleSignInAccount? googleUser;
-      if (forceSignIn) {
-        await _googleSignIn.signOut();
-        googleUser = await _googleSignIn.signIn();
-      } else {
-        googleUser =
-            await _googleSignIn.signInSilently() ??
-            await _googleSignIn.signIn();
-      }
-
-      if (googleUser == null) {
-        throw const AuthException('Google sign in was cancelled');
-      }
-
-      final googleAuth = await googleUser.authentication;
-      idToken = googleAuth.idToken;
-      accessToken = googleAuth.accessToken;
-    }
-
-    if (idToken == null) throw const AuthException('No ID Token found.');
-
-    await _supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    );
+    throw UnimplementedError('Google Sign-In has been removed from this project.');
   }
 
   Future<AuthResponse> signInWithApple() async {
@@ -168,27 +100,6 @@ class AuthProvidersDelegate {
   }
 
   Future<void> signOut() async {
-    try {
-      if (kIsWeb || !Platform.isWindows) {
-        await _googleSignIn.signOut().catchError((e) => null);
-      } else {
-        // Only attempt desktop sign out if client ID is configured to avoid assertion errors
-        if (_googleWebClientId.isNotEmpty) {
-          final googleSignInDesktop = all_platforms.GoogleSignIn(
-            params: all_platforms.GoogleSignInParams(
-              clientId: _googleWebClientId,
-              clientSecret: _googleWebClientSecret,
-              redirectPort: 3000,
-              scopes: ['email', 'profile', 'openid'],
-            ),
-          );
-          await googleSignInDesktop.signOut().catchError((e) => null);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error during Google sign out: $e');
-    }
-
     try {
       await _supabase.auth.signOut();
     } on AuthException catch (e) {
