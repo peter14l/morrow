@@ -320,16 +320,37 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       messagesToPass = _allMessages;
     }
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SharedContentScreen(
-          conversationId: widget.conversationId,
-          otherUserName: widget.otherUserName,
-          messages: messagesToPass,
+    final isDesktop = MediaQuery.of(context).size.width >= 1000;
+
+    if (isDesktop) {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          clipBehavior: Clip.antiAlias,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: SizedBox(
+            width: 800,
+            height: 600,
+            child: SharedContentScreen(
+              conversationId: widget.conversationId,
+              otherUserName: widget.otherUserName,
+              messages: messagesToPass,
+            ),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SharedContentScreen(
+            conversationId: widget.conversationId,
+            otherUserName: widget.otherUserName,
+            messages: messagesToPass,
+          ),
+        ),
+      );
+    }
   }
 
   void _onSearchChanged(String query) {

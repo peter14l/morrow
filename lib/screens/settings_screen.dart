@@ -45,6 +45,7 @@ import 'package:oasis/features/settings/presentation/sections/accessibility_sect
 import 'package:oasis/features/settings/presentation/sections/support_section.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_group.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_tile.dart';
+import 'package:oasis/features/profile/presentation/screens/account_management_screen.dart';
 
 enum SettingsCategory {
   account,
@@ -129,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   icon: material.Icons.person_outline,
                   title: 'Account Details',
                   subtitle: 'Manage profile and account',
-                  onTap: () => context.push('/settings/account'),
+                  onTap: () => _navigateToSubPage('Account Management', const AccountManagementScreen()),
                 ),
               ]),
               const SizedBox(height: 24),
@@ -673,34 +674,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     switch (_selectedCategory) {
       case SettingsCategory.account:
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              material.Icon(
-                material.Icons.account_circle_outlined,
-                size: 64,
-                color: material.Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              material.Text(
-                'Account Management',
-                style: material.Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              const material.Text(
-                'Manage your profile and account security in a dedicated view.',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              AppButton.primary(
-                onPressed: () => context.push('/settings/account'),
-                icon: const material.Icon(material.Icons.open_in_new),
-                text: 'Open Account Details',
-              ),
-            ],
-          ),
-        );
+        return const AccountManagementScreen();
       case SettingsCategory.general:
         return GeneralSection(index: 0, onNavigateToSubPage: _navigateToSubPage);
       case SettingsCategory.privacy:
