@@ -53,6 +53,9 @@ import 'package:oasis/services/home_checkin_service.dart';
 import 'package:oasis/features/couples/data/home_checkin_repository.dart';
 import 'package:oasis/widgets/verification_dialog.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:oasis/widgets/lifecycle_manager.dart';
+import 'package:oasis/widgets/call_navigator.dart';
+import 'package:oasis/features/calling/presentation/screens/incoming_call_overlay_screen.dart';
 
 // ---------------------------------------------------------------------------
 // Global Shortcuts and Scroll
@@ -71,163 +74,7 @@ class AppScrollBehavior extends material.ScrollBehavior {
       };
 }
 
-// ---------------------------------------------------------------------------
-// LifecycleManager
-// ---------------------------------------------------------------------------
 
-class LifecycleManager extends StatefulWidget {
-  final Widget child;
-  const LifecycleManager({super.key, required this.child});
-
-  @override
-  State<LifecycleManager> createState() => _LifecycleManagerState();
-}
-
-class _LifecycleManagerState extends State<LifecycleManager>
-    with material.WidgetsBindingObserver {
-  @override
-  void initState() {
-    super.initState();
-    material.WidgetsBinding.instance.addObserver(this);
-    if (mounted) {
-      context.read<ScreenTimeService>().startTracking();
-    }
-  }
-
-  @override
-  void dispose() {
-    material.WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(material.AppLifecycleState state) {
-    if (!mounted) return;
-
-    final screenTime = context.read<ScreenTimeService>();
-    final energyMeter = context.read<EnergyMeterService>();
-    final wellness = context.read<WellnessService>();
-    final wellbeing = context.read<DigitalWellbeingService>();
-    final ripples = context.read<RipplesProvider>();
-    final presence = context.read<PresenceProvider>();
-    final auth = context.read<AuthService>();
-
-    if (state == material.AppLifecycleState.paused ||
-        state == material.AppLifecycleState.detached) {
-      screenTime.stopTracking();
-      energyMeter.onPaused();
-      wellness.onPaused();
-      wellbeing.resetSession();
-      ripples.onPaused();
-
-      context.read<VaultService>().lockItemsWithInterval('app_close');
-
-      final userId = auth.currentUser?.id;
-      if (userId != null) {
-        presence.updateUserPresence(userId, 'offline');
-      }
-      presence.pauseHeartbeat();
-    } else if (state == material.AppLifecycleState.resumed) {
-      // Use a microtask to spread the resume load across frames
-      Future.microtask(() {
-        if (!mounted) return;
-
-        screenTime.startTracking();
-        energyMeter.onResumed();
-        wellness.onResumed();
-        ripples.onResumed();
-
-        // Check home arrival on app resume
-        _checkHomeArrival();
-
-        final userId = auth.currentUser?.id;
-        if (userId != null) {
-          presence.updateUserPresence(userId, 'online');
-        }
-        presence.resumeHeartbeat();
-      });
-    }
-  }
-
-  void _checkHomeArrival() {
-    // Initialize and check home arrival
-    final homeArrivalService = HomeArrivalService();
-    homeArrivalService.initialize();
-
-    // Set up callback for home arrival notification
-    homeArrivalService.onHomeArrived = () {
-      // Check if there's a pending verification to avoid duplicate dialogs
-      _handleHomeArrivalWithVerification();
-    };
-
-    // Check current state
-    homeArrivalService.checkNow();
-  }
-
-  void _handleHomeArrivalWithVerification() async {
-    // Get context safely
-    final context = mounted ? this.context : null;
-    if (context == null) return;
-
-    try {
-      // Initialize services
-      final prefs = PrefsStorage();
-      final repository = HomeCheckinRepository();
-      final checkinService = HomeCheckinService(repository, prefs);
-
-      // Check if there's already a pending verification
-      final hasPending = await checkinService.hasPendingVerification();
-      if (hasPending) {
-        debugPrintThrottled('Verification already pending, skipping dialog');
-        return;
-      }
-
-      // Mark that user arrived and verification is needed
-      await checkinService.markHomeArrived();
-
-      // Show verification dialog after a brief delay
-      await Future.delayed(const Duration(milliseconds: 500));
-
-      if (!mounted) return;
-
-      // Show verification dialog
-      await VerificationDialog.show(
-        context,
-        onConfirm: () async {
-          // User confirmed "Yes, I'm home"
-          await checkinService.checkIn();
-          if (mounted) {
-            material.ScaffoldMessenger.of(context).showSnackBar(
-              const material.SnackBar(
-                content: Text('❤️ Your partner has been notified!'),
-                backgroundColor: material.Colors.green,
-              ),
-            );
-          }
-        },
-        onDeny: () async {
-          // User said "No, not yet"
-          await checkinService.verifyCheckIn(wasAccurate: false);
-          if (mounted) {
-            material.ScaffoldMessenger.of(context).showSnackBar(
-              const material.SnackBar(
-                content: Text('⚠️ Your partner has been warned'),
-                backgroundColor: material.Colors.orange,
-              ),
-            );
-          }
-        },
-      );
-    } catch (e) {
-      debugPrintThrottled('Error in home arrival verification: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
-}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
@@ -813,75 +660,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-class CallNavigator extends StatelessWidget {
-  final Widget child;
-  const CallNavigator({super.key, required this.child});
 
-  @override
-  Widget build(BuildContext context) {
-    final callProvider = context.watch<CallProvider>();
-    final userSettings = context.watch<UserSettingsProvider>();
-
-    final hasActiveCall =
-        callProvider.hasActiveCall || callProvider.hasIncomingCall;
-
-    if (hasActiveCall) {
-      String location = '';
-      try {
-        location =
-            GoRouter.of(context).routeInformationProvider.value.uri.path ?? '';
-      } catch (e) {
-        location =
-            AppRouter.router.routerDelegate.currentConfiguration.uri.path;
-      }
-
-      final onCallScreen = location.startsWith('/call');
-
-      if (!onCallScreen && !callProvider.state.isMinimized) {
-        material.WidgetsBinding.instance.addPostFrameCallback((_) {
-          final activeCallId = callProvider.activeCall?.id;
-          final incomingCallId = callProvider.incomingCall?.id;
-          final callId = activeCallId ?? incomingCallId;
-
-          if (callId != null) {
-            final navContext =
-                AppRouter.router.configuration.navigatorKey.currentContext;
-            if (navContext != null) {
-              GoRouter.of(
-                navContext,
-              ).pushNamed('active_call', pathParameters: {'callId': callId});
-            } else {
-              AppRouter.router.pushNamed(
-                'active_call',
-                pathParameters: {'callId': callId},
-              );
-            }
-          }
-        });
-      }
-    }
-
-    final Widget childWidget = child;
-
-    final bool canUseTransparency =
-        !kIsWeb && (Platform.isWindows || Platform.isMacOS);
-    final bool useTransparency = userSettings.micaEnabled && canUseTransparency;
-
-    final isDark =
-        material.Theme.of(context).brightness == material.Brightness.dark;
-
-    return Container(
-      color: useTransparency
-          ? (isDark
-                ? material.Colors.black.withValues(alpha: 0.0)
-                : material.Colors.white.withValues(alpha: 0.0))
-          : (isDark
-                ? const material.Color(0xFF080A0E)
-                : const material.Color(0xFFF8F9FA)),
-      child: child,
-    );
-  }
-}
 
 void main() async {
   // 1. Initialize Flutter bindings in the Root Zone.
@@ -1146,132 +925,12 @@ void callingMain() async {
   runApp(
     material.MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark(), // Oasis is dark mode by default
-      home: material.Scaffold(
-        backgroundColor: const material.Color(0xFF080A0E),
-        body: material.Stack(
-          children: [
-            // Mesh background
-            MeshGradientBackground(
-              child: material.SafeArea(
-                child: material.Center(
-                  child: material.Column(
-                    mainAxisAlignment: material.MainAxisAlignment.center,
-                    children: [
-                      if (callerAvatar.isNotEmpty)
-                        material.CircleAvatar(
-                          radius: 60,
-                          backgroundImage: CachedNetworkImageProvider(
-                            callerAvatar,
-                          ),
-                        )
-                      else
-                        const material.CircleAvatar(
-                          radius: 60,
-                          backgroundColor: material.Color(0xFF1A1D24),
-                          child: material.Icon(
-                            material.Icons.person,
-                            size: 60,
-                            color: material.Colors.white54,
-                          ),
-                        ),
-
-                      const material.SizedBox(height: 32),
-
-                      material.Text(
-                        callerName,
-                        style: const material.TextStyle(
-                          color: material.Colors.white,
-                          fontSize: 32,
-                          fontWeight: material.FontWeight.bold,
-                        ),
-                      ),
-
-                      const material.SizedBox(height: 8),
-
-                      material.Text(
-                        'Oasis Audio Call',
-                        style: material.TextStyle(
-                          color: material.Colors.white.withValues(alpha: 0.7),
-                          fontSize: 16,
-                        ),
-                      ),
-
-                      const material.Spacer(),
-
-                      // Buttons
-                      material.Padding(
-                        padding: const material.EdgeInsets.symmetric(
-                          horizontal: 48.0,
-                          vertical: 64.0,
-                        ),
-                        child: material.Row(
-                          mainAxisAlignment:
-                              material.MainAxisAlignment.spaceBetween,
-                          children: [
-                            // Decline
-                            material.Column(
-                              children: [
-                                material.FloatingActionButton(
-                                  heroTag: 'decline_btn',
-                                  onPressed: () async {
-                                    await channel.invokeMethod(
-                                      'finishCallActivity',
-                                    );
-                                  },
-                                  backgroundColor: material.Colors.redAccent,
-                                  child: const material.Icon(
-                                    material.Icons.call_end,
-                                    color: material.Colors.white,
-                                  ),
-                                ),
-                                const material.SizedBox(height: 12),
-                                const material.Text(
-                                  'Decline',
-                                  style: material.TextStyle(
-                                    color: material.Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            // Accept
-                            material.Column(
-                              children: [
-                                material.FloatingActionButton(
-                                  heroTag: 'accept_btn',
-                                  onPressed: () async {
-                                    // Signal native to accept the call and launch the main app
-                                    await channel.invokeMethod('acceptCall', {
-                                      'callId': callId,
-                                      'callerName': callerName,
-                                    });
-                                  },
-                                  backgroundColor: material.Colors.greenAccent,
-                                  child: const material.Icon(
-                                    material.Icons.call,
-                                    color: material.Colors.white,
-                                  ),
-                                ),
-                                const material.SizedBox(height: 12),
-                                const material.Text(
-                                  'Accept',
-                                  style: material.TextStyle(
-                                    color: material.Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      theme: AppTheme.dark(),
+      home: IncomingCallOverlayScreen(
+        callerName: callerName,
+        callId: callId,
+        callerAvatar: callerAvatar,
+        channel: channel,
       ),
     ),
   );
