@@ -65,6 +65,7 @@ import 'package:oasis/features/messages/presentation/screens/group_member_select
 import '../features/auth/presentation/screens/login_screen.dart'
     as login_screen;
 import '../features/auth/presentation/screens/register_screen.dart';
+import '../screens/onboarding_celebration_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/auth/presentation/screens/instagram_migration_screen.dart';
 import '../features/feed/presentation/screens/feed_screen.dart';
@@ -1398,6 +1399,14 @@ class AppRouter {
           pageBuilder: (context, state) => MaterialPage(
             key: state.pageKey,
             child: const InstagramMigrationScreen(),
+          ),
+        ),
+        GoRoute(
+          path: '/welcome',
+          name: 'welcome',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const OnboardingCelebrationScreen(),
           ),
         ),
         GoRoute(

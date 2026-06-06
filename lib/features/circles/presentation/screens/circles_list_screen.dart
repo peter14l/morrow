@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -229,44 +230,89 @@ class _EmptyCirclesState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 96,
-            height: 96,
-            decoration: BoxDecoration(
-              shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-              borderRadius: isM3E ? BorderRadius.circular(24) : null,
-              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: theme.colorScheme.primary.withValues(alpha: 0.2), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withValues(alpha: 0.05),
+              blurRadius: 24,
+              spreadRadius: 8,
             ),
-            child: Icon(
-              FluentIcons.people_team_24_regular,
-              size: 44,
-              color: theme.colorScheme.primary,
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
+                    borderRadius: isM3E ? BorderRadius.circular(24) : null,
+                    gradient: LinearGradient(
+                      colors: [
+                        theme.colorScheme.primary.withValues(alpha: 0.3),
+                        theme.colorScheme.primary.withValues(alpha: 0.1),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  child: Icon(
+                    FluentIcons.people_team_24_regular,
+                    size: 44,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'No circles yet',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Create a circle with close friends\nand start building shared commitments.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                        blurRadius: 16,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                    borderRadius: BorderRadius.circular(isM3E ? 12 : 14),
+                  ),
+                  child: _PrimaryButton(
+                    onTap: onCreateTap,
+                    icon: FluentIcons.add_circle_24_regular,
+                    label: 'Create your first Circle',
+                    isM3E: isM3E,
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 20),
-          Text(
-            'No circles yet',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: isM3E ? FontWeight.w900 : FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Create a circle with close friends\nand start building shared commitments.',
-            textAlign: TextAlign.center,
-            style: theme.textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 24),
-          _PrimaryButton(
-            onTap: onCreateTap,
-            icon: FluentIcons.add_circle_24_regular,
-            label: 'Create a Circle',
-            isM3E: isM3E,
-          ),
-        ],
+        ),
       ),
     );
   }

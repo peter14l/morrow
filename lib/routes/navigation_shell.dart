@@ -11,6 +11,7 @@ import 'package:oasis/features/settings/domain/models/user_settings_entity.dart'
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 import 'package:oasis/widgets/windows_title_bar.dart';
+import 'package:oasis/widgets/global_migration_indicator.dart';
 import 'package:window_manager/window_manager.dart';
 
 /// Navigation shell with bottom navigation bar
@@ -157,7 +158,12 @@ class NavigationShell extends material.StatelessWidget {
           ),
         ],
       ),
-      content: child,
+      content: Stack(
+        children: [
+          child,
+          const GlobalMigrationIndicator(),
+        ],
+      ),
     );
   }
 
@@ -218,7 +224,12 @@ class NavigationShell extends material.StatelessWidget {
 
     // Always wrap to handle global transparency toggle and liquid glass
     return material.Scaffold(
-      body: child,
+      body: Stack(
+        children: [
+          child,
+          const GlobalMigrationIndicator(),
+        ],
+      ),
       bottomNavigationBar: _applyLiquidGlassToBottomNav(
         navigationBar,
         liquidGlassMode,

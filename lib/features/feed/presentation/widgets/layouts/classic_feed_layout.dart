@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -102,8 +103,53 @@ class ClassicFeedLayout extends StatelessWidget {
                     );
                   }
                   if (posts.isEmpty) {
-                    return const SliverFillRemaining(
-                      child: Center(child: Text('No posts found.')),
+                    return SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 24),
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2), width: 1.5),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                                blurRadius: 24,
+                                spreadRadius: 8,
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(32),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.auto_awesome, size: 48, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    'Your feed is empty',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Follow some friends or join a circle to see their updates here.',
+                                    textAlign: TextAlign.center,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     );
                   }
 

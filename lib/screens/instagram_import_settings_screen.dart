@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -66,57 +67,66 @@ class _InstagramImportSettingsScreenState extends State<InstagramImportSettingsS
                   itemCount: _migrationService.availablePosts.length,
                   itemBuilder: (context, index) {
                     final post = _migrationService.availablePosts[index];
-                    return Container(
-                      decoration: BoxDecoration(
-                        color: OasisColors.sage.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: post.isSelected ? OasisColors.glow : Colors.transparent,
-                          width: 2,
+                    return GestureDetector(
+                      onTap: () {
+                        HapticFeedback.lightImpact();
+                        setState(() {
+                          post.isSelected = !post.isSelected;
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: OasisColors.sage.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: post.isSelected ? OasisColors.glow : Colors.transparent,
+                            width: 2,
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                              child: Image.file(post.tempMediaFile, fit: BoxFit.cover),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                                child: Image.file(post.tempMediaFile, fit: BoxFit.cover),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                Row(
-                                  children: [
-                                    Checkbox(
-                                      value: post.isSelected,
-                                      activeColor: OasisColors.glow,
-                                      onChanged: (val) {
-                                        setState(() => post.isSelected = val ?? false);
-                                      },
-                                    ),
-                                    const Expanded(child: Text('Import', style: TextStyle(color: Colors.white, fontSize: 12))),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 32,
-                                  child: TextField(
-                                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                                    decoration: const InputDecoration(
-                                      hintText: 'Circle Name (Optional)',
-                                      hintStyle: TextStyle(color: OasisColors.mist, fontSize: 10),
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                                    ),
-                                    onChanged: (val) => post.targetCircleName = val.trim(),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                        value: post.isSelected,
+                                        activeColor: OasisColors.glow,
+                                        onChanged: (val) {
+                                          HapticFeedback.lightImpact();
+                                          setState(() => post.isSelected = val ?? false);
+                                        },
+                                      ),
+                                      const Expanded(child: Text('Import', style: TextStyle(color: Colors.white, fontSize: 12))),
+                                    ],
                                   ),
-                                ),
-                              ],
+                                  SizedBox(
+                                    height: 32,
+                                    child: TextField(
+                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      decoration: const InputDecoration(
+                                        hintText: 'Circle Name (Optional)',
+                                        hintStyle: TextStyle(color: OasisColors.mist, fontSize: 10),
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                                      ),
+                                      onChanged: (val) => post.targetCircleName = val.trim(),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },

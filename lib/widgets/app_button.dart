@@ -3,7 +3,7 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
-
+import 'package:flutter/services.dart';
 class AppButton extends StatelessWidget {
   final String text;
   final material.VoidCallback? onPressed;
@@ -49,14 +49,21 @@ class AppButton extends StatelessWidget {
     final buttonStyle = _getMaterialButtonStyle(theme, isM3E);
     final buttonChild = _buildMaterialButtonChild(theme);
 
+    final void Function()? wrappedOnPressed = disabled || isLoading || onPressed == null
+        ? null
+        : () {
+            HapticFeedback.lightImpact();
+            onPressed!();
+          };
+
     final button = isOutlined
         ? material.OutlinedButton(
-            onPressed: disabled || isLoading ? null : onPressed,
+            onPressed: wrappedOnPressed,
             style: buttonStyle,
             child: buttonChild,
           )
         : material.ElevatedButton(
-            onPressed: disabled || isLoading ? null : onPressed,
+            onPressed: wrappedOnPressed,
             style: buttonStyle,
             child: buttonChild,
           );
@@ -86,16 +93,23 @@ class AppButton extends StatelessWidget {
             ],
           );
 
+    final void Function()? wrappedOnPressed = disabled || isLoading || onPressed == null
+        ? null
+        : () {
+            HapticFeedback.lightImpact();
+            onPressed!();
+          };
+
     Widget button;
 
     if (isOutlined) {
       button = fluent.Button(
-        onPressed: disabled || isLoading ? null : onPressed,
+        onPressed: wrappedOnPressed,
         child: child,
       );
     } else {
       button = fluent.FilledButton(
-        onPressed: disabled || isLoading ? null : onPressed,
+        onPressed: wrappedOnPressed,
         child: child,
       );
     }
