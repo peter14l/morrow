@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dart';
 import 'package:oasis/widgets/app_button.dart';
+import 'package:oasis/widgets/custom_text_field.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -21,6 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _identifierController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _identifierFocus = FocusNode();
+  final _passwordFocus = FocusNode();
   bool _isLoggingIn = false;
   bool _isResettingPassword = false;
   bool _showPasswordField = false;
@@ -30,6 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _identifierController.dispose();
     _passwordController.dispose();
+    _identifierFocus.dispose();
+    _passwordFocus.dispose();
     super.dispose();
   }
 
@@ -250,6 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final authProvider = context.watch<AuthProvider>();
     final accounts = authProvider.registeredAccounts;
 
@@ -366,24 +372,22 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 48.0),
 
               // Email Field - Always visible
-              TextFormField(
+              CustomTextField(
                 controller: _identifierController,
-                decoration: InputDecoration(
-                  labelText: 'Username or Email',
-                  prefixIcon: const Icon(Icons.person_outline),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: _emailSubmitted
-                      ? IconButton(
-                          icon: const Icon(Icons.edit_outlined, size: 20),
-                          onPressed: () {
-                            setState(() {
-                              _emailSubmitted = false;
-                              _showPasswordField = false;
-                            });
-                          },
-                        )
-                      : null,
-                ),
+                focusNode: _identifierFocus,
+                hint: 'Username or Email',
+                prefixIcon: Icons.person_outline,
+                suffixIcon: _emailSubmitted
+                    ? IconButton(
+                        icon: Icon(Icons.edit_outlined, size: 20, color: colorScheme.onSurface.withValues(alpha: 0.7)),
+                        onPressed: () {
+                          setState(() {
+                            _emailSubmitted = false;
+                            _showPasswordField = false;
+                          });
+                        },
+                      )
+                    : null,
                 readOnly: _emailSubmitted,
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.next,
@@ -412,20 +416,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         key: const ValueKey('auth_options_column'),
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextFormField(
+                          CustomTextField(
                             controller: _passwordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Password',
-                              prefixIcon: Icon(Icons.lock_outline),
-                              border: OutlineInputBorder(),
-                            ),
+                            focusNode: _passwordFocus,
+                            hint: 'Password',
+                            prefixIcon: Icons.lock_outline,
                             obscureText: true,
                             textInputAction: TextInputAction.done,
                             onFieldSubmitted: (_) =>
                                 _loginWithEmailAndPassword(),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Please enter your password';
+                                  return 'Please enter your password';
                               }
                               if (value.length < 6) {
                                 return 'Password must be at least 6 characters';

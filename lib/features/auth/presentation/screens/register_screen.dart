@@ -284,7 +284,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                    color: colorScheme.onSurfaceVariant,
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   onPressed: () {
                     setState(() {
@@ -307,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               // --- Terms and Conditions Checkbox ---
               material.Theme(
                 data: theme.copyWith(
-                  unselectedWidgetColor: colorScheme.onSurfaceVariant,
+                  unselectedWidgetColor: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
                 child: CheckboxListTile(
                   value: _hasAcceptedTerms,
@@ -317,13 +317,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   contentPadding: EdgeInsets.zero,
                   activeColor: colorScheme.primary,
                   title: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
-                      const Text(
+                      Text(
                         'I agree to the ',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withValues(alpha: 0.85),
+                          fontSize: 13,
+                        ),
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/terms'),
+                        onTap: () => context.push('/terms-of-service'),
                         child: Text(
                           'Terms of Service',
                           style: TextStyle(
@@ -334,12 +338,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                       ),
-                      const Text(
+                      Text(
                         ' and ',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
+                        style: TextStyle(
+                          color: colorScheme.onSurface.withValues(alpha: 0.85),
+                          fontSize: 13,
+                        ),
                       ),
                       GestureDetector(
-                        onTap: () => context.push('/privacy'),
+                        onTap: () => context.push('/privacy-policy'),
                         child: Text(
                           'Privacy Policy',
                           style: TextStyle(
@@ -375,9 +382,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text(
+                    Text(
                       'Already have an account? ',
-                      style: TextStyle(color: Color(0xFF9DA6B9), fontSize: 14),
+                      style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.65), fontSize: 14),
                     ),
                     TextButton(
                       onPressed: _isLoading ? null : () => context.go('/login'),
@@ -386,10 +393,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         minimumSize: Size.zero,
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      child: const Text(
+                      child: Text(
                         'Sign in',
                         style: TextStyle(
-                          color: Color(0xFF1152D4),
+                          color: colorScheme.primary,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
                           decoration: TextDecoration.underline,

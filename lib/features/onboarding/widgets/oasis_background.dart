@@ -69,6 +69,13 @@ class _OasisBackgroundState extends State<OasisBackground>
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF0C0F14),
+        body: widget.child ?? const SizedBox(),
+      );
+    }
+
     return Scaffold(
       backgroundColor: OasisColors.deep,
       body: Stack(
@@ -106,36 +113,37 @@ class _OasisBackgroundState extends State<OasisBackground>
             },
           ),
 
-          // Particles
-          ...List.generate(24, (index) {
-            final random = math.Random(index);
-            final left = random.nextDouble() * 1.0;
-            final top = random.nextDouble() * 1.0;
-            return AnimatedBuilder(
-              animation: _particleControllers[index],
-              builder: (context, child) {
-                final ty =
-                    math.sin(_particleControllers[index].value * 2 * math.pi) *
-                    30;
-                return Align(
-                  alignment: Alignment(left * 2 - 1, top * 2 - 1),
-                  child: Transform.translate(
-                    offset: Offset(0, ty),
-                    child: Container(
-                      width: 2,
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: OasisColors.glow.withOpacity(
-                          0.15 + random.nextDouble() * 0.2,
+          // Particles (disabled on Web to prevent GPU/CPU lag)
+          if (!kIsWeb)
+            ...List.generate(24, (index) {
+              final random = math.Random(index);
+              final left = random.nextDouble() * 1.0;
+              final top = random.nextDouble() * 1.0;
+              return AnimatedBuilder(
+                animation: _particleControllers[index],
+                builder: (context, child) {
+                  final ty =
+                      math.sin(_particleControllers[index].value * 2 * math.pi) *
+                      30;
+                  return Align(
+                    alignment: Alignment(left * 2 - 1, top * 2 - 1),
+                    child: Transform.translate(
+                      offset: Offset(0, ty),
+                      child: Container(
+                        width: 2,
+                        height: 2,
+                        decoration: BoxDecoration(
+                          color: OasisColors.glow.withOpacity(
+                            0.15 + random.nextDouble() * 0.2,
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                        shape: BoxShape.circle,
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          }),
+                  );
+                },
+              );
+            }),
 
           if (widget.child != null) widget.child!,
         ],

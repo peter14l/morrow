@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// Responsive layout breakpoints and utilities
 class ResponsiveLayout {
@@ -27,11 +28,13 @@ class ResponsiveLayout {
 
   /// Check if current width is desktop
   static bool isDesktop(BuildContext context) {
-    // Only allow desktop layout on non-mobile platforms
-    final bool isMobilePlatform =
-        Theme.of(context).platform == TargetPlatform.android ||
-        Theme.of(context).platform == TargetPlatform.iOS;
-    if (isMobilePlatform) return false;
+    // Only block desktop layout on native mobile platforms
+    if (!kIsWeb) {
+      final bool isMobilePlatform =
+          Theme.of(context).platform == TargetPlatform.android ||
+          Theme.of(context).platform == TargetPlatform.iOS;
+      if (isMobilePlatform) return false;
+    }
 
     return MediaQuery.of(context).size.width >= tabletBreakpoint;
   }

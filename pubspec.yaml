@@ -170,8 +170,10 @@ msix_config:
   logo_path: assets/images/logo.png
   capabilities: internetClient, location, microphone, webcam
   architecture: x64
-  generate_certificate: true
+  generate_certificate: false
   install_certificate: true
+  certificate_path: certs/oasisapp.pfx
+  certificate_password: 2008
 
 dependency_overrides:
   liquid_glass_renderer:

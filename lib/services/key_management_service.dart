@@ -56,8 +56,11 @@ class KeyManagementService {
     return encrypt.Key(derived);
   }
 
-  /// Derives a secure 32-byte AES key asynchronously using compute().
   Future<encrypt.Key> deriveSecureBackupKeyAsync(String pin, String saltBase64) async {
+    if (kIsWeb) {
+      // Isolates/Web Workers spawned by compute() can fail or have issues on certain Web configurations
+      return deriveSecureBackupKey(pin, saltBase64);
+    }
     final derived = await compute(
       deriveSecureBackupKeyIsolate,
       Argon2DeriveParams(pin, saltBase64),
@@ -161,9 +164,9 @@ Uint8List deriveSecureBackupKeyIsolate(Argon2DeriveParams params) {
     Argon2Parameters.ARGON2_id,
     salt,
     version: Argon2Parameters.ARGON2_VERSION_13,
-    iterations: kIsWeb ? 1 : 3,
-    memoryPowerOf2: kIsWeb ? 12 : 15, // 32MB on mobile, 4MB on web
-    lanes: kIsWeb ? 1 : 2,
+    iterations: 2,
+    memoryPowerOf2: 12, // 4MB key derivation is fast on web and secure on native
+    lanes: 1,
     desiredKeyLength: 32,
   );
 

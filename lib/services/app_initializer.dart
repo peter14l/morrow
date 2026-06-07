@@ -42,6 +42,8 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/storage/hive_service.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/services/wellness_service.dart';
+import 'package:oasis/services/study_session_service.dart';
+import 'package:oasis/features/wellness/presentation/providers/study_session_provider.dart';
 import 'package:oasis/services/curation_tracking_service.dart';
 import 'package:oasis/services/voice_transcript_service.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
@@ -566,8 +568,14 @@ class AppInitializer {
         ChangeNotifierProvider<CustomizationService>(
           create: (_) => CustomizationService(),
         ),
-        ChangeNotifierProvider<PrivacyAdService>(
+         ChangeNotifierProvider<PrivacyAdService>(
           create: (_) => PrivacyAdService(),
+        ),
+        ChangeNotifierProvider<StudySessionService>(
+          create: (_) => StudySessionService(),
+        ),
+        ChangeNotifierProvider<StudySessionProvider>(
+          create: (context) => StudySessionProvider(context.read<StudySessionService>()),
         ),
         ChangeNotifierProvider<IAPService>.value(value: services.iapService),
         ChangeNotifierProvider<RevenueCatService>.value(

@@ -659,12 +659,50 @@ class _FeedScreenState extends State<FeedScreen>
       );
     }
 
+    final disableTransparency = context.read<ThemeProvider>().isM3ETransparencyDisabled;
+
+    final content = Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 16,
+          ),
+          height: 80,
+          child: Row(
+            children: [
+              Text(
+                'Comments',
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => setState(() => _showCommentPane = false),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        Expanded(
+          child: CommentsModal(
+            postId: _selectedPostId!,
+            isSidePane: true,
+          ),
+        ),
+      ],
+    );
+
     return Container(
       width: 450,
       decoration: BoxDecoration(
         color: isM3E
             ? colorScheme.surfaceContainer
-            : colorScheme.surface.withValues(alpha: 0.4),
+            : disableTransparency
+                ? colorScheme.surface
+                : colorScheme.surface.withValues(alpha: 0.4),
         borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
         border: isM3E
             ? Border.all(
@@ -675,42 +713,12 @@ class _FeedScreenState extends State<FeedScreen>
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 16,
-                ),
-                height: 80,
-                child: Row(
-                  children: [
-                    Text(
-                      'Comments',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.close_rounded),
-                      onPressed: () => setState(() => _showCommentPane = false),
-                    ),
-                  ],
-                ),
+        child: disableTransparency
+            ? content
+            : BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: content,
               ),
-              const Divider(height: 1),
-              Expanded(
-                child: CommentsModal(
-                  postId: _selectedPostId!,
-                  isSidePane: true,
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

@@ -96,7 +96,6 @@ class IncomingCallOverlayScreen extends StatelessWidget {
                                 child: const material.Icon(
                                   material.Icons.call_end,
                                   color: material.Colors.white,
-                                animateRange: null,
                                 ),
                               ),
                               const material.SizedBox(height: 12),

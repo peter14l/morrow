@@ -99,11 +99,13 @@ class CustomTextField extends StatelessWidget {
     final effectiveFillColor =
         fillColor ??
         (isM3E
-            ? colorScheme.primary.withValues(alpha: 0.05)
+            ? (theme.brightness == material.Brightness.dark
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.15)
+                : colorScheme.primary.withValues(alpha: 0.08))
             : theme.inputDecorationTheme.fillColor);
     final effectiveTextColor = textColor ?? colorScheme.onSurface;
     final effectiveHintColor =
-        hintColor ?? colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+        hintColor ?? colorScheme.onSurface.withValues(alpha: 0.55);
     final effectiveRadius = borderRadius ?? (isM3E ? 24.0 : 16.0);
 
     return Container(

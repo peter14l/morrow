@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as material;
 import 'package:provider/provider.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/services/wellness_service.dart';
@@ -6,6 +7,7 @@ import 'package:oasis/features/profile/presentation/providers/profile_provider.d
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:ui';
+import 'package:oasis/features/wellness/presentation/screens/study_sessions_hub_screen.dart';
 
 class WellnessCenterScreen extends StatelessWidget {
   const WellnessCenterScreen({super.key});
@@ -528,6 +530,24 @@ class WellnessCenterScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
+          _buildListTile(
+            context,
+            'Study Sessions',
+            'Focus with your community',
+            Icons.menu_book_rounded,
+            Colors.teal,
+            () => Navigator.push(
+              context,
+              material.MaterialPageRoute(
+                builder: (context) => const StudySessionsHubScreen(),
+              ),
+            ),
+          ),
+          Divider(
+            height: 1,
+            indent: 70,
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+          ),
           _buildListTile(
             context,
             'Digital Badges',
