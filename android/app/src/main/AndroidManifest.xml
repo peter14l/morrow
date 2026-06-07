@@ -8,7 +8,7 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true"
-        android:extractNativeLibs="false"
+        android:extractNativeLibs="true"
         tools:replace="android:allowBackup,android:extractNativeLibs"
         tools:targetApi="33">
         
