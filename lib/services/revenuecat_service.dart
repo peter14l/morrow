@@ -28,9 +28,15 @@ class RevenueCatService extends ChangeNotifier {
 
     String? apiKey;
     if (Platform.isAndroid) {
-      apiKey = dotenv.env['REVENUECAT_GOOGLE_API_KEY'];
+      apiKey = const String.fromEnvironment('REVENUECAT_GOOGLE_API_KEY');
+      if (apiKey.isEmpty && dotenv.isInitialized) {
+        apiKey = dotenv.env['REVENUECAT_GOOGLE_API_KEY'];
+      }
     } else if (Platform.isIOS || Platform.isMacOS) {
-      apiKey = dotenv.env['REVENUECAT_APPLE_API_KEY'];
+      apiKey = const String.fromEnvironment('REVENUECAT_APPLE_API_KEY');
+      if (apiKey.isEmpty && dotenv.isInitialized) {
+        apiKey = dotenv.env['REVENUECAT_APPLE_API_KEY'];
+      }
     }
 
     if (apiKey == null || apiKey.isEmpty) {

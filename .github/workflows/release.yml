@@ -80,6 +80,8 @@ jobs:
           echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
           echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          echo "REVENUECAT_GOOGLE_API_KEY=${{ secrets.REVENUECAT_GOOGLE_API_KEY }}" >> .env
+          echo "REVENUECAT_APPLE_API_KEY=${{ secrets.REVENUECAT_APPLE_API_KEY }}" >> .env
 
       - name: Decode Keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore

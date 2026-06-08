@@ -11,7 +11,7 @@ class AppConfig {
   static String appVersion = '0.0.0';
 
   /// If false, calling features are disabled (e.g. during major platform stability fixes)
-  static bool enableCalls = true;
+  static bool enableCalls = false;
 
   /// If true, the first-party privacy-preserving contextual ad engine is active.
   /// Ads are matched locally on-device — no user data is ever sent to ad servers.

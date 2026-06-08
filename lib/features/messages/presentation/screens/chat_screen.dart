@@ -1170,7 +1170,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                     ),
 
                     // Floating Call Overlay (Minimized Call)
-                    const FloatingCallOverlay(),
+                    // const FloatingCallOverlay(),
 
                     // Vault Lock Overlay
                     if (_vaultService.isInVaultSync(widget.conversationId) &&

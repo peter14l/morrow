@@ -597,7 +597,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                         if (Platform.isWindows)
                           const WindowsTitleBar(height: 32),
-                        const FloatingCallOverlay(),
+                        // const FloatingCallOverlay(),
                       ],
                     ),
                   );
@@ -648,7 +648,7 @@ class _MyAppState extends State<MyApp> {
                       ),
                     ),
                     if (Platform.isWindows) const WindowsTitleBar(height: 32),
-                    const FloatingCallOverlay(),
+                    // const FloatingCallOverlay(),
                   ],
                 );
               },
