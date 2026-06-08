@@ -5,6 +5,7 @@
         android:label="Oasis"
         android:name="android.app.Application"
         android:icon="@mipmap/ic_launcher"
+        android:extractNativeLibs="true"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true"
