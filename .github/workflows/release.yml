@@ -217,11 +217,7 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Prepare macOS Pods
-        run: |
-          cd macos
-          pod install
-          cd ..
+
 
       - name: Create .env from secrets
         run: |
