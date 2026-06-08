@@ -147,6 +147,9 @@ jobs:
       - name: Precache iOS artifacts
         run: flutter precache --ios
 
+      - name: Disable Swift Package Manager (Force CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
       - name: Install dependencies
         run: flutter pub get
 
@@ -213,6 +216,9 @@ jobs:
 
       - name: Precache macOS artifacts
         run: flutter precache --macos
+
+      - name: Disable Swift Package Manager (Force CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
 
       - name: Install dependencies
         run: flutter pub get
