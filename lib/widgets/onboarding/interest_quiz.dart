@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
+import 'package:flutter/widgets.dart';
 import 'package:oasis/core/utils/haptic_utils.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -270,8 +271,8 @@ class _InterestDiscoveryQuizState extends State<InterestDiscoveryQuiz> {
           child: useFluent
               ? fluent.PipsPager(
                   numberOfPages: 2,
-                  currentIndex: _currentStep,
-                  onPageChanged: (index) =>
+                  selectedPageIndex: _currentStep,
+                  onPageIndexChanged: (index) =>
                       setState(() => _currentStep = index),
                 )
               : material.Row(

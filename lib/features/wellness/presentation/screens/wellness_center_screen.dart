@@ -204,13 +204,10 @@ class WellnessCenterScreen extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           if (isActive) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: wellness.focusProgress,
-                minHeight: 8,
-                backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-              ),
+            GlowingProgressIndicator(
+              value: wellness.focusProgress,
+              color: colorScheme.primary,
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
             ),
             const SizedBox(height: 16),
             Row(
@@ -490,11 +487,23 @@ class WellnessCenterScreen extends StatelessWidget {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          CircularProgressIndicator(
-                            value: wellness.zenProgress,
-                            strokeWidth: 4,
-                            color: color,
-                            backgroundColor: color.withValues(alpha: 0.2),
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: color.withValues(alpha: 0.3),
+                                  blurRadius: 10,
+                                  spreadRadius: 1,
+                                ),
+                              ],
+                            ),
+                            child: CircularProgressIndicator(
+                              value: wellness.zenProgress,
+                              strokeWidth: 4,
+                              color: color,
+                              backgroundColor: color.withValues(alpha: 0.2),
+                            ),
                           ),
                           Icon(
                             Icons.self_improvement_rounded,
@@ -650,3 +659,53 @@ class WellnessCenterScreen extends StatelessWidget {
     );
   }
 }
+
+class GlowingProgressIndicator extends StatelessWidget {
+  final double value;
+  final Color color;
+  final Color backgroundColor;
+  final double height;
+
+  const GlowingProgressIndicator({
+    super.key,
+    required this.value,
+    required this.color,
+    required this.backgroundColor,
+    this.height = 8.0,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(height / 2),
+      ),
+      child: FractionallySizedBox(
+        alignment: Alignment.centerLeft,
+        widthFactor: value.clamp(0.0, 1.0),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(height / 2),
+            gradient: LinearGradient(
+              colors: [
+                color.withValues(alpha: 0.7),
+                color,
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.5),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+

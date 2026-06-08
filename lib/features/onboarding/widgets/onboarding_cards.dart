@@ -90,15 +90,32 @@ class TimeCapsuleCard extends StatelessWidget {
                 height: 28,
                 child: Stack(
                   children: List.generate(3, (index) {
+                    final initials = ['EM', 'TL', 'KA'];
+                    final colors = [
+                      Colors.teal.shade700,
+                      Colors.orange.shade800,
+                      Colors.indigo.shade700
+                    ];
                     return Positioned(
                       left: index * 16.0,
                       child: Container(
                         width: 28,
                         height: 28,
                         decoration: BoxDecoration(
-                          color: OasisColors.moss,
+                          color: colors[index],
                           shape: BoxShape.circle,
-                          border: Border.all(color: OasisColors.sage, width: 1),
+                          border: Border.all(color: OasisColors.sage, width: 1.5),
+                        ),
+                        child: Center(
+                          child: Text(
+                            initials[index],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 9,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
                       ),
                     );

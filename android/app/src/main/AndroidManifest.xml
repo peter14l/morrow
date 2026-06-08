@@ -8,8 +8,7 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true"
-        android:extractNativeLibs="true"
-        tools:replace="android:allowBackup,android:extractNativeLibs"
+        tools:replace="android:allowBackup"
         tools:targetApi="33">
         
         <!-- Default notification channel for FCM when app is closed -->

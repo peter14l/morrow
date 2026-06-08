@@ -154,63 +154,188 @@ class _ShopScreenState extends State<ShopScreen> {
     ThemeData theme,
   ) {
     final categoryItems = _items.where((i) => i.category == category).toList();
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = width > 800 ? 3 : (width > 600 ? 2 : 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+          child: Text(
+            title,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
           ),
         ),
-        const SizedBox(height: 12),
-        ...categoryItems.map((item) {
-          final isOwned = service.hasItem(item.id);
-          final isActive = service.isItemActive(item.id);
+        const SizedBox(height: 16),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: categoryItems.length,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 16,
+            mainAxisExtent: 200,
+          ),
+          itemBuilder: (context, index) {
+            final item = categoryItems[index];
+            final isOwned = service.hasItem(item.id);
+            final isActive = service.isItemActive(item.id);
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: theme.colorScheme.primaryContainer,
-                child: Icon(item.icon, color: theme.colorScheme.primary),
+            Color accentColor;
+            if (category == 'theme') {
+              accentColor = Colors.purpleAccent;
+            } else if (category == 'boost') {
+              accentColor = Colors.pinkAccent;
+            } else {
+              accentColor = Colors.blueAccent;
+            }
+
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surfaceContainerHigh,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isActive
+                      ? accentColor
+                      : theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+                  width: isActive ? 2 : 1,
+                ),
+                boxShadow: [
+                  if (isActive)
+                    BoxShadow(
+                      color: accentColor.withValues(alpha: 0.25),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                    ),
+                ],
               ),
-              title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: Text(item.description),
-              trailing: SizedBox(
-                width: 100,
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: isOwned
-                      ? (item.category == 'theme'
-                          ? TextButton(
-                              onPressed: () {
-                                service.activateItem(item.id, item.category);
-                                CustomSnackbar.showSuccess(
-                                    context, 'Aura theme activated!');
-                              },
-                              child: Text(isActive ? 'Active' : 'Equip'),
-                            )
-                          : const Text('Owned', style: TextStyle(color: Colors.green)))
-                      : ElevatedButton(
-                          onPressed: () async {
-                            final success = await service.purchaseItem(item.id, item.category);
-                            if (success && mounted) {
-                              CustomSnackbar.showSuccess(
-                                  context, 'Thank you! Purchased ${item.name}');
-                            }
-                          },
-                          child: Text(item.price),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(24),
+                  onTap: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: accentColor.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                item.icon,
+                                color: accentColor,
+                                size: 24,
+                              ),
+                            ),
+                            if (isActive)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: accentColor.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  'ACTIVE',
+                                  style: TextStyle(
+                                    color: accentColor,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
+                        const Spacer(),
+                        Text(
+                          item.name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          item.description,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const Spacer(),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 36,
+                          child: isOwned
+                              ? (item.category == 'theme'
+                                  ? OutlinedButton(
+                                      onPressed: () {
+                                        service.activateItem(item.id, item.category);
+                                        CustomSnackbar.showSuccess(
+                                            context, 'Aura theme activated!');
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
+                                      ),
+                                      child: Text(isActive ? 'Active' : 'Equip'),
+                                    )
+                                  : Center(
+                                      child: Text(
+                                        'Owned',
+                                        style: TextStyle(
+                                          color: Colors.green.shade600,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ))
+                              : ElevatedButton(
+                                  onPressed: () async {
+                                    final success = await service.purchaseItem(item.id, item.category);
+                                    if (success && mounted) {
+                                      CustomSnackbar.showSuccess(
+                                          context, 'Thank you! Purchased ${item.name}');
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: theme.colorScheme.primary,
+                                    foregroundColor: theme.colorScheme.onPrimary,
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: Text(item.price),
+                                ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ],
     );
   }

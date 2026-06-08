@@ -121,12 +121,13 @@ class _OnboardingShellState extends State<OnboardingShell> {
                       SmoothPageIndicator(
                         controller: _pageController,
                         count: 7,
-                        effect: const WormEffect(
+                        effect: const ExpandingDotsEffect(
                           activeDotColor: OasisColors.glow,
                           dotColor: OasisColors.sage,
                           dotHeight: 6,
                           dotWidth: 6,
-                          spacing: 8,
+                          expansionFactor: 3,
+                          spacing: 6,
                         ),
                       ),
                       const Spacer(),

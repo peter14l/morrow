@@ -44,11 +44,25 @@ class LockoutOverlay extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: colorScheme.error.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: colorScheme.error.withValues(alpha: 0.15),
+                            blurRadius: 16,
+                            spreadRadius: 2,
+                          ),
+                        ],
                       ),
                       child: Icon(
                         Icons.lock_clock_rounded,
                         color: colorScheme.error,
                         size: 48,
+                      ).animate(
+                        onPlay: (controller) => controller.repeat(reverse: true),
+                      ).scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1.1, 1.1),
+                        duration: 1200.ms,
+                        curve: Curves.easeInOut,
                       ),
                     ),
                     const SizedBox(height: 24),
