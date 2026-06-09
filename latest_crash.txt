@@ -1,0 +1,761 @@
+﻿--------- beginning of crash
+06-09 00:22:08.592   731   731 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 731 (com.oasis.app), pid 731 (com.oasis.app)
+06-09 00:22:10.045   899   899 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:22:10.045   899   899 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:22:10.045   899   899 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:22:10.045   899   899 F DEBUG   : Revision: '4'
+06-09 00:22:10.045   899   899 F DEBUG   : ABI: 'arm64'
+06-09 00:22:10.045   899   899 F DEBUG   : Processor: '7'
+06-09 00:22:10.045   899   899 F DEBUG   : Timestamp: 2026-06-09 00:22:08.831828854+0530
+06-09 00:22:10.045   899   899 F DEBUG   : Process uptime: 2s
+06-09 00:22:10.045   899   899 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:22:10.045   899   899 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:22:10.045   899   899 F DEBUG   : pid: 731, tid: 731, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:22:10.045   899   899 F DEBUG   : uid: 10811
+06-09 00:22:10.045   899   899 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:22:10.045   899   899 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:22:10.045   899   899 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:22:10.045   899   899 F DEBUG   : Cause: null pointer dereference
+06-09 00:22:10.045   899   899 F DEBUG   :     x0  0000000000000000  x1  0000006e621df0d8  x2  000000724b5c1804  x3  0000007fd3ac33d8
+06-09 00:22:10.045   899   899 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:22:10.045   899   899 F DEBUG   :     x8  c254420e8bb33369  x9  c254420e8bb33369  x10 000000724b5c1b7c  x11 0000000000058006
+06-09 00:22:10.045   899   899 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 00000000069833b6  x15 0000067bd3accd5c
+06-09 00:22:10.045   899   899 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b40000705031b080
+06-09 00:22:10.045   899   899 F DEBUG   :     x20 0000007fd3ac3f00  x21 b400007110355920  x22 b4000071103565b0  x23 b400007110356250
+06-09 00:22:10.045   899   899 F DEBUG   :     x24 b400007110355920  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:22:10.045   899   899 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:22:10.045   899   899 F DEBUG   :     lr  0000006e61b744a8  sp  0000007fd3ac3750  pc  0000006e61b744b0  pst 0000000060001000
+06-09 00:22:10.045   899   899 F DEBUG   :     esr 0000000092000006
+06-09 00:22:10.045   899   899 F DEBUG   : 66 total frames
+06-09 00:22:10.045   899   899 F DEBUG   : backtrace:
+06-09 00:22:10.045   899   899 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/base.apk!libflutter.so (offset 0xe38000) (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:22:10.045   899   899 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:22:10.045   899   899 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:22:10.045   899   899 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:22:10.045   899   899 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:22:10.045   899   899 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:22:10.045   899   899 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:22:10.045   899   899 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:22:10.045   899   899 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:22:10.045   899   899 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:22:10.045   899   899 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:22:10.045   899   899 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:22:10.045   899   899 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:22:10.045   899   899 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:22:10.045   899   899 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:22:10.045   899   899 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:22:10.045   899   899 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:22:10.045   899   899 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:22:10.045   899   899 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:22:10.045   899   899 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:22:10.045   899   899 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.045   899   899 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:22:10.046   899   899 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:22:10.046   899   899 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:22:10.046   899   899 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:22:10.046   899   899 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:22:10.046   899   899 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:22:10.046   899   899 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:22:10.046   899   899 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:22:10.046   899   899 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:22:10.046   899   899 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:22:10.046   899   899 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:22:10.046   899   899 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:22:10.046   899   899 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:22:10.046   899   899 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:22:10.046   899   899 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:22:10.046   899   899 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:22:10.046   899   899 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.046   899   899 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:10.046   899   899 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:10.046   899   899 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:22:10.046   899   899 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:22:10.477   981   981 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 981 (com.oasis.app), pid 981 (com.oasis.app)
+06-09 00:22:10.961  1061  1061 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:22:10.961  1061  1061 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:22:10.961  1061  1061 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:22:10.961  1061  1061 F DEBUG   : Revision: '4'
+06-09 00:22:10.961  1061  1061 F DEBUG   : ABI: 'arm64'
+06-09 00:22:10.961  1061  1061 F DEBUG   : Processor: '7'
+06-09 00:22:10.961  1061  1061 F DEBUG   : Timestamp: 2026-06-09 00:22:10.584404583+0530
+06-09 00:22:10.961  1061  1061 F DEBUG   : Process uptime: 1s
+06-09 00:22:10.961  1061  1061 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:22:10.961  1061  1061 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:22:10.961  1061  1061 F DEBUG   : pid: 981, tid: 981, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:22:10.961  1061  1061 F DEBUG   : uid: 10811
+06-09 00:22:10.961  1061  1061 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:22:10.961  1061  1061 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:22:10.961  1061  1061 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:22:10.961  1061  1061 F DEBUG   : Cause: null pointer dereference
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x0  0000000000000000  x1  0000006e68fd40d8  x2  000000724b5c3a84  x3  0000007fd3ac33d8
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x8  07878fcd1a1679a0  x9  07878fcd1a1679a0  x10 000000724b5c3ddc  x11 0000000000058006
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006983766  x15 0000067bd6996e03
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b400007050314e40
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x20 0000007fd3ac3f00  x21 b400007110350070  x22 b40000711034c440  x23 b400007110354b10
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x24 b400007110350070  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:22:10.961  1061  1061 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:22:10.961  1061  1061 F DEBUG   :     lr  0000006e689694a8  sp  0000007fd3ac3750  pc  0000006e689694b0  pst 0000000060001000
+06-09 00:22:10.961  1061  1061 F DEBUG   :     esr 0000000092000006
+06-09 00:22:10.961  1061  1061 F DEBUG   : 66 total frames
+06-09 00:22:10.961  1061  1061 F DEBUG   : backtrace:
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/base.apk!libflutter.so (offset 0xe38000) (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:22:10.961  1061  1061 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:22:10.962  1061  1061 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:22:45.226  3975  3975 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 3975 (com.oasis.app), pid 3975 (com.oasis.app)
+06-09 00:22:46.304  4066  4066 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:22:46.304  4066  4066 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:22:46.304  4066  4066 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:22:46.304  4066  4066 F DEBUG   : Revision: '4'
+06-09 00:22:46.304  4066  4066 F DEBUG   : ABI: 'arm64'
+06-09 00:22:46.304  4066  4066 F DEBUG   : Processor: '4'
+06-09 00:22:46.304  4066  4066 F DEBUG   : Timestamp: 2026-06-09 00:22:45.360263443+0530
+06-09 00:22:46.304  4066  4066 F DEBUG   : Process uptime: 1s
+06-09 00:22:46.304  4066  4066 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:22:46.304  4066  4066 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:22:46.304  4066  4066 F DEBUG   : pid: 3975, tid: 3975, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:22:46.304  4066  4066 F DEBUG   : uid: 10811
+06-09 00:22:46.304  4066  4066 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:22:46.304  4066  4066 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:22:46.304  4066  4066 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:22:46.304  4066  4066 F DEBUG   : Cause: null pointer dereference
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x0  0000000000000000  x1  0000006e63d820d8  x2  000000724b5c4bc4  x3  0000007fd3ac33d8
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x8  3867de5a0ef7f485  x9  3867de5a0ef7f485  x10 000000724b5c4f40  x11 0000000000058006
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006987b36  x15 0000067c0c721bfd
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b40000705031a850
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x20 0000007fd3ac3f00  x21 b4000071103536d0  x22 b400007110354de0  x23 b400007110354d50
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x24 b4000071103536d0  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:22:46.304  4066  4066 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:22:46.304  4066  4066 F DEBUG   :     lr  0000006e637174a8  sp  0000007fd3ac3750  pc  0000006e637174b0  pst 0000000060001000
+06-09 00:22:46.304  4066  4066 F DEBUG   :     esr 0000000092000006
+06-09 00:22:46.304  4066  4066 F DEBUG   : 66 total frames
+06-09 00:22:46.304  4066  4066 F DEBUG   : backtrace:
+06-09 00:22:46.304  4066  4066 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/base.apk!libflutter.so (offset 0xe38000) (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:22:46.304  4066  4066 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:22:46.305  4066  4066 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:22:46.306  4066  4066 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:22:51.316  4258  4258 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 4258 (com.oasis.app), pid 4258 (com.oasis.app)
+06-09 00:22:51.661  4358  4358 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:22:51.661  4358  4358 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:22:51.661  4358  4358 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:22:51.661  4358  4358 F DEBUG   : Revision: '4'
+06-09 00:22:51.661  4358  4358 F DEBUG   : ABI: 'arm64'
+06-09 00:22:51.661  4358  4358 F DEBUG   : Processor: '7'
+06-09 00:22:51.661  4358  4358 F DEBUG   : Timestamp: 2026-06-09 00:22:51.379207400+0530
+06-09 00:22:51.661  4358  4358 F DEBUG   : Process uptime: 1s
+06-09 00:22:51.661  4358  4358 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:22:51.661  4358  4358 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:22:51.661  4358  4358 F DEBUG   : pid: 4258, tid: 4258, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:22:51.661  4358  4358 F DEBUG   : uid: 10811
+06-09 00:22:51.661  4358  4358 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:22:51.661  4358  4358 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:22:51.661  4358  4358 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:22:51.661  4358  4358 F DEBUG   : Cause: null pointer dereference
+06-09 00:22:51.661  4358  4358 F DEBUG   :     x0  0000000000000000  x1  0000006e65dc80d8  x2  000000724b5c7f84  x3  0000007fd3ac33d8
+06-09 00:22:51.661  4358  4358 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x8  23c62748a078f3bc  x9  23c62748a078f3bc  x10 000000724b5c8300  x11 0000000000058006
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006988708  x15 0000067c15e3557c
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b400007050312d80
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x20 0000007fd3ac3f00  x21 b400007110357d20  x22 b4000071103598e0  x23 b400007110350f10
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x24 b400007110357d20  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:22:51.662  4358  4358 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:22:51.662  4358  4358 F DEBUG   :     lr  0000006e6575d4a8  sp  0000007fd3ac3750  pc  0000006e6575d4b0  pst 0000000060001000
+06-09 00:22:51.662  4358  4358 F DEBUG   :     esr 0000000092000006
+06-09 00:22:51.662  4358  4358 F DEBUG   : 66 total frames
+06-09 00:22:51.662  4358  4358 F DEBUG   : backtrace:
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/base.apk!libflutter.so (offset 0xe38000) (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:22:51.662  4358  4358 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:22:51.663  4358  4358 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:22:56.398  4450  4450 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 4450 (com.oasis.app), pid 4450 (com.oasis.app)
+06-09 00:22:56.757  4510  4510 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:22:56.757  4510  4510 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:22:56.757  4510  4510 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:22:56.757  4510  4510 F DEBUG   : Revision: '4'
+06-09 00:22:56.757  4510  4510 F DEBUG   : ABI: 'arm64'
+06-09 00:22:56.757  4510  4510 F DEBUG   : Processor: '4'
+06-09 00:22:56.757  4510  4510 F DEBUG   : Timestamp: 2026-06-09 00:22:56.480805935+0530
+06-09 00:22:56.757  4510  4510 F DEBUG   : Process uptime: 1s
+06-09 00:22:56.757  4510  4510 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:22:56.757  4510  4510 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:22:56.757  4510  4510 F DEBUG   : pid: 4450, tid: 4450, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:22:56.757  4510  4510 F DEBUG   : uid: 10811
+06-09 00:22:56.757  4510  4510 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:22:56.757  4510  4510 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:22:56.757  4510  4510 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:22:56.757  4510  4510 F DEBUG   : Cause: null pointer dereference
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x0  0000000000000000  x1  0000006e643910d8  x2  000000724b5c1804  x3  0000007fd3ac33d8
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x8  6fe2387c2b978ddd  x9  6fe2387c2b978ddd  x10 000000724b5c1b84  x11 0000000000058006
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006989052  x15 0000067c1dc39232
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b40000705030bae0
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x20 0000007fd3ac3f00  x21 b4000071103543f0  x22 b400007110353d00  x23 b400007110357bd0
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x24 b4000071103543f0  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:22:56.757  4510  4510 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:22:56.757  4510  4510 F DEBUG   :     lr  0000006e63d264a8  sp  0000007fd3ac3750  pc  0000006e63d264b0  pst 0000000060001000
+06-09 00:22:56.757  4510  4510 F DEBUG   :     esr 0000000092000006
+06-09 00:22:56.757  4510  4510 F DEBUG   : 66 total frames
+06-09 00:22:56.757  4510  4510 F DEBUG   : backtrace:
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/base.apk!libflutter.so (offset 0xe38000) (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.757  4510  4510 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ZYGpgwKzjBmd8U2QZ9Lksw==/com.oasis.app-JHGcDdToSnIwitWZQXXV4g==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:22:56.758  4510  4510 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:53:29.176  1446  1446 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 1446 (com.oasis.app), pid 1446 (com.oasis.app)
+06-09 00:53:30.835  1732  1732 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:53:30.836  1732  1732 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:53:30.836  1732  1732 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:53:30.836  1732  1732 F DEBUG   : Revision: '4'
+06-09 00:53:30.836  1732  1732 F DEBUG   : ABI: 'arm64'
+06-09 00:53:30.836  1732  1732 F DEBUG   : Processor: '4'
+06-09 00:53:30.836  1732  1732 F DEBUG   : Timestamp: 2026-06-09 00:53:29.361232047+0530
+06-09 00:53:30.836  1732  1732 F DEBUG   : Process uptime: 2s
+06-09 00:53:30.836  1732  1732 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:53:30.836  1732  1732 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:53:30.836  1732  1732 F DEBUG   : pid: 1446, tid: 1446, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:53:30.836  1732  1732 F DEBUG   : uid: 10811
+06-09 00:53:30.836  1732  1732 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:53:30.836  1732  1732 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:53:30.836  1732  1732 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:53:30.836  1732  1732 F DEBUG   : Cause: null pointer dereference
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x0  0000000000000000  x1  0000006e6033a0d8  x2  000000724b5c1804  x3  0000007fd3ac33d8
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x8  307b5077bdbd85cb  x9  307b5077bdbd85cb  x10 000000724b5c1b80  x11 0000000000058006
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006a679e4  x15 00000687360e9d98
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b40000705030bae0
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x20 0000007fd3ac3f00  x21 b40000711034e6f0  x22 b400007110356820  x23 b400007110353970
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x24 b40000711034e6f0  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:53:30.836  1732  1732 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:53:30.836  1732  1732 F DEBUG   :     lr  0000006e5fccf4a8  sp  0000007fd3ac3750  pc  0000006e5fccf4b0  pst 0000000060001000
+06-09 00:53:30.836  1732  1732 F DEBUG   :     esr 0000000092000006
+06-09 00:53:30.836  1732  1732 F DEBUG   : 66 total frames
+06-09 00:53:30.836  1732  1732 F DEBUG   : backtrace:
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/lib/arm64/libflutter.so (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:53:30.836  1732  1732 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:53:30.837  1732  1732 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 00:53:31.668  2436  2436 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 2436 (com.oasis.app), pid 2436 (com.oasis.app)
+06-09 00:53:32.318  2617  2617 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 00:53:32.318  2617  2617 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 00:53:32.318  2617  2617 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 00:53:32.318  2617  2617 F DEBUG   : Revision: '4'
+06-09 00:53:32.318  2617  2617 F DEBUG   : ABI: 'arm64'
+06-09 00:53:32.318  2617  2617 F DEBUG   : Processor: '4'
+06-09 00:53:32.318  2617  2617 F DEBUG   : Timestamp: 2026-06-09 00:53:31.788004815+0530
+06-09 00:53:32.318  2617  2617 F DEBUG   : Process uptime: 2s
+06-09 00:53:32.318  2617  2617 F DEBUG   : Executable: /system/bin/app_process64
+06-09 00:53:32.318  2617  2617 F DEBUG   : Cmdline: com.oasis.app
+06-09 00:53:32.318  2617  2617 F DEBUG   : pid: 2436, tid: 2436, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 00:53:32.318  2617  2617 F DEBUG   : uid: 10811
+06-09 00:53:32.318  2617  2617 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 00:53:32.318  2617  2617 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 00:53:32.318  2617  2617 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 00:53:32.318  2617  2617 F DEBUG   : Cause: null pointer dereference
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x0  0000000000000000  x1  0000006e669440d8  x2  000000724b5c1804  x3  0000007fd3ac33d8
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x8  3ca9a5d4fb428a25  x9  3ca9a5d4fb428a25  x10 000000724b5c1b84  x11 0000000000058006
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000006a67ec0  x15 0000068739ebb1b8
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 b40000705030bae0
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x20 0000007fd3ac3f00  x21 b4000071103547b0  x22 b40000711034ce60  x23 b400007110348630
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x24 b4000071103547b0  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 00:53:32.318  2617  2617 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 00:53:32.318  2617  2617 F DEBUG   :     lr  0000006e662d94a8  sp  0000007fd3ac3750  pc  0000006e662d94b0  pst 0000000060001000
+06-09 00:53:32.318  2617  2617 F DEBUG   :     esr 0000000092000006
+06-09 00:53:32.318  2617  2617 F DEBUG   : 66 total frames
+06-09 00:53:32.318  2617  2617 F DEBUG   : backtrace:
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/lib/arm64/libflutter.so (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.318  2617  2617 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~bBrbJDcab0i5uK9t-72mfw==/com.oasis.app-gOHkRzYsvgCmpt0Lp2R-Kw==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:53:32.319  2617  2617 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 00:53:32.320  2617  2617 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 00:53:32.320  2617  2617 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
+06-09 10:36:42.065  6103  6103 F libc    : Fatal signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x6b8 in tid 6103 (com.oasis.app), pid 6103 (com.oasis.app)
+06-09 10:36:43.088  6250  6250 F DEBUG   : *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+06-09 10:36:43.088  6250  6250 F DEBUG   : Build fingerprint: 'samsung/m36xins/m36x:16/BP4A.251205.006/M366BXXU6BZE3_ODM6BZE3:user/release-keys'
+06-09 10:36:43.088  6250  6250 F DEBUG   : Kernel Release: '5.15.189-android13-3-33470412'
+06-09 10:36:43.088  6250  6250 F DEBUG   : Revision: '4'
+06-09 10:36:43.088  6250  6250 F DEBUG   : ABI: 'arm64'
+06-09 10:36:43.088  6250  6250 F DEBUG   : Processor: '7'
+06-09 10:36:43.088  6250  6250 F DEBUG   : Timestamp: 2026-06-09 10:36:42.181995694+0530
+06-09 10:36:43.088  6250  6250 F DEBUG   : Process uptime: 2s
+06-09 10:36:43.088  6250  6250 F DEBUG   : Executable: /system/bin/app_process64
+06-09 10:36:43.088  6250  6250 F DEBUG   : Cmdline: com.oasis.app
+06-09 10:36:43.088  6250  6250 F DEBUG   : pid: 6103, tid: 6103, name: com.oasis.app  >>> com.oasis.app <<<
+06-09 10:36:43.088  6250  6250 F DEBUG   : uid: 10811
+06-09 10:36:43.088  6250  6250 F DEBUG   : tagged_addr_ctrl: 0000000000000001 (PR_TAGGED_ADDR_ENABLE)
+06-09 10:36:43.088  6250  6250 F DEBUG   : esr: 0000000092000006 (Data Abort Exception 0x24)
+06-09 10:36:43.088  6250  6250 F DEBUG   : signal 11 (SIGSEGV), code 1 (SEGV_MAPERR), fault addr 0x00000000000006b8 (read)
+06-09 10:36:43.088  6250  6250 F DEBUG   : Cause: null pointer dereference
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x0  0000000000000000  x1  0000006e61bb20d8  x2  000000724b5c1804  x3  0000007fd3ac33d8
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x4  0000000000000058  x5  0000000000000058  x6  6b5e6c755e737160  x7  7f7f7f7f7f7f7f7f
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x8  6b9d6a70fe7bfd1d  x9  6b9d6a70fe7bfd1d  x10 000000724b5c1b84  x11 0000000000058006
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x12 0000007266b6b020  x13 000000007fffffff  x14 0000000007497970  x15 0000075b0b439da1
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x16 0000000000000001  x17 000000724b54d144  x18 0000007265b5c000  x19 000000705030bae0
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x20 0000007fd3ac3f00  x21 000000711035c160  x22 00000071103521a0  x23 000000711035c6a0
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x24 000000711035c160  x25 0000000000000000  x26 0000000000000000  x27 0000000000000000
+06-09 10:36:43.088  6250  6250 F DEBUG   :     x28 0000007fd3ac4070  x29 0000007fd3ac4970
+06-09 10:36:43.088  6250  6250 F DEBUG   :     lr  0000006e615474a8  sp  0000007fd3ac3750  pc  0000006e615474b0  pst 0000000060001000
+06-09 10:36:43.088  6250  6250 F DEBUG   :     esr 0000000092000006
+06-09 10:36:43.088  6250  6250 F DEBUG   : 66 total frames
+06-09 10:36:43.088  6250  6250 F DEBUG   : backtrace:
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #00 pc 00000000004cb4b0  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/lib/arm64/libflutter.so (BuildId: ca4618220c6646c3546f020f587fef1c75e3c505)
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #01 pc 0000000000dace08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+120)
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #02 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #03 pc 0000000001b51106  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.performNativeAttach+6)
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #04 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.088  6250  6250 F DEBUG   :       #05 pc 0000000001b51276  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterJNI.attachToNative+30)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #06 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #07 pc 0000000001b50b32  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.attachToJni+18)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #08 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #09 pc 0000000001b509b2  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngine.<init>+574)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #10 pc 000000000072cb98  /apex/com.android.art/lib64/libart.so (nterp_helper+2824) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #11 pc 0000000001b50268  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createEngine+20)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #12 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #13 pc 0000000001b501e0  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.engine.FlutterEngineGroup.createAndRunEngine+104)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #14 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #15 pc 0000000001b413ea  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.setUpFlutterEngine+422)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #16 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #17 pc 0000000001b40a36  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterActivityAndFragmentDelegate.onAttach+14)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #18 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #19 pc 0000000001b4452a  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (io.flutter.embedding.android.FlutterFragment.onAttach+22)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #20 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #21 pc 0000000000420e5e  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.Fragment.performAttach+98)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #22 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #23 pc 00000000004193c2  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.attach+378)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #24 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #25 pc 0000000000419e3c  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentStateManager.moveToExpectedState+300)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #26 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #27 pc 0000000000417016  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.executeOpsTogether+698)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #28 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #29 pc 0000000000417afe  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.removeRedundantOperationsAndExecute+162)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #30 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #31 pc 0000000000414988  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.execPendingActions+236)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #32 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #33 pc 000000000041669c  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchStateChange+76)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #34 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #35 pc 00000000004160f2  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentManager.dispatchActivityCreated+22)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #36 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #37 pc 00000000004107cc  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentController.dispatchActivityCreated+12)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #38 pc 000000000072c884  /apex/com.android.art/lib64/libart.so (nterp_helper+2036) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #39 pc 000000000040f710  /data/app/~~ASc-zmB2XaxVie-0qk9OJg==/com.oasis.app-C2Yin-ZGnJ7CLoZADt4kbQ==/oat/arm64/base.vdex (androidx.fragment.app.FragmentActivity.onStart+40)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #40 pc 00000000006d6ec0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Instrumentation.callActivityOnStart+48)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #41 pc 00000000006049d0  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.Activity.performStart+704)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #42 pc 000000000072c8dc  /apex/com.android.art/lib64/libart.so (nterp_helper+2124) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #43 pc 00000000001d2202  /system/framework/framework.jar (offset 0x6000) (android.app.ActivityThread.handleStartActivity+70)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #44 pc 0000000000742354  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.performLifecycleSequence+580)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #45 pc 0000000000741dd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeLifecycleItem+308)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #46 pc 0000000000742810  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.executeTransactionItems+320)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #47 pc 0000000000742580  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.servertransaction.TransactionExecutor.execute+144)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #48 pc 0000000000647430  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread$H.handleMessage+2864)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #49 pc 00000000008ded08  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Handler.dispatchMessage+152)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #50 pc 000000000095a1f8  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loopOnce+3096)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #51 pc 0000000000959564  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.os.Looper.loop+244)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #52 pc 000000000065930c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (android.app.ActivityThread.main+1628)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #53 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #54 pc 000000000028a194  /apex/com.android.art/lib64/libart.so (_jobject* art::InvokeMethod<(art::PointerSize)8>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jobject*, _jobject*, unsigned long)+552) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #55 pc 00000000006334c8  /apex/com.android.art/lib64/libart.so (art::Method_invoke(_JNIEnv*, _jobject*, _jobject*, _jobjectArray*) (.__uniq.165753521025965369065708152063621506277)+36) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #56 pc 0000000000dadcd4  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (art_jni_trampoline+116)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #57 pc 0000000000c7229c  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run+108)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #58 pc 0000000000c7a5dc  /data/misc/apexdata/com.android.art/dalvik-cache/arm64/boot.oat (com.android.internal.os.ZygoteInit.main+3244)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #59 pc 0000000000299260  /apex/com.android.art/lib64/libart.so (art_quick_invoke_static_stub+640) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #60 pc 0000000000296cb0  /apex/com.android.art/lib64/libart.so (art::JValue art::InvokeWithVarArgs<_jmethodID*>(art::ScopedObjectAccessAlreadyRunnable const&, _jobject*, _jmethodID*, std::__va_list)+760) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #61 pc 00000000006a4960  /apex/com.android.art/lib64/libart.so (art::JNI<true>::CallStaticVoidMethodV(_JNIEnv*, _jclass*, _jmethodID*, std::__va_list)+164) (BuildId: 1f156fc62660d075a8d675db850b95d5)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #62 pc 00000000001160cc  /system/lib64/libandroid_runtime.so (_JNIEnv::CallStaticVoidMethod(_jclass*, _jmethodID*, ...)+104) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #63 pc 000000000013e5a4  /system/lib64/libandroid_runtime.so (android::AndroidRuntime::start(char const*, android::Vector<android::String8> const&, bool)+932) (BuildId: b367e2d37c5b6e9348b620c7fa10da7b)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #64 pc 00000000000045a4  /system/bin/app_process64 (main+1264) (BuildId: ca5b8c74b2e78fb92c940da187ead7b8)
+06-09 10:36:43.089  6250  6250 F DEBUG   :       #65 pc 0000000000069564  /apex/com.android.runtime/lib64/bionic/libc.so (__libc_init+120) (BuildId: 6311a11991f2a866c5c958f9cf4f2329)
