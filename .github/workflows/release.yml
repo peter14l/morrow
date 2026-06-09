@@ -1,4 +1,4 @@
-name: Build & Sign APK (Flutter 3.41.9)
+name: Build & Sign APK
 
 on:
   push:
