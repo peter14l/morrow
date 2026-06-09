@@ -1,0 +1,326 @@
+name: Build & Sign APK (Flutter 3.41.9)
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Signed APKs (Android)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Free Disk Space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          df -h
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-linux-android, armv7-linux-androideabi, x86_64-linux-android"
+
+      - name: Install cargo-ndk
+        run: cargo install cargo-ndk
+
+      - name: Build Rust Library (Android)
+        run: |
+          cd PQ-DR
+          cargo ndk -t arm64-v8a -t armeabi-v7a -t x86_64 build --release
+          mkdir -p ../android/app/src/main/jniLibs/arm64-v8a
+          mkdir -p ../android/app/src/main/jniLibs/armeabi-v7a
+          mkdir -p ../android/app/src/main/jniLibs/x86_64
+          cp target/aarch64-linux-android/release/libpq_aura.so ../android/app/src/main/jniLibs/arm64-v8a/
+          cp target/armv7-linux-androideabi/release/libpq_aura.so ../android/app/src/main/jniLibs/armeabi-v7a/
+          cp target/x86_64-linux-android/release/libpq_aura.so ../android/app/src/main/jniLibs/x86_64/
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Run Build Runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          echo "REVENUECAT_GOOGLE_API_KEY=${{ secrets.REVENUECAT_GOOGLE_API_KEY }}" >> .env
+          echo "REVENUECAT_APPLE_API_KEY=${{ secrets.REVENUECAT_APPLE_API_KEY }}" >> .env
+
+      - name: Decode Keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
+
+      - name: Build Release APKs (Split per ABI)
+        env:
+          RELEASE_STORE_FILE: "release.keystore"
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          flutter build apk --release --split-per-abi --no-shrink --dart-define-from-file=".env"
+
+      - name: Upload Signed APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-apks
+          path: |
+            build/app/outputs/flutter-apk/*-release.apk
+          retention-days: 7
+
+
+  build-ios:
+    name: Build iOS (IPA)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-apple-ios, x86_64-apple-ios"
+
+      - name: Build Rust Library (iOS)
+        run: |
+          cd PQ-DR
+          rustup target add aarch64-apple-ios x86_64-apple-ios
+          cargo build --target aarch64-apple-ios --release
+          cargo build --target x86_64-apple-ios --release
+          cd ..
+          mkdir -p ios/libs
+          # Create a fat library (universal) for simulator + device
+          lipo -create \
+            PQ-DR/target/aarch64-apple-ios/release/libpq_aura.a \
+            PQ-DR/target/x86_64-apple-ios/release/libpq_aura.a \
+            -output ios/libs/libpq_aura.a
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          cache: true
+
+      - name: Precache iOS artifacts
+        run: flutter precache --ios
+
+      - name: Disable Swift Package Manager (Force CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+
+      - name: Build iOS
+        run: |
+          flutter build ios --release --no-codesign --dart-define-from-file=".env"
+
+      - name: Upload iOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: build/ios/iphoneos
+          retention-days: 7
+
+  build-macos:
+    name: Build macOS (App)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: "aarch64-apple-darwin, x86_64-apple-darwin"
+
+      - name: Build Rust Library (macOS)
+        run: |
+          cd PQ-DR
+          cargo build --target aarch64-apple-darwin --release
+          cargo build --target x86_64-apple-darwin --release
+          cd ..
+          mkdir -p macos/libs
+          # Create a universal dylib for Apple Silicon + Intel
+          lipo -create \
+            PQ-DR/target/aarch64-apple-darwin/release/libpq_aura.dylib \
+            PQ-DR/target/x86_64-apple-darwin/release/libpq_aura.dylib \
+            -output macos/libs/libpq_aura.dylib
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          cache: true
+
+      - name: Precache macOS artifacts
+        run: flutter precache --macos
+
+      - name: Disable Swift Package Manager (Force CocoaPods)
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Install dependencies
+        run: flutter pub get
+
+
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+
+      - name: Build macOS
+        run: flutter build macos --release --dart-define-from-file=".env"
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: build/macos/Build/Products/Release
+          retention-days: 7
+
+  build-windows:
+    name: Build Windows MSIX
+    runs-on: windows-latest
+
+    steps:
+      - name: Enable long paths in Git
+        run: git config --global core.longpaths true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.41.9'
+          cache: true
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Library (Windows)
+        shell: pwsh
+        run: |
+          cd PQ-DR
+          cargo build --release
+          cd ..
+          if (!(Test-Path "windows/libs")) { New-Item -ItemType Directory -Path "windows/libs" }
+          Copy-Item "PQ-DR/target/release/pq_aura.dll" -Destination "windows/libs/"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Create .env from secrets
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+
+      - name: Disable sentry-native (avoid crashpad 403 error)
+        run: |
+          echo "SENTRY_NATIVE_BACKEND=none" >> .env
+
+      - name: Build Windows
+        run: flutter build windows --release --dart-define-from-file=".env"
+        env:
+          SENTRY_NATIVE_BACKEND: none
+          SENTRY_BACKEND: none
+
+      - name: Create MSIX
+        run: dart run msix:create --build-windows false
+
+      - name: Upload MSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-msix
+          path: |
+            build/windows/x64/runner/Release/*.msix
+            test_certificate.pfx
+        if: always()
