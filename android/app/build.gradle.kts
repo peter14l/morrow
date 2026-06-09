@@ -11,7 +11,7 @@ buildDir = File(rootDir, "../build/app")
 android {
     namespace = "com.oasis.app"
     compileSdk = 36
-    ndkVersion = "30.0.14904198"
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId = "com.oasis.app" // Production: com.oasis.app
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
