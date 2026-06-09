@@ -9,6 +9,7 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true"
+        android:allowNativeHeapPointerTagging="false"
         tools:replace="android:allowBackup"
         tools:targetApi="33">
         
