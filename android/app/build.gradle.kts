@@ -29,7 +29,7 @@ android {
     defaultConfig {
         applicationId = "com.oasis.app" // Production: com.oasis.app
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
