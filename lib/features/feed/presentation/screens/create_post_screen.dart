@@ -68,8 +68,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
           allowMultiple: true,
-          initialDirectory:
-              'C:\\Users\\${Platform.environment['USERNAME']}\\Downloads',
         );
         if (result != null && result.paths.isNotEmpty) {
           images = result.paths

@@ -69,7 +69,7 @@ class _CollaboratorPickerSheetState extends State<CollaboratorPickerSheet> {
       builder: (context, scrollController) {
         return Container(
           decoration: BoxDecoration(
-            color: theme.scaffoldBackgroundColor,
+            color: theme.bottomSheetTheme.backgroundColor ?? theme.scaffoldBackgroundColor,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(

@@ -760,7 +760,7 @@ class _MainLayoutState extends State<MainLayout> {
             builder: (context) => Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
+                color: theme.bottomSheetTheme.backgroundColor ?? theme.colorScheme.surface,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(28),
                 ),
