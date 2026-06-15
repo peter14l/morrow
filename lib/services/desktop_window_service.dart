@@ -33,7 +33,10 @@ class DesktopWindowService extends WindowListener with TrayListener {
     );
 
     // Set title
-    await windowManager.setTitle('   Oasis');
+    await windowManager.setTitle('Oasis');
+
+    // Set a reasonable minimum window size (social app minimum)
+    await windowManager.setMinimumSize(const Size(800, 600));
 
     // Tray initialization - use absolute path for Windows
     await _setupTray();

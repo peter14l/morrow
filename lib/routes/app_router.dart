@@ -377,7 +377,7 @@ class _MainLayoutState extends State<MainLayout> {
                 ),
                 autoSuggestBoxReplacement: const Icon(FluentIcons.search_24_regular),
                 selected: currentIndex,
-                size: const fluent.NavigationPaneSize(compactWidth: 54),
+                size: const fluent.NavigationPaneSize(compactWidth: 48),
                 onChanged: (index) => _onDestinationSelected(
                   index,
                   killSwitchActive: killSwitchActive,
