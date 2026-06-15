@@ -3,6 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:oasis/themes/app_colors.dart';
 
+/// WinUI 3 corner radii used by Windows 11 controls.
+const _kWin11RadiusSmall = 4.0;
+const _kWin11RadiusMedium = 8.0;
+const _kWin11RadiusLarge = 12.0;
+
+/// Application-level Fluent theme that mirrors Windows 11 design principles
+/// — compact density, subtle surface layering, 4px control radii, and Segoe UI
+/// Variable typography.
 class AppFluentTheme {
   static FluentThemeData getTheme(
     material.Brightness brightness, {
@@ -12,18 +20,24 @@ class AppFluentTheme {
   }) {
     final isDark = brightness == material.Brightness.dark;
 
-    // Core colors synchronized with Material 3 / Oasis Palette
+    // Derive primary accent color
     final primaryColor =
         materialColorScheme?.primary ??
         (isDark ? DarkColors.primary : LightColors.primary);
 
-    final scaffoldColor =
+    final surfaceColor =
         materialColorScheme?.surface ??
         (isDark ? OasisColors.deep : LightColors.background);
 
+    // Surface hierarchy — Win11 uses layered cards with subtle separation
+    final cardSurfaceColor =
+        isDark
+            ? const Color(0xFF1E2026)
+            : const Color(0xFFF3F3F5);
+
     final micaBase = isDark ? material.Colors.black : material.Colors.white;
 
-    // Mica/Acrylic transparency should only be applied on Windows/macOS
+    // Transparency is only valid on Windows/macOS where Mica/Acrylic are supported
     final bool canUseTransparency =
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.windows ||
@@ -40,34 +54,42 @@ class AppFluentTheme {
       'lightest': primaryColor.withValues(alpha: 0.5),
     });
 
+    // Foreground text color
+    final onSurface = isDark
+        ? DarkColors.onBackground
+        : LightColors.onBackground;
+
     return FluentThemeData(
       brightness: isDark ? Brightness.dark : Brightness.light,
       accentColor: accentColor,
       fontFamily: fontFamily,
-      visualDensity: VisualDensity.standard,
+      // Desktop apps use compact density (tighter spacing, more content)
+      visualDensity: VisualDensity.compact,
+
+      // --- Surface / Background ---
       scaffoldBackgroundColor: shouldBeTransparent
           ? material.Colors.transparent
-          : scaffoldColor,
+          : surfaceColor,
       micaBackgroundColor: shouldBeTransparent
           ? micaBase.withValues(alpha: 0.01)
-          : scaffoldColor,
+          : surfaceColor,
       micaAltBackgroundColor: shouldBeTransparent
           ? micaBase.withValues(alpha: 0.01)
-          : scaffoldColor,
+          : cardSurfaceColor,
 
-      // Animation curves updated to WinUI 3 "Fluid" motion
+      // WinUI 3 "Fluid" motion
       animationCurve: standardCurve,
 
-      // Shadows standardized via FluentShadows
+      // Elevation shadows matching WinUI 3 elevation system
       shadows: FluentShadows.fromBrightness(
         isDark ? Brightness.dark : Brightness.light,
       ),
 
-      // Typography updated to Segoe UI Variable by default
+      // --- Typography: Segoe UI Variable on Windows, Segoe UI elsewhere ---
       typography:
           Typography.fromBrightness(
             brightness: isDark ? Brightness.dark : Brightness.light,
-            color: isDark ? DarkColors.onBackground : LightColors.onBackground,
+            color: onSurface,
           ).apply(
             fontFamily:
                 fontFamily ??
@@ -76,55 +98,127 @@ class AppFluentTheme {
                     : 'Segoe UI'),
           ),
 
+      // --- Navigation Pane (Win11 style) ---
+      // compactWidth is set on NavigationPaneSize in the NavigationPane widget
       navigationPaneTheme: NavigationPaneThemeData(
         backgroundColor: shouldBeTransparent
             ? Colors.transparent
-            : (isDark ? DarkColors.surface : LightColors.surface),
+            : (isDark ? const Color(0xFF1A1C21) : const Color(0xFFF0F0F2)),
         overlayBackgroundColor: shouldBeTransparent
             ? (isDark
-                  ? DarkColors.surface.withValues(alpha: 0.8)
-                  : LightColors.surface.withValues(alpha: 0.8))
-            : (isDark ? DarkColors.surface : LightColors.surface),
-        highlightColor: primaryColor,
+                  ? const Color(0xFF1A1C21).withValues(alpha: 0.8)
+                  : const Color(0xFFF0F0F2).withValues(alpha: 0.8))
+            : (isDark ? const Color(0xFF1A1C21) : const Color(0xFFF0F0F2)),
+        highlightColor: primaryColor.withValues(alpha: 0.15),
         selectedIconColor: WidgetStateProperty.all(primaryColor),
         selectedTextStyle: WidgetStateProperty.all(
-          TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+          TextStyle(
+            color: primaryColor,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         unselectedIconColor: WidgetStateProperty.all(
-          isDark ? DarkColors.hint : LightColors.hint,
+          isDark
+              ? Colors.white.withValues(alpha: 0.55)
+              : Colors.black.withValues(alpha: 0.45),
+        ),
+        unselectedTextStyle: WidgetStateProperty.all(
+          TextStyle(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.65)
+                : Colors.black.withValues(alpha: 0.55),
+          ),
         ),
         tileColor: WidgetStateProperty.resolveWith((states) {
           if (states.isPressed) {
             return isDark
-                ? material.Colors.white.withValues(alpha: 0.05)
-                : material.Colors.black.withValues(alpha: 0.05);
+                ? Colors.white.withValues(alpha: 0.06)
+                : Colors.black.withValues(alpha: 0.06);
           }
           if (states.isHovered) {
             return isDark
-                ? material.Colors.white.withValues(alpha: 0.03)
-                : material.Colors.black.withValues(alpha: 0.03);
+                ? Colors.white.withValues(alpha: 0.04)
+                : Colors.black.withValues(alpha: 0.04);
           }
           return Colors.transparent;
         }),
       ),
 
-      checkboxTheme: CheckboxThemeData(
-        checkedIconColor: WidgetStateProperty.all(material.Colors.white),
-      ),
-
+      // --- Button theme: 4px radius (Win11), proper accent fill ---
       buttonTheme: ButtonThemeData(
         filledButtonStyle: ButtonStyle(
-          backgroundColor: WidgetStateProperty.all(primaryColor),
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.isDisabled) {
+              return primaryColor.withValues(alpha: 0.4);
+            }
+            return primaryColor;
+          }),
           foregroundColor: WidgetStateProperty.all(material.Colors.white),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+          ),
           shape: WidgetStateProperty.all(
             const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(_kWin11RadiusSmall)),
+            ),
+          ),
+        ),
+        hyperlinkButtonStyle: ButtonStyle(
+          foregroundColor: WidgetStateProperty.all(primaryColor),
+          padding: WidgetStateProperty.all(
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          ),
+          shape: WidgetStateProperty.all(
+            const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(_kWin11RadiusSmall)),
             ),
           ),
         ),
       ),
 
-      dividerTheme: const DividerThemeData(thickness: 1),
+      // --- Checkbox: use decorations (no shape parameter on CheckboxThemeData) ---
+      checkboxTheme: CheckboxThemeData(
+        checkedIconColor: WidgetStateProperty.all(material.Colors.white),
+      ),
+
+      // --- Radio button ---
+      radioButtonTheme: const RadioButtonThemeData(),
+
+      // --- ToggleSwitch ---
+      toggleSwitchTheme: const ToggleSwitchThemeData(),
+
+      // --- Divider ---
+      dividerTheme: const DividerThemeData(
+        thickness: 1.0,
+        horizontalMargin: EdgeInsetsDirectional.zero,
+        verticalMargin: EdgeInsetsDirectional.zero,
+      ),
+
+      // --- Scrollbars (Win11 thin overlay style) ---
+      scrollbarTheme: ScrollbarThemeData(
+        thickness: 4.0,
+        radius: const Radius.circular(2.0),
+        scrollbarColor: isDark
+            ? Colors.white.withValues(alpha: 0.2)
+            : Colors.black.withValues(alpha: 0.15),
+        scrollbarPressingColor: isDark
+            ? Colors.white.withValues(alpha: 0.4)
+            : Colors.black.withValues(alpha: 0.3),
+      ),
+
+      // --- InfoBar ---
+      infoBarTheme: InfoBarThemeData(
+        decoration: (severity) => BoxDecoration(
+          borderRadius: BorderRadius.circular(_kWin11RadiusMedium),
+        ),
+      ),
+
+      // --- ContentDialog ---
+      dialogTheme: ContentDialogThemeData(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(_kWin11RadiusLarge),
+        ),
+      ),
     );
   }
 }
