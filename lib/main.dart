@@ -567,7 +567,7 @@ class _MyAppState extends State<MyApp> {
                       children: [
                         material.Padding(
                           padding: material.EdgeInsets.only(
-                            top: Platform.isWindows ? 32 : 0,
+                            top: Platform.isWindows ? kWin11TitleBarHeight : 0,
                           ),
                           child: material.MediaQuery(
                             data: material.MediaQuery.of(context).copyWith(
@@ -596,7 +596,7 @@ class _MyAppState extends State<MyApp> {
                           ),
                         ),
                         if (Platform.isWindows)
-                          const WindowsTitleBar(height: 32),
+                          const WindowsTitleBar(height: kWin11TitleBarHeight),
                         // const FloatingCallOverlay(),
                       ],
                     ),
@@ -618,7 +618,7 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     material.Padding(
                       padding: material.EdgeInsets.only(
-                        top: Platform.isWindows ? 32 : 0,
+                        top: Platform.isWindows ? kWin11TitleBarHeight : 0,
                       ),
                       child: material.MediaQuery(
                         data: material.MediaQuery.of(context).copyWith(
@@ -647,7 +647,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                     ),
-                    if (Platform.isWindows) const WindowsTitleBar(height: 32),
+                    if (Platform.isWindows) const WindowsTitleBar(height: kWin11TitleBarHeight),
                     // const FloatingCallOverlay(),
                   ],
                 );
