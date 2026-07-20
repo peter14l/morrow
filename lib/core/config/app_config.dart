@@ -11,7 +11,7 @@ class AppConfig {
   static String appVersion = '0.0.0';
 
   /// If false, calling features are disabled (e.g. during major platform stability fixes)
-  static bool enableCalls = false;
+  static bool enableCalls = true;
 
   /// If true, the first-party privacy-preserving contextual ad engine is active.
   /// Ads are matched locally on-device — no user data is ever sent to ad servers.
@@ -51,7 +51,7 @@ class AppConfig {
     if (fromEnv.isNotEmpty) return fromEnv;
 
     if (kDebugMode) return 'http://localhost:3000/api/check-update';
-    return '';
+    return 'https://oasis-web-red.vercel.app/api/check-update';
   }
 
   /// LiveKit Server URL

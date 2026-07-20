@@ -8,9 +8,10 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:oasis/services/notification_manager.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:universal_io/io.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_background/flutter_background.dart';
+import 'package:flutter_background/flutter_background.d.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
@@ -37,6 +38,10 @@ class CallService extends ChangeNotifier {
   bool _isScreenSharing = false;
 
   StreamSubscription? _incomingCallSubscription;
+  Timer? _notifyDebounce;
+  bool _isDisposed = false;
+
+  bool get isDisposed => _isDisposed;
 
   CallService({
     SupabaseClient? supabase,
@@ -46,6 +51,16 @@ class CallService extends ChangeNotifier {
     _instance = this;
     _initBackgroundService();
     _configureAudioPlayer();
+  }
+
+  /// Debounced notifyListeners to batch rapid state changes (e.g. LiveKit events)
+  void _scheduleNotify() {
+    _notifyDebounce?.cancel();
+    _notifyDebounce = Timer(const Duration(milliseconds: 16), () {
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    });
   }
 
   Future<void> _initBackgroundService() async {
@@ -95,6 +110,14 @@ class CallService extends ChangeNotifier {
     );
   }
 
+  /// Configure the system audio session for call audio (WebRTC/LiveKit).
+  /// This ensures proper audio routing to speaker/earpiece/Bluetooth.
+  Future<void> _configureCallAudioSession() async {
+    if (kIsWeb) return;
+    final session = await AudioSession.instance;
+    await session.configure(const AudioSessionConfiguration.speech());
+  }
+
   // Getters
   CallEntity? get currentCall => _currentCall;
   CallEntity? get incomingCall => _incomingCall;
@@ -115,6 +138,15 @@ class CallService extends ChangeNotifier {
     if (_callSteps.length > 100) _callSteps.removeAt(0);
   }
 
+  void _scheduleNotify() {
+    _notifyDebounce?.cancel();
+    _notifyDebounce = Timer(const Duration(milliseconds: 16), () {
+      if (!_isDisposed) {
+        notifyListeners();
+      }
+    });
+  }
+
   void setAnswering(String callId) {
     _currentCallId = callId;
   }
@@ -128,7 +160,6 @@ class CallService extends ChangeNotifier {
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       await [Permission.microphone, Permission.camera].request();
     }
-    notifyListeners();
   }
 
   Future<void> startSignaling(CallEntity call, [Uint8List? key]) async {
@@ -161,8 +192,11 @@ class CallService extends ChangeNotifier {
         _recordStep('E2EE initialized with PQ-DR key');
       }
 
-      _room = Room(roomOptions: roomOptions);
+_room = Room(roomOptions: roomOptions);
       
+      // Configure audio session for proper call audio routing
+      await _configureCallAudioSession();
+       
       // Use createListener() to listen for Room events
       final listener = _room!.createListener();
       _setupRoomListeners(listener);
@@ -186,7 +220,7 @@ class CallService extends ChangeNotifier {
       _recordStep('Error connecting to room: $e');
     }
 
-    notifyListeners();
+    _scheduleNotify();
   }
 
   void _setupRoomListeners(EventsListener<RoomEvent> listener) {
@@ -197,7 +231,7 @@ class CallService extends ChangeNotifier {
       })
       ..on<ParticipantConnectedEvent>((event) {
         _recordStep('Participant connected: ${event.participant.identity}');
-        notifyListeners();
+        _scheduleNotify();
       })
       ..on<ParticipantDisconnectedEvent>((event) {
         _recordStep('Participant disconnected: ${event.participant.identity}');
@@ -205,19 +239,19 @@ class CallService extends ChangeNotifier {
           _recordStep('No more participants, ending call');
           endCall();
         }
-        notifyListeners();
+        _scheduleNotify();
       })
       ..on<TrackSubscribedEvent>((event) {
         _recordStep('Track subscribed: ${event.track.sid}');
-        notifyListeners();
+        _scheduleNotify();
       })
       ..on<TrackUnsubscribedEvent>((event) {
         _recordStep('Track unsubscribed: ${event.track.sid}');
-        notifyListeners();
+        _scheduleNotify();
       })
       ..on<LocalTrackPublishedEvent>((event) {
         _recordStep('Local track published: ${event.publication.sid}');
-        notifyListeners();
+        _scheduleNotify();
       });
   }
 
@@ -307,6 +341,7 @@ class CallService extends ChangeNotifier {
 
   Future<void> _cleanup() async {
     _recordStep('Cleaning up call resources');
+    _notifyDebounce?.cancel();
 
     if (_currentCallId != null) {
       _lastEndedCallId = _currentCallId;
@@ -350,13 +385,32 @@ class CallService extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleSpeakerphone() {
+  void toggleSpeakerphone() async {
     _isSpeakerphoneOn = !_isSpeakerphoneOn;
-    // LiveKit manages audio routing via underlying WebRTC/OS settings
+    
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      // Hardware helper could be used here if needed
+      try {
+        final session = await AudioSession.instance;
+        await session.setDevicePreferences(
+          _isSpeakerphoneOn
+              ? const AudioDevicePreferences(type: AudioDeviceType.speaker)
+              : const AudioDevicePreferences(type: AudioDeviceType.builtInSpeaker),
+        );
+        
+        // Also configure for voice communication on Android
+        if (Platform.isAndroid) {
+          await session.setAndroidAudioAttributes(
+            const AndroidAudioAttributes(
+              usage: AndroidAudioUsage.voiceCommunication,
+              contentType: AndroidAudioContentType.speech,
+            ),
+          );
+        }
+      } catch (e) {
+        debugPrint('[CallService] Error toggling speakerphone: $e');
+      }
     }
-    notifyListeners();
+    _scheduleNotify();
   }
 
   Future<void> _playRingtone() async {
@@ -399,12 +453,17 @@ class CallService extends ChangeNotifier {
     });
   }
 
-  // Compatibility methods for CallProvider (will be refactored or kept as stubs)
-  Future<Map<String, dynamic>> createOffer(String remoteUserId) async => {};
-  Future<Map<String, dynamic>> createAnswer(String remoteUserId, Map<String, dynamic> offer) async => {};
+  // Compatibility stubs — not used in the LiveKit-based call flow.
+  // These exist to satisfy the interface if legacy code references them.
+  Future<Map<String, dynamic>> createOffer(String remoteUserId) async =>
+      throw UnsupportedError('Legacy createOffer not used with LiveKit signaling');
+  Future<Map<String, dynamic>> createAnswer(String remoteUserId, Map<String, dynamic> offer) async =>
+      throw UnsupportedError('Legacy createAnswer not used with LiveKit signaling');
 
   @override
   void dispose() {
+    _isDisposed = true;
+    _notifyDebounce?.cancel();
     _incomingCallSubscription?.cancel();
     _audioPlayer.dispose();
     _room?.dispose();

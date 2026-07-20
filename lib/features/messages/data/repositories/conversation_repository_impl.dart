@@ -1,13 +1,16 @@
 import 'package:oasis/features/messages/data/datasources/conversation_remote_datasource.dart';
 import 'package:oasis/features/messages/domain/models/conversation_entity.dart';
 import 'package:oasis/features/messages/domain/repositories/conversation_repository.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 
 /// Implementation of ConversationRepository
 class ConversationRepositoryImpl implements ConversationRepository {
   final ConversationRemoteDatasource _remoteDatasource;
+  final SupabaseClient? _client;
 
-  ConversationRepositoryImpl({ConversationRemoteDatasource? remoteDatasource})
-    : _remoteDatasource = remoteDatasource ?? ConversationRemoteDatasource();
+  ConversationRepositoryImpl({ConversationRemoteDatasource? remoteDatasource, SupabaseClient? client})
+    : _remoteDatasource = remoteDatasource ?? ConversationRemoteDatasource(),
+      _client = client;
 
   @override
   Future<List<ConversationEntity>> getConversations(String userId) async {
@@ -47,7 +50,12 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   @override
   Future<void> markAsRead(String conversationId) async {
-    // This would need userId from somewhere - placeholder
+    final userId = _client?.auth.currentUser?.id;
+    if (userId == null) return;
+    await _remoteDatasource.markConversationAsRead(
+      conversationId: conversationId,
+      userId: userId,
+    );
   }
 
   @override
@@ -57,12 +65,16 @@ class ConversationRepositoryImpl implements ConversationRepository {
 
   @override
   Future<void> toggleMute(String conversationId) async {
-    // This would need current mute state - placeholder
+    final conv = await _remoteDatasource.getConversation(conversationId);
+    final currentMuted = conv?['is_muted'] as bool? ?? false;
+    await _remoteDatasource.toggleMute(conversationId, currentMuted);
   }
 
   @override
   Future<void> toggleArchive(String conversationId) async {
-    // This would need current archive state - placeholder
+    final conv = await _remoteDatasource.getConversation(conversationId);
+    final currentArchived = conv?['is_archived'] as bool? ?? false;
+    await _remoteDatasource.toggleArchive(conversationId, currentArchived);
   }
 
   @override
@@ -79,14 +91,14 @@ class ConversationRepositoryImpl implements ConversationRepository {
   ConversationEntity _conversationFromJson(Map<String, dynamic> json) {
     return ConversationEntity(
       id: json['id'] as String,
-      otherUserId: '', // Would need to fetch from participants
-      otherUserName: json['name'] as String? ?? 'Unknown',
-      otherUserAvatar: json['avatar_url'] as String? ?? '',
-      lastMessage: null,
+      otherUserId: json['other_user_id'] as String? ?? '',
+      otherUserName: json['other_user_name'] as String? ?? json['name'] as String? ?? 'Unknown',
+      otherUserAvatar: json['other_user_avatar'] as String? ?? json['avatar_url'] as String? ?? '',
+      lastMessage: json['last_message'] as String?,
       lastMessageAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'] as String)
           : null,
-      unreadCount: 0,
+      unreadCount: json['unread_count'] as int? ?? 0,
       isPinned: json['is_pinned'] as bool? ?? false,
       isMuted: json['is_muted'] as bool? ?? false,
       isArchived: json['is_archived'] as bool? ?? false,

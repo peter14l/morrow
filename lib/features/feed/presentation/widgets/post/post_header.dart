@@ -57,9 +57,8 @@ class PostHeader extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(FluentIcons.more_horizontal_24_regular),
-            onPressed: () {
-              // TODO: Implement more options flyout
-            },
+            onPressed: null, // TODO: Post options — not yet implemented
+            tooltip: 'Coming soon',
           ),
         ],
       ),

@@ -132,9 +132,8 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
           ),
           IconButton(
             icon: const Icon(FluentIcons.settings_24_regular),
-            onPressed: () {
-              // TODO: Circle Settings
-            },
+            onPressed: null, // TODO: Circle Settings — not yet implemented
+            tooltip: 'Coming soon',
           ),
         ],
         bottom: TabBar(

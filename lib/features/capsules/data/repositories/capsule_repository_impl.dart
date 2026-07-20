@@ -163,7 +163,12 @@ class CapsuleRepositoryImpl implements CapsuleRepository {
     String? mediaUrl,
     String mediaType = 'none',
   }) async {
-    throw UnimplementedError('Contribute to capsule not yet implemented');
+    return await _remoteDatasource.contributeToCapsule(
+      capsuleId: capsuleId,
+      content: content,
+      mediaUrl: mediaUrl,
+      mediaType: mediaType,
+    );
   }
 
   @override

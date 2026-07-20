@@ -4,6 +4,7 @@ class SupabaseConfig {
   static String get supabaseUrl {
     const fromEnv = String.fromEnvironment('SUPABASE_URL');
     if (fromEnv.isNotEmpty) return fromEnv;
+    if (kDebugMode) return 'http://localhost:54321';
     return '';
   }
 

@@ -15,7 +15,6 @@ import 'package:oasis/widgets/capsules/capsule_carousel.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/features/feed/presentation/widgets/feed_layout_switcher.dart';
 import 'package:oasis/screens/ripples_screen.dart';
-import 'package:oasis/screens/zen_feed_screen.dart';
 import 'package:oasis/screens/pulse_feed_screen.dart';
 import 'package:oasis/widgets/comments_modal.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -295,11 +294,7 @@ class _FeedScreenState extends State<FeedScreen>
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final wellbeing = context.watch<DigitalWellbeingService>();
 
-    if (_currentLayout == FeedLayoutType.zenCarousel) {
-      return ZenFeedScreen(
-        onLayoutChanged: (layout) => setState(() => _currentLayout = layout),
-      );
-    } else if (_currentLayout == FeedLayoutType.pulseMap) {
+    if (_currentLayout == FeedLayoutType.pulseMap) {
       return PulseFeedScreen(
         onLayoutChanged: (layout) => setState(() => _currentLayout = layout),
       );

@@ -43,9 +43,8 @@ class AuthProvidersDelegate {
     );
   }
 
-  Future<void> signInWithGoogle({bool forceSignIn = false}) async {
-    throw UnimplementedError('Google Sign-In has been removed from this project.');
-  }
+  // NOTE: Google Sign-In is implemented directly in AuthRemoteDatasource
+  // using the google_sign_in package. This delegate method is unused.
 
   Future<AuthResponse> signInWithApple() async {
     final credential = await SignInWithApple.getAppleIDCredential(
@@ -74,28 +73,34 @@ class AuthProvidersDelegate {
   // that need to be aligned with your specific backend/MFA strategy.
 
   /// Initiates a passkey sign-in flow.
+  /// Requires backend WebAuthn/Passkey support and a compatible passkeys package.
   Future<AuthResponse> signInWithPasskey(String email) async {
-    throw UnimplementedError(
-      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    throw UnsupportedError(
+      'Passkey authentication requires backend WebAuthn support. '
+      'Enable the passkeys package and configure Supabase MFA.',
     );
   }
 
   /// Registers a new user with a passkey.
+  /// Requires backend WebAuthn/Passkey support and a compatible passkeys package.
   Future<AuthResponse> registerWithPasskey({
     required String email,
     required String username,
     required String fullName,
     Map<String, dynamic>? data,
   }) async {
-    throw UnimplementedError(
-      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    throw UnsupportedError(
+      'Passkey registration requires backend WebAuthn support. '
+      'Enable the passkeys package and configure Supabase MFA.',
     );
   }
 
   /// Adds a passkey to the currently authenticated user's account.
+  /// Requires backend WebAuthn/Passkey support and a compatible passkeys package.
   Future<void> addPasskeyToCurrentUser() async {
-    throw UnimplementedError(
-      'Native Passkey support in Supabase Flutter SDK is still in preview/experimental.',
+    throw UnsupportedError(
+      'Passkey enrollment requires backend WebAuthn support. '
+      'Enable the passkeys package and configure Supabase MFA.',
     );
   }
 

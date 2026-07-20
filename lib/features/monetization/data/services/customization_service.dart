@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import '../models/user_customization.dart';
 
@@ -81,8 +82,12 @@ class CustomizationService extends ChangeNotifier {
     }
   }
 
-  /// Record a mock purchase (or hook into Razorpay/IAP callback)
+  /// Record a purchase (gated by feature flag; integrates with Razorpay/IAP callback)
   Future<bool> purchaseItem(String itemId, String itemType) async {
+    if (!AppConfig.enableOasisAura) {
+      debugPrint('[CustomizationService] Oasis Aura is disabled');
+      return false;
+    }
     final user = _supabase.auth.currentUser;
     if (user == null) return false;
 
@@ -104,6 +109,10 @@ class CustomizationService extends ChangeNotifier {
 
   /// Purchase Circle Boost consumable tokens
   Future<bool> purchaseCircleBoosts(int count) async {
+    if (!AppConfig.enableOasisAura) {
+      debugPrint('[CustomizationService] Oasis Aura is disabled');
+      return false;
+    }
     final user = _supabase.auth.currentUser;
     if (user == null) return false;
 

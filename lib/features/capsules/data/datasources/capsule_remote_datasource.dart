@@ -178,9 +178,42 @@ class CapsuleRemoteDatasource {
     String? mediaUrl,
     String mediaType = 'none',
   }) async {
-    throw UnimplementedError(
-      'Contribution to capsules is not yet supported in the legacy logic.',
-    );
+    try {
+      await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .update({
+            'content': content,
+            if (mediaUrl != null) 'media_url': mediaUrl,
+            'media_type': mediaType,
+          })
+          .eq('id', capsuleId);
+
+      // Fetch the updated capsule
+      final response = await _supabase
+          .from(SupabaseConfig.timeCapsulesTable)
+          .select()
+          .eq('id', capsuleId)
+          .single();
+
+      // Fetch profile separately
+      final profileResponse = await _supabase
+          .from(SupabaseConfig.profilesTable)
+          .select('username, avatar_url')
+          .eq('id', response['user_id'])
+          .single();
+
+      final mergedData = Map<String, dynamic>.from(response);
+      mergedData['username'] = profileResponse['username'];
+      mergedData['user_avatar'] = profileResponse['avatar_url'];
+
+      final unlockDate = DateTime.parse(mergedData['unlock_date']);
+      mergedData['is_locked'] = DateTime.now().isBefore(unlockDate);
+
+      return TimeCapsule.fromJson(mergedData);
+    } catch (e) {
+      debugPrint('Error contributing to capsule: $e');
+      rethrow;
+    }
   }
 
   /// Delete a capsule

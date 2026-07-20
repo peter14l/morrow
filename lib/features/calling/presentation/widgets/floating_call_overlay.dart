@@ -17,14 +17,16 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
 
   @override
   Widget build(BuildContext context) {
-    final callProvider = context.watch<CallProvider>();
-    final state = callProvider.state;
+    final isMinimized = context.select<CallProvider, bool>((p) => p.state.isMinimized);
+    final hasActiveCall = context.select<CallProvider, bool>((p) => p.hasActiveCall);
+    final hasIncomingCall = context.select<CallProvider, bool>((p) => p.hasIncomingCall);
 
-    if (!state.isMinimized ||
-        (state.activeCall == null && state.incomingCall == null)) {
+    if (!isMinimized ||
+        (!hasActiveCall && !hasIncomingCall)) {
       return const SizedBox.shrink();
     }
 
+    final callProvider = context.read<CallProvider>();
     final size = MediaQuery.of(context).size;
 
     return Positioned(

@@ -15,13 +15,16 @@ class CallNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final callProvider = context.watch<CallProvider>();
+    final hasActiveCall = context.select<CallProvider, bool>((p) => p.hasActiveCall);
+    final hasIncomingCall = context.select<CallProvider, bool>((p) => p.hasIncomingCall);
+    final isMinimized = context.select<CallProvider, bool>((p) => p.state.isMinimized);
+    final activeCallId = context.select<CallProvider, String?>((p) => p.activeCall?.id);
+    final incomingCallId = context.select<CallProvider, String?>((p) => p.incomingCall?.id);
     final userSettings = context.watch<UserSettingsProvider>();
 
-    final hasActiveCall =
-        callProvider.hasActiveCall || callProvider.hasIncomingCall;
+    final hasCall = hasActiveCall || hasIncomingCall;
 
-    if (hasActiveCall) {
+    if (hasCall) {
       String location = '';
       try {
         location =
@@ -33,12 +36,9 @@ class CallNavigator extends StatelessWidget {
 
       final onCallScreen = location.startsWith('/call');
 
-      if (!onCallScreen && !callProvider.state.isMinimized) {
+      if (!onCallScreen && !isMinimized) {
         material.WidgetsBinding.instance.addPostFrameCallback((_) {
-          final activeCallId = callProvider.activeCall?.id;
-          final incomingCallId = callProvider.incomingCall?.id;
           final callId = activeCallId ?? incomingCallId;
-
           if (callId != null) {
             final navContext =
                 AppRouter.router.configuration.navigatorKey.currentContext;

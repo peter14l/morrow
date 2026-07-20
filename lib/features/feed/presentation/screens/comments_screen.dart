@@ -11,6 +11,7 @@ import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:record/record.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:universal_io/io.dart';
 
 import 'package:oasis/widgets/moderation_dialogs.dart';
 
@@ -76,10 +77,18 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   Future<void> _uploadVoiceComment(String path) async {
-    // UI placeholder for now
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Voice comments are coming soon to posts!')),
-    );
+    // Requires adding media_url column to comments table + Comment model field.
+    // Tracked as feature work. Show actionable message for now.
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Voice comments require a database schema update. Coming soon.')),
+      );
+    }
+    // Clean up temp file
+    try {
+      final file = File(path);
+      if (await file.exists()) await file.delete();
+    } catch (_) {}
   }
 
   void _subscribeToComments() {

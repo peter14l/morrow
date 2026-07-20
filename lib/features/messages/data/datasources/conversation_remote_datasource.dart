@@ -211,6 +211,28 @@ class ConversationRemoteDatasource {
     return unreadCount;
   }
 
+  /// Toggle mute on a conversation
+  Future<bool> toggleMute(String conversationId, bool currentMuted) async {
+    final result = await _client
+        .from('conversations')
+        .update({'is_muted': !currentMuted})
+        .eq('id', conversationId)
+        .select('is_muted')
+        .single();
+    return result['is_muted'] as bool;
+  }
+
+  /// Toggle archive on a conversation
+  Future<bool> toggleArchive(String conversationId, bool currentArchived) async {
+    final result = await _client
+        .from('conversations')
+        .update({'is_archived': !currentArchived})
+        .eq('id', conversationId)
+        .select('is_archived')
+        .single();
+    return result['is_archived'] as bool;
+  }
+
   /// Search conversations by name
   Future<List<Map<String, dynamic>>> searchConversations({
     required String userId,

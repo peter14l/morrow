@@ -484,12 +484,15 @@ class MessagingService extends ChangeNotifier {
     return channel;
   }
 
-  /// Utility to filter messages based on expiry (placeholder).
+  /// Filters out messages whose expiry time has passed.
   static List<Message> filterExpiredMessages(
     List<Message> messages, {
     DateTime? sessionStart,
   }) {
-    // Currently returns all as per the original "disabled" logic in filterExpiredMessages.
-    return messages;
+    final now = DateTime.now();
+    return messages.where((msg) {
+      if (msg.expiresAt == null) return true;
+      return msg.expiresAt!.isAfter(now);
+    }).toList();
   }
 }

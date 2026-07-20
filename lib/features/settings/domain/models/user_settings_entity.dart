@@ -27,7 +27,7 @@ class UserSettingsEntity extends Equatable {
     this.fontFamily = 'Inter',
     this.feedLayout = FeedLayoutType.classic,
     this.meshEnabled = true,
-    this.liquidGlassMode = LiquidGlassMode.fake, // Changed for testing
+    this.liquidGlassMode = LiquidGlassMode.real,
   });
 
   UserSettingsEntity copyWith({

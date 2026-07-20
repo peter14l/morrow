@@ -120,49 +120,46 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
     _isInitialized = true;
   }
 
-  bool _isProcessingUpdate = false;
+  bool _updateQueued = false;
 
   void _onCallServiceUpdate() {
-    if (_isEnding || _isProcessingUpdate || isDisposed) return;
+    if (_isEnding || isDisposed) return;
 
-    try {
-      _isProcessingUpdate = true;
-      final newState = _state.copyWith(
-        activeCall: _callService.currentCall,
-        room: _callService.room,
-        isMuted: _callService.isMuted,
-        isVideoOn: _callService.isVideoOn,
-        isSpeakerphoneOn: _callService.isSpeakerphoneOn,
-        isScreenSharing: _callService.isScreenSharing,
-        incomingCall: _callService.incomingCall,
-        clearIncomingCall: _callService.incomingCall == null,
-        clearActiveCall: _callService.currentCallId == null,
-        clearRoom: _callService.room == null,
-      );
+    // Always sync the latest state from CallService
+    final newState = _state.copyWith(
+      activeCall: _callService.currentCall,
+      room: _callService.room,
+      isMuted: _callService.isMuted,
+      isVideoOn: _callService.isVideoOn,
+      isSpeakerphoneOn: _callService.isSpeakerphoneOn,
+      isScreenSharing: _callService.isScreenSharing,
+      incomingCall: _callService.incomingCall,
+      clearIncomingCall: _callService.incomingCall == null,
+      clearActiveCall: _callService.currentCallId == null,
+      clearRoom: _callService.room == null,
+    );
 
-      final hasChanges =
-          newState.activeCall != _state.activeCall ||
-          newState.incomingCall != _state.incomingCall ||
-          newState.room != _state.room ||
-          newState.isMuted != _state.isMuted ||
-          newState.isVideoOn != _state.isVideoOn ||
-          newState.isSpeakerphoneOn != _state.isSpeakerphoneOn ||
-          newState.isScreenSharing != _state.isScreenSharing;
+    // If state actually changed, debounce the notifyListeners
+    if (newState != _state) {
+      // Capture old state for transition detection before updating
+      final oldActiveCallStatus = _state.activeCall?.status;
+      _state = newState;
 
-      if (hasChanges) {
-        if (newState.activeCall?.status == CallStatus.active &&
-            _state.activeCall?.status == CallStatus.ringing) {
-          _ringingTimer?.cancel();
-          _callService.stopRingtone();
-        }
-
-        _state = newState;
-        notifyListeners();
-      } else {
-        _state = newState;
+      if (!_updateQueued) {
+        _updateQueued = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _updateQueued = false;
+          if (!isDisposed && !_isEnding) {
+            // Check if call transitioned from ringing to active
+            if (newState.activeCall?.status == CallStatus.active &&
+                oldActiveCallStatus == CallStatus.ringing) {
+              _ringingTimer?.cancel();
+              _callService.stopRingtone();
+            }
+            notifyListeners();
+          }
+        });
       }
-    } finally {
-      _isProcessingUpdate = false;
     }
   }
 

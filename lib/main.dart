@@ -1,5 +1,7 @@
 import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart' as material;
@@ -862,11 +864,22 @@ void _showErrorScreen(
                 const material.SizedBox(height: 32),
                 material.ElevatedButton(
                   onPressed: () async {
-                    // Logic to wipe cache would go here in a real production app
-                    // For now, simple restart instruction
                     material.debugPrint('User requested app repair/reset');
-                    // On most platforms, we can't easily restart the whole process,
-                    // but we can trigger a re-initialization of the root zone.
+                    try {
+                      // Clear image cache
+                      CachedNetworkImage.evictFromCache('');
+                      DefaultCacheManager().emptyCache();
+                    } catch (_) {}
+                    try {
+                      // Clear SharedPreferences cache
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.clear();
+                    } catch (_) {}
+                    try {
+                      // Clear Supabase session to force fresh auth
+                      await Supabase.instance.client.auth.signOut();
+                    } catch (_) {}
+                    // Re-initialize the app from scratch
                     main();
                   },
                   child: material.Text(

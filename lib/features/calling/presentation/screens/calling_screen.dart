@@ -198,7 +198,7 @@ class ParticipantDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final room = context.watch<CallProvider>().room;
+    final room = context.select<CallProvider, Room?>((p) => p.room);
 
     if (room == null) {
       return const WaitingScreen();
