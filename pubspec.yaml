@@ -121,7 +121,7 @@ dependencies:
   sensors_plus: ^4.0.2  # Gyroscope for Pulse Map parallax
   fluentui_system_icons: ^1.1.273
   local_auth: ^3.0.1
-  flutter_webrtc: 1.5.2
+  flutter_webrtc: 1.4.0
   permission_handler: ^11.3.1
   audio_session: ^0.1.21
   receive_sharing_intent: ^1.8.1
@@ -186,6 +186,7 @@ dependency_overrides:
     path: ./stubs/flutter_local_notifications_windows
   protobuf: ^6.0.0
   pointycastle: ^4.0.0
+  flutter_webrtc: 1.5.2
 
 
 
