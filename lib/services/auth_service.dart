@@ -339,23 +339,15 @@ class AuthService with ChangeNotifier {
   }
 
   // Sign in with Google
+  // NOTE: This method is deprecated. Google Sign-In is now implemented
+  // directly in AuthRemoteDatasource. Use the repository pattern instead.
   Future<app_models.AppUser> signInWithGoogle({
     bool forceSignIn = false,
   }) async {
-    await _providersDelegate.signInWithGoogle(forceSignIn: forceSignIn);
-
-    final user = _supabase.auth.currentUser;
-    if (user == null) {
-      throw const AuthException('Failed to sign in with Google');
-    }
-
-    // Handle profile creation if needed
-    await _ensureProfileExists(user);
-
-    _encryptionProvisioner.provisionEncryptionKeys();
-    _notificationService.updateFcmToken(user.id);
-
-    return _userFromSupabaseUser(user);
+    throw UnsupportedError(
+      'AuthService.signInWithGoogle is deprecated. '
+      'Use AuthRepository.signInWithGoogle() via the repository pattern instead.',
+    );
   }
 
   Future<void> _ensureProfileExists(User user) async {

@@ -11,7 +11,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:universal_io/io.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_background/flutter_background.d.dart';
+import 'package:flutter_background/flutter_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
@@ -136,15 +136,6 @@ class CallService extends ChangeNotifier {
     _callSteps.add(msg);
     debugPrint('[CallService] STEP: $step');
     if (_callSteps.length > 100) _callSteps.removeAt(0);
-  }
-
-  void _scheduleNotify() {
-    _notifyDebounce?.cancel();
-    _notifyDebounce = Timer(const Duration(milliseconds: 16), () {
-      if (!_isDisposed) {
-        notifyListeners();
-      }
-    });
   }
 
   void setAnswering(String callId) {
@@ -391,21 +382,21 @@ _room = Room(roomOptions: roomOptions);
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
         final session = await AudioSession.instance;
-        await session.setDevicePreferences(
-          _isSpeakerphoneOn
-              ? const AudioDevicePreferences(type: AudioDeviceType.speaker)
-              : const AudioDevicePreferences(type: AudioDeviceType.builtInSpeaker),
-        );
-        
-        // Also configure for voice communication on Android
-        if (Platform.isAndroid) {
-          await session.setAndroidAudioAttributes(
-            const AndroidAudioAttributes(
-              usage: AndroidAudioUsage.voiceCommunication,
-              contentType: AndroidAudioContentType.speech,
-            ),
-          );
-        }
+        await session.configure(AudioSessionConfiguration(
+          avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+          avAudioSessionCategoryOptions: _isSpeakerphoneOn
+              ? AVAudioSessionCategoryOptions.defaultToSpeaker
+              : AVAudioSessionCategoryOptions.allowBluetooth,
+          avAudioSessionMode: AVAudioSessionMode.defaultPolicy,
+          androidAudioAttributes: AndroidAudioAttributes(
+            contentType: AndroidAudioContentType.speech,
+            flags: AndroidAudioFlags.none,
+            usage: AndroidAudioUsage.voiceCommunication,
+          ),
+          androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+          androidWillPauseWhenDucked: false,
+        ));
+        await session.setActive(true);
       } catch (e) {
         debugPrint('[CallService] Error toggling speakerphone: $e');
       }

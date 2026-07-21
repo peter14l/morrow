@@ -49,7 +49,7 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
           context.pushNamed(
             'active_call',
             pathParameters: {
-              'callId': (state.activeCall ?? state.incomingCall)!.id,
+              'callId': (callProvider.activeCall ?? callProvider.incomingCall)!.id,
             },
           );
         },
