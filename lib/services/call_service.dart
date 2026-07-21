@@ -8,7 +8,7 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/desktop_call_notifier.dart';
 import 'package:oasis/services/notification_manager.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:audio_session/audio_session.dart';
+import 'package:audio_session/audio_session.dart' as audio_session;
 import 'package:universal_io/io.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_background/flutter_background.dart';
@@ -114,8 +114,8 @@ class CallService extends ChangeNotifier {
   /// This ensures proper audio routing to speaker/earpiece/Bluetooth.
   Future<void> _configureCallAudioSession() async {
     if (kIsWeb) return;
-    final session = await AudioSession.instance;
-    await session.configure(const AudioSessionConfiguration.speech());
+    final session = await audio_session.AudioSession.instance;
+    await session.configure(const audio_session.AudioSessionConfiguration.speech());
   }
 
   // Getters
@@ -381,19 +381,19 @@ _room = Room(roomOptions: roomOptions);
     
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       try {
-        final session = await AudioSession.instance;
-        await session.configure(AudioSessionConfiguration(
-          avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+        final session = await audio_session.AudioSession.instance;
+        await session.configure(audio_session.AudioSessionConfiguration(
+          avAudioSessionCategory: audio_session.AVAudioSessionCategory.playAndRecord,
           avAudioSessionCategoryOptions: _isSpeakerphoneOn
-              ? AVAudioSessionCategoryOptions.defaultToSpeaker
-              : AVAudioSessionCategoryOptions.allowBluetooth,
-          avAudioSessionMode: AVAudioSessionMode.defaultPolicy,
-          androidAudioAttributes: AndroidAudioAttributes(
-            contentType: AndroidAudioContentType.speech,
-            flags: AndroidAudioFlags.none,
-            usage: AndroidAudioUsage.voiceCommunication,
+              ? audio_session.AVAudioSessionCategoryOptions.defaultToSpeaker
+              : audio_session.AVAudioSessionCategoryOptions.allowBluetooth,
+          avAudioSessionMode: audio_session.AVAudioSessionMode.defaultMode,
+          androidAudioAttributes: audio_session.AndroidAudioAttributes(
+            contentType: audio_session.AndroidAudioContentType.speech,
+            flags: audio_session.AndroidAudioFlags.none,
+            usage: audio_session.AndroidAudioUsage.voiceCommunication,
           ),
-          androidAudioFocusGainType: AndroidAudioFocusGainType.gainTransientExclusive,
+          androidAudioFocusGainType: audio_session.AndroidAudioFocusGainType.gainTransientExclusive,
           androidWillPauseWhenDucked: false,
         ));
         await session.setActive(true);
