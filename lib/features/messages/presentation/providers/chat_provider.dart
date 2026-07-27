@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
+import 'package:universal_io/io.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -702,11 +703,13 @@ class ChatProvider with ChangeNotifier {
       messageType =
           MessageType.document; // Videos are sent as document type in this app
       mediaUrl = videoFile.path;
-      fileName = videoFile.path.split(Platform.pathSeparator).last;
+      final sep = kIsWeb ? '/' : Platform.pathSeparator;
+      fileName = videoFile.path.split(sep).last;
     } else if (audioFile != null) {
       messageType = MessageType.voice;
       mediaUrl = audioFile.path;
-      fileName = audioFile.path.split(Platform.pathSeparator).last;
+      final sep = kIsWeb ? '/' : Platform.pathSeparator;
+      fileName = audioFile.path.split(sep).last;
     } else if (docFile != null) {
       messageType = MessageType.document;
       mediaUrl = docFile.path;

@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:universal_io/io.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
@@ -311,7 +312,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _pickImage() async {
     try {
-      if (Platform.isWindows) {
+      if (!kIsWeb && Platform.isWindows) {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
           allowMultiple: true,
@@ -341,7 +342,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _pickVideo() async {
     try {
-      if (Platform.isWindows) {
+      if (!kIsWeb && Platform.isWindows) {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.video,
           initialDirectory: await _mediaPicker.getInitialDirectory(),
