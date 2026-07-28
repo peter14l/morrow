@@ -26,7 +26,7 @@ class ChatReactionsProvider with ChangeNotifier {
     : _messagingService = messagingService;
 
   /// Group individual reactions by emoji for display.
-  List<GroupedReaction> groupReactions(
+  static List<GroupedReaction> groupReactions(
     List<MessageReactionModel> reactions,
     String? currentUserId,
   ) {

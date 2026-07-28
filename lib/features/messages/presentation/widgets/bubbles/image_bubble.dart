@@ -1,6 +1,7 @@
 import 'package:universal_io/io.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/messages/presentation/screens/image_preview_screen.dart';
 import 'package:oasis/features/messages/presentation/widgets/bubbles/text_bubble.dart';
@@ -277,12 +278,16 @@ class _ImageBubbleState extends State<ImageBubble> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            color: Colors.black.withValues(alpha: 0.1),
-                          ),
-                        ),
+                        child: kIsWeb
+                            ? Container(
+                                color: Colors.black.withValues(alpha: 0.4),
+                              )
+                            : BackdropFilter(
+                                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                                child: Container(
+                                  color: Colors.black.withValues(alpha: 0.1),
+                                ),
+                              ),
                       ),
                       placeholder: (context, url) =>
                           Container(color: Colors.grey[300]),
@@ -318,28 +323,48 @@ class _ImageBubbleState extends State<ImageBubble> {
 
         if (widget.message.isUploading) ...[
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                color: Colors.black.withValues(alpha: 0.3),
-                child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
-                      shape: BoxShape.circle,
+            child: kIsWeb
+                ? Container(
+                    color: Colors.black.withValues(alpha: 0.5),
+                    child: Center(
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${(widget.message.uploadProgress * 100).toInt()}%',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
                     ),
-                    child: Text(
-                      '${(widget.message.uploadProgress * 100).toInt()}%',
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                  )
+                : BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Text(
+                            '${(widget.message.uploadProgress * 100).toInt()}%',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ),
           ),
           Positioned(
             bottom: 0,

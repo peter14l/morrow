@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:oasis/features/messages/presentation/screens/image_preview_screen.dart';
 import 'package:oasis/services/media_cache_service.dart';
 import 'package:oasis/features/messages/data/chat_media_service.dart';
@@ -155,21 +156,34 @@ class _VideoBubbleState extends State<VideoBubble> {
             ),
             if (widget.message.isUploading) ...[
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    child: Center(
-                      child: Text(
-                        '${(widget.message.uploadProgress * 100).toInt()}%',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+                child: kIsWeb
+                    ? Container(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        child: Center(
+                          child: Text(
+                            '${(widget.message.uploadProgress * 100).toInt()}%',
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      )
+                    : BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          child: Center(
+                            child: Text(
+                              '${(widget.message.uploadProgress * 100).toInt()}%',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
               ),
               Positioned(
                 bottom: 0,

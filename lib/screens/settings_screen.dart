@@ -271,6 +271,137 @@ class _SettingsScreenState extends State<SettingsScreen> {
     material.ColorScheme colorScheme,
     bool isM3E,
   ) {
+    final Widget settingsContent = Row(
+      children: [
+        // Sidebar
+        Container(
+          width: 320,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainer.withValues(
+              alpha: 0.2,
+            ),
+            border: Border(
+              right: BorderSide(
+                color: colorScheme.onSurface.withValues(alpha: 0.05),
+              ),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DesktopHeader(
+                title: 'Settings',
+                showBackButton: true,
+                onBack: () {
+                  if (_selectedSubPage != null) {
+                    setState(() {
+                      _selectedSubPage = null;
+                      _subPageTitle = null;
+                    });
+                  } else if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/profile');
+                  }
+                },
+              ),
+              Expanded(
+                child: material.ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  children: [
+                    _buildSidebarItem(
+                      icon: FluentIcons.person_24_regular,
+                      selectedIcon: FluentIcons.person_24_filled,
+                      label: 'Account',
+                      category: SettingsCategory.account,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.timer_24_regular,
+                      selectedIcon: FluentIcons.timer_24_filled,
+                      label: 'General',
+                      category: SettingsCategory.general,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.shield_24_regular,
+                      selectedIcon: FluentIcons.shield_24_filled,
+                      label: 'Privacy & Security',
+                      category: SettingsCategory.privacy,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.paint_brush_24_regular,
+                      selectedIcon: FluentIcons.paint_brush_24_filled,
+                      label: 'Appearance',
+                      category: SettingsCategory.appearance,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.storage_24_regular,
+                      selectedIcon: FluentIcons.storage_24_filled,
+                      label: 'Data & Storage',
+                      category: SettingsCategory.data,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.text_font_24_regular,
+                      selectedIcon: FluentIcons.text_font_24_filled,
+                      label: 'Accessibility',
+                      category: SettingsCategory.accessibility,
+                    ),
+                    _buildSidebarItem(
+                      icon: FluentIcons.question_circle_24_regular,
+                      selectedIcon:
+                          FluentIcons.question_circle_24_filled,
+                      label: 'Support & About',
+                      category: SettingsCategory.support,
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: _buildSignOutButton(context, isDesktop: true),
+              ),
+            ],
+          ),
+        ),
+        // Content Area
+        Expanded(
+          child: Column(
+            children: [
+              DesktopHeader(
+                title: _selectedSubPage != null
+                    ? _subPageTitle ?? ''
+                    : _getCategoryTitle(_selectedCategory),
+                showBackButton: _selectedSubPage != null,
+                onBack: () => setState(() {
+                  _selectedSubPage = null;
+                  _subPageTitle = null;
+                }),
+              ),
+              const material.Divider(height: 1),
+              Expanded(
+                child: _selectedSubPage != null
+                    ? _selectedSubPage!
+                    : SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 32,
+                        ),
+                        child: MaxWidthContainer(
+                          maxWidth: 1000,
+                          child: _buildSelectedCategoryContent(
+                            context,
+                          ),
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+
     return material.Scaffold(
       backgroundColor: material.Colors.transparent,
       body: Padding(
@@ -285,139 +416,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(isM3E ? 32 : 24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Row(
-                children: [
-                  // Sidebar
-                  Container(
-                    width: 320,
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainer.withValues(
-                        alpha: 0.2,
-                      ),
-                      border: Border(
-                        right: BorderSide(
-                          color: colorScheme.onSurface.withValues(alpha: 0.05),
-                        ),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DesktopHeader(
-                          title: 'Settings',
-                          showBackButton: true,
-                          onBack: () {
-                            if (_selectedSubPage != null) {
-                              setState(() {
-                                _selectedSubPage = null;
-                                _subPageTitle = null;
-                              });
-                            } else if (context.canPop()) {
-                              context.pop();
-                            } else {
-                              context.go('/profile');
-                            }
-                          },
-                        ),
-                        Expanded(
-                          child: material.ListView(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            children: [
-                              _buildSidebarItem(
-                                icon: FluentIcons.person_24_regular,
-                                selectedIcon: FluentIcons.person_24_filled,
-                                label: 'Account',
-                                category: SettingsCategory.account,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.timer_24_regular,
-                                selectedIcon: FluentIcons.timer_24_filled,
-                                label: 'General',
-                                category: SettingsCategory.general,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.shield_24_regular,
-                                selectedIcon: FluentIcons.shield_24_filled,
-                                label: 'Privacy & Security',
-                                category: SettingsCategory.privacy,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.paint_brush_24_regular,
-                                selectedIcon: FluentIcons.paint_brush_24_filled,
-                                label: 'Appearance',
-                                category: SettingsCategory.appearance,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.storage_24_regular,
-                                selectedIcon: FluentIcons.storage_24_filled,
-                                label: 'Data & Storage',
-                                category: SettingsCategory.data,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.text_font_24_regular,
-                                selectedIcon: FluentIcons.text_font_24_filled,
-                                label: 'Accessibility',
-                                category: SettingsCategory.accessibility,
-                              ),
-                              _buildSidebarItem(
-                                icon: FluentIcons.question_circle_24_regular,
-                                selectedIcon:
-                                    FluentIcons.question_circle_24_filled,
-                                label: 'Support & About',
-                                category: SettingsCategory.support,
-                              ),
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: _buildSignOutButton(context, isDesktop: true),
-                        ),
-                      ],
-                    ),
+            child: kIsWeb
+                ? settingsContent
+                : BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                    child: settingsContent,
                   ),
-                  // Content Area
-                  Expanded(
-                    child: Column(
-                      children: [
-                        DesktopHeader(
-                          title: _selectedSubPage != null
-                              ? _subPageTitle ?? ''
-                              : _getCategoryTitle(_selectedCategory),
-                          showBackButton: _selectedSubPage != null,
-                          onBack: () => setState(() {
-                            _selectedSubPage = null;
-                            _subPageTitle = null;
-                          }),
-                        ),
-                        const material.Divider(height: 1),
-                        Expanded(
-                          child: _selectedSubPage != null
-                              ? _selectedSubPage!
-                              : SingleChildScrollView(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 40,
-                                    vertical: 32,
-                                  ),
-                                  child: MaxWidthContainer(
-                                    maxWidth: 1000,
-                                    child: _buildSelectedCategoryContent(
-                                      context,
-                                    ),
-                                  ),
-                                ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ),
       ),

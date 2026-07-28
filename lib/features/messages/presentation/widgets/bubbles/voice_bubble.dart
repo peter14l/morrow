@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:oasis/widgets/messages/voice_message_player.dart';
 import 'package:oasis/services/voice_transcript_service.dart';
@@ -236,10 +237,12 @@ class _VoiceBubbleState extends State<VoiceBubble> {
             ),
             if (widget.message.isUploading)
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                  child: Container(color: Colors.transparent),
-                ),
+                child: kIsWeb
+                    ? Container(color: Colors.black.withValues(alpha: 0.1))
+                    : BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                        child: Container(color: Colors.transparent),
+                      ),
               ),
           ],
         ),

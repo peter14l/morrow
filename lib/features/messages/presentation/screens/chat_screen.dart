@@ -88,6 +88,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   final TextEditingController _messageController = TextEditingController();
   final ValueNotifier<String> _textNotifier = ValueNotifier<String>('');
+  final ValueNotifier<bool> _focusNotifier = ValueNotifier<bool>(false);
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   final ChatMediaPicker _mediaPicker = ChatMediaPicker();
@@ -200,7 +201,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
 
     _focusNode.addListener(() {
-      if (mounted) setState(() {});
+      if (mounted) _focusNotifier.value = _focusNode.hasFocus;
     });
 
     _chatProvider.initialize();
@@ -293,6 +294,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     _messageController.dispose();
     _textNotifier.dispose();
+    _focusNotifier.dispose();
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -1200,17 +1202,24 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                       bgOpacity: 0.1,
                                       bgBrightness: 0.2,
                                     ),
-                                  BackdropFilter(
-                                    filter: ui.ImageFilter.blur(
-                                      sigmaX: 30,
-                                      sigmaY: 30,
-                                    ),
-                                    child: Container(
+                                  if (kIsWeb)
+                                    Container(
                                       color: colorScheme.surface.withValues(
-                                        alpha: 0.8,
+                                        alpha: 0.92,
+                                      ),
+                                    )
+                                  else
+                                    BackdropFilter(
+                                      filter: ui.ImageFilter.blur(
+                                        sigmaX: 30,
+                                        sigmaY: 30,
+                                      ),
+                                      child: Container(
+                                        color: colorScheme.surface.withValues(
+                                          alpha: 0.8,
+                                        ),
                                       ),
                                     ),
-                                  ),
                                   SafeArea(
                                     child: Center(
                                       child: Column(
@@ -1355,7 +1364,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(isM3E ? 28 : 12),
-        child: disableTransparency
+        child: disableTransparency || kIsWeb
             ? detailsContent
             : BackdropFilter(
                 filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),

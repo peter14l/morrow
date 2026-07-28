@@ -168,9 +168,22 @@ class _FakeGlassWrapper extends StatelessWidget {
     this.padding,
     required this.bgColor,
   });
-
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return Container(
+        padding: padding,
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.1),
+            width: 0.5,
+          ),
+        ),
+        child: child,
+      );
+    }
     return Container(
       padding: padding,
       decoration: BoxDecoration(

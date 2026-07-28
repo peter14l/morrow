@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/widgets.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -109,12 +110,20 @@ class AdaptiveScaffold extends StatelessWidget {
     );
   }
 
-  /// Build a new AppBar with liquid glass effect
   material.PreferredSizeWidget _buildLiquidGlassAppBar(
     Widget title,
     List<Widget>? actions,
     LiquidGlassMode mode,
   ) {
+    if (kIsWeb) {
+      final isDarkMode = mode == LiquidGlassMode.real;
+      return material.AppBar(
+        title: title,
+        actions: actions,
+        backgroundColor: isDarkMode ? const material.Color(0xFF1A1D24) : material.Colors.white,
+        elevation: 1,
+      );
+    }
     final isDarkMode = mode == LiquidGlassMode.real;
     final blurAmount = isDarkMode ? 15.0 : 10.0;
 

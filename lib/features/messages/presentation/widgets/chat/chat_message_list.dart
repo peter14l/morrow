@@ -120,6 +120,7 @@ class ChatMessageList extends StatelessWidget {
         onLongPress: () => onMessageLongPress(message, null),
         onDoubleTap: () => onMessageDoubleTap(message),
         onReactionsTap: onReactionsTap,
+        currentUserId: currentUserId,
       ),
     );
   }
@@ -198,6 +199,7 @@ class MessageBubble extends StatelessWidget {
     this.textColorReceived,
     this.onReactionsTap,
     required this.maxWidth,
+    this.currentUserId,
   });
 
   final Message message;
@@ -211,6 +213,7 @@ class MessageBubble extends StatelessWidget {
   final Color? textColorReceived;
   final VoidCallback? onReactionsTap;
   final double maxWidth;
+  final String? currentUserId;
 
   @override
   Widget build(BuildContext context) {
@@ -536,11 +539,9 @@ class MessageBubble extends StatelessWidget {
   Widget _buildReactionBadges(BuildContext context, bool isMe) {
     final colorScheme = Theme.of(context).colorScheme;
     final groupedReactions =
-        ChatReactionsProvider(
-          messagingService: context.read<MessagingService>(),
-        ).groupReactions(
+        ChatReactionsProvider.groupReactions(
           message.reactions,
-          null, // currentUserId not needed for display grouping
+          currentUserId,
         );
 
     if (groupedReactions.isEmpty) return const SizedBox.shrink();

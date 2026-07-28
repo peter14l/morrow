@@ -3,6 +3,7 @@
 import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:flutter/gestures.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -314,7 +315,7 @@ class _MainLayoutState extends State<MainLayout> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
     final disableTransparency =
-        isM3E && themeProvider.isM3ETransparencyDisabled;
+        kIsWeb || (isM3E && themeProvider.isM3ETransparencyDisabled);
     final currentIndex = _getCurrentIndex();
     final isDesktop = ResponsiveLayout.isDesktop(context);
 
@@ -828,7 +829,7 @@ class _MainLayoutState extends State<MainLayout> {
   }) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final disableTransparency =
-        themeProvider.isM3EEnabled && themeProvider.isM3ETransparencyDisabled;
+        kIsWeb || (themeProvider.isM3EEnabled && themeProvider.isM3ETransparencyDisabled);
 
     // Indices 0 (Feed) and 1 (Search) are restricted when kill-switch is on.
     Widget restrictedIcon(Widget icon) =>
