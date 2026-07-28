@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
@@ -34,14 +36,30 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
   void initState() {
     super.initState();
     if (!kIsWeb && Platform.isAndroid) {
+      _requestInitialPermissions();
       if (_cachedController != null) {
         // Reuse existing controller to preserve scroll position and page state
         _controller = _cachedController;
         _updateNavigationState();
         _setupScrollHandler();
+        _setupWebPermissionHandler();
       } else {
         _initWebView();
       }
+    }
+  }
+
+  Future<void> _requestInitialPermissions() async {
+    // Request critical permissions for media browsing (photo uploads) and microphone (voice recordings)
+    try {
+      await [
+        Permission.camera,
+        Permission.microphone,
+        Permission.photos,
+        Permission.videos,
+      ].request();
+    } catch (e) {
+      debugPrint('[InstagramWebView] Error requesting permissions: $e');
     }
   }
 
@@ -84,6 +102,7 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       );
       
     _setupScrollHandler();
+    _setupWebPermissionHandler();
     _controller!.loadRequest(Uri.parse('https://www.instagram.com/'));
     _cachedController = _controller;
   }
@@ -106,6 +125,32 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
         }
       }
     });
+  }
+
+  void _setupWebPermissionHandler() {
+    if (_controller == null) return;
+    final platform = _controller!.platform;
+    if (platform is AndroidWebViewController) {
+      platform.setOnPermissionRequest((AndroidWebViewPermissionRequest request) async {
+        final resources = request.resources;
+        
+        // Ensure system permissions are granted before approving the webview request
+        for (final resource in resources) {
+          if (resource == 'android.webkit.resource.AUDIO_CAPTURE') {
+            await Permission.microphone.request();
+          } else if (resource == 'android.webkit.resource.VIDEO_CAPTURE') {
+            await Permission.camera.request();
+          }
+        }
+        
+        // Grant the requested resource access to the web app
+        try {
+          await request.grant();
+        } catch (e) {
+          debugPrint('[InstagramWebView] Failed to grant webview permission: $e');
+        }
+      });
+    }
   }
 
   void _showNavBarAndScheduleHide() {
@@ -199,70 +244,80 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Instagram Web'),
-        elevation: 0,
-        backgroundColor: theme.colorScheme.surface,
-        leading: IconButton(
-          icon: const Icon(FluentIcons.arrow_left_24_regular),
-          onPressed: () {
-            context.go('/feed');
-          },
+    return PopScope(
+      canPop: !_canGoBack,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (_controller != null && _canGoBack) {
+          await _controller!.goBack();
+          _updateNavigationState();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Instagram Web'),
+          elevation: 0,
+          backgroundColor: theme.colorScheme.surface,
+          leading: IconButton(
+            icon: const Icon(FluentIcons.arrow_left_24_regular),
+            onPressed: () {
+              context.go('/feed');
+            },
+          ),
+          actions: [
+            IconButton(
+              icon: Icon(
+                FluentIcons.arrow_left_24_regular,
+                color: _canGoBack ? theme.colorScheme.onSurface : Colors.grey,
+              ),
+              onPressed: _canGoBack
+                  ? () async {
+                      await _controller?.goBack();
+                      _updateNavigationState();
+                    }
+                  : null,
+            ),
+            IconButton(
+              icon: Icon(
+                FluentIcons.arrow_right_24_regular,
+                color: _canGoForward ? theme.colorScheme.onSurface : Colors.grey,
+              ),
+              onPressed: _canGoForward
+                  ? () async {
+                      await _controller?.goForward();
+                      _updateNavigationState();
+                    }
+                  : null,
+            ),
+            IconButton(
+              icon: const Icon(FluentIcons.arrow_clockwise_24_regular),
+              onPressed: () => _controller?.reload(),
+            ),
+          ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              FluentIcons.arrow_left_24_regular,
-              color: _canGoBack ? theme.colorScheme.onSurface : Colors.grey,
-            ),
-            onPressed: _canGoBack
-                ? () async {
-                    await _controller?.goBack();
-                    _updateNavigationState();
-                  }
-                : null,
-          ),
-          IconButton(
-            icon: Icon(
-              FluentIcons.arrow_right_24_regular,
-              color: _canGoForward ? theme.colorScheme.onSurface : Colors.grey,
-            ),
-            onPressed: _canGoForward
-                ? () async {
-                    await _controller?.goForward();
-                    _updateNavigationState();
-                  }
-                : null,
-          ),
-          IconButton(
-            icon: const Icon(FluentIcons.arrow_clockwise_24_regular),
-            onPressed: () => _controller?.reload(),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          if (_controller != null)
-            Padding(
-              // Only pad the system safe navigation area (gesture bar) so Instagram takes full viewport height
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).padding.bottom,
+        body: Stack(
+          children: [
+            if (_controller != null)
+              Padding(
+                // Only pad the system safe navigation area (gesture bar) so Instagram takes full viewport height
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).padding.bottom,
+                ),
+                child: WebViewWidget(controller: _controller!),
               ),
-              child: WebViewWidget(controller: _controller!),
-            ),
-          if (_isLoading)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                value: _progress > 0 ? _progress : null,
-                backgroundColor: theme.colorScheme.surfaceContainer,
-                valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+            if (_isLoading)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(
+                  value: _progress > 0 ? _progress : null,
+                  backgroundColor: theme.colorScheme.surfaceContainer,
+                  valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
