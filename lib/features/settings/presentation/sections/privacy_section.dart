@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -80,13 +82,14 @@ class PrivacySection extends StatelessWidget {
               iconColor: material.Colors.blue,
               onTap: () => context.push('/settings/home-location'),
             ),
-            SettingsTile(
-              icon: material.Icons.visibility_off_outlined,
-              title: 'Stealth Mode',
-              subtitle: 'Disguise Oasis as a calendar app',
-              iconColor: material.Colors.blueGrey,
-              onTap: () => onNavigateToSubPage('Stealth Mode', const StealthSettingsScreen()),
-            ),
+            if (kIsWeb || !Platform.isWindows)
+              SettingsTile(
+                icon: material.Icons.visibility_off_outlined,
+                title: 'Stealth Mode',
+                subtitle: 'Disguise Oasis as a calendar app',
+                iconColor: material.Colors.blueGrey,
+                onTap: () => onNavigateToSubPage('Stealth Mode', const StealthSettingsScreen()),
+              ),
             SettingsTile(
               icon: material.Icons.download_outlined,
               title: 'Download Your Data',

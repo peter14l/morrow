@@ -15,19 +15,7 @@ class _DecoyCalendarScreenState extends State<DecoyCalendarScreen> {
   late DateTime _selectedDay;
 
   // Predefined events for realistic calendar look
-  final Map<int, List<String>> _dummyEvents = {
-    1: ['Gym Session (7:00 AM)', 'Design Review (10:30 AM)'],
-    3: ['Team Standup (9:30 AM)', 'Lunch with Sarah (12:30 PM)'],
-    5: ['Weekly Sync (11:00 AM)', 'Dentist Appointment (4:00 PM)'],
-    8: ['Product Demo (2:00 PM)', 'Groceries Shopping'],
-    12: ['Parents Evening (6:00 PM)'],
-    15: ['Project Retro (3:00 PM)', 'Yoga Class (6:30 PM)'],
-    19: ['Car Service (9:00 AM)'],
-    22: ['Marketing Sync (11:30 AM)', 'Dinner with Alex (8:00 PM)'],
-    26: ['Coffee with Mentor (4:30 PM)'],
-    28: ['Oasis Team Catchup (10:00 AM)', 'Pharmacy run'],
-    30: ['Gym Session (7:00 AM)', 'Monthly Budget Review (5:00 PM)'],
-  };
+  final Map<int, List<String>> _dummyEvents = {};
 
   @override
   void initState() {
@@ -38,19 +26,6 @@ class _DecoyCalendarScreenState extends State<DecoyCalendarScreen> {
   }
 
   List<String> _getEventsForDay(DateTime date) {
-    // Return events if the month matches current month and day is in map
-    if (date.month == 7 && date.year == 2026) {
-      return _dummyEvents[date.day] ?? [];
-    }
-    // Return a cycling dummy event for other months to look realistic
-    final cycleDay = date.day % 7;
-    if (cycleDay == 1) {
-      return ['Routine Workout', 'Catch up on emails'];
-    } else if (cycleDay == 3) {
-      return ['Weekly Planning meeting'];
-    } else if (cycleDay == 5) {
-      return ['Dinner reservation (7:30 PM)'];
-    }
     return [];
   }
 
