@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -129,28 +128,27 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
 
   void _setupWebPermissionHandler() {
     if (_controller == null) return;
-    final platform = _controller!.platform;
-    if (platform is AndroidWebViewController) {
-      platform.setOnPermissionRequest((AndroidWebViewPermissionRequest request) async {
-        final resources = request.resources;
-        
-        // Ensure system permissions are granted before approving the webview request
-        for (final resource in resources) {
-          if (resource == 'android.webkit.resource.AUDIO_CAPTURE') {
-            await Permission.microphone.request();
-          } else if (resource == 'android.webkit.resource.VIDEO_CAPTURE') {
-            await Permission.camera.request();
-          }
+    
+    // Set the platform-agnostic permission request handler directly on the WebViewController
+    _controller!.setOnPermissionRequest((WebViewPermissionRequest request) async {
+      final types = request.types;
+      
+      // Ensure system permissions are granted before approving the webview request
+      for (final type in types) {
+        if (type == WebViewPermissionResourceType.microphone) {
+          await Permission.microphone.request();
+        } else if (type == WebViewPermissionResourceType.camera) {
+          await Permission.camera.request();
         }
-        
-        // Grant the requested resource access to the web app
-        try {
-          await request.grant();
-        } catch (e) {
-          debugPrint('[InstagramWebView] Failed to grant webview permission: $e');
-        }
-      });
-    }
+      }
+      
+      // Grant the requested resource access to the web app
+      try {
+        await request.grant();
+      } catch (e) {
+        debugPrint('[InstagramWebView] Failed to grant webview permission: $e');
+      }
+    });
   }
 
   void _showNavBarAndScheduleHide() {
