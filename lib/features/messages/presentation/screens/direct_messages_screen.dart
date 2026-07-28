@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'dart:ui';
@@ -520,7 +521,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
     final colorScheme = theme.colorScheme;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
-    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled || kIsWeb;
     final useFluent = themeProvider.useFluentUI;
 
     final Widget desktopContent = Container(
@@ -1392,11 +1393,10 @@ class _BentoItem extends StatelessWidget {
             ],
           ),
         ),
-        child: ClipRRect(
+        child: _wrapWithBlur(
+          sigma: 8,
           borderRadius: BorderRadius.circular(20),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-            child: Stack(
+          child: Stack(
               children: [
                 Positioned(
                   top: -15,
@@ -1607,7 +1607,6 @@ class _BentoItem extends StatelessWidget {
               ],
             ),
           ),
-        ),
       ),
     )).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack).fadeIn();
   }
@@ -1746,10 +1745,9 @@ class _FloatingBubble extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: ClipOval(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: Container(
+                    child: _wrapWithBlurOval(
+                      sigma: 5,
+                      child: Container(
                           color: vibeColor.withValues(alpha: 0.05),
                           child: conversation.otherUserAvatar.isNotEmpty
                               ? CachedNetworkImage(
@@ -1780,7 +1778,6 @@ class _FloatingBubble extends StatelessWidget {
                                         ),
                                 ),
                         ),
-                      ),
                     ),
                   ),
                 ),
@@ -1912,11 +1909,10 @@ class _StealthPreviewPopup extends StatelessWidget {
                             ),
                           ],
                         ),
-                        child: ClipRRect(
+                        child: _wrapWithBlur(
+                          sigma: 40,
                           borderRadius: BorderRadius.circular(32),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                            child: Container(
+                          child: Container(
                               color: theme.colorScheme.surface.withValues(
                                 alpha: 0.8,
                               ),
@@ -2047,7 +2043,6 @@ class _StealthPreviewPopup extends StatelessWidget {
                                 ],
                               ),
                             ),
-                          ),
                         ),
                       )
                       .animate()
@@ -2268,4 +2263,43 @@ class _ConversationListTile extends StatelessWidget {
       return '${time.month}/${time.day}/${time.year}';
     }
   }
+}
+
+Widget _wrapWithBlur({
+  required Widget child,
+  required double sigma,
+  required BorderRadius borderRadius,
+  bool disabled = false,
+}) {
+  if (kIsWeb || disabled) {
+    return ClipRRect(
+      borderRadius: borderRadius,
+      child: child,
+    );
+  }
+  return ClipRRect(
+    borderRadius: borderRadius,
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: child,
+    ),
+  );
+}
+
+Widget _wrapWithBlurOval({
+  required Widget child,
+  required double sigma,
+  bool disabled = false,
+}) {
+  if (kIsWeb || disabled) {
+    return ClipOval(
+      child: child,
+    );
+  }
+  return ClipOval(
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
+      child: child,
+    ),
+  );
 }

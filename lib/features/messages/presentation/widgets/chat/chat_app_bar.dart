@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/providers/presence_provider.dart';
@@ -508,7 +509,7 @@ Widget build(BuildContext context) {
   final theme = Theme.of(context);
   final colorScheme = theme.colorScheme;
   final themeProvider = context.watch<ThemeProvider>();
-  final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+  final disableTransparency = themeProvider.isM3ETransparencyDisabled || kIsWeb;
   final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
   final isDark = theme.brightness == Brightness.dark;
 

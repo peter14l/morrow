@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart' as material;
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
@@ -249,7 +250,7 @@ class NavigationShell extends material.StatelessWidget {
       context,
       listen: false,
     );
-    final disableTransparency = themeProvider.isM3ETransparencyDisabled;
+    final disableTransparency = themeProvider.isM3ETransparencyDisabled || kIsWeb;
 
     if (disableTransparency) {
       return Container(
