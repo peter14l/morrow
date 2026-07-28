@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -8,22 +9,39 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 class InstagramFeedScreen extends StatefulWidget {
   const InstagramFeedScreen({super.key});
 
+  // Static notifier to communicate tab-bar visibility state to the parent MainLayout router shell
+  static final ValueNotifier<bool> showNavBarNotifier = ValueNotifier<bool>(true);
+
   @override
   State<InstagramFeedScreen> createState() => _InstagramFeedScreenState();
 }
 
 class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
+  // Static controller cache to keep the webview state alive when navigating away
+  static WebViewController? _cachedController;
+  
   WebViewController? _controller;
-  bool _isLoading = true;
+  bool _isLoading = false;
   double _progress = 0;
   bool _canGoBack = false;
   bool _canGoForward = false;
+
+  // Scroll detection tracking variables
+  double _lastScrollY = 0;
+  Timer? _hideTimer;
 
   @override
   void initState() {
     super.initState();
     if (!kIsWeb && Platform.isAndroid) {
-      _initWebView();
+      if (_cachedController != null) {
+        // Reuse existing controller to preserve scroll position and page state
+        _controller = _cachedController;
+        _updateNavigationState();
+        _setupScrollHandler();
+      } else {
+        _initWebView();
+      }
     }
   }
 
@@ -63,8 +81,52 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
             debugPrint('[InstagramWebView] Error: ${error.description}');
           },
         ),
-      )
-      ..loadRequest(Uri.parse('https://www.instagram.com/'));
+      );
+      
+    _setupScrollHandler();
+    _controller!.loadRequest(Uri.parse('https://www.instagram.com/'));
+    _cachedController = _controller;
+  }
+
+  void _setupScrollHandler() {
+    _controller!.setOnScrollPositionChange((ScrollPositionChange change) {
+      if (!mounted) return;
+      final y = change.y;
+      final delta = y - _lastScrollY;
+      _lastScrollY = y;
+
+      // Filter out micro-scrolls to prevent jitter
+      if (delta.abs() > 4) {
+        if (delta < 0) {
+          // Scroll UP -> Hide Oasis navigation bar
+          _hideNavBar();
+        } else if (delta > 0) {
+          // Scroll DOWN -> Show Oasis navigation bar and set auto-hide timer
+          _showNavBarAndScheduleHide();
+        }
+      }
+    });
+  }
+
+  void _showNavBarAndScheduleHide() {
+    _hideTimer?.cancel();
+    if (!InstagramFeedScreen.showNavBarNotifier.value) {
+      InstagramFeedScreen.showNavBarNotifier.value = true;
+    }
+    
+    // Auto-hide navigation bar after 7 seconds of no scrolling
+    _hideTimer = Timer(const Duration(seconds: 7), () {
+      if (mounted) {
+        _hideNavBar();
+      }
+    });
+  }
+
+  void _hideNavBar() {
+    _hideTimer?.cancel();
+    if (InstagramFeedScreen.showNavBarNotifier.value) {
+      InstagramFeedScreen.showNavBarNotifier.value = false;
+    }
   }
 
   Future<void> _updateNavigationState() async {
@@ -77,6 +139,14 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
         _canGoForward = canGoForward;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _hideTimer?.cancel();
+    // Always restore the navigation bar state so it is visible by default on other tabs
+    InstagramFeedScreen.showNavBarNotifier.value = true;
+    super.dispose();
   }
 
   @override
@@ -137,7 +207,6 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
         leading: IconButton(
           icon: const Icon(FluentIcons.arrow_left_24_regular),
           onPressed: () {
-            // Signal navigation back to feed
             context.go('/feed');
           },
         ),
@@ -174,7 +243,14 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       ),
       body: Stack(
         children: [
-          if (_controller != null) WebViewWidget(controller: _controller!),
+          if (_controller != null)
+            Padding(
+              // Only pad the system safe navigation area (gesture bar) so Instagram takes full viewport height
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).padding.bottom,
+              ),
+              child: WebViewWidget(controller: _controller!),
+            ),
           if (_isLoading)
             Positioned(
               top: 0,

@@ -182,12 +182,18 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     super.initState();
     _checkEncryption();
+    InstagramFeedScreen.showNavBarNotifier.addListener(_onInstagramNavBarChanged);
   }
 
   @override
   void dispose() {
+    InstagramFeedScreen.showNavBarNotifier.removeListener(_onInstagramNavBarChanged);
     _fluentCreateFlyoutController.dispose();
     super.dispose();
+  }
+
+  void _onInstagramNavBarChanged() {
+    if (mounted) setState(() {});
   }
 
   Future<void> _checkEncryption() async {
@@ -561,7 +567,7 @@ class _MainLayoutState extends State<MainLayout> {
                 ],
               ),
             ),
-            bottomNavigationBar: !isDesktop
+            bottomNavigationBar: !isDesktop && (GoRouterState.of(context).uri.path != '/instagram' || InstagramFeedScreen.showNavBarNotifier.value)
                 ? _buildBottomNavigationBar(
                     context,
                     currentIndex,
@@ -731,7 +737,7 @@ class _MainLayoutState extends State<MainLayout> {
               ],
             ),
           ),
-          bottomNavigationBar: !isDesktop
+          bottomNavigationBar: !isDesktop && (GoRouterState.of(context).uri.path != '/instagram' || InstagramFeedScreen.showNavBarNotifier.value)
               ? _buildBottomNavigationBar(
                   context,
                   currentIndex,
