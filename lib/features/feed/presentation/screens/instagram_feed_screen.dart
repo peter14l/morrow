@@ -98,11 +98,11 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       // Filter out micro-scrolls to prevent jitter
       if (delta.abs() > 4) {
         if (delta < 0) {
-          // Scroll UP -> Hide Oasis navigation bar
-          _hideNavBar();
-        } else if (delta > 0) {
-          // Scroll DOWN -> Show Oasis navigation bar and set auto-hide timer
+          // Scroll UP -> Show Oasis navigation bar and set auto-hide timer
           _showNavBarAndScheduleHide();
+        } else if (delta > 0) {
+          // Scroll DOWN -> Hide Oasis navigation bar
+          _hideNavBar();
         }
       }
     });
