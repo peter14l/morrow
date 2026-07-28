@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oasis/core/storage/prefs_storage.dart';
 
 
 /// Splash screen shown during app initialization
@@ -73,6 +74,37 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    bool isDecoyEnabled = false;
+    try {
+      isDecoyEnabled = PrefsStorage().readBool('is_decoy_enabled') ?? false;
+    } catch (_) {}
+
+    if (isDecoyEnabled) {
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      return Scaffold(
+        backgroundColor: isDark ? const Color(0xFF121212) : Colors.white,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 40,
+                height: 40,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isDark
+                        ? Colors.white.withValues(alpha: 0.4)
+                        : Theme.of(context).primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     // Colors extracted from app_icon.png
     const Color outerColor = Color(0xFF010D1B); // Deep navy at the edges
     const Color innerColor = Color(

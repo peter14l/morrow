@@ -781,6 +781,13 @@ void main() async {
       await AppInitializer.loadEnv();
       await AppInitializer.initFirebase();
 
+      // Initialize preferences early to check decoy mode status on splash screen
+      try {
+        await PrefsStorage.init();
+      } catch (e) {
+        material.debugPrint('Early PrefsStorage initialization failed: $e');
+      }
+
       runApp(
         material.MaterialApp(
           debugShowCheckedModeBanner: false,

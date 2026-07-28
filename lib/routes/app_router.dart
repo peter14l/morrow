@@ -1361,6 +1361,10 @@ class AppRouter {
           if (state.uri.path != '/decoy-calendar') {
             return '/decoy-calendar';
           }
+        } else {
+          if (state.uri.path == '/decoy-calendar') {
+            return '/feed';
+          }
         }
         // Password-reset screen is always reachable once Supabase sets the
         // recovery session — never redirect away from it automatically.
