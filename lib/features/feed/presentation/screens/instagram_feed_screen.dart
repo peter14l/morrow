@@ -130,7 +130,7 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
     if (_controller == null) return;
     
     // Set the platform-agnostic permission request handler directly on the WebViewController
-    _controller!.setOnPermissionRequest((WebViewPermissionRequest request) async {
+    _controller!.setOnPlatformPermissionRequest((WebViewPermissionRequest request) async {
       final types = request.types;
       
       // Ensure system permissions are granted before approving the webview request
