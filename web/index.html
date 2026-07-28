@@ -70,12 +70,12 @@
     async function loadPqAuraWasm() {
       try {
         // Check if the WASM pkg exists before attempting to import
-        const response = await fetch('/pkg/pq_aura_bg.wasm', { method: 'HEAD' });
+        const response = await fetch('pkg/pq_aura_bg.wasm', { method: 'HEAD' });
         if (!response.ok) {
-          console.info('[PQ-Aura] WASM bundle not found at /pkg/ — using fallback encryption.');
+          console.info('[PQ-Aura] WASM bundle not found at pkg/ — using fallback encryption.');
           return;
         }
-        const pqAura = await import('/pkg/pq_aura.js');
+        const pqAura = await import('./pkg/pq_aura.js');
         await pqAura.default(); // Initialize WASM module
         window._pqAuraWasm = pqAura;
         window._pqAuraWasmReady = true;

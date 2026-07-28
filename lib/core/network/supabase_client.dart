@@ -73,7 +73,6 @@ class SupabaseService {
           ),
           realtimeClientOptions: const RealtimeClientOptions(
             eventsPerSecond: 10,
-            logLevel: RealtimeLogLevel.error,
             timeout: Duration(seconds: 30), // Increased from default 10s
           ),
         );

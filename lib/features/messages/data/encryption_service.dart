@@ -946,6 +946,50 @@ class EncryptionService {
     reset();
   }
 
+  String? get cachedPrimaryKey => _cachedPrimaryKey;
+
+  /// Encrypts raw data using the user's own RSA public key.
+  Future<String?> encryptWithMyPublicKey(Uint8List data) async {
+    final userId = _supabase.auth.currentUser?.id;
+    if (userId == null) return null;
+    final publicKeyPem = await _secureStorage.read(
+      key: KeyManagementService.publicKeyKey(userId),
+    );
+    if (publicKeyPem == null) return null;
+    try {
+      final rsaEncrypter = encrypt.Encrypter(
+        encrypt.RSA(publicKey: CryptoUtils.rsaPublicKeyFromPem(publicKeyPem)),
+      );
+      final encrypted = rsaEncrypter.encryptBytes(data);
+      return encrypted.base64;
+    } catch (e) {
+      debugPrint('[EncryptionService] Error encrypting with my public key: $e');
+      return null;
+    }
+  }
+
+  /// Decrypts data using the user's own RSA private key.
+  Future<Uint8List?> decryptWithMyPrivateKey(String base64Ciphertext) async {
+    final privateKeyPem = _cachedPrimaryKey ?? await () async {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return null;
+      return await _secureStorage.read(
+        key: KeyManagementService.privateKeyKey(userId),
+      );
+    }();
+    if (privateKeyPem == null) return null;
+    try {
+      final rsaEncrypter = encrypt.Encrypter(
+        encrypt.RSA(privateKey: CryptoUtils.rsaPrivateKeyFromPem(privateKeyPem)),
+      );
+      final decrypted = rsaEncrypter.decryptBytes(encrypt.Encrypted.fromBase64(base64Ciphertext));
+      return Uint8List.fromList(decrypted);
+    } catch (e) {
+      debugPrint('[EncryptionService] Error decrypting with my private key: $e');
+      return null;
+    }
+  }
+
   // --- Helpers & Cleanup ---
 
   void reset() {

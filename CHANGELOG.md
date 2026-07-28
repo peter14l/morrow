@@ -2,6 +2,20 @@
 
 All notable changes to the Oasis project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.13] - 2026-07-28
+
+### Security & Privacy
+- **Stealth Decoy App Mode** - Added a stealth setting to completely disguise the app as a simple "Calendar" app on the home screen (supporting dynamic icon and name rebranding on Android, and dynamic alternate icon on iOS).
+- **Multi-Finger Gesture Unlock** - Implemented a secret raw pointer listener requiring a **triple-finger swipe down** to reveal the security PIN sheet on the decoy screen.
+- **PIN-Protected Unlock** - Locked decoy calendar screen behind a secure 6-digit PIN bottom sheet verification.
+- **Background & Screen-Lock Auto-Locking** - Integrated app lifecycle listeners that instantly lock the app back to its decoy state when minimized or when the device screen locks.
+- **Stealth Settings Panel** - Added interface inside Privacy settings to toggle Stealth Mode, setup a 6-digit PIN with double-entry check, and change the PIN.
+
+### Web & Platform Compatibility
+- **Web Compilation Refactoring** - Fixed web compilation errors by resolving window effect invocations and titles that rely on non-web package signatures.
+- **Database & Migration Updates** - Optimized schema definitions and cleaned up database migration logs.
+- **Cleanup** - Evicted massive debug trace files, dump logs, and obsolete plans to optimize repository size.
+
 ## [1.1.11] - 2026-05-15
 
 ### UI/UX & Theming

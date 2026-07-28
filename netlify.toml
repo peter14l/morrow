@@ -1,0 +1,8 @@
+[build]
+  publish = "build/web"
+  command = "echo 'Build handled by CI'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -99,29 +99,35 @@ class ChatAppBar extends StatelessWidget {
                     children: [
                       Stack(
                         children: [
-                          CircleAvatar(
-                            radius: isDesktop ? 18 : 16,
-                            backgroundColor: colorScheme.primaryContainer,
-                            backgroundImage: (otherUserAvatar ?? '').isNotEmpty
-                                ? CachedNetworkImageProvider(otherUserAvatar!)
-                                : null,
-                            onBackgroundImageError: (exception, stackTrace) {
-                              debugPrint('Avatar image error: $exception');
-                            },
-                            child: (otherUserAvatar ?? '').isEmpty
-                                ? Icon(
-                                    context
-                                                .read<ChatProvider>()
-                                                .state
-                                                .conversationType ==
-                                            'group'
-                                        ? Icons.group
-                                        : Icons.person,
-                                    color: colorScheme.onPrimaryContainer,
-                                    size: 16,
-                                  )
-                                : null,
-                          ),
+                          Builder(builder: (context) {
+                            final avatarUrl = otherUserAvatar ?? '';
+                            final hasAvatar = avatarUrl.isNotEmpty;
+                            return CircleAvatar(
+                              radius: isDesktop ? 18 : 16,
+                              backgroundColor: colorScheme.primaryContainer,
+                              backgroundImage: hasAvatar
+                                  ? CachedNetworkImageProvider(avatarUrl)
+                                  : null,
+                              onBackgroundImageError: hasAvatar
+                                  ? (exception, stackTrace) {
+                                      debugPrint('Avatar image error: $exception');
+                                    }
+                                  : null,
+                              child: !hasAvatar
+                                  ? Icon(
+                                      context
+                                                  .read<ChatProvider>()
+                                                  .state
+                                                  .conversationType ==
+                                              'group'
+                                          ? Icons.group
+                                          : Icons.person,
+                                      color: colorScheme.onPrimaryContainer,
+                                      size: 16,
+                                    )
+                                  : null,
+                            );
+                          }),
                           Consumer<PresenceProvider>(
                             builder: (context, presenceProvider, child) {
                               if (context
@@ -338,23 +344,32 @@ class ChatAppBar extends StatelessWidget {
             // Avatar & Name
             Stack(
               children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: colorScheme.primaryContainer,
-                  backgroundImage: (otherUserAvatar ?? '').isNotEmpty
-                      ? CachedNetworkImageProvider(otherUserAvatar!)
-                      : null,
-                  child: (otherUserAvatar ?? '').isEmpty
-                      ? Text(
-                          (otherUserName.isNotEmpty ? otherUserName[0] : 'U')
-                              .toUpperCase(),
-                          style: TextStyle(
-                            color: colorScheme.onPrimaryContainer,
-                            fontSize: 14,
-                          ),
-                        )
-                      : null,
-                ),
+                Builder(builder: (context) {
+                  final avatarUrl = otherUserAvatar ?? '';
+                  final hasAvatar = avatarUrl.isNotEmpty;
+                  return CircleAvatar(
+                    radius: 18,
+                    backgroundColor: colorScheme.primaryContainer,
+                    backgroundImage: hasAvatar
+                        ? CachedNetworkImageProvider(avatarUrl)
+                        : null,
+                    onBackgroundImageError: hasAvatar
+                        ? (exception, stackTrace) {
+                            debugPrint('Fluent avatar image error: $exception');
+                          }
+                        : null,
+                    child: !hasAvatar
+                        ? Text(
+                            (otherUserName.isNotEmpty ? otherUserName[0] : 'U')
+                                .toUpperCase(),
+                            style: TextStyle(
+                              color: colorScheme.onPrimaryContainer,
+                              fontSize: 14,
+                            ),
+                          )
+                        : null,
+                  );
+                }),
                 Consumer<PresenceProvider>(
                   builder: (context, presenceProvider, child) {
                     final isOnline =

@@ -8,15 +8,19 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import android.content.ComponentName
+import android.content.pm.PackageManager
 
 class MainActivity : FlutterFragmentActivity() {
     private val GEOFENCE_CHANNEL = "oasis/geofence"
     private val CALL_CHANNEL = "oasis/call"
     private val NOTIFICATION_CHANNEL = "oasis/notification_tap"
+    private val STEALTH_CHANNEL = "oasis/stealth_mode"
     private val geofenceManager by lazy { OasisGeofenceManager(this) }
     private var geofenceMethodChannel: MethodChannel? = null
     private var callMethodChannel: MethodChannel? = null
     private var notificationMethodChannel: MethodChannel? = null
+    private var stealthMethodChannel: MethodChannel? = null
     private var pendingCallId: String? = null
     private var pendingNotificationPayload: String? = null
 
@@ -41,8 +45,20 @@ class MainActivity : FlutterFragmentActivity() {
             geofenceMethodChannel = MethodChannel(messenger, GEOFENCE_CHANNEL)
             callMethodChannel = MethodChannel(messenger, CALL_CHANNEL)
             notificationMethodChannel = MethodChannel(messenger, NOTIFICATION_CHANNEL)
+            stealthMethodChannel = MethodChannel(messenger, STEALTH_CHANNEL)
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Failed to initialize method channels: $e")
+        }
+
+        stealthMethodChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "setStealthMode" -> {
+                    val enable = call.argument<Boolean>("enable") ?: false
+                    setStealthMode(enable)
+                    result.success(true)
+                }
+                else -> result.notImplemented()
+            }
         }
 
         // Handle retrieval of data received during cold start
@@ -124,6 +140,38 @@ class MainActivity : FlutterFragmentActivity() {
         if (payload != null) {
             pendingNotificationPayload = payload
             notificationMethodChannel?.invokeMethod("onNotificationTap", payload)
+        }
+    }
+
+    private fun setStealthMode(enable: Boolean) {
+        val packageManager = packageManager
+        val normalAlias = ComponentName(this, "com.oasis.app.MainActivityAliasNormal")
+        val decoyAlias = ComponentName(this, "com.oasis.app.MainActivityAliasDecoy")
+
+        if (enable) {
+            packageManager.setComponentEnabledSetting(
+                decoyAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            packageManager.setComponentEnabledSetting(
+                normalAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            android.util.Log.d("MainActivity", "Decoy mode alias enabled, normal alias disabled")
+        } else {
+            packageManager.setComponentEnabledSetting(
+                normalAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            packageManager.setComponentEnabledSetting(
+                decoyAlias,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+            android.util.Log.d("MainActivity", "Normal mode alias enabled, decoy alias disabled")
         }
     }
 }

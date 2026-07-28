@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import '../../domain/models/call_entity.dart';
 import '../../domain/repositories/call_repository.dart';
@@ -105,6 +106,10 @@ class CallRepositoryImpl implements CallRepository {
         .from('calls')
         .stream(primaryKey: ['id'])
         .eq('id', callId)
+        .handleError((error) {
+          debugPrint('[CallRepository] Realtime stream error: $error');
+        })
+        .where((data) => data.isNotEmpty)
         .map((data) => CallEntity.fromJson(data.first));
   }
 }

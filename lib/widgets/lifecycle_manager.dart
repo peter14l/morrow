@@ -20,6 +20,7 @@ import 'package:oasis/services/home_checkin_service.dart';
 import 'package:oasis/services/home_arrival_service.dart';
 import 'package:oasis/widgets/verification_dialog.dart';
 import 'package:oasis/features/wellness/presentation/providers/study_session_provider.dart';
+import 'package:oasis/features/settings/presentation/providers/decoy_provider.dart';
 
 class LifecycleManager extends StatefulWidget {
   final Widget child;
@@ -67,6 +68,8 @@ class _LifecycleManagerState extends State<LifecycleManager>
       wellbeing.resetSession();
       ripples.onPaused();
       studySession.onPaused();
+
+      context.read<DecoyProvider>().lock();
 
       context.read<VaultService>().lockItemsWithInterval('app_close');
 

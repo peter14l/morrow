@@ -110,6 +110,10 @@ class VoiceTranscriptService {
         .from('task_queue')
         .stream(primaryKey: ['id'])
         .eq('id', taskId)
+        .handleError((error) {
+          debugPrint('[VoiceTranscriptService] Realtime stream error: $error');
+          throw Exception('Realtime connection lost during transcription: $error');
+        })
         .firstWhere(
           (data) =>
               data.isNotEmpty &&

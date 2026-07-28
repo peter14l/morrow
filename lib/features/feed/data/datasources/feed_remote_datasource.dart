@@ -12,89 +12,137 @@ class FeedRemoteDatasource {
   SupabaseClient get _supabase => _supabaseService.client;
 
   /// Fetch "For You" feed posts via RPC function.
+  /// Falls back to a direct posts table query if the RPC doesn't exist.
   Future<List<Map<String, dynamic>>> getFeedPosts({
     required String userId,
     int limit = 20,
     String? cursor,
   }) async {
-    // Note: The RPC returns a fixed table. To get collaborators, we might need a separate query
-    // or update the RPC. For now, we'll fetch the posts then hydrate them with collaborators.
-    final response = await _supabase.rpc(
-      SupabaseConfig.getFeedPostsFn,
-      params: {
-        'p_user_id': userId,
-        'p_limit': limit,
-        'p_cursor_timestamp': cursor,
-      },
-    );
+    try {
+      final response = await _supabase.rpc(
+        SupabaseConfig.getFeedPostsFn,
+        params: {
+          'p_user_id': userId,
+          'p_limit': limit,
+          'p_cursor_timestamp': cursor,
+        },
+      );
 
-    if (response == null) return [];
-    final posts = (response as List<dynamic>).map((json) {
-      final map = Map<String, dynamic>.from(json as Map);
-      if (map['comments_count'] == null && map['comments'] != null) {
-        map['comments_count'] = map['comments'];
+      if (response == null) return [];
+      final posts = (response as List<dynamic>).map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        if (map['comments_count'] == null && map['comments'] != null) {
+          map['comments_count'] = map['comments'];
+        }
+        return map;
+      }).toList();
+
+      await _hydrateCollaborators(posts);
+      return _hydratePolls(posts);
+    } catch (e) {
+      final errorStr = e.toString();
+      if (errorStr.contains('404') ||
+          errorStr.contains('PGRST202') ||
+          errorStr.contains('Could not find') ||
+          errorStr.contains('get_feed_posts')) {
+        debugPrint(
+          '[FeedRemoteDatasource] get_feed_posts RPC not found, '
+          'falling back to direct table query.',
+        );
+        return _getPostsDirectly(limit: limit, cursor: cursor);
       }
-      return map;
-    }).toList();
-
-    await _hydrateCollaborators(posts);
-    return _hydratePolls(posts);
+      rethrow;
+    }
   }
 
   /// Fetch "Following" feed posts via RPC function.
+  /// Falls back to a direct posts table query if the RPC doesn't exist.
   Future<List<Map<String, dynamic>>> getFollowingFeedPosts({
     required String userId,
     int limit = 20,
     String? cursor,
   }) async {
-    final response = await _supabase.rpc(
-      SupabaseConfig.getFollowingFeedPostsFn,
-      params: {
-        'p_user_id': userId,
-        'p_limit': limit,
-        'p_cursor_timestamp': cursor,
-      },
-    );
+    try {
+      final response = await _supabase.rpc(
+        SupabaseConfig.getFollowingFeedPostsFn,
+        params: {
+          'p_user_id': userId,
+          'p_limit': limit,
+          'p_cursor_timestamp': cursor,
+        },
+      );
 
-    if (response == null) return [];
-    final posts = (response as List<dynamic>).map((json) {
-      final map = Map<String, dynamic>.from(json as Map);
-      if (map['comments_count'] == null && map['comments'] != null) {
-        map['comments_count'] = map['comments'];
+      if (response == null) return [];
+      final posts = (response as List<dynamic>).map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        if (map['comments_count'] == null && map['comments'] != null) {
+          map['comments_count'] = map['comments'];
+        }
+        return map;
+      }).toList();
+
+      await _hydrateCollaborators(posts);
+      return _hydratePolls(posts);
+    } catch (e) {
+      final errorStr = e.toString();
+      if (errorStr.contains('404') ||
+          errorStr.contains('PGRST202') ||
+          errorStr.contains('Could not find') ||
+          errorStr.contains('get_following_feed_posts')) {
+        debugPrint(
+          '[FeedRemoteDatasource] get_following_feed_posts RPC not found, '
+          'falling back to direct table query.',
+        );
+        return _getPostsDirectly(limit: limit, cursor: cursor);
       }
-      return map;
-    }).toList();
-
-    await _hydrateCollaborators(posts);
-    return _hydratePolls(posts);
+      rethrow;
+    }
   }
 
   /// Fetch unified feed posts (Following + Public).
+  /// Falls back to [getFeedPosts], then to a direct table query if RPCs are missing.
   Future<List<Map<String, dynamic>>> getUnifiedFeed({
     required String userId,
     int limit = 20,
     String? cursor,
   }) async {
-    final response = await _supabase.rpc(
-      SupabaseConfig.getUnifiedFeedFn,
-      params: {
-        'p_user_id': userId,
-        'p_limit': limit,
-        'p_cursor_timestamp': cursor,
-      },
-    );
+    try {
+      final response = await _supabase.rpc(
+        SupabaseConfig.getUnifiedFeedFn,
+        params: {
+          'p_user_id': userId,
+          'p_limit': limit,
+          'p_cursor_timestamp': cursor,
+        },
+      );
 
-    if (response == null) return [];
-    final posts = (response as List<dynamic>).map((json) {
-      final map = Map<String, dynamic>.from(json as Map);
-      if (map['comments_count'] == null && map['comments'] != null) {
-        map['comments_count'] = map['comments'];
+      if (response == null) return [];
+      final posts = (response as List<dynamic>).map((json) {
+        final map = Map<String, dynamic>.from(json as Map);
+        if (map['comments_count'] == null && map['comments'] != null) {
+          map['comments_count'] = map['comments'];
+        }
+        return map;
+      }).toList();
+
+      await _hydrateCollaborators(posts);
+      return _hydratePolls(posts);
+    } catch (e) {
+      // If the RPC function doesn't exist yet (404 / PGRST202), fall back
+      // to the standard feed so the app still works.
+      final errorStr = e.toString();
+      if (errorStr.contains('404') ||
+          errorStr.contains('PGRST202') ||
+          errorStr.contains('Could not find') ||
+          errorStr.contains('get_unified_feed')) {
+        debugPrint(
+          '[FeedRemoteDatasource] get_unified_feed RPC not found, '
+          'falling back to get_feed_posts.',
+        );
+        return getFeedPosts(userId: userId, limit: limit, cursor: cursor);
       }
-      return map;
-    }).toList();
-
-    await _hydrateCollaborators(posts);
-    return _hydratePolls(posts);
+      rethrow;
+    }
   }
 
   /// Hydrate posts with collaborator info.
@@ -167,6 +215,42 @@ class FeedRemoteDatasource {
     }
 
     return posts;
+  }
+
+  /// Direct fallback: query posts table with profiles join when RPCs are missing.
+  Future<List<Map<String, dynamic>>> _getPostsDirectly({
+    int limit = 20,
+    String? cursor,
+  }) async {
+    try {
+      var query = _supabase
+          .from(SupabaseConfig.postsTable)
+          .select('''
+            *,
+            profiles:user_id (
+              username,
+              avatar_url,
+              is_verified
+            )
+          ''');
+
+      // Apply cursor before transforming (lt is on filter builder)
+      final filtered = cursor != null ? query.lt('created_at', cursor) : query;
+
+      final response = await filtered
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      final posts = (response as List<dynamic>).map((json) {
+        return Map<String, dynamic>.from(json as Map);
+      }).toList();
+
+      await _hydrateCollaborators(posts);
+      return _hydratePolls(posts);
+    } catch (e) {
+      debugPrint('[FeedRemoteDatasource] Direct posts query failed: $e');
+      return [];
+    }
   }
 
   /// Stream posts table for real-time updates.

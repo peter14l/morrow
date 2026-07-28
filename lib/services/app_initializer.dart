@@ -22,6 +22,7 @@ import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/services/app_analytics.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/features/auth/data/repositories/auth_repository_impl.dart';
+import 'package:oasis/features/settings/presentation/providers/decoy_provider.dart';
 import 'package:oasis/services/desktop_window_service.dart';
 import 'package:oasis/services/energy_meter_service.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
@@ -536,6 +537,9 @@ class AppInitializer {
   }) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider<DecoyProvider>(
+          create: (_) => DecoyProvider(),
+        ),
         Provider<AppAnalytics>.value(value: services.appAnalytics),
         ChangeNotifierProvider<ThemeProvider>.value(
           value: services.themeProvider,

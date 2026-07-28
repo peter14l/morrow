@@ -101,9 +101,18 @@ class _LoginScreenState extends State<LoginScreen> {
       } catch (e) {
         debugPrint('[LoginScreen] Sign in failed: $e');
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(e.toString())));
+          final errorStr = e.toString();
+          final bool isNetworkError = errorStr.contains('ClientException') ||
+              errorStr.contains('Failed to fetch') ||
+              errorStr.contains('ERR_NAME_NOT_RESOLVED') ||
+              errorStr.contains('SocketException') ||
+              errorStr.contains('NetworkException');
+          final message = isNetworkError
+              ? 'Unable to connect. Please check your internet connection and try again.'
+              : errorStr.replaceFirst('Exception: ', '');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
         }
       } finally {
         if (mounted) setState(() => _isLoggingIn = false);

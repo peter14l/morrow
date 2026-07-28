@@ -108,6 +108,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _checkForUpdates() async {
+    if (kIsWeb) return;
     final updateInfo = await UpdateService.instance.checkForUpdates();
     if (updateInfo != null && updateInfo.isUpdateAvailable) {
       Future.delayed(const Duration(seconds: 3), () {
@@ -122,7 +123,7 @@ class _MyAppState extends State<MyApp> {
     final context = AppRouter.rootNavigatorKey.currentContext;
     if (context == null) return;
 
-    final isDesktop = Platform.isWindows || Platform.isMacOS;
+    final isDesktop = !kIsWeb && (Platform.isWindows || Platform.isMacOS);
 
     if (isDesktop) {
       material.showDialog(
@@ -524,7 +525,7 @@ class _MyAppState extends State<MyApp> {
             });
 
             // Apply window effects whenever the theme or settings change
-            if (Platform.isWindows) {
+            if (!kIsWeb && Platform.isWindows) {
               final isDark =
                   themeProvider.themeMode == material.ThemeMode.system
                   ? material.MediaQuery.platformBrightnessOf(context) ==
@@ -569,7 +570,7 @@ class _MyAppState extends State<MyApp> {
                       children: [
                         material.Padding(
                           padding: material.EdgeInsets.only(
-                            top: Platform.isWindows ? kWin11TitleBarHeight : 0,
+                            top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
                           ),
                           child: material.MediaQuery(
                             data: material.MediaQuery.of(context).copyWith(
@@ -597,7 +598,7 @@ class _MyAppState extends State<MyApp> {
                             ),
                           ),
                         ),
-                        if (Platform.isWindows)
+                        if (!kIsWeb && Platform.isWindows)
                           const WindowsTitleBar(height: kWin11TitleBarHeight),
                         // const FloatingCallOverlay(),
                       ],
@@ -620,7 +621,7 @@ class _MyAppState extends State<MyApp> {
                   children: [
                     material.Padding(
                       padding: material.EdgeInsets.only(
-                        top: Platform.isWindows ? kWin11TitleBarHeight : 0,
+                        top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
                       ),
                       child: material.MediaQuery(
                         data: material.MediaQuery.of(context).copyWith(
@@ -649,7 +650,7 @@ class _MyAppState extends State<MyApp> {
                         ),
                       ),
                     ),
-                    if (Platform.isWindows) const WindowsTitleBar(height: kWin11TitleBarHeight),
+                    if (!kIsWeb && Platform.isWindows) const WindowsTitleBar(height: kWin11TitleBarHeight),
                     // const FloatingCallOverlay(),
                   ],
                 );

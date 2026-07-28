@@ -26,6 +26,7 @@ class PresenceProvider with ChangeNotifier, SafeChangeNotifier {
   final Map<String, DateTime> _lastRealtimeUpdate = {};
 
   UserPresence? getUserPresence(String userId) {
+    if (userId.isEmpty) return null;
     final presence = _userPresence[userId];
     if (presence == null) return null;
 
@@ -41,10 +42,11 @@ class PresenceProvider with ChangeNotifier, SafeChangeNotifier {
   }
 
   bool isUserOnline(String userId) =>
-      getUserPresence(userId)?.status == 'online';
+      userId.isEmpty ? false : getUserPresence(userId)?.status == 'online';
 
   void subscribeToUserPresence(String userId) {
     if (isDisposed) return;
+    if (userId.isEmpty) return;
 
     // Track user ID for polling fallback
     _trackedUserIds.add(userId);
@@ -69,11 +71,13 @@ class PresenceProvider with ChangeNotifier, SafeChangeNotifier {
 
   void updateUserPresence(String userId, String status) {
     if (isDisposed) return;
+    if (userId.isEmpty) return;
     _presenceService.updateUserPresence(userId, status);
   }
 
   void unsubscribeFromUserPresence(String userId) {
     if (isDisposed) return;
+    if (userId.isEmpty) return;
     _presenceService.unsubscribeFromPresence(userId);
     _userPresence.remove(userId);
     _trackedUserIds.remove(userId);

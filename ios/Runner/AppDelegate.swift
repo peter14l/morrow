@@ -32,6 +32,36 @@ import CoreLocation
       }
     })
 
+    let stealthChannel = FlutterMethodChannel(name: "oasis/stealth_mode",
+                                             binaryMessenger: controller.binaryMessenger)
+    stealthChannel.setMethodCallHandler({
+      (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+      if call.method == "setStealthMode" {
+        guard let args = call.arguments as? [String: Any],
+              let enable = args["enable"] as? Bool else {
+          result(FlutterError(code: "INVALID_ARGS", message: "Arguments must contain enable", details: nil))
+          return
+        }
+        
+        if #available(iOS 10.3, *) {
+          let iconName = enable ? "decoy_icon" : nil
+          UIApplication.shared.setAlternateIconName(iconName) { error in
+            if let error = error {
+              print("Error setting alternate icon: \(error.localizedDescription)")
+              result(FlutterError(code: "ICON_ERROR", message: error.localizedDescription, details: nil))
+            } else {
+              print("Successfully changed app icon to: \(String(describing: iconName))")
+              result(true)
+            }
+          }
+        } else {
+          result(FlutterError(code: "UNSUPPORTED", message: "iOS version does not support alternate icons", details: nil))
+        }
+      } else {
+        result(FlutterMethodNotImplemented)
+      }
+    })
+
     UNUserNotificationCenter.current().delegate = self
     
     geofenceChannel?.setMethodCallHandler({

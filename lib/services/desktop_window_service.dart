@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:window_manager/window_manager.dart';
@@ -14,6 +15,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
   bool _isInitialized = false;
 
   Future<void> initialize() async {
+    if (kIsWeb) return;
     if (_isInitialized) return;
     if (!Platform.isWindows) return;
 
@@ -102,6 +104,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
     String effect = 'mica',
     bool isDark = true,
   }) async {
+    if (kIsWeb) return;
     if (!Platform.isWindows) return;
 
     // Avoid redundant native calls
@@ -255,6 +258,7 @@ class DesktopWindowService extends WindowListener with TrayListener {
   }
 
   Future<void> enableCloseToTray() async {
+    if (kIsWeb) return;
     if (!Platform.isWindows) return;
     await windowManager.setPreventClose(true);
   }

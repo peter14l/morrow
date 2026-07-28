@@ -316,6 +316,10 @@ _room = Room(roomOptions: roomOptions);
             _stopRingtone();
             notifyListeners();
           }
+        }, onError: (error) {
+          debugPrint('[CallService] Incoming call stream error: $error');
+          // Re-subscribe on error so we don't miss calls after a WS reconnect.
+          Future.delayed(const Duration(seconds: 3), startIncomingCallListener);
         });
   }
 

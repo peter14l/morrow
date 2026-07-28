@@ -161,8 +161,15 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     _messageController.addListener(() {
       if (!mounted) return;
 
-      // Update UI notifier immediately (this is fast)
-      _textNotifier.value = _messageController.text;
+      // Update UI notifier immediately ONLY if the text changed from empty to non-empty (or vice-versa)
+      // to toggle Send/Mic and Spoiler button visibility instantly, otherwise avoid triggering listener notification.
+      final currentText = _messageController.text;
+      final wasEmpty = _textNotifier.value.isEmpty && currentText.isNotEmpty;
+      final becameEmpty = _textNotifier.value.isNotEmpty && currentText.isEmpty;
+
+      if (wasEmpty || becameEmpty) {
+        _textNotifier.value = currentText;
+      }
 
       // Debounce the heavy typing status network/provider logic
       _typingDebounceTimer?.cancel();

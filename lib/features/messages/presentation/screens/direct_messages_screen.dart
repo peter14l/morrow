@@ -53,6 +53,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
   final FocusNode _searchFocusNode = FocusNode();
   double _lastScrollOffset = 0;
   String _searchQuery = '';
+  Timer? _searchDebounce;
   bool _isEditingFavorites = false;
   // final List<String> _pinnedMockIds = [];
 
@@ -494,12 +495,22 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _refreshTimer?.cancel();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _onSearchChanged(String val) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (mounted) {
+        setState(() => _searchQuery = val);
+      }
+    });
   }
 
   @override
@@ -891,13 +902,13 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                                     size: 8,
                                   ),
                                   onPressed: () {
+                                    _searchDebounce?.cancel();
                                     _searchController.clear();
                                     setState(() => _searchQuery = '');
                                   },
                                 )
                               : null,
-                          onChanged: (val) =>
-                              setState(() => _searchQuery = val),
+                          onChanged: _onSearchChanged,
                         )
                       : Container(
                           height: 46,
@@ -916,8 +927,7 @@ class _DirectMessagesScreenState extends State<DirectMessagesScreen>
                             focusNode: _searchFocusNode,
                             hint: 'Search...',
                             prefixIcon: Icons.search_rounded,
-                            onChanged: (val) =>
-                                setState(() => _searchQuery = val),
+                            onChanged: _onSearchChanged,
                             fillColor: Colors.transparent,
                             borderRadius: 32,
                             margin: EdgeInsets.zero,
@@ -1429,45 +1439,42 @@ class _BentoItem extends StatelessWidget {
                                             provider.isUserOnline(
                                               conversation.otherUserId,
                                             ),
-                                        child: CircleAvatar(
-                                          radius: 20,
-                                          backgroundImage:
-                                              conversation
-                                                  .otherUserAvatar
-                                                  .isNotEmpty
-                                              ? CachedNetworkImageProvider(
-                                                  conversation.otherUserAvatar,
-                                                )
-                                              : null,
-                                          onBackgroundImageError:
-                                              (exception, stackTrace) {
-                                                debugPrint(
-                                                  'Avatar image error: $exception',
-                                                );
-                                              },
-                                          child:
-                                              conversation
-                                                  .otherUserAvatar
-                                                  .isEmpty
-                                              ? (conversation.type == 'group'
-                                                    ? const Icon(
-                                                        Icons.group,
-                                                        size: 20,
-                                                      )
-                                                    : Text(
-                                                        conversation
-                                                                .otherUserName
-                                                                .isNotEmpty
-                                                            ? conversation
-                                                                  .otherUserName[0]
-                                                                  .toUpperCase()
-                                                            : 'U',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                        ),
-                                                      ))
-                                              : null,
-                                        ),
+                                        child: Builder(builder: (context) {
+                                          final avatarUrl = conversation.otherUserAvatar;
+                                          final hasAvatar = avatarUrl.isNotEmpty;
+                                          return CircleAvatar(
+                                            radius: 20,
+                                            backgroundImage: hasAvatar
+                                                ? CachedNetworkImageProvider(avatarUrl)
+                                                : null,
+                                            onBackgroundImageError: hasAvatar
+                                                ? (exception, stackTrace) {
+                                                    debugPrint(
+                                                      'Avatar image error: $exception',
+                                                    );
+                                                  }
+                                                : null,
+                                            child: !hasAvatar
+                                                ? (conversation.type == 'group'
+                                                      ? const Icon(
+                                                          Icons.group,
+                                                          size: 20,
+                                                        )
+                                                      : Text(
+                                                          conversation
+                                                                  .otherUserName
+                                                                  .isNotEmpty
+                                                              ? conversation
+                                                                    .otherUserName[0]
+                                                                    .toUpperCase()
+                                                              : 'U',
+                                                          style: const TextStyle(
+                                                            fontSize: 12,
+                                                          ),
+                                                        ))
+                                                : null,
+                                          );
+                                        }),
                                       ),
                                 ),
                                 if (conversation.unreadCount > 0)

@@ -438,10 +438,28 @@ class ChatProvider with ChangeNotifier {
         List<Message> updatedMessages;
         if (index != -1) {
           updatedMessages = List<Message>.from(state.messages);
-          updatedMessages[index] = decryptedMessage;
+          if (decryptedMessage.senderId == currentUserId &&
+              decryptedMessage.content == message.content &&
+              !state.messages[index].content.contains('🔒') &&
+              state.messages[index].content != decryptedMessage.content) {
+            updatedMessages[index] = decryptedMessage.copyWith(
+              content: state.messages[index].content,
+            );
+          } else {
+            updatedMessages[index] = decryptedMessage;
+          }
         } else if (optimisticIndex != -1) {
           updatedMessages = List<Message>.from(state.messages);
-          updatedMessages[optimisticIndex] = decryptedMessage;
+          if (decryptedMessage.senderId == currentUserId &&
+              decryptedMessage.content == message.content &&
+              !state.messages[optimisticIndex].content.contains('🔒') &&
+              state.messages[optimisticIndex].content != decryptedMessage.content) {
+            updatedMessages[optimisticIndex] = decryptedMessage.copyWith(
+              content: state.messages[optimisticIndex].content,
+            );
+          } else {
+            updatedMessages[optimisticIndex] = decryptedMessage;
+          }
         } else {
           updatedMessages = [...state.messages, decryptedMessage];
         }
@@ -790,8 +808,9 @@ class ChatProvider with ChangeNotifier {
       }
 
       // Use PQ-Aura -> Signal -> RSA fallback encryption
+      EncryptedContent? encrypted;
       if (_encryptionService.isInitialized && content.isNotEmpty) {
-        final encrypted = await _encryptContent(recipientId, content);
+        encrypted = await _encryptContent(recipientId, content);
         if (encrypted != null) {
           finalContent = encrypted.content;
 
@@ -868,9 +887,8 @@ class ChatProvider with ChangeNotifier {
 
       // Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
       // Only needed if Signal or PQ-Aura was used, otherwise content is already RSA encrypted.
-      final encryptedFallback = await _encryptContent(recipientId, content);
-      if (encryptedFallback != null &&
-          encryptedFallback.protocol != 'rsa' &&
+      if (encrypted != null &&
+          encrypted.protocol != 'rsa' &&
           _encryptionService.isInitialized &&
           content.isNotEmpty) {
         try {
@@ -926,7 +944,8 @@ class ChatProvider with ChangeNotifier {
         );
       }
       if (decrypted.content == '🔒 Message encrypted' ||
-          decrypted.content.contains('🔒')) {
+          decrypted.content.contains('🔒') ||
+          (decrypted.senderId == userId && decrypted.content == sentMessage.content)) {
         decrypted = decrypted.copyWith(content: optimisticMessage.content);
       }
       if (optimisticMessage.mediaUrl != null &&

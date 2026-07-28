@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:encrypt/encrypt.dart' as encrypt;
@@ -186,6 +187,39 @@ class _TestEncryptionService extends ChangeNotifier
   Future<void> clearKeys() async {}
 
   @override
+  String? get cachedPrimaryKey => null;
+
+  @override
+  Future<String?> encryptWithMyPublicKey(Uint8List data) async {
+    return null;
+  }
+
+  @override
+  Future<Uint8List?> decryptWithMyPrivateKey(String base64Ciphertext) async {
+    return null;
+  }
+
+  @override
+  Future<Map<String, dynamic>> encryptMediaFile({
+    required File file,
+    required List<String> recipientPublicKeysPem,
+    List<String>? recipientUserIds,
+    String? recipientUserId,
+  }) async {
+    return {};
+  }
+
+  @override
+  Future<Uint8List?> decryptMediaFile({
+    required Uint8List encryptedBytes,
+    required String ivBase64,
+    required Map<String, dynamic> encryptedKeys,
+    String? senderId,
+  }) async {
+    return null;
+  }
+
+  @override
   Future<EncryptedMessage> encryptMessage(
     String content,
     List<String> recipientPublicKeysPem, {
@@ -198,8 +232,9 @@ class _TestEncryptionService extends ChangeNotifier
   Future<String?> decryptMessage(
     String encryptedContentBase64,
     Map<String, dynamic> encryptedKeys,
-    String ivBase64,
-  ) async {
+    String ivBase64, {
+    String? userId,
+  }) async {
     return null;
   }
 

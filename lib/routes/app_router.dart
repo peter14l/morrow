@@ -15,6 +15,8 @@ import 'package:oasis/services/screen_time_service.dart';
 import 'package:oasis/services/wellness_service.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:universal_io/io.dart';
+import 'package:oasis/features/settings/presentation/providers/decoy_provider.dart';
+import 'package:oasis/features/settings/presentation/screens/decoy_calendar_screen.dart';
 import 'package:oasis/screens/spaces/spaces_screen.dart';
 import 'package:oasis/services/app_analytics.dart';
 import 'package:oasis/themes/app_colors.dart';
@@ -837,7 +839,7 @@ class _MainLayoutState extends State<MainLayout> {
           ? (theme.brightness == Brightness.dark ? const Color(0xFF1E3A2F) : const Color(0xFFF3EDF7)) // OasisColors.moss or light surface
           : Colors.transparent,
       elevation: disableTransparency ? 3 : 0,
-      selectedIndex: currentIndex,
+      selectedIndex: currentIndex < 0 ? 0 : currentIndex,
       onDestinationSelected: (i) =>
           _onDestinationSelected(i, killSwitchActive: killSwitchActive),
       labelBehavior: NavBarM3ELabelBehavior.alwaysShow,
@@ -901,7 +903,7 @@ class _MainLayoutState extends State<MainLayout> {
 
     return NavigationRail(
       extended: _isRailExtended,
-      selectedIndex: currentIndex,
+      selectedIndex: currentIndex < 0 ? null : currentIndex,
       onDestinationSelected: (i) =>
           _onDestinationSelected(i, killSwitchActive: killSwitchActive),
       labelType: _isRailExtended
@@ -1312,6 +1314,12 @@ class AppRouter {
   static final GlobalKey<NavigatorState> shellNavigatorKey =
       GlobalKey<NavigatorState>();
 
+  static final RouterRefreshNotifier routerRefreshNotifier = RouterRefreshNotifier();
+
+  static void refresh() {
+    routerRefreshNotifier.refresh();
+  }
+
   /// Routes that do NOT require authentication — unauthenticated users can visit
   /// them freely (the login wall doesn't apply).
   static bool _isPublicRoute(String path) {
@@ -1339,10 +1347,21 @@ class AppRouter {
     _router ??= GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: '/feed',
-      refreshListenable: AuthService(),
+      refreshListenable: _RouterRefreshListenable([
+        AuthService(),
+        routerRefreshNotifier,
+      ]),
       observers: [if (AppAnalytics.observer != null) AppAnalytics.observer!],
       debugLogDiagnostics: false,
       redirect: (context, state) async {
+        final decoyProvider = Provider.of<DecoyProvider>(context, listen: false);
+        final authService = Provider.of<AuthService>(context, listen: false);
+
+        if (decoyProvider.isDecoyEnabled && !decoyProvider.isUnlocked) {
+          if (state.uri.path != '/decoy-calendar') {
+            return '/decoy-calendar';
+          }
+        }
         // Password-reset screen is always reachable once Supabase sets the
         // recovery session — never redirect away from it automatically.
         if (state.uri.path == '/reset-password') return null;
@@ -1355,7 +1374,6 @@ class AppRouter {
           return '/onboarding';
         }
 
-        final authService = Provider.of<AuthService>(context, listen: false);
         final isLoggedIn = authService.currentUser != null;
 
         // Unauthenticated users trying to reach a protected route → login
@@ -1377,6 +1395,14 @@ class AppRouter {
         return null;
       },
       routes: [
+        GoRoute(
+          path: '/decoy-calendar',
+          name: 'decoy_calendar',
+          pageBuilder: (context, state) => MaterialPage(
+            key: state.pageKey,
+            child: const DecoyCalendarScreen(),
+          ),
+        ),
         // Root Redirect
         GoRoute(path: '/', redirect: (_, __) => '/feed'),
 
@@ -2122,4 +2148,18 @@ class _TwoFingerLongPressGestureRecognizer extends MultiTapGestureRecognizer {
 
   @override
   String get debugDescription => 'twoFingerLongPress';
+}
+
+class _RouterRefreshListenable extends ChangeNotifier {
+  _RouterRefreshListenable(List<Listenable> listenables) {
+    for (final listenable in listenables) {
+      listenable.addListener(notifyListeners);
+    }
+  }
+}
+
+class RouterRefreshNotifier extends ChangeNotifier {
+  void refresh() {
+    notifyListeners();
+  }
 }

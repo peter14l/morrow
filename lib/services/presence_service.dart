@@ -20,6 +20,7 @@ class PresenceService {
 
   /// Fetches the current status of a user from the database (polling fallback)
   Future<Map<String, dynamic>?> getUserStatus(String userId) async {
+    if (userId.isEmpty) return null;
     try {
       return await _supabase
           .from(SupabaseConfig.userStatusTable)
@@ -101,6 +102,7 @@ class PresenceService {
 
   // Update current user's presence
   Future<void> updateUserPresence(String userId, String status) async {
+    if (userId.isEmpty) return;
     final now = DateTime.now().toUtc();
     final lastUpdate = _lastUpdateTime[userId];
     final lastStatus = _lastStatus[userId];
@@ -182,6 +184,7 @@ class PresenceService {
   }
 
   void unsubscribeFromPresence(String userId) {
+    if (userId.isEmpty) return;
     final channelName = 'user_presence:$userId';
     if (_presenceChannels.containsKey(channelName)) {
       _supabase.removeChannel(_presenceChannels[channelName]!);

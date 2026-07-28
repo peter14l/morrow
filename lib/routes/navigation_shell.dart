@@ -75,7 +75,7 @@ class NavigationShell extends material.StatelessWidget {
           placeholder: 'Search...',
         ),
         autoSuggestBoxReplacement: const material.Icon(FluentIcons.search_24_regular),
-        selected: currentIndex,
+        selected: currentIndex < 0 ? null : currentIndex,
         size: const fluent.NavigationPaneSize(compactWidth: 54),
         onChanged: (index) => _onDestinationSelected(context, index),
         displayMode: fluent.PaneDisplayMode.auto,
@@ -179,7 +179,7 @@ class NavigationShell extends material.StatelessWidget {
     final disableTransparency = themeProvider.isM3ETransparencyDisabled;
 
     final navigationBar = material.NavigationBar(
-      selectedIndex: currentIndex,
+      selectedIndex: currentIndex < 0 ? 0 : currentIndex,
       onDestinationSelected: (index) => _onDestinationSelected(context, index),
       destinations: [
         const material.NavigationDestination(

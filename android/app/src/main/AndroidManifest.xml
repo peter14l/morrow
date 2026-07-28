@@ -35,10 +35,7 @@
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme"
               />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
+            <!-- Launcher filter moved to activity-aliases below -->
             <!-- Deep link handler for posts and ripples -->
             <intent-filter android:autoVerify="false">
                 <action android:name="android.intent.action.VIEW"/>
@@ -73,6 +70,32 @@
                 <data android:pathPrefix="/circle"/>
             </intent-filter>
         </activity>
+
+        <activity-alias
+            android:name=".MainActivityAliasNormal"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:label="Oasis"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivityAliasDecoy"
+            android:targetActivity=".MainActivity"
+            android:icon="@mipmap/ic_decoy_launcher"
+            android:label="Calendar"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
 
         <activity
             android:name=".OasisCallActivity"

@@ -49,10 +49,23 @@ serve(async (req) => {
         );
       }
 
-      const { data, error } = await supabase.rpc('get_pq_ratchet_state', {
+      // Try RPC first
+      let { data, error } = await supabase.rpc('get_pq_ratchet_state', {
         p_user_id: user.id,
         p_peer_id: peerId,
       });
+
+      // Fallback: Query the table directly if RPC is not found
+      if (error && (error.message.includes('rpc') || error.message.includes('function') || error.code === 'PGRST202')) {
+        console.log('[pq-aura-proxy] get_pq_ratchet_state RPC not found, falling back to direct select');
+        const directResult = await supabase
+          .from('pq_ratchet_state')
+          .select('encrypted_state, state_nonce')
+          .eq('user_id', user.id)
+          .eq('peer_id', peerId);
+        data = directResult.data;
+        error = directResult.error;
+      }
 
       if (error) {
         console.error('[pq-aura-proxy] get_state error:', error);
@@ -98,12 +111,28 @@ serve(async (req) => {
       const encryptedStateBytes = new Uint8Array(encrypted_state);
       const nonceBytes = new Uint8Array(nonce);
 
-      const { error } = await supabase.rpc('upsert_pq_ratchet_state', {
+      // Try RPC first
+      let { error } = await supabase.rpc('upsert_pq_ratchet_state', {
         p_user_id: user.id,
         p_peer_id: peer_id,
         p_encrypted_state: encryptedStateBytes,
         p_state_nonce: nonceBytes,
       });
+
+      // Fallback: Upsert table directly if RPC is not found
+      if (error && (error.message.includes('rpc') || error.message.includes('function') || error.code === 'PGRST202')) {
+        console.log('[pq-aura-proxy] upsert_pq_ratchet_state RPC not found, falling back to direct upsert');
+        const directResult = await supabase
+          .from('pq_ratchet_state')
+          .upsert({
+            user_id: user.id,
+            peer_id: peer_id,
+            encrypted_state: encrypted_state, // raw array is fine for postgrest json payload
+            state_nonce: nonce,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id,peer_id' });
+        error = directResult.error;
+      }
 
       if (error) {
         console.error('[pq-aura-proxy] save_state error:', error);

@@ -28,32 +28,13 @@ class PrivacyAuditService {
     required String resourceType,
     required String action,
   }) async {
-    try {
-      await _supabase.from('privacy_audit_logs').insert({
-        'user_id': userId,
-        'resource_type': resourceType,
-        'action': action,
-      });
-      debugPrint('[PrivacyAudit] Logged $action on $resourceType for $userId');
-    } catch (e) {
-      debugPrint('[PrivacyAudit] Error logging access: $e');
-      // We don't rethrow as privacy logging should not block the main operation
-    }
+    // No-op fallback: table privacy_audit_logs is not defined in database
+    return;
   }
 
   /// Fetch the latest 50 audit logs for a user.
   Future<List<Map<String, dynamic>>> fetchLogs(String userId) async {
-    try {
-      final response = await _supabase
-          .from('privacy_audit_logs')
-          .select()
-          .eq('user_id', userId)
-          .order('timestamp', ascending: false)
-          .limit(50);
-      return (response as List).cast<Map<String, dynamic>>();
-    } catch (e) {
-      debugPrint('[PrivacyAudit] Error fetching logs: $e');
-      return [];
-    }
+    // No-op fallback: table privacy_audit_logs is not defined in database
+    return [];
   }
 }

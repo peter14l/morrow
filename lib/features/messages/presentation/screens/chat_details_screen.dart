@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:universal_io/io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -114,6 +115,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   final FocusNode _searchFocusNode = FocusNode();
   final List<Message> _allMessages = [];
   List<Message> _searchResults = [];
+  Timer? _searchDebounce;
   RealtimeChannel? _conversationChannel;
 
   @override
@@ -157,6 +159,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     if (_conversationChannel != null) {
       _messagingService.unsubscribeFromMessages(_conversationChannel!);
     }
@@ -353,30 +356,38 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
     }
   }
 
-  void _onSearchChanged(String query) {
+  void _onSearchChanged(String query, [VoidCallback? onDebounceComplete]) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
       });
+      onDebounceComplete?.call();
       return;
     }
 
-    // Read already-decrypted messages from the ambient ChatProvider
-    // to avoid re-initializing Signal (which causes InvalidKeyIdException)
-    List<Message> allMessages;
-    try {
-      final chatProvider = Provider.of<ChatProvider>(context, listen: false);
-      allMessages = chatProvider.state.messages;
-    } catch (_) {
-      allMessages = _allMessages; // fallback if provider not in tree
-    }
+    _searchDebounce = Timer(const Duration(milliseconds: 250), () {
+      if (!mounted) return;
 
-    final results = allMessages.where((m) {
-      return m.content.toLowerCase().contains(query.toLowerCase());
-    }).toList();
+      // Read already-decrypted messages from the ambient ChatProvider
+      // to avoid re-initializing Signal (which causes InvalidKeyIdException)
+      List<Message> allMessages;
+      try {
+        final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+        allMessages = chatProvider.state.messages;
+      } catch (_) {
+        allMessages = _allMessages; // fallback if provider not in tree
+      }
 
-    setState(() {
-      _searchResults = results;
+      final results = allMessages.where((m) {
+        return m.content.toLowerCase().contains(query.toLowerCase());
+      }).toList();
+
+      setState(() {
+        _searchResults = results;
+      });
+      onDebounceComplete?.call();
     });
   }
 
@@ -473,8 +484,14 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       focusNode: _searchFocusNode,
                       autofocus: true,
                       onChanged: (val) {
-                        _onSearchChanged(val);
-                        setModalState(() {});
+                        final wasEmpty = _searchController.text.length <= 1 && val.isNotEmpty;
+                        final becameEmpty = val.isEmpty;
+                        _onSearchChanged(val, () {
+                          setModalState(() {});
+                        });
+                        if (wasEmpty || becameEmpty) {
+                          setModalState(() {});
+                        }
                       },
                       hint: 'Search in this chat...',
                       prefixIcon: FluentIcons.search_24_regular,
@@ -483,7 +500,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                               icon: const Icon(FluentIcons.dismiss_24_regular),
                               onPressed: () {
                                 _searchController.clear();
-                                _onSearchChanged('');
+                                _onSearchChanged('', () {
+                                  setModalState(() {});
+                                });
                                 setModalState(() {});
                               },
                             )

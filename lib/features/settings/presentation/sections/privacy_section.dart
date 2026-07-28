@@ -11,6 +11,7 @@ import 'package:oasis/features/messages/presentation/screens/encryption_setup_sc
 import 'package:oasis/screens/moderation/moderation_screens.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_group.dart';
 import 'package:oasis/features/settings/presentation/widgets/settings_tile.dart';
+import 'package:oasis/features/settings/presentation/screens/stealth_settings_screen.dart';
 
 class PrivacySection extends StatelessWidget {
   final int index;
@@ -78,6 +79,13 @@ class PrivacySection extends StatelessWidget {
               subtitle: 'Set your home address for safe check-in',
               iconColor: material.Colors.blue,
               onTap: () => context.push('/settings/home-location'),
+            ),
+            SettingsTile(
+              icon: material.Icons.visibility_off_outlined,
+              title: 'Stealth Mode',
+              subtitle: 'Disguise Oasis as a calendar app',
+              iconColor: material.Colors.blueGrey,
+              onTap: () => onNavigateToSubPage('Stealth Mode', const StealthSettingsScreen()),
             ),
             SettingsTile(
               icon: material.Icons.download_outlined,
