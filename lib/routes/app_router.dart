@@ -95,6 +95,8 @@ import 'package:oasis/features/settings/presentation/screens/changelog_screen.da
 import 'package:oasis/features/auth/presentation/widgets/account_switcher_sheet.dart';
 import 'package:oasis/features/settings/presentation/screens/wellness_stats_screen.dart';
 import 'package:oasis/features/monetization/presentation/screens/shop_screen.dart';
+import 'package:oasis/features/feed/presentation/screens/instagram_feed_screen.dart';
+import 'package:oasis/widgets/instagram_notification_listener.dart';
 
 class UnreadMessagesBadge extends StatelessWidget {
   final Widget child;
@@ -219,6 +221,11 @@ class _MainLayoutState extends State<MainLayout> {
     if (location.startsWith('/feed')) {
       screenTimeService.setCurrentCategory('Feed');
       return 0;
+    }
+
+    if (location.startsWith('/instagram')) {
+      screenTimeService.setCurrentCategory(null);
+      return isDesktop ? -1 : 3;
     }
 
     if (isDesktop) {
@@ -498,6 +505,9 @@ class _MainLayoutState extends State<MainLayout> {
                         },
                       ),
                     ),
+
+                  // Hidden Instagram background DM listener (runs on Android only)
+                  const InstagramNotificationListenerWidget(),
 
                   // Privacy Blur Overlay
                   if (_isPrivacyBlurActive)
@@ -862,6 +872,12 @@ class _MainLayoutState extends State<MainLayout> {
           ),
           label: 'Messages',
         ),
+        if (!kIsWeb && Platform.isAndroid)
+          const NavigationDestinationM3E(
+            icon: Icon(FluentIcons.camera_24_regular),
+            selectedIcon: Icon(FluentIcons.camera_24_filled),
+            label: 'Instagram',
+          ),
       ],
     );
 
@@ -1221,6 +1237,9 @@ class _MainLayoutState extends State<MainLayout> {
         case 2:
           context.go('/messages');
           break;
+        case 3:
+          context.go('/instagram');
+          break;
       }
     }
   }
@@ -1472,6 +1491,14 @@ class AppRouter {
               name: 'feed',
               pageBuilder: (context, state) =>
                   const NoTransitionPage(child: FeedScreen()),
+            ),
+
+            // Instagram WebView Screen
+            GoRoute(
+              path: '/instagram',
+              name: 'instagram',
+              pageBuilder: (context, state) =>
+                  const NoTransitionPage(child: InstagramFeedScreen()),
             ),
 
             // Communities Screen
