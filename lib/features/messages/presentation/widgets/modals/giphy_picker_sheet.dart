@@ -381,7 +381,6 @@ class _GiphyPickerSheetState extends State<GiphyPickerSheet> {
           onTap: () {
             HapticUtils.lightImpact();
             widget.onSelected(media.url, _isStickers);
-            Navigator.pop(context);
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(12),

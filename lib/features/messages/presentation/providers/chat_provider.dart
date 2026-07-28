@@ -59,6 +59,7 @@ class ChatProvider with ChangeNotifier {
   ChatState _state = const ChatState();
   ChatState get state => _state;
   bool _isDisposed = false;
+  int _optimisticCounter = 0;
 
   // Services
   final AuthService _authService = AuthService();
@@ -99,6 +100,7 @@ class ChatProvider with ChangeNotifier {
 
   // Callbacks for UI actions
   VoidCallback? onReloadRequested;
+  VoidCallback? onMessagesMarkedAsRead;
   Function(String)? onError;
   Function(EncryptionStatus)? onEncryptionNeeded;
 
@@ -118,7 +120,11 @@ class ChatProvider with ChangeNotifier {
   /// Helper to update state immutably and notify listeners safely.
   void setState(ChatState Function(ChatState state) update) {
     if (_isDisposed) return;
-    _state = update(_state);
+    final newState = update(_state);
+    // Chronologically sort messages so they never get displayed out of order
+    final sortedMessages = List<Message>.from(newState.messages)
+      ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    _state = newState.copyWith(messages: sortedMessages);
     _safeNotifyListeners();
   }
 
@@ -252,10 +258,28 @@ class ChatProvider with ChangeNotifier {
   }
 
   Future<Message> _decryptSingleMessage(Message message) async {
-    return encryptionProvider.decryptSingleMessage(
+    var decrypted = await encryptionProvider.decryptSingleMessage(
       message,
       _authService.currentUser?.id,
     );
+
+    // Resolve replied message content locally from existing messages if Supabase Realtime omitted joined fields
+    if (decrypted.replyToId != null && decrypted.replyToContent == null) {
+      Message? repliedMsg;
+      for (final m in state.messages) {
+        if (m.id == decrypted.replyToId) {
+          repliedMsg = m;
+          break;
+        }
+      }
+      if (repliedMsg != null) {
+        decrypted = decrypted.copyWith(
+          replyToContent: repliedMsg.content,
+          replyToSenderName: repliedMsg.senderName,
+        );
+      }
+    }
+    return decrypted;
   }
 
   /// Encrypts content for a recipient using PQ-Aura -> Signal -> RSA fallback.
@@ -634,6 +658,37 @@ class ChatProvider with ChangeNotifier {
     );
   }
 
+  /// Updates and extracts bubble colors for a new background image.
+  Future<void> updateBackground(String? backgroundUrl) async {
+    setState((s) => s.copyWith(backgroundUrl: backgroundUrl));
+    if (backgroundUrl != null) {
+      encryptionProvider.extractColorsFromBackground(backgroundUrl, (
+        bubbleSent,
+        bubbleReceived,
+        textSent,
+        textReceived,
+      ) {
+        setState(
+          (s) => s.copyWith(
+            bubbleColorSent: bubbleSent,
+            bubbleColorReceived: bubbleReceived,
+            textColorSent: textSent,
+            textColorReceived: textReceived,
+          ),
+        );
+      });
+    } else {
+      setState(
+        (s) => s.copyWith(
+          bubbleColorSent: null,
+          bubbleColorReceived: null,
+          textColorSent: null,
+          textColorReceived: null,
+        ),
+      );
+    }
+  }
+
   /// Mark unread messages as read.
   Future<void> markAsRead() async {
     final currentUserId = _authService.currentUser?.id;
@@ -661,6 +716,7 @@ class ChatProvider with ChangeNotifier {
     }).toList();
 
     setState((s) => s.copyWith(messages: updatedMessages));
+    onMessagesMarkedAsRead?.call();
 
     for (final id in unreadMessageIds) {
       final msg = state.messages.firstWhere((m) => m.id == id);
@@ -737,7 +793,7 @@ class ChatProvider with ChangeNotifier {
 
     // Create and add optimistic message
     final optimisticMessage = Message(
-      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
+      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}_${_optimisticCounter++}',
       conversationId: conversationId,
       senderId: userId,
       senderName: _authService.currentUser?.username ?? 'Me',

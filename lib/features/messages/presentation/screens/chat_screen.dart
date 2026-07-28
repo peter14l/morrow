@@ -159,6 +159,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       if (mounted) _handleEncryptionNeeded(status);
     };
 
+    _chatProvider.onMessagesMarkedAsRead = () {
+      if (mounted) {
+        context.read<ConversationProvider>().markAsRead(widget.conversationId);
+        NotificationManager.instance.clearGroup(widget.conversationId);
+      }
+    };
+
     _messageController.addListener(() {
       if (!mounted) return;
 
@@ -224,6 +231,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       // Immediately reset unread badge in the inbox — no delay needed
       context.read<ConversationProvider>().markAsRead(widget.conversationId);
 
+      // Set active conversation to suppress native notifications for this DM
+      NotificationManager.instance.activeConversationId = widget.conversationId;
+
       // Clear any active notification group for this chat
       NotificationManager.instance.clearGroup(widget.conversationId);
 
@@ -274,6 +284,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
     _typingDebounceTimer?.cancel();
     _typingThrottleTimer?.cancel();
+
+    // Reset active conversation ID if it matches this one
+    if (NotificationManager.instance.activeConversationId == widget.conversationId) {
+      NotificationManager.instance.activeConversationId = null;
+    }
 
     // Capture IDs before state is gone
     final otherId = widget.otherUserId ?? _chatProvider.state.otherUserId;

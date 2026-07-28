@@ -63,6 +63,7 @@ class NotificationManager {
   static NotificationManager? _instance;
   bool _isInitialized = false;
   bool _isPaused = false;
+  String? activeConversationId;
   final FlutterLocalNotificationsPlugin _localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   final int _notificationId = 1000;
@@ -245,6 +246,13 @@ class NotificationManager {
           conversationId = payload;
         }
       }
+    }
+
+    if (conversationId != null && conversationId == activeConversationId) {
+      debugPrint(
+        'NotificationManager: Suppressing notification for active conversation: $conversationId',
+      );
+      return;
     }
 
     if (conversationId != null) {

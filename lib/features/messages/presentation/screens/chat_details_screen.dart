@@ -761,6 +761,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             widget.conversationId,
             backgroundUrl,
           );
+          if (mounted) {
+            context.read<ChatProvider>().updateBackground(backgroundUrl);
+          }
         } catch (e) {
           debugPrint('Failed to sync chat theme to Supabase: $e');
         }
@@ -781,6 +784,9 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
     try {
       await _messagingService.removeChatBackground(widget.conversationId);
+      if (mounted) {
+        context.read<ChatProvider>().updateBackground(null);
+      }
     } catch (e) {
       debugPrint('Failed to sync chat theme removal to Supabase: $e');
     }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
+import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 import 'package:oasis/services/auth_service.dart';
 
 import 'package:oasis/features/notifications/domain/models/notification_entity.dart';
@@ -27,6 +28,8 @@ class NotificationDecryptionService {
       'iv': notification.metadata?['iv'],
       'signal_message_type': notification.metadata?['signal_message_type'],
       'signal_sender_content': notification.metadata?['signal_sender_content'],
+      'pq_aura_header': notification.metadata?['pq_aura_header'],
+      'pq_aura_payload': notification.metadata?['pq_aura_payload'],
     };
 
     return decryptMessage(data);
@@ -46,6 +49,7 @@ class NotificationDecryptionService {
 
     final bool hasEncryptedKeys = data['encrypted_keys'] != null;
     final bool hasSignalType = data['signal_message_type'] != null;
+    final bool hasPQAura = data['pq_aura_header'] != null && data['pq_aura_payload'] != null;
     final bool isLikelyEncrypted =
         !content.contains(' ') && (content.length > 30 || _isBase64(content));
 
@@ -53,6 +57,7 @@ class NotificationDecryptionService {
     if (!isGenericPlaceholder &&
         !hasEncryptedKeys &&
         !hasSignalType &&
+        !hasPQAura &&
         !isLikelyEncrypted) {
       return content;
     }
@@ -79,6 +84,27 @@ class NotificationDecryptionService {
       // SignalService handles its own per-user initialization now
       // but we might want to ensure it's ready for this user
       await _signalService.init(userId: userId);
+
+      // 0. Try PQ-Aura decryption first if applicable
+      if (hasPQAura && senderId != null) {
+        debugPrint(
+          '[NotificationDecryption] Attempting PQ-Aura decryption for $userId...',
+        );
+        try {
+          final header = base64Decode(data['pq_aura_header'].toString());
+          final payload = base64Decode(data['pq_aura_payload'].toString());
+          final decrypted = await PQAuraService.instance.decryptMessage(
+            senderId,
+            header,
+            payload,
+          );
+          if (decrypted != null) {
+            return decrypted;
+          }
+        } catch (e) {
+          debugPrint('[NotificationDecryption] PQ-Aura decryption failed: $e');
+        }
+      }
 
       // 1. Try Signal decryption first if applicable
       if (hasSignalType && senderId != null) {
@@ -135,6 +161,7 @@ class NotificationDecryptionService {
     if (isGenericPlaceholder ||
         hasEncryptedKeys ||
         hasSignalType ||
+        hasPQAura ||
         isLikelyEncrypted) {
       debugPrint(
         '[NotificationDecryption] Decryption reached fallback: placeholder returned',

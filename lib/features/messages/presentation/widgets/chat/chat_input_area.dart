@@ -231,16 +231,11 @@ class _ChatInputAreaState extends State<ChatInputArea> {
             builder: (context, text, child) {
               final bool isTyping = text.trim().isNotEmpty;
               return material.AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
+                duration: const Duration(milliseconds: 150),
                 transitionBuilder: (Widget child, Animation<double> animation) {
-                  return material.SizeTransition(
-                    sizeFactor: animation,
-                    axis: material.Axis.horizontal,
-                    axisAlignment: -1.0,
-                    child: material.FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    ),
+                  return material.FadeTransition(
+                    opacity: animation,
+                    child: child,
                   );
                 },
                 child: (isTyping || widget.hasAttachment)
