@@ -174,11 +174,18 @@ jobs:
         run: |
           flutter build ios --release --no-codesign --dart-define-from-file=".env"
 
-      - name: Upload iOS Build
+      - name: Package & Sign IPA (Sideloadable)
+        run: |
+          mkdir -p Payload
+          cp -r build/ios/iphoneos/Runner.app Payload/
+          codesign --force --deep --sign - Payload/Runner.app
+          zip -r Oasis.ipa Payload
+
+      - name: Upload iOS IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ios-build
-          path: build/ios/iphoneos
+          name: ios-ipa
+          path: Oasis.ipa
           retention-days: 7
 
   build-macos:

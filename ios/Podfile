@@ -1,0 +1,40 @@
+# The next line defines a global platform for your project
+platform :ios, '14.0'
+
+# CocoaPods analytics sends usage stats. Change to false to turn it off.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def local_providers_nil_or_empty?
+  # This can be empty or used by Flutter internally
+  false
+end
+
+# Load Flutter Pod helper
+require File.expand_path(File.join('Flutter', 'podhelper.rb'), __dir__)
+
+target 'Runner' do
+  use_frameworks!
+  use_modular_headers!
+
+  flutter_install_all_ios_pods File.expand_path('..', __FILE__)
+end
+
+target 'RunnerTests' do
+  inherit! :search_paths
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.0'
+    end
+  end
+end
