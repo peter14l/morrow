@@ -41,7 +41,6 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
         _controller = _cachedController;
         _updateNavigationState();
         _setupScrollHandler();
-        _setupWebPermissionHandler();
       } else {
         _initWebView();
       }
@@ -63,7 +62,28 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
   }
 
   void _initWebView() {
-    _controller = WebViewController()
+    // Pass the permission request handler directly to the WebViewController constructor
+    _controller = WebViewController(
+      onPermissionRequest: (WebViewPermissionRequest request) async {
+        final types = request.types;
+        
+        // Ensure system permissions are granted before approving the webview request
+        for (final type in types) {
+          if (type == WebViewPermissionResourceType.microphone) {
+            await Permission.microphone.request();
+          } else if (type == WebViewPermissionResourceType.camera) {
+            await Permission.camera.request();
+          }
+        }
+        
+        // Grant the requested resource access to the web app
+        try {
+          await request.grant();
+        } catch (e) {
+          debugPrint('[InstagramWebView] Failed to grant webview permission: $e');
+        }
+      },
+    )
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setUserAgent(
@@ -101,7 +121,6 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       );
       
     _setupScrollHandler();
-    _setupWebPermissionHandler();
     _controller!.loadRequest(Uri.parse('https://www.instagram.com/'));
     _cachedController = _controller;
   }
@@ -122,31 +141,6 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
           // Scroll DOWN -> Hide Oasis navigation bar
           _hideNavBar();
         }
-      }
-    });
-  }
-
-  void _setupWebPermissionHandler() {
-    if (_controller == null) return;
-    
-    // Set the platform-agnostic permission request handler directly on the WebViewController
-    _controller!.setOnPlatformPermissionRequest((WebViewPermissionRequest request) async {
-      final types = request.types;
-      
-      // Ensure system permissions are granted before approving the webview request
-      for (final type in types) {
-        if (type == WebViewPermissionResourceType.microphone) {
-          await Permission.microphone.request();
-        } else if (type == WebViewPermissionResourceType.camera) {
-          await Permission.camera.request();
-        }
-      }
-      
-      // Grant the requested resource access to the web app
-      try {
-        await request.grant();
-      } catch (e) {
-        debugPrint('[InstagramWebView] Failed to grant webview permission: $e');
       }
     });
   }
