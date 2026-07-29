@@ -161,12 +161,13 @@ class ThemeProvider with ChangeNotifier {
     if (isDark) {
       final hsl = HSLColor.fromColor(baseColor);
       
-      // Compute rich background/surface shades from the base color
-      final Color surfaceColor = hsl.withLightness(0.06).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
-      final Color surfaceContainerColor = hsl.withLightness(0.11).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
-      final Color surfaceContainerHighColor = hsl.withLightness(0.16).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
-      final Color surfaceContainerLowestColor = hsl.withLightness(0.03).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
-      final Color surfaceContainerHighestColor = hsl.withLightness(0.20).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+      // Compute rich background/surface shades from the base color (minimum 9% lightness to avoid black)
+      final double bgLightness = (hsl.lightness * 0.5).clamp(0.09, 0.16);
+      final Color surfaceColor = hsl.withLightness(bgLightness).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
+      final Color surfaceContainerColor = hsl.withLightness(bgLightness + 0.05).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
+      final Color surfaceContainerHighColor = hsl.withLightness(bgLightness + 0.10).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
+      final Color surfaceContainerLowestColor = hsl.withLightness((bgLightness - 0.04).clamp(0.05, 0.10)).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
+      final Color surfaceContainerHighestColor = hsl.withLightness(bgLightness + 0.15).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
 
       // Universally boost primary and secondary colors for high contrast and distinction across all dark mode themes
       final double targetLightness = hsl.lightness.clamp(0.60, 0.75);

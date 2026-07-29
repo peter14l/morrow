@@ -1024,8 +1024,8 @@ class AppTheme {
   static const Color _darkPrimaryColor = Color(0xFF5ED4BB);
   static const Color _darkSecondaryColor = Color(0xFF81C784);
   static const Color _darkTertiaryColor = Color(0xFFE6EE9C);
-  static const Color _darkBackgroundColor = Color(0xFF080A0E);
-  static const Color _darkSurfaceColor = Color(0xFF111418);
+  static const Color _darkBackgroundColor = Color(0xFF0C0F14);
+  static const Color _darkSurfaceColor = Color(0xFF131720);
   static const Color _darkOnSurfaceColor = Color(0xFFE2E2E6);
   static const Color _darkOnSurfaceVariantColor = Color(0xFFC4C6D0);
   static const Color _darkSurfaceVariant = Color(0xFF1D2125);
