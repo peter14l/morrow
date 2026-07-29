@@ -12,10 +12,10 @@ class ChatMediaPicker {
   /// Get the default initial directory for file picking.
   Future<String?> getInitialDirectory() async {
     try {
-      if (Platform.isWindows) {
-        return 'C:\\Users\\${Platform.environment['USERNAME']}\\Downloads';
-      }
-      return (await getDownloadsDirectory())?.path;
+      final dir = await getDownloadsDirectory();
+      if (dir != null) return dir.path;
+      final docsDir = await getApplicationDocumentsDirectory();
+      return docsDir.path;
     } catch (e) {
       return null;
     }
@@ -67,10 +67,21 @@ class ChatMediaPicker {
   /// Pick a video.
   Future<XFile?> pickVideo({ImageSource source = ImageSource.gallery}) async {
     try {
-      return await _imagePicker.pickVideo(
-        source: source,
-        maxDuration: const Duration(minutes: 5),
-      );
+      if (Platform.isWindows) {
+        final result = await FilePicker.platform.pickFiles(
+          type: FileType.video,
+          initialDirectory: await getInitialDirectory(),
+        );
+        if (result != null && result.files.single.path != null) {
+          return XFile(result.files.single.path!);
+        }
+        return null;
+      } else {
+        return await _imagePicker.pickVideo(
+          source: source,
+          maxDuration: const Duration(minutes: 5),
+        );
+      }
     } catch (e) {
       debugPrint('Error picking video: $e');
       return null;

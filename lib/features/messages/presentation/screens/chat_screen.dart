@@ -336,28 +336,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _pickImage() async {
     try {
-      if (!kIsWeb && Platform.isWindows) {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.image,
-          allowMultiple: true,
-          initialDirectory: await _mediaPicker.getInitialDirectory(),
+      final images = await _mediaPicker.pickMultiImage();
+      if (images.isNotEmpty) {
+        _chatProvider.setState(
+          (s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]),
         );
-        if (result != null && result.paths.isNotEmpty) {
-          final images = result.paths
-              .where((path) => path != null)
-              .map((path) => XFile(path!))
-              .toList();
-          _chatProvider.setState(
-            (s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]),
-          );
-        }
-      } else {
-        final images = await _mediaPicker.pickMultiImage();
-        if (images.isNotEmpty) {
-          _chatProvider.setState(
-            (s) => s.copyWith(selectedImages: [...s.selectedImages, ...images]),
-          );
-        }
       }
     } catch (e) {
       _showError('Error picking image: $e');
@@ -366,23 +349,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   Future<void> _pickVideo() async {
     try {
-      if (!kIsWeb && Platform.isWindows) {
-        final result = await FilePicker.platform.pickFiles(
-          type: FileType.video,
-          initialDirectory: await _mediaPicker.getInitialDirectory(),
+      final video = await _mediaPicker.pickVideo();
+      if (video != null) {
+        _chatProvider.setState(
+          (s) => s.copyWith(selectedVideo: File(video.path)),
         );
-        if (result != null && result.files.single.path != null) {
-          _chatProvider.setState(
-            (s) => s.copyWith(selectedVideo: File(result.files.single.path!)),
-          );
-        }
-      } else {
-        final video = await _mediaPicker.pickVideo();
-        if (video != null) {
-          _chatProvider.setState(
-            (s) => s.copyWith(selectedVideo: File(video.path)),
-          );
-        }
       }
     } catch (e) {
       _showError('Error picking video: $e');
