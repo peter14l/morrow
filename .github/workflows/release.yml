@@ -151,7 +151,9 @@ jobs:
         run: flutter config --no-enable-swift-package-manager
 
       - name: Clean build environment
-        run: flutter clean
+        run: |
+          flutter clean
+          rm -rf ios/Pods ios/Podfile.lock ios/.symlinks
 
       - name: Install dependencies
         run: flutter pub get
@@ -237,6 +239,7 @@ jobs:
         run: |
           flutter config --no-enable-swift-package-manager
           flutter clean
+          rm -rf macos/Pods macos/Podfile.lock macos/.symlinks
 
       - name: Install dependencies
         run: flutter pub get
