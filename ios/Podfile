@@ -16,11 +16,27 @@ def local_providers_nil_or_empty?
 end
 
 # Load Flutter Pod helper
-podhelper_path = File.expand_path(File.join('Flutter', 'podhelper.rb'), __dir__)
-unless File.exist?(podhelper_path)
-  podhelper_path = File.expand_path(File.join('Flutter', 'ephemeral', 'podhelper.rb'), __dir__)
+flutter_root = nil
+if File.exist?(File.expand_path(File.join('Flutter', 'Generated.xcconfig'), __dir__))
+  File.foreach(File.expand_path(File.join('Flutter', 'Generated.xcconfig'), __dir__)) do |line|
+    matches = line.match(/FLUTTER_ROOT=(.*)/)
+    if matches
+      flutter_root = matches[1].strip
+      break
+    end
+  end
 end
-require podhelper_path
+
+if flutter_root
+  require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper.rb'), flutter_root)
+else
+  # fallback
+  podhelper_path = File.expand_path(File.join('Flutter', 'podhelper.rb'), __dir__)
+  unless File.exist?(podhelper_path)
+    podhelper_path = File.expand_path(File.join('Flutter', 'ephemeral', 'podhelper.rb'), __dir__)
+  end
+  require podhelper_path
+end
 
 target 'Runner' do
   use_frameworks!

@@ -11,14 +11,34 @@ project 'Runner', {
 }
 
 # Load Flutter Pod helper
-require File.expand_path(File.join('Flutter', 'ephemeral', 'podhelper.rb'), __dir__)
+flutter_root = nil
+if File.exist?(File.expand_path(File.join('Flutter', 'Generated.xcconfig'), __dir__))
+  File.foreach(File.expand_path(File.join('Flutter', 'Generated.xcconfig'), __dir__)) do |line|
+    matches = line.match(/FLUTTER_ROOT=(.*)/)
+    if matches
+      flutter_root = matches[1].strip
+      break
+    end
+  end
+end
+
+if flutter_root
+  require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper.rb'), flutter_root)
+else
+  # fallback
+  require File.expand_path(File.join('Flutter', 'ephemeral', 'podhelper.rb'), __dir__)
+end
 
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
   flutter_application_path = File.join(__dir__, 'Flutter')
-  eval(File.read(File.join(flutter_application_path, 'ephemeral', 'podhelper.rb')), binding)
+  podhelper_path = File.join(flutter_application_path, 'ephemeral', 'podhelper.rb')
+  if !File.exist?(podhelper_path) && flutter_root
+    podhelper_path = File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper.rb'), flutter_root)
+  end
+  eval(File.read(podhelper_path), binding)
 end
 
 target 'RunnerTests' do
