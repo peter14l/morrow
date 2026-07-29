@@ -853,7 +853,7 @@ class _MainLayoutState extends State<MainLayout> {
 
     final navBar = NavigationBarM3E(
       backgroundColor: disableTransparency
-          ? (theme.brightness == Brightness.dark ? const Color(0xFF1E3A2F) : const Color(0xFFF3EDF7)) // OasisColors.moss or light surface
+          ? theme.colorScheme.surfaceContainer
           : Colors.transparent,
       elevation: disableTransparency ? 3 : 0,
       selectedIndex: currentIndex < 0 ? 0 : currentIndex,

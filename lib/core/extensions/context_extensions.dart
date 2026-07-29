@@ -112,10 +112,7 @@ extension ContextX on BuildContext {
       isScrollControlled: isScrollControlled,
       // On desktop/web, prioritize opaque backgrounds for readability
       backgroundColor:
-          backgroundColor ??
-          (shouldUseSolidBackground
-              ? (isDark ? const Color(0xFF0D1F1A) : Colors.white)
-              : Colors.transparent),
+          backgroundColor ?? theme.colorScheme.surfaceContainer,
       shape: shape ?? const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),

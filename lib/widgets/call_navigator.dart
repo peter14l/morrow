@@ -71,17 +71,15 @@ class _CallNavigatorState extends State<CallNavigator> {
         !kIsWeb && (Platform.isWindows || Platform.isMacOS);
     final bool useTransparency = userSettings.micaEnabled && canUseTransparency;
 
-    final isDark =
-        material.Theme.of(context).brightness == material.Brightness.dark;
+    final theme = material.Theme.of(context);
+    final isDark = theme.brightness == material.Brightness.dark;
 
     return Container(
       color: useTransparency
           ? (isDark
                 ? material.Colors.black.withValues(alpha: 0.0)
                 : material.Colors.white.withValues(alpha: 0.0))
-          : (isDark
-                ? const material.Color(0xFF080A0E)
-                : const material.Color(0xFFF8F9FA)),
+          : theme.scaffoldBackgroundColor,
       child: widget.child,
     );
   }

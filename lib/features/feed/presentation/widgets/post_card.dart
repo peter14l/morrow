@@ -912,47 +912,28 @@ class _PostCardState extends State<PostCard>
                       GestureDetector(
                         onTap: () =>
                             context.push('/profile/${widget.post.userId}'),
-                        child: Container(
-                          padding: EdgeInsets.all(isM3E ? 2 : 0),
-                          decoration: BoxDecoration(
-                            shape: isM3E ? BoxShape.rectangle : BoxShape.circle,
-                            borderRadius: isM3E
-                                ? BorderRadius.circular(12)
-                                : null,
-                            border: isM3E
-                                ? Border.all(
-                                    color: colorScheme.primary,
-                                    width: 1.5,
+                        child: ClipOval(
+                          child: SizedBox(
+                            width: isDesktop ? 48 : 40,
+                            height: isDesktop ? 48 : 40,
+                            child: widget.post.userAvatar.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: widget.post.userAvatar,
+                                    fit: BoxFit.cover,
                                   )
-                                : null,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: isM3E
-                                ? BorderRadius.circular(14)
-                                : BorderRadius.circular(28),
-                            child: SizedBox(
-                              width: isDesktop ? 48 : 40,
-                              height: isDesktop ? 48 : 40,
-                              child: widget.post.userAvatar.isNotEmpty
-                                  ? CachedNetworkImage(
-                                      imageUrl: widget.post.userAvatar,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Container(
-                                      color:
-                                          colorScheme.surfaceContainerHighest,
-                                      child: Center(
-                                        child: Text(
-                                          widget.post.username[0].toUpperCase(),
-                                          style: TextStyle(
-                                            fontSize: isDesktop ? 16 : 14,
-                                            color: colorScheme.primary,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                : Container(
+                                    color: colorScheme.surfaceContainerHighest,
+                                    child: Center(
+                                      child: Text(
+                                        widget.post.username[0].toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: isDesktop ? 16 : 14,
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
-                            ),
+                                  ),
                           ),
                         ),
                       ),
