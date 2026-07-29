@@ -361,8 +361,11 @@ class AppTheme {
               : SystemUiOverlayStyle.dark,
         ),
         bottomSheetTheme: BottomSheetThemeData(
-          backgroundColor: isDark ? OasisColors.deep : _m3eLightSurface,
+          // Use colorScheme.surfaceContainer — dynamically set by HSL palette,
+          // guaranteed to be visible (never transparent or pitch black).
+          backgroundColor: colorScheme.surfaceContainer,
           surfaceTintColor: Colors.transparent,
+          modalBackgroundColor: colorScheme.surfaceContainer,
           elevation: 0,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
@@ -506,8 +509,9 @@ class AppTheme {
             : SystemUiOverlayStyle.dark,
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: isDark ? OasisColors.deep : _lightBackgroundColor,
+        backgroundColor: colorScheme.surfaceContainer,
         surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: colorScheme.surfaceContainer,
         elevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(32)),

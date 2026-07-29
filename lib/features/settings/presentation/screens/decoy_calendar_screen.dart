@@ -33,7 +33,6 @@ class _DecoyCalendarScreenState extends State<DecoyCalendarScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => const DecoyPinSheet(),
     );
   }

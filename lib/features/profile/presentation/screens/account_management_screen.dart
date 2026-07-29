@@ -392,37 +392,85 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
+    final colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text(
-            'Security',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.security, size: 18, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              Text(
+                'Security Settings',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(isM3E ? 28 : 16),
-            border: Border.all(color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5)),
+        Card(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          color: colorScheme.surfaceContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
+            side: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
           ),
-          child: ListTile(
-            leading: Icon(
-              Icons.password,
-              color: theme.colorScheme.onSurface,
-            ),
-            title: Text(
-              'Change Password',
-              style: TextStyle(color: theme.colorScheme.onSurface, fontWeight: FontWeight.bold),
-            ),
-            subtitle: const Text('Update your password'),
-            trailing: Icon(Icons.chevron_right, color: theme.colorScheme.onSurface),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
             onTap: () => context.push('/settings/change-password'),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.primary.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.key_rounded,
+                      color: colorScheme.primary,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Change Password',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Regularly updating your password keeps your account secure.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -433,38 +481,87 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     final theme = Theme.of(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
+    final colorScheme = theme.colorScheme;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: 12),
-          child: Text(
-            'Danger Zone',
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: Colors.red,
-              fontWeight: FontWeight.bold,
-            ),
+          child: Row(
+            children: [
+              Icon(Icons.report_gmailerrorred_rounded, size: 18, color: Colors.redAccent),
+              const SizedBox(width: 8),
+              Text(
+                'Danger Zone',
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.2,
+                ),
+              ),
+            ],
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.red.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(isM3E ? 28 : 16),
-            border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+        Card(
+          elevation: 0,
+          margin: EdgeInsets.zero,
+          color: Colors.red.withValues(alpha: 0.03),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
+            side: BorderSide(
+              color: Colors.red.withValues(alpha: 0.2),
+            ),
           ),
-          child: ListTile(
-            leading: const Icon(
-              Icons.delete_forever_outlined,
-              color: Colors.red,
-            ),
-            title: const Text(
-              'Delete Account',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-            ),
-            subtitle: const Text('Permanently remove your account and data'),
-            trailing: const Icon(Icons.chevron_right, color: Colors.red),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(isM3E ? 24 : 16),
             onTap: () => context.push('/settings/delete-account'),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.delete_forever_rounded,
+                      color: Colors.redAccent,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Delete Account',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Permanently delete your account and all associated data. This action is irreversible.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.redAccent,
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ],

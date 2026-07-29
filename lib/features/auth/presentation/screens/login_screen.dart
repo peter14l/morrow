@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // import 'package:passkeys/passkeys.dart' as pk;
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dart';
 import 'package:oasis/widgets/app_button.dart';
@@ -363,6 +364,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
               const SizedBox(height: 16.0),
+              // Login Lottie animation
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final animSize = constraints.maxWidth.clamp(0.0, 180.0);
+                  return Center(
+                    child: SizedBox(
+                      width: animSize,
+                      height: animSize * 0.7,
+                      child: Lottie.asset(
+                        'assets/Login.json',
+                        fit: BoxFit.contain,
+                        repeat: true,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8.0),
               Text(
                 'Welcome Back',
                 style: theme.textTheme.headlineMedium?.copyWith(
@@ -370,7 +389,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 4.0),
               Text(
                 'Sign in to continue',
                 style: theme.textTheme.bodyLarge?.copyWith(
@@ -378,7 +397,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 48.0),
+              const SizedBox(height: 32.0),
 
               // Email Field - Always visible
               CustomTextField(

@@ -206,6 +206,8 @@ flutter:
     - assets/audio/
     - assets/audio/standardringtone.mp3
     - assets/fonts/opendyslexic/
+    - assets/Login.json
+    - assets/sign_up.json
 
 sentry:
   upload_debug_symbols: true

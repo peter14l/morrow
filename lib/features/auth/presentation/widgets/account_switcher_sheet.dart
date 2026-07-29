@@ -426,7 +426,6 @@ class AccountSwitcherSheet extends StatelessWidget {
     }
 
     return context.showResponsiveSheet(
-      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => const AccountSwitcherSheet(),
     );

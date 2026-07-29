@@ -2,12 +2,12 @@ import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 import 'package:oasis/features/auth/presentation/providers/auth_provider.dart';
 import 'package:oasis/widgets/app_button.dart';
 import 'package:oasis/widgets/custom_text_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dart';
-
 import 'package:oasis/widgets/security_pin_sheet.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 
@@ -214,6 +214,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Sign Up Lottie animation
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final animSize = constraints.maxWidth.clamp(0.0, 160.0);
+                  return Center(
+                    child: SizedBox(
+                      width: animSize,
+                      height: animSize * 0.7,
+                      child: Lottie.asset(
+                        'assets/sign_up.json',
+                        fit: BoxFit.contain,
+                        repeat: true,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
               CustomTextField(
                 controller: _nameController,
                 focusNode: _nameFocus,
