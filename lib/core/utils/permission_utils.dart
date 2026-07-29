@@ -11,11 +11,11 @@ class PermissionUtils {
   /// Request gallery/photos permission
   static Future<bool> requestGalleryPermission() async {
     final status = await Permission.photos.request();
-    if (status.isGranted) return true;
+    if (status.isGranted || status.isLimited) return true;
 
     // For Android, try storage permission
     final storageStatus = await Permission.storage.request();
-    return storageStatus.isGranted;
+    return storageStatus.isGranted || storageStatus.isLimited;
   }
 
   /// Request microphone permission
@@ -33,7 +33,7 @@ class PermissionUtils {
   /// Request storage permission
   static Future<bool> requestStoragePermission() async {
     final status = await Permission.storage.request();
-    return status.isGranted;
+    return status.isGranted || status.isLimited;
   }
 
   /// Check if camera permission is granted
@@ -44,8 +44,10 @@ class PermissionUtils {
   /// Check if gallery permission is granted
   static Future<bool> isGalleryPermissionGranted() async {
     final photosGranted = await Permission.photos.isGranted;
+    final photosLimited = await Permission.photos.isLimited;
     final storageGranted = await Permission.storage.isGranted;
-    return photosGranted || storageGranted;
+    final storageLimited = await Permission.storage.isLimited;
+    return photosGranted || photosLimited || storageGranted || storageLimited;
   }
 
   /// Check if microphone permission is granted
@@ -100,7 +102,7 @@ class PermissionUtils {
   }) async {
     final status = await permission.request();
 
-    if (status.isGranted) {
+    if (status.isGranted || status.isLimited) {
       return true;
     } else if (status.isPermanentlyDenied) {
       if (context.mounted) {

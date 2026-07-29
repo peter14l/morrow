@@ -56,11 +56,11 @@ class S3StorageService {
       );
 
       final String url = presignedData['url'];
-      final dynamic data = bytes ?? (file?.openRead());
+      final dynamic data = bytes ?? (file != null ? await file.readAsBytes() : null);
       if (data == null) throw Exception('No data to upload');
 
       final int totalSize =
-          bytes?.length ?? (file != null ? await file.length() : 0);
+          bytes?.length ?? (data is Uint8List ? data.length : 0);
 
       await _dio.put(
         url,
