@@ -144,17 +144,14 @@ jobs:
             PQ-DR/target/x86_64-apple-ios/release/libpq_aura.a \
             -output ios/libs/libpq_aura.a
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.9'
-          cache: true
-
       - name: Precache iOS artifacts
         run: flutter precache --ios
 
       - name: Disable Swift Package Manager (Force CocoaPods)
         run: flutter config --no-enable-swift-package-manager
+
+      - name: Clean build environment
+        run: flutter clean
 
       - name: Install dependencies
         run: flutter pub get
@@ -237,7 +234,9 @@ jobs:
         run: flutter precache --macos
 
       - name: Disable Swift Package Manager (Force CocoaPods)
-        run: flutter config --no-enable-swift-package-manager
+        run: |
+          flutter config --no-enable-swift-package-manager
+          flutter clean
 
       - name: Install dependencies
         run: flutter pub get
