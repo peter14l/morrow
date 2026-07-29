@@ -14,8 +14,7 @@ class AppConfig {
 
   /// If false, calling features are disabled (e.g. during major platform stability fixes)
   static bool get enableCalls {
-    if (kIsWeb) return false;
-    return Platform.isAndroid || Platform.isIOS;
+    return !kIsWeb;
   }
 
   /// If true, the first-party privacy-preserving contextual ad engine is active.

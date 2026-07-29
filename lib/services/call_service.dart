@@ -82,40 +82,48 @@ class CallService extends ChangeNotifier {
 
   void _configureAudioPlayer() {
     if (kIsWeb) return;
-    _audioPlayer.setAudioContext(
-      AudioContext(
-        android: const AudioContextAndroid(
-          // voiceCommunicationSignalling is correct for incoming call ringtones.
-          // notificationRingtone bypasses the active audio output device on Android.
-          usageType: AndroidUsageType.voiceCommunicationSignalling,
-          contentType: AndroidContentType.sonification,
-          // Request exclusive transient focus so Android routes audio to the
-          // currently active output device (Bluetooth headset, speaker, etc.)
-          // instead of blasting through all available outputs simultaneously.
-          audioFocus: AndroidAudioFocus.gainTransientExclusive,
+    try {
+      _audioPlayer.setAudioContext(
+        AudioContext(
+          android: const AudioContextAndroid(
+            // voiceCommunicationSignalling is correct for incoming call ringtones.
+            // notificationRingtone bypasses the active audio output device on Android.
+            usageType: AndroidUsageType.voiceCommunicationSignalling,
+            contentType: AndroidContentType.sonification,
+            // Request exclusive transient focus so Android routes audio to the
+            // currently active output device (Bluetooth headset, speaker, etc.)
+            // instead of blasting through all available outputs simultaneously.
+            audioFocus: AndroidAudioFocus.gainTransientExclusive,
+          ),
+          iOS: AudioContextIOS(
+            category: AVAudioSessionCategory.playAndRecord,
+            options: const {
+              // allowBluetooth: routes to Bluetooth HFP (mono call profile)
+              AVAudioSessionOptions.allowBluetooth,
+              // allowBluetoothA2DP: routes to Bluetooth A2DP (stereo profile)
+              AVAudioSessionOptions.allowBluetoothA2DP,
+              // Do NOT include defaultToSpeaker — it overrides Bluetooth routing
+              // and forces audio to the built-in speaker even when a headset is
+              // connected, which causes the double-output the user is experiencing.
+            },
+          ),
         ),
-        iOS: AudioContextIOS(
-          category: AVAudioSessionCategory.playAndRecord,
-          options: const {
-            // allowBluetooth: routes to Bluetooth HFP (mono call profile)
-            AVAudioSessionOptions.allowBluetooth,
-            // allowBluetoothA2DP: routes to Bluetooth A2DP (stereo profile)
-            AVAudioSessionOptions.allowBluetoothA2DP,
-            // Do NOT include defaultToSpeaker — it overrides Bluetooth routing
-            // and forces audio to the built-in speaker even when a headset is
-            // connected, which causes the double-output the user is experiencing.
-          },
-        ),
-      ),
-    );
+      );
+    } catch (e) {
+      debugPrint('[CallService] setAudioContext is not supported on this platform: $e');
+    }
   }
 
   /// Configure the system audio session for call audio (WebRTC/LiveKit).
   /// This ensures proper audio routing to speaker/earpiece/Bluetooth.
   Future<void> _configureCallAudioSession() async {
     if (kIsWeb) return;
-    final session = await audio_session.AudioSession.instance;
-    await session.configure(const audio_session.AudioSessionConfiguration.speech());
+    try {
+      final session = await audio_session.AudioSession.instance;
+      await session.configure(const audio_session.AudioSessionConfiguration.speech());
+    } catch (e) {
+      debugPrint('[CallService] Audio session configuration not supported on this platform: $e');
+    }
   }
 
   // Getters
@@ -176,11 +184,15 @@ class CallService extends ChangeNotifier {
       RoomOptions roomOptions = const RoomOptions();
 
       if (e2eeKey != null) {
-        final keyProvider = await BaseKeyProvider.create();
-        await keyProvider.setKey(base64Encode(e2eeKey!));
-        final e2eeOptions = E2EEOptions(keyProvider: keyProvider);
-        roomOptions = RoomOptions(encryption: e2eeOptions);
-        _recordStep('E2EE initialized with PQ-DR key');
+        try {
+          final keyProvider = await BaseKeyProvider.create();
+          await keyProvider.setKey(base64Encode(e2eeKey!));
+          final e2eeOptions = E2EEOptions(keyProvider: keyProvider);
+          roomOptions = RoomOptions(encryption: e2eeOptions);
+          _recordStep('E2EE initialized with PQ-DR key');
+        } catch (e) {
+          _recordStep('E2EE FrameCryptor not supported on this platform: $e. Falling back to standard transport security.');
+        }
       }
 
 _room = Room(roomOptions: roomOptions);
