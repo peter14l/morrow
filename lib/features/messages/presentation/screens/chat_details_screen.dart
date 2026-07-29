@@ -1021,9 +1021,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                         ],
                       ),
                     ),
-                  useFluent && isDesktop
-                      ? const fluent.Divider()
-                      : const Divider(indent: 56),
                 ],
               ),
             ),

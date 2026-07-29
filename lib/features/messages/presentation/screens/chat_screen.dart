@@ -969,8 +969,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                         // Typing indicator + Input area
                         Container(
                           padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
+                            left: 8,
+                            right: 8,
                             bottom: 16,
                             top: 8,
                           ),
