@@ -478,8 +478,7 @@ class _MyAppState extends State<MyApp> {
           if (themeProvider.useMaterialYou && themeProvider.isM3EEnabled) {
             lightScheme = lightDynamic;
             darkScheme = darkDynamic;
-          } else if (themeProvider.colorPalette != ColorPalette.none &&
-              themeProvider.isM3EEnabled) {
+          } else if (themeProvider.isM3EEnabled) {
             lightScheme = themeProvider.getPaletteColorScheme(
               material.Brightness.light,
             );

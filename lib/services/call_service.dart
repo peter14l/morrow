@@ -38,6 +38,7 @@ class CallService extends ChangeNotifier {
   bool _isScreenSharing = false;
 
   StreamSubscription? _incomingCallSubscription;
+  RealtimeChannel? _callBroadcastChannel;
   Timer? _notifyDebounce;
   bool _isDisposed = false;
 
@@ -172,6 +173,22 @@ class CallService extends ChangeNotifier {
     final user = _supabase.auth.currentUser;
     if (user == null) return;
 
+    // Send low-latency broadcast signaling message to receiver
+    final targetUserId = user.id == call.callerId ? call.receiverId : call.callerId;
+    final signalChannel = _supabase.channel('call_signaling:$targetUserId');
+    signalChannel.subscribe((status, [error]) async {
+      if (status == RealtimeSubscribeStatus.subscribed) {
+        await signalChannel.sendBroadcastMessage(
+          event: 'invite',
+          payload: {
+            'call': call.toJson(),
+            'e2ee_key': e2eeKey != null ? base64Encode(e2eeKey!) : null,
+          },
+        );
+        _recordStep('Call invite broadcasted to $targetUserId');
+      }
+    });
+
     // Fetch token
     final token = await _getLiveKitToken(call.roomName, user.id);
     if (token == null) {
@@ -280,6 +297,46 @@ _room = Room(roomOptions: roomOptions);
 
     final userId = user.id;
     _incomingCallSubscription?.cancel();
+
+    // Set up Broadcast Channel for real-time low-latency calling signaling (WhatsApp/Instagram style)
+    _callBroadcastChannel?.unsubscribe();
+    _callBroadcastChannel = _supabase.channel('call_signaling:$userId');
+    _callBroadcastChannel!
+        .onBroadcast(
+          event: 'invite',
+          callback: (payload) async {
+            debugPrint('[CallService] Received broadcast invite: $payload');
+            final callMap = payload['call'] as Map<String, dynamic>;
+            final call = CallEntity.fromJson(callMap);
+            final e2eeKeyBase64 = payload['e2ee_key'] as String?;
+
+            if (_currentCallId == null && _incomingCall?.id != call.id) {
+              if (e2eeKeyBase64 != null) {
+                e2eeKey = base64Decode(e2eeKeyBase64);
+              }
+              _incomingCall = call;
+              _playRingtone();
+              DesktopCallNotifier.instance.handleIncomingCall(
+                callId: call.id,
+                callerName: 'Incoming Call',
+                senderId: call.callerId,
+              );
+              notifyListeners();
+            }
+          },
+        )
+        .onBroadcast(
+          event: 'end',
+          callback: (payload) async {
+            final callId = payload['call_id'] as String;
+            debugPrint('[CallService] Received broadcast end call event for: $callId');
+            if (_incomingCall?.id == callId || _currentCall?.id == callId) {
+              await _cleanup();
+            }
+          },
+        )
+        .subscribe();
+
     _incomingCallSubscription = _supabase
         .from('calls')
         .stream(primaryKey: ['id'])
@@ -352,6 +409,21 @@ _room = Room(roomOptions: roomOptions);
 
   Future<void> endCall() async {
     _recordStep('Ending call');
+    final callId = _currentCall?.id ?? _incomingCall?.id;
+    final receiverId = _currentCall?.receiverId ?? _currentCall?.callerId ?? _incomingCall?.callerId;
+
+    if (callId != null && receiverId != null) {
+      final signalChannel = _supabase.channel('call_signaling:$receiverId');
+      signalChannel.subscribe((status, [error]) async {
+        if (status == RealtimeSubscribeStatus.subscribed) {
+          await signalChannel.sendBroadcastMessage(
+            event: 'end',
+            payload: {'call_id': callId},
+          );
+        }
+      });
+    }
+
     if (_currentCall != null) {
       await _supabase
           .from('calls')

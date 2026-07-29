@@ -152,7 +152,7 @@
         <service android:name="de.julianassmann.flutter_background.IsolateHolderService" 
             android:enabled="true" 
             android:exported="false" 
-            android:foregroundServiceType="mediaProjection" />
+            android:foregroundServiceType="microphone" />
 
         <receiver
             android:name=".OasisGeofenceReceiver"

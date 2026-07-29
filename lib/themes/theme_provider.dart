@@ -153,20 +153,59 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Generate a ColorScheme based on the selected palette
-  ColorScheme? getPaletteColorScheme(Brightness brightness) {
-    if (_colorPalette == ColorPalette.none) return null;
-
-    final isDark = brightness == Brightness.dark;
+  /// Generate a ColorScheme based on the selected palette, using rich shades of the theme color instead of black.
+  ColorScheme getPaletteColorScheme(Brightness brightness) {
     final baseColor = _getPaletteBaseColor(_colorPalette);
+    final isDark = brightness == Brightness.dark;
 
-    return ColorScheme.fromSeed(seedColor: baseColor, brightness: brightness);
+    if (isDark) {
+      final hsl = HSLColor.fromColor(baseColor);
+      
+      // Compute rich background/surface shades from the base color
+      final Color surfaceColor = hsl.withLightness(0.06).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+      final Color surfaceContainerColor = hsl.withLightness(0.11).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+      final Color surfaceContainerHighColor = hsl.withLightness(0.16).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+      final Color surfaceContainerLowestColor = hsl.withLightness(0.03).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+      final Color surfaceContainerHighestColor = hsl.withLightness(0.20).withSaturation(hsl.saturation.clamp(0.12, 0.35)).toColor();
+
+      // Universally boost primary and secondary colors for high contrast and distinction across all dark mode themes
+      final double targetLightness = hsl.lightness.clamp(0.60, 0.75);
+      final double targetSaturation = hsl.saturation.clamp(0.70, 0.90);
+      final Color primaryColor = hsl.withLightness(targetLightness).withSaturation(targetSaturation).toColor();
+      final Color secondaryColor = hsl.withLightness((targetLightness - 0.1).clamp(0.45, 0.65)).withSaturation((targetSaturation - 0.15).clamp(0.50, 0.75)).toColor();
+
+      return ColorScheme.fromSeed(
+        seedColor: baseColor,
+        brightness: brightness,
+      ).copyWith(
+        primary: primaryColor,
+        secondary: secondaryColor,
+        surface: surfaceColor,
+        surfaceContainer: surfaceContainerColor,
+        surfaceContainerLow: surfaceColor,
+        surfaceContainerLowest: surfaceContainerLowestColor,
+        surfaceContainerHigh: surfaceContainerHighColor,
+        surfaceContainerHighest: surfaceContainerHighestColor,
+      );
+    } else {
+      final hsl = HSLColor.fromColor(baseColor);
+      final Color surfaceColor = hsl.withLightness(0.97).withSaturation(hsl.saturation.clamp(0.04, 0.12)).toColor();
+      final Color surfaceContainerColor = hsl.withLightness(0.93).withSaturation(hsl.saturation.clamp(0.04, 0.12)).toColor();
+
+      return ColorScheme.fromSeed(
+        seedColor: baseColor,
+        brightness: brightness,
+      ).copyWith(
+        surface: surfaceColor,
+        surfaceContainer: surfaceContainerColor,
+      );
+    }
   }
 
   Color _getPaletteBaseColor(ColorPalette palette) {
     switch (palette) {
       case ColorPalette.none:
-        return const Color(0xFF6750A4); // Default purple (M3 standard)
+        return const Color(0xFF0C0F14); // #0C0F14 default theme palette
       case ColorPalette.emerald:
         return const Color(0xFF1C6758); // Green
       case ColorPalette.ocean:

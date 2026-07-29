@@ -28,15 +28,15 @@ class DarkColors {
   static const Color border = Color(0xFF2D343A);
 }
 
-// Oasis "Organic Luxury" Palette
+// Oasis Premium Palette
 class OasisColors {
-  static const Color deep = Color(0xFF0D1F1A); // Background / Scaffold
-  static const Color moss = Color(0xFF1E3A2F); // Primary Surface
-  static const Color sage = Color(0xFF3D6B55); // Secondary Surface / Borders
-  static const Color mist = Color(0xFFA8C5B5); // Muted Text
-  static const Color glow = Color(0xFF7FFFD4); // Accent / Primary Action
-  static const Color sand = Color(0xFFE8D9C0); // Display Headings
-  static const Color white = Color(0xFFF5F5F0); // Pure Text
+  static const Color deep = Color(0xFF0B0F19); // premium deep dark blue-black
+  static const Color moss = Color(0xFF161F30); // dark slate/card surface
+  static const Color sage = Color(0xFF2E3B52); // slate borders/dividers
+  static const Color mist = Color(0xFF94A3B8); // cool grey secondary text
+  static const Color glow = Color(0xFF6366F1); // indigo accent/CTA
+  static const Color sand = Color(0xFFF1F5F9); // light cool display headings
+  static const Color white = Color(0xFFFFFFFF); // Pure Text
 
   // Opacity variants for Glassmorphism
   static Color glassBackground = deep.withValues(alpha: 0.6);
