@@ -1,8 +1,10 @@
 import 'package:universal_io/io.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:oasis/core/utils/permission_utils.dart';
 
 /// Service for picking media files in the chat.
 /// Extracted from _pickImage, _pickFile, _pickVideo, _pickAudio in chat_screen.dart.
@@ -26,6 +28,13 @@ class ChatMediaPicker {
     ImageSource source = ImageSource.gallery,
   }) async {
     try {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        final permissionGranted = await PermissionUtils.requestGalleryPermission();
+        if (!permissionGranted) {
+          throw Exception('Gallery permission denied');
+        }
+      }
+
       if (Platform.isWindows) {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
@@ -44,13 +53,20 @@ class ChatMediaPicker {
       }
     } catch (e) {
       debugPrint('Error picking images: $e');
-      return [];
+      rethrow;
     }
   }
 
   /// Pick a file.
   Future<PlatformFile?> pickFile() async {
     try {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        final permissionGranted = await PermissionUtils.requestStoragePermission();
+        if (!permissionGranted) {
+          throw Exception('Storage permission denied');
+        }
+      }
+
       final result = await FilePicker.platform.pickFiles(
         initialDirectory: await getInitialDirectory(),
       );
@@ -60,13 +76,20 @@ class ChatMediaPicker {
       return null;
     } catch (e) {
       debugPrint('Error picking file: $e');
-      return null;
+      rethrow;
     }
   }
 
   /// Pick a video.
   Future<XFile?> pickVideo({ImageSource source = ImageSource.gallery}) async {
     try {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        final permissionGranted = await PermissionUtils.requestGalleryPermission();
+        if (!permissionGranted) {
+          throw Exception('Gallery permission denied');
+        }
+      }
+
       if (Platform.isWindows) {
         final result = await FilePicker.platform.pickFiles(
           type: FileType.video,
@@ -84,13 +107,20 @@ class ChatMediaPicker {
       }
     } catch (e) {
       debugPrint('Error picking video: $e');
-      return null;
+      rethrow;
     }
   }
 
   /// Pick an audio file.
   Future<File?> pickAudio() async {
     try {
+      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+        final permissionGranted = await PermissionUtils.requestStoragePermission();
+        if (!permissionGranted) {
+          throw Exception('Storage permission denied');
+        }
+      }
+
       final result = await FilePicker.platform.pickFiles(
         type: FileType.audio,
         initialDirectory: await getInitialDirectory(),
@@ -100,15 +130,14 @@ class ChatMediaPicker {
         final sizeInBytes = await file.length();
         final sizeInMb = sizeInBytes / (1024 * 1024);
         if (sizeInMb > 50) {
-          debugPrint('File too large (Max 50MB).');
-          return null;
+          throw Exception('File too large (Max 50MB).');
         }
         return file;
       }
       return null;
     } catch (e) {
       debugPrint('Error picking audio: $e');
-      return null;
+      rethrow;
     }
   }
 }
