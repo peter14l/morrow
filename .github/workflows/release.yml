@@ -82,6 +82,12 @@ jobs:
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
           echo "REVENUECAT_GOOGLE_API_KEY=${{ secrets.REVENUECAT_GOOGLE_API_KEY }}" >> .env
           echo "REVENUECAT_APPLE_API_KEY=${{ secrets.REVENUECAT_APPLE_API_KEY }}" >> .env
+          echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+          echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+          echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+          echo "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
+          echo "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
+          echo "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Decode Keystore
         run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/release.keystore
@@ -169,6 +175,12 @@ jobs:
           echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
           echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+          echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+          echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+          echo "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
+          echo "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
+          echo "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Build iOS
         run: |
@@ -248,6 +260,12 @@ jobs:
           echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
           echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+          echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+          echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+          echo "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
+          echo "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
+          echo "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Build macOS
         run: flutter build macos --release --dart-define-from-file=".env"
@@ -309,6 +327,12 @@ jobs:
           echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
           echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
           echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+          echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+          echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+          echo "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
+          echo "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
+          echo "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Disable sentry-native (avoid crashpad 403 error)
         run: |
