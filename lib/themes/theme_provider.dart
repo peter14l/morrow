@@ -160,38 +160,48 @@ class ThemeProvider with ChangeNotifier {
 
     if (isDark) {
       final hsl = HSLColor.fromColor(baseColor);
-      
-      // Compute rich background/surface shades from the base color (minimum 9% lightness to avoid black)
-      final double bgLightness = (hsl.lightness * 0.5).clamp(0.09, 0.16);
-      final Color surfaceColor = hsl.withLightness(bgLightness).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
-      final Color surfaceContainerColor = hsl.withLightness(bgLightness + 0.05).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
-      final Color surfaceContainerHighColor = hsl.withLightness(bgLightness + 0.10).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
-      final Color surfaceContainerLowestColor = hsl.withLightness((bgLightness - 0.04).clamp(0.05, 0.10)).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
-      final Color surfaceContainerHighestColor = hsl.withLightness(bgLightness + 0.15).withSaturation(hsl.saturation.clamp(0.15, 0.45)).toColor();
+      final double h = hsl.hue;
+      // Ensure meaningful saturation even for near-zero-saturation colors like #0C0F14
+      final double s = hsl.saturation.clamp(0.15, 0.50);
 
-      // Universally boost primary and secondary colors for high contrast and distinction across all dark mode themes
-      final double targetLightness = hsl.lightness.clamp(0.60, 0.75);
-      final double targetSaturation = hsl.saturation.clamp(0.70, 0.90);
-      final Color primaryColor = hsl.withLightness(targetLightness).withSaturation(targetSaturation).toColor();
-      final Color secondaryColor = hsl.withLightness((targetLightness - 0.1).clamp(0.45, 0.65)).withSaturation((targetSaturation - 0.15).clamp(0.50, 0.75)).toColor();
+      // Use absolute lightness levels so these are never near-black.
+      // Background: 10%  |  Card/Container: 15%  |  High: 20%  |  Highest: 24%
+      final Color bg          = HSLColor.fromAHSL(1.0, h, s, 0.10).toColor();
+      final Color surface     = HSLColor.fromAHSL(1.0, h, s, 0.10).toColor();
+      final Color container   = HSLColor.fromAHSL(1.0, h, s, 0.15).toColor();
+      final Color containerHi = HSLColor.fromAHSL(1.0, h, s, 0.20).toColor();
+      final Color containerLo = HSLColor.fromAHSL(1.0, h, s, 0.08).toColor();
+      final Color containerHiHi = HSLColor.fromAHSL(1.0, h, s, 0.24).toColor();
+
+      // Bright, vivid accent colors so buttons/indicators stand out
+      final double accentL = hsl.lightness < 0.5
+          ? 0.65   // dark seeds → lift to 65%
+          : hsl.lightness.clamp(0.60, 0.75);
+      final double accentS = s.clamp(0.70, 0.95);
+      final Color primaryColor   = HSLColor.fromAHSL(1.0, h, accentS, accentL).toColor();
+      final Color secondaryColor = HSLColor.fromAHSL(1.0, (h + 30) % 360, accentS - 0.15, accentL - 0.10).toColor();
 
       return ColorScheme.fromSeed(
-        seedColor: baseColor,
+        seedColor: primaryColor, // Use the vibrant accent as seed, not the dark base
         brightness: brightness,
       ).copyWith(
         primary: primaryColor,
         secondary: secondaryColor,
-        surface: surfaceColor,
-        surfaceContainer: surfaceContainerColor,
-        surfaceContainerLow: surfaceColor,
-        surfaceContainerLowest: surfaceContainerLowestColor,
-        surfaceContainerHigh: surfaceContainerHighColor,
-        surfaceContainerHighest: surfaceContainerHighestColor,
+        surface: surface,
+        surfaceContainer: container,
+        surfaceContainerLow: containerLo,
+        surfaceContainerLowest: containerLo,
+        surfaceContainerHigh: containerHi,
+        surfaceContainerHighest: containerHiHi,
+        // Ensure scaffoldBackgroundColor respects this too
+        scrim: bg,
       );
     } else {
       final hsl = HSLColor.fromColor(baseColor);
-      final Color surfaceColor = hsl.withLightness(0.97).withSaturation(hsl.saturation.clamp(0.04, 0.12)).toColor();
-      final Color surfaceContainerColor = hsl.withLightness(0.93).withSaturation(hsl.saturation.clamp(0.04, 0.12)).toColor();
+      final double h = hsl.hue;
+      final double s = hsl.saturation.clamp(0.04, 0.14);
+      final Color surfaceColor          = HSLColor.fromAHSL(1.0, h, s, 0.97).toColor();
+      final Color surfaceContainerColor = HSLColor.fromAHSL(1.0, h, s, 0.93).toColor();
 
       return ColorScheme.fromSeed(
         seedColor: baseColor,
@@ -206,7 +216,7 @@ class ThemeProvider with ChangeNotifier {
   Color _getPaletteBaseColor(ColorPalette palette) {
     switch (palette) {
       case ColorPalette.none:
-        return const Color(0xFF0C0F14); // #0C0F14 default theme palette
+        return const Color(0xFF1A2235); // Deep blue-slate: enough hue/saturation to generate visible dark surfaces
       case ColorPalette.emerald:
         return const Color(0xFF1C6758); // Green
       case ColorPalette.ocean:

@@ -478,7 +478,10 @@ class _MyAppState extends State<MyApp> {
           if (themeProvider.useMaterialYou && themeProvider.isM3EEnabled) {
             lightScheme = lightDynamic;
             darkScheme = darkDynamic;
-          } else if (themeProvider.isM3EEnabled) {
+          } else {
+            // Always use our HSL palette color scheme so dynamic theme colors
+            // are applied app-wide, not just in M3E mode. This prevents
+            // falling back to the hardcoded OasisColors.deep (black) background.
             lightScheme = themeProvider.getPaletteColorScheme(
               material.Brightness.light,
             );
