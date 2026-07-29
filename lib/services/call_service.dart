@@ -283,6 +283,21 @@ _room = Room(roomOptions: roomOptions);
             if (ringingCalls.isNotEmpty) {
               final call = CallEntity.fromJson(ringingCalls.first);
 
+              // Ignore and mark as missed if the call is stale (older than 45 seconds)
+              final age = DateTime.now().toUtc().difference(call.createdAt.toUtc()).inSeconds;
+              if (age > 45) {
+                debugPrint('[CallService] Stale call detected (age: ${age}s). Marking as missed.');
+                _supabase
+                    .from('calls')
+                    .update({'status': CallStatus.missed.name})
+                    .eq('id', call.id)
+                    .then((_) {})
+                    .catchError((e) {
+                      debugPrint('[CallService] Error marking stale call as missed: $e');
+                    });
+                return;
+              }
+
               final isRecentlyEnded =
                   _lastEndedCallId == call.id &&
                   _lastEndedTimestamp != null &&

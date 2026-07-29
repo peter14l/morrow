@@ -9,9 +9,16 @@ import 'package:oasis/routes/app_router.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 
-class CallNavigator extends StatelessWidget {
+class CallNavigator extends StatefulWidget {
   final Widget child;
   const CallNavigator({super.key, required this.child});
+
+  @override
+  State<CallNavigator> createState() => _CallNavigatorState();
+}
+
+class _CallNavigatorState extends State<CallNavigator> {
+  String? _lastPushedCallId;
 
   @override
   Widget build(BuildContext context) {
@@ -23,8 +30,13 @@ class CallNavigator extends StatelessWidget {
     final userSettings = context.watch<UserSettingsProvider>();
 
     final hasCall = hasActiveCall || hasIncomingCall;
+    final callId = activeCallId ?? incomingCallId;
 
-    if (hasCall) {
+    if (!hasCall) {
+      _lastPushedCallId = null;
+    }
+
+    if (hasCall && callId != null && _lastPushedCallId != callId) {
       String location = '';
       try {
         location =
@@ -37,21 +49,19 @@ class CallNavigator extends StatelessWidget {
       final onCallScreen = location.startsWith('/call');
 
       if (!onCallScreen && !isMinimized) {
+        _lastPushedCallId = callId;
         material.WidgetsBinding.instance.addPostFrameCallback((_) {
-          final callId = activeCallId ?? incomingCallId;
-          if (callId != null) {
-            final navContext =
-                AppRouter.router.configuration.navigatorKey.currentContext;
-            if (navContext != null) {
-              GoRouter.of(
-                navContext,
-              ).pushNamed('active_call', pathParameters: {'callId': callId});
-            } else {
-              AppRouter.router.pushNamed(
-                'active_call',
-                pathParameters: {'callId': callId},
-              );
-            }
+          final navContext =
+              AppRouter.router.configuration.navigatorKey.currentContext;
+          if (navContext != null) {
+            GoRouter.of(
+              navContext,
+            ).pushNamed('active_call', pathParameters: {'callId': callId});
+          } else {
+            AppRouter.router.pushNamed(
+              'active_call',
+              pathParameters: {'callId': callId},
+            );
           }
         });
       }
@@ -72,7 +82,7 @@ class CallNavigator extends StatelessWidget {
           : (isDark
                 ? const material.Color(0xFF080A0E)
                 : const material.Color(0xFFF8F9FA)),
-      child: child,
+      child: widget.child,
     );
   }
 }

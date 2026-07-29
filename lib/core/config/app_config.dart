@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:universal_io/io.dart';
+
 /// Centralized application configuration.
 ///
 /// Driven by environment variables for production readiness.
@@ -11,7 +13,10 @@ class AppConfig {
   static String appVersion = '0.0.0';
 
   /// If false, calling features are disabled (e.g. during major platform stability fixes)
-  static bool enableCalls = true;
+  static bool get enableCalls {
+    if (kIsWeb) return false;
+    return Platform.isAndroid || Platform.isIOS;
+  }
 
   /// If true, the first-party privacy-preserving contextual ad engine is active.
   /// Ads are matched locally on-device — no user data is ever sent to ad servers.
