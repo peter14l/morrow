@@ -87,6 +87,9 @@ class _CallingScreenState extends State<CallingScreen> {
     final hasIncomingCall = context.select<CallProvider, bool>(
       (p) => p.hasIncomingCall,
     );
+    final isUnanswered = context.select<CallProvider, bool>(
+      (p) => p.state.isUnanswered,
+    );
 
     final isWaitingForIncomingCall =
         widget.isIncoming &&
@@ -94,7 +97,7 @@ class _CallingScreenState extends State<CallingScreen> {
         !hasIncomingCall &&
         !_isCallDataTimeout;
 
-    if (!isWaitingForIncomingCall && !hasActiveCall && !hasIncomingCall) {
+    if (!isWaitingForIncomingCall && !hasActiveCall && !hasIncomingCall && !isUnanswered) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_hasPopped) {
           _hasPopped = true;
@@ -108,6 +111,65 @@ class _CallingScreenState extends State<CallingScreen> {
         backgroundColor: Colors.black,
         body: Center(
           child: Text('Call ended', style: TextStyle(color: Colors.white)),
+        ),
+      );
+    }
+
+    if (isUnanswered) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.phone_missed_rounded, color: Colors.redAccent, size: 64),
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Call unanswered',
+                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 48),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<CallProvider>().clearUnanswered();
+                      final router = GoRouter.of(context);
+                      if (router.canPop()) {
+                        router.pop();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[800],
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                    child: const Text('Cancel', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                  const SizedBox(width: 24),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.read<CallProvider>().retryLastCall();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                    child: const Text('Try again', style: TextStyle(color: Colors.white, fontSize: 16)),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }

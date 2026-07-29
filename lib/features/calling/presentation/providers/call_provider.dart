@@ -28,6 +28,7 @@ class CallState {
   final bool isSpeakerphoneOn;
   final bool isScreenSharing;
   final bool isMinimized;
+  final bool isUnanswered;
 
   const CallState({
     this.activeCall,
@@ -41,6 +42,7 @@ class CallState {
     this.isSpeakerphoneOn = false,
     this.isScreenSharing = false,
     this.isMinimized = false,
+    this.isUnanswered = false,
   });
 
   factory CallState.initial() {
@@ -63,6 +65,7 @@ class CallState {
     bool? isSpeakerphoneOn,
     bool? isScreenSharing,
     bool? isMinimized,
+    bool? isUnanswered,
   }) {
     return CallState(
       activeCall: clearActiveCall ? null : (activeCall ?? this.activeCall),
@@ -78,6 +81,7 @@ class CallState {
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
       isScreenSharing: isScreenSharing ?? this.isScreenSharing,
       isMinimized: isMinimized ?? this.isMinimized,
+      isUnanswered: isUnanswered ?? this.isUnanswered,
     );
   }
 }
@@ -94,6 +98,12 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
   Timer? _ringingTimer;
 
   CallState _state = CallState.initial();
+
+  // Variables to retry the last call
+  String? _lastConversationId;
+  String? _lastCallerId;
+  String? _lastReceiverId;
+  CallType? _lastCallType;
 
   CallProvider({
     required CallService callService,
@@ -204,8 +214,14 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
     if (!AppConfig.enableCalls) return null;
     try {
       _isEnding = false;
-      _state = _state.copyWith(isLoading: true, clearError: true);
+      _state = _state.copyWith(isLoading: true, clearError: true, isUnanswered: false);
       notifyListeners();
+
+      // Store retry info
+      _lastConversationId = conversationId;
+      _lastCallerId = callerId;
+      _lastReceiverId = receiverId;
+      _lastCallType = type;
 
       // 1. Initialize local tracks
       await _callService.initLocalStream(type == CallType.video);
@@ -232,11 +248,11 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
 
       _state = _state.copyWith(activeCall: call, isLoading: false);
 
-      // 4. Start ringing timeout (30 seconds)
+      // 4. Start ringing timeout (20 seconds)
       _ringingTimer?.cancel();
-      _ringingTimer = Timer(const Duration(seconds: 30), () {
+      _ringingTimer = Timer(const Duration(seconds: 20), () {
         if (_state.activeCall?.status == CallStatus.ringing) {
-          endCall();
+          markCallAsUnanswered();
         }
       });
     
@@ -247,6 +263,68 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       notifyListeners();
       return null;
     }
+  }
+
+  /// Mark the active call as unanswered/missed in the database and local state
+  Future<void> markCallAsUnanswered() async {
+    try {
+      final callId = _state.activeCall?.id;
+      if (callId == null) return;
+
+      _ringingTimer?.cancel();
+      _isEnding = true;
+      _state = _state.copyWith(
+        isLoading: true,
+        clearError: true,
+      );
+      notifyListeners();
+
+      // Update call status to missed in database
+      await Supabase.instance.client
+          .from('calls')
+          .update({
+            'status': CallStatus.missed.name,
+            'ended_at': DateTime.now().toIso8601String(),
+          })
+          .eq('id', callId);
+
+      await _callService.endCall();
+
+      _state = _state.copyWith(
+        isLoading: false,
+        isUnanswered: true,
+        clearActiveCall: true,
+      );
+      _isEnding = false;
+      notifyListeners();
+    } catch (e) {
+      _isEnding = false;
+      _state = _state.copyWith(isLoading: false, error: e.toString());
+      notifyListeners();
+    }
+  }
+
+  /// Clear the unanswered flag
+  void clearUnanswered() {
+    _state = _state.copyWith(isUnanswered: false);
+    notifyListeners();
+  }
+
+  /// Retry the last initiated call
+  Future<void> retryLastCall() async {
+    if (_lastConversationId == null ||
+        _lastCallerId == null ||
+        _lastReceiverId == null ||
+        _lastCallType == null) {
+      return;
+    }
+
+    await initiateCall(
+      conversationId: _lastConversationId!,
+      callerId: _lastCallerId!,
+      receiverId: _lastReceiverId!,
+      type: _lastCallType!,
+    );
   }
 
   /// Accept an incoming LiveKit call
