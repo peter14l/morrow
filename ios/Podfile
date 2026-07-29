@@ -16,7 +16,11 @@ def local_providers_nil_or_empty?
 end
 
 # Load Flutter Pod helper
-require File.expand_path(File.join('Flutter', 'podhelper.rb'), __dir__)
+podhelper_path = File.expand_path(File.join('Flutter', 'podhelper.rb'), __dir__)
+unless File.exist?(podhelper_path)
+  podhelper_path = File.expand_path(File.join('Flutter', 'ephemeral', 'podhelper.rb'), __dir__)
+end
+require podhelper_path
 
 target 'Runner' do
   use_frameworks!
