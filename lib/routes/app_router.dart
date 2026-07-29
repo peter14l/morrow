@@ -449,7 +449,7 @@ class _MainLayoutState extends State<MainLayout> {
           }
 
           return Scaffold(
-            backgroundColor: Colors.transparent,
+            backgroundColor: theme.scaffoldBackgroundColor,
             extendBody: true,
             body: RawGestureDetector(
               behavior: HitTestBehavior.translucent,
