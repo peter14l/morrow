@@ -287,6 +287,13 @@ _room = Room(roomOptions: roomOptions);
             final call = CallEntity.fromJson(callMap);
             final e2eeKeyBase64 = payload['e2ee_key'] as String?;
 
+            // Ignore stale calls on broadcast channel too
+            final age = DateTime.now().toUtc().difference(call.createdAt.toUtc()).inSeconds;
+            if (age > 45) {
+              debugPrint('[CallService] Stale broadcast invite (age: ${age}s). Ignoring.');
+              return;
+            }
+
             if (_currentCallId == null && _incomingCall?.id != call.id) {
               if (e2eeKeyBase64 != null) {
                 e2eeKey = base64Decode(e2eeKeyBase64);
@@ -329,18 +336,20 @@ _room = Room(roomOptions: roomOptions);
             if (ringingCalls.isNotEmpty) {
               final call = CallEntity.fromJson(ringingCalls.first);
 
-              // Ignore and mark as missed if the call is stale (older than 45 seconds)
+              // Ignore and mark as missed if the call is stale (older than 30 seconds)
               final age = DateTime.now().toUtc().difference(call.createdAt.toUtc()).inSeconds;
-              if (age > 45) {
-                debugPrint('[CallService] Stale call detected (age: ${age}s). Marking as missed.');
-                _supabase
-                    .from('calls')
-                    .update({'status': CallStatus.missed.name})
-                    .eq('id', call.id)
-                    .then((_) {})
-                    .catchError((e) {
-                      debugPrint('[CallService] Error marking stale call as missed: $e');
-                    });
+              if (age > 30 || call.endedAt != null) {
+                if (age > 30) {
+                  debugPrint('[CallService] Stale call detected (age: ${age}s). Marking as missed.');
+                  try {
+                    await _supabase
+                        .from('calls')
+                        .update({'status': CallStatus.missed.name})
+                        .eq('id', call.id);
+                  } catch (e) {
+                    debugPrint('[CallService] Error marking stale call as missed: $e');
+                  }
+                }
                 return;
               }
 

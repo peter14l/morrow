@@ -231,20 +231,22 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                 material.ValueNotifier(widget.controller.text),
             builder: (context, text, child) {
               final bool isTyping = text.trim().isNotEmpty;
-              return material.AnimatedSwitcher(
-                duration: const Duration(milliseconds: 150),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  return material.FadeTransition(
-                    opacity: animation,
-                    child: child,
-                  );
-                },
-                child: (isTyping || widget.hasAttachment)
-                    ? const material.SizedBox.shrink(
-                        key: material.ValueKey('leading-hidden'),
-                      )
-                    : material.Row(
-                        key: const material.ValueKey('leading-visible'),
+              return material.SizedBox(
+                height: 48,
+                child: material.AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 150),
+                  transitionBuilder: (Widget child, Animation<double> animation) {
+                    return material.FadeTransition(
+                      opacity: animation,
+                      child: child,
+                    );
+                  },
+                  child: (isTyping || widget.hasAttachment)
+                      ? const material.SizedBox.shrink(
+                          key: material.ValueKey('leading-hidden'),
+                        )
+                      : material.Row(
+                          key: const material.ValueKey('leading-visible'),
                         mainAxisSize: material.MainAxisSize.min,
                         children: [
                           widget.isDesktop
@@ -370,6 +372,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                           const material.SizedBox(width: 4),
                         ],
                       ),
+                    ),
               );
             },
           ),
@@ -382,30 +385,33 @@ class _ChatInputAreaState extends State<ChatInputArea> {
             builder: (context, text, child) {
               final bool hasSomething =
                   text.trim().isNotEmpty || widget.hasAttachment;
-              return material.AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: hasSomething
-                    ? material.IconButton(
-                        key: const material.ValueKey('spoiler-btn'),
-                        onPressed: widget.onSpoilerToggle,
-                        icon: material.Icon(
-                          widget.isSpoiler
-                              ? material.Icons.visibility_off
-                              : material.Icons.visibility_off_outlined,
-                          color: widget.isSpoiler
-                              ? colorScheme.primary
-                              : (widget.isDesktop
-                                    ? material.Colors.white38
-                                    : colorScheme.onSurfaceVariant.withValues(
-                                        alpha: 0.6,
-                                      )),
-                          size: widget.isDesktop ? 22 : 20,
-                        ),
-                        tooltip: 'Mark as Spoiler',
-                        constraints: const material.BoxConstraints(),
-                        padding: const material.EdgeInsets.all(8),
-                      )
-                    : const material.SizedBox.shrink(),
+              return material.SizedBox(
+                height: 48,
+                child: material.AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 200),
+                  child: hasSomething
+                      ? material.IconButton(
+                          key: const material.ValueKey('spoiler-btn'),
+                          onPressed: widget.onSpoilerToggle,
+                          icon: material.Icon(
+                            widget.isSpoiler
+                                ? material.Icons.visibility_off
+                                : material.Icons.visibility_off_outlined,
+                            color: widget.isSpoiler
+                                ? colorScheme.primary
+                                : (widget.isDesktop
+                                      ? material.Colors.white38
+                                      : colorScheme.onSurfaceVariant.withValues(
+                                          alpha: 0.6,
+                                        )),
+                            size: widget.isDesktop ? 22 : 20,
+                          ),
+                          tooltip: 'Mark as Spoiler',
+                          constraints: const material.BoxConstraints(),
+                          padding: const material.EdgeInsets.all(8),
+                        )
+                      : const material.SizedBox.shrink(),
+                ),
               );
             },
           ),

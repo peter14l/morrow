@@ -639,10 +639,15 @@ class CallControlBar extends StatelessWidget {
       children: [
         _ControlButton(
           onPressed: () {
-            final call = provider.incomingCall;
-            final userId = context.read<ProfileProvider>().currentProfile?.id;
-            if (call != null && userId != null) {
-              provider.declineCall(call.id, userId);
+            try {
+              final call = provider.incomingCall;
+              if (call == null) return;
+              final userId = context.read<ProfileProvider>().currentProfile?.id;
+              if (userId != null) {
+                provider.declineCall(call.id, userId);
+              }
+            } catch (e) {
+              debugPrint('[CallingScreen] Decline error: $e');
             }
           },
           icon: Icons.call_end,

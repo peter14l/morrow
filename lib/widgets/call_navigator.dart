@@ -47,8 +47,12 @@ class _CallNavigatorState extends State<CallNavigator> {
       }
 
       final onCallScreen = location.startsWith('/call');
+      final onAuthRoute = location == '/login' ||
+          location == '/register' ||
+          location == '/splash' ||
+          location == '/onboarding';
 
-      if (!onCallScreen && !isMinimized) {
+      if (!onCallScreen && !isMinimized && !onAuthRoute) {
         _lastPushedCallId = callId;
         material.WidgetsBinding.instance.addPostFrameCallback((_) {
           final navContext =
