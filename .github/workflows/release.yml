@@ -1,16 +1,39 @@
-name: Build & Sign APK
+name: Build & Release
 
 on:
   push:
-    branches: [ '**' ]
+    branches: [ 'main' ]
+    tags: [ 'v*' ]
   pull_request:
-    branches: [ '**' ]
+    branches: [ 'main' ]
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release'
+        type: boolean
+        default: false
 
 jobs:
-  build-android:
-    name: Build Signed APKs (Android)
+  # ── Shared: Extract version ─────────────────────────────────────────────
+  version:
+    name: Extract Version
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: get-version
+        shell: bash
+        run: |
+          VER=$(grep '^version: ' pubspec.yaml | sed 's/version: //' | tr -d ' ')
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "Version: $VER"
+
+  # ── Android ─────────────────────────────────────────────────────────────
+  build-android:
+    name: Build Android (APK)
+    runs-on: ubuntu-latest
+    needs: [version]
 
     steps:
       - name: Checkout repository
@@ -101,18 +124,30 @@ jobs:
         run: |
           flutter build apk --release --split-per-abi --no-shrink --dart-define-from-file=".env"
 
-      - name: Upload Signed APKs
+      - name: Rename APKs with version
+        run: |
+          VER="${{ needs.version.outputs.version }}"
+          mkdir -p release-artifacts
+          for f in build/app/outputs/flutter-apk/*-release.apk; do
+            ABI=$(echo "$f" | sed -E 's/.*app-(.*)-release\.apk/\1/')
+            cp "$f" "release-artifacts/oasis-v${VER}-${ABI}.apk"
+          done
+          cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "release-artifacts/oasis-v${VER}-android-arm64.apk"
+
+      - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: signed-apks
-          path: |
-            build/app/outputs/flutter-apk/*-release.apk
+          name: android-apks
+          path: release-artifacts/
           retention-days: 7
 
 
+  # ── iOS ─────────────────────────────────────────────────────────────────
   build-ios:
     name: Build iOS (IPA)
     runs-on: macos-latest
+    needs: [version]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -138,7 +173,6 @@ jobs:
           cargo build --target x86_64-apple-ios --release
           cd ..
           mkdir -p ios/libs
-          # Create a fat library (universal) for simulator + device
           lipo -create \
             PQ-DR/target/aarch64-apple-ios/release/libpq_aura.a \
             PQ-DR/target/x86_64-apple-ios/release/libpq_aura.a \
@@ -147,7 +181,7 @@ jobs:
       - name: Precache iOS artifacts
         run: flutter precache --ios
 
-      - name: Disable Swift Package Manager (Force CocoaPods)
+      - name: Disable Swift Package Manager
         run: flutter config --no-enable-swift-package-manager
 
       - name: Clean build environment
@@ -185,23 +219,30 @@ jobs:
         run: |
           flutter build ios --release --no-codesign --dart-define-from-file=".env"
 
-      - name: Package & Sign IPA (Sideloadable)
+      - name: Package IPA
         run: |
+          VER="${{ needs.version.outputs.version }}"
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
           codesign --force --deep --sign - Payload/Runner.app
-          zip -r Oasis.ipa Payload
+          zip -r "oasis-v${VER}-ios.ipa" Payload
+          mkdir -p release-artifacts
+          cp "oasis-v${VER}-ios.ipa" release-artifacts/
 
-      - name: Upload iOS IPA
+      - name: Upload iOS Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
-          path: Oasis.ipa
+          path: release-artifacts/
           retention-days: 7
 
+
+  # ── macOS ───────────────────────────────────────────────────────────────
   build-macos:
     name: Build macOS (App)
     runs-on: macos-latest
+    needs: [version]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -220,7 +261,6 @@ jobs:
           cargo build --target x86_64-apple-darwin --release
           cd ..
           mkdir -p macos/libs
-          # Create a universal dylib for Apple Silicon + Intel
           lipo -create \
             PQ-DR/target/aarch64-apple-darwin/release/libpq_aura.dylib \
             PQ-DR/target/x86_64-apple-darwin/release/libpq_aura.dylib \
@@ -235,7 +275,7 @@ jobs:
       - name: Precache macOS artifacts
         run: flutter precache --macos
 
-      - name: Disable Swift Package Manager (Force CocoaPods)
+      - name: Disable Swift Package Manager
         run: |
           flutter config --no-enable-swift-package-manager
           flutter clean
@@ -243,8 +283,6 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-
-
 
       - name: Create .env from secrets
         run: |
@@ -272,16 +310,27 @@ jobs:
       - name: Build macOS
         run: flutter build macos --release --dart-define-from-file=".env"
 
-      - name: Upload macOS Build
+      - name: Package macOS App
+        run: |
+          VER="${{ needs.version.outputs.version }}"
+          mkdir -p release-artifacts
+          ditto -c -k --sequesterRsrc --keepParent \
+            build/macos/Build/Products/Release/Runner.app \
+            "release-artifacts/oasis-v${VER}-macos.zip"
+
+      - name: Upload macOS Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: build/macos/Build/Products/Release
+          path: release-artifacts/
           retention-days: 7
 
+
+  # ── Windows ─────────────────────────────────────────────────────────────
   build-windows:
-    name: Build Windows MSIX
+    name: Build Windows (MSIX)
     runs-on: windows-latest
+    needs: [version]
 
     steps:
       - name: Enable long paths in Git
@@ -314,27 +363,29 @@ jobs:
         run: flutter pub get
 
       - name: Create .env from secrets
+        shell: pwsh
         run: |
-          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" > .env
-          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
-          echo "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
-          echo "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
-          echo "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
-          echo "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
-          echo "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
-          echo "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
-          echo "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
-          echo "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
-          echo "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
-          echo "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
-          echo "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
-          echo "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
-          echo "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
-          echo "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
-          echo "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
-          echo "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
-          echo "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
-          echo "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
+          "@" > .env
+          "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+          "SENTRY_DSN=${{ secrets.SENTRY_DSN }}" >> .env
+          "GOOGLE_WEB_CLIENT_ID=${{ secrets.GOOGLE_WEB_CLIENT_ID }}" >> .env
+          "GIPHY_WEB_KEY=${{ secrets.GIPHY_WEB_KEY }}" >> .env
+          "GIPHY_ANDROID_KEY=${{ secrets.GIPHY_ANDROID_KEY }}" >> .env
+          "GIPHY_IOS_KEY=${{ secrets.GIPHY_IOS_KEY }}" >> .env
+          "GIPHY_WINDOWS_KEY=${{ secrets.GIPHY_WINDOWS_KEY }}" >> .env
+          "GIPHY_MACOS_KEY=${{ secrets.GIPHY_MACOS_KEY }}" >> .env
+          "KLIPY_WEB_KEY=${{ secrets.KLIPY_WEB_KEY }}" >> .env
+          "KLIPY_ANDROID_KEY=${{ secrets.KLIPY_ANDROID_KEY }}" >> .env
+          "KLIPY_IOS_KEY=${{ secrets.KLIPY_IOS_KEY }}" >> .env
+          "KLIPY_WINDOWS_KEY=${{ secrets.KLIPY_WINDOWS_KEY }}" >> .env
+          "KLIPY_MACOS_KEY=${{ secrets.KLIPY_MACOS_KEY }}" >> .env
+          "R2_ACCOUNT_ID=${{ secrets.R2_ACCOUNT_ID }}" >> .env
+          "R2_ACCESS_KEY_ID=${{ secrets.R2_ACCESS_KEY_ID }}" >> .env
+          "R2_SECRET_ACCESS_KEY=${{ secrets.R2_SECRET_ACCESS_KEY }}" >> .env
+          "B2_ENDPOINT=${{ secrets.B2_ENDPOINT }}" >> .env
+          "B2_ACCESS_KEY_ID=${{ secrets.B2_ACCESS_KEY_ID }}" >> .env
+          "B2_SECRET_ACCESS_KEY=${{ secrets.B2_SECRET_ACCESS_KEY }}" >> .env
 
       - name: Disable sentry-native (avoid crashpad 403 error)
         run: |
@@ -349,11 +400,79 @@ jobs:
       - name: Create MSIX
         run: dart run msix:create --build-windows false
 
-      - name: Upload MSIX
+      - name: Rename MSIX with version
+        shell: pwsh
+        run: |
+          $VER = "${{ needs.version.outputs.version }}"
+          mkdir -p release-artifacts
+          $msix = Get-ChildItem -Path "build/windows/x64/runner/Release" -Filter "*.msix" | Select-Object -First 1
+          if ($msix) {
+            Copy-Item $msix.FullName -Destination "release-artifacts/Oasis_${VER}.msix"
+          }
+
+      - name: Upload Windows Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-msix
-          path: |
-            build/windows/x64/runner/Release/*.msix
-            test_certificate.pfx
-        if: always()
+          name: windows-msix
+          path: release-artifacts/
+          retention-days: 7
+
+
+  # ── Release (only on tag push or manual trigger) ────────────────────────
+  create-release:
+    name: Create GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.create_release)
+    runs-on: ubuntu-latest
+    needs: [version, build-android, build-ios, build-macos, build-windows]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Flatten artifacts into staging
+        run: |
+          mkdir -p staging
+          find release-artifacts -type f \( -name "*.apk" -o -name "*.ipa" -o -name "*.zip" -o -name "*.msix" \) -exec cp {} staging/ \;
+          echo "=== Staged Release Files ==="
+          ls -lh staging/
+
+      - name: Generate Release Notes
+        id: release-notes
+        run: |
+          VER="${{ needs.version.outputs.version }}"
+
+          if [ -f versions.json ]; then
+            NOTES=$(python3 -c "
+import json
+with open('versions.json') as f:
+    data = json.load(f)
+notes = ''
+for platform in ['android', 'windows', 'macos']:
+    if platform in data:
+        notes += data[platform].get('releaseNotes', '') + '\n\n'
+print(notes.strip())
+" 2>/dev/null || echo "")
+          fi
+
+          if [ -z "$NOTES" ]; then
+            NOTES="Release v${VER}"
+          fi
+
+          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$NOTES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.version.outputs.version }}
+          name: Oasis v${{ needs.version.outputs.version }}
+          body: ${{ steps.release-notes.outputs.notes }}
+          files: staging/*
+          generate_release_notes: false
+          draft: false
+          prerelease: false
