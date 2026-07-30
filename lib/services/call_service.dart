@@ -11,7 +11,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:audio_session/audio_session.dart' as audio_session;
 import 'package:universal_io/io.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_background/flutter_background.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
@@ -50,7 +49,6 @@ class CallService extends ChangeNotifier {
   }) : _supabase = supabase ?? SupabaseService().client,
        _audioPlayer = audioPlayer ?? AudioPlayer() {
     _instance = this;
-    _initBackgroundService();
     _configureAudioPlayer();
   }
 
@@ -62,23 +60,6 @@ class CallService extends ChangeNotifier {
         notifyListeners();
       }
     });
-  }
-
-  Future<void> _initBackgroundService() async {
-    if (!kIsWeb && Platform.isAndroid) {
-      try {
-        const androidConfig = FlutterBackgroundAndroidConfig(
-          notificationTitle: 'Oasis Call',
-          notificationText: 'Active call in progress',
-          notificationImportance: AndroidNotificationImportance.normal,
-          notificationIcon:
-              AndroidResource(name: 'ic_launcher', defType: 'mipmap'),
-        );
-        await FlutterBackground.initialize(androidConfig: androidConfig);
-      } catch (e) {
-        debugPrint('[CallService] Error initializing background service: $e');
-      }
-    }
   }
 
   void _configureAudioPlayer() {
@@ -227,10 +208,6 @@ _room = Room(roomOptions: roomOptions);
       ));
 
       _recordStep('Connected to LiveKit room');
-
-      if (!kIsWeb && Platform.isAndroid) {
-        await FlutterBackground.enableBackgroundExecution();
-      }
 
       NotificationManager.instance.showActiveCallNotification(
         callId: call.id,
@@ -444,10 +421,6 @@ _room = Room(roomOptions: roomOptions);
 
     await _stopRingtone();
     NotificationManager.instance.dismissActiveCallNotification();
-
-    if (!kIsWeb && Platform.isAndroid) {
-      await FlutterBackground.disableBackgroundExecution();
-    }
 
     await _room?.disconnect();
     await _room?.dispose();
