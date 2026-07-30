@@ -446,7 +446,7 @@ jobs:
           VER="${{ needs.version.outputs.version }}"
 
           if [ -f versions.json ]; then
-            NOTES=$(python3 -c "
+            NOTES=$(python3 << 'PYEOF'
 import json
 with open('versions.json') as f:
     data = json.load(f)
@@ -455,16 +455,19 @@ for platform in ['android', 'windows', 'macos']:
     if platform in data:
         notes += data[platform].get('releaseNotes', '') + '\n\n'
 print(notes.strip())
-" 2>/dev/null || echo "")
+PYEOF
+)
           fi
 
           if [ -z "$NOTES" ]; then
             NOTES="Release v${VER}"
           fi
 
-          echo "notes<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$NOTES" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "notes<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
