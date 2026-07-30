@@ -444,37 +444,19 @@ jobs:
         id: release-notes
         run: |
           VER="${{ needs.version.outputs.version }}"
-
           if [ -f versions.json ]; then
-            NOTES=$(python3 << 'PYEOF'
-import json
-with open('versions.json') as f:
-    data = json.load(f)
-notes = ''
-for platform in ['android', 'windows', 'macos']:
-    if platform in data:
-        notes += data[platform].get('releaseNotes', '') + '\n\n'
-print(notes.strip())
-PYEOF
-)
+            jq -r '[.android.releaseNotes, .windows.releaseNotes, .macos.releaseNotes] | map(select(. != "")) | join("\n\n")' versions.json > release-notes.md 2>/dev/null
           fi
-
-          if [ -z "$NOTES" ]; then
-            NOTES="Release v${VER}"
+          if [ ! -s release-notes.md ]; then
+            echo "Release v${VER}" > release-notes.md
           fi
-
-          {
-            echo "notes<<EOF"
-            echo "$NOTES"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.version.outputs.version }}
           name: Oasis v${{ needs.version.outputs.version }}
-          body: ${{ steps.release-notes.outputs.notes }}
+          body_path: release-notes.md
           files: staging/*
           generate_release_notes: false
           draft: false
