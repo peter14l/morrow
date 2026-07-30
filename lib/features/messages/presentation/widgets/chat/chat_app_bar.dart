@@ -451,16 +451,16 @@ class ChatAppBar extends StatelessWidget {
             fluent.CommandBar(
               overflowBehavior: fluent.CommandBarOverflowBehavior.noWrap,
               primaryItems: [
-                if (AppConfig.enableCalls) ...[
+                if (onCallPressed != null && AppConfig.enableCalls)
                   fluent.CommandBarButton(
                     icon: const Icon(FluentIcons.call_24_regular, size: 18),
                     onPressed: onCallPressed,
                   ),
+                if (onVideoCallPressed != null && AppConfig.enableCalls)
                   fluent.CommandBarButton(
                     icon: const Icon(FluentIcons.video_24_regular, size: 18),
                     onPressed: onVideoCallPressed,
                   ),
-                ],
                 fluent.CommandBarButton(
                   icon: const Icon(FluentIcons.search_24_regular, size: 18),
                   onPressed: onSearchPressed,

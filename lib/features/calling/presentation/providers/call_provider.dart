@@ -93,6 +93,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
   final AcceptCall _acceptCall;
   final EndCall _endCall;
   final GetActiveCalls _getActiveCalls;
+  final PQAuraService _pqAuraService;
   bool _isInitialized = false;
   bool _isEnding = false;
   Timer? _ringingTimer;
@@ -111,15 +112,18 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
     required AcceptCall acceptCall,
     required EndCall endCall,
     required GetActiveCalls getActiveCalls,
+    SupabaseClient? supabase,
+    PQAuraService? pqAuraService,
   }) : _callService = callService,
        _initiateCall = initiateCall,
        _acceptCall = acceptCall,
        _endCall = endCall,
-       _getActiveCalls = getActiveCalls {
+       _getActiveCalls = getActiveCalls,
+       _pqAuraService = pqAuraService ?? PQAuraService.instance {
     _callService.addListener(_onCallServiceUpdate);
 
     // Listen to auth state changes to automatically start/stop listener
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+    (supabase ?? Supabase.instance.client).auth.onAuthStateChange.listen((data) {
       if (data.session != null) {
         if (_isInitialized) {
           _startListenerWithRetry();
@@ -231,7 +235,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       final e2eeKey = Uint8List.fromList(List.generate(32, (_) => random.nextInt(256)));
       
       // 1b. Encrypt via PQAuraService
-      final encryptedOffer = await PQAuraService.instance.encryptMediaKey(receiverId, e2eeKey);
+      final encryptedOffer = await _pqAuraService.encryptMediaKey(receiverId, e2eeKey);
 
       // 2. Create call in DB with the offer
       final call = await _initiateCall.call(
