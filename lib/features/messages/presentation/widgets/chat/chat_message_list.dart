@@ -4,8 +4,7 @@ import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/messages/presentation/widgets/bubbles/bubbles.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_reactions_provider.dart';
-import 'package:oasis/features/messages/data/messaging_service.dart';
-import 'package:provider/provider.dart';
+import 'package:oasis/features/messages/presentation/providers/chat_state.dart';
 import 'package:oasis/widgets/skeleton_container.dart';
 
 import 'package:oasis/features/messages/presentation/widgets/chat/swipe_to_reply.dart';
@@ -31,6 +30,7 @@ class ChatMessageList extends StatelessWidget {
     this.scrollController,
     this.onReactionsTap,
     this.highlightedMessageId,
+    this.messageStatuses,
   });
 
   final List<Message> messages;
@@ -47,6 +47,7 @@ class ChatMessageList extends StatelessWidget {
   final ScrollController? scrollController;
   final VoidCallback? onReactionsTap;
   final String? highlightedMessageId;
+  final Map<String, MessageStatus>? messageStatuses;
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +122,7 @@ class ChatMessageList extends StatelessWidget {
         onDoubleTap: () => onMessageDoubleTap(message),
         onReactionsTap: onReactionsTap,
         currentUserId: currentUserId,
+        messageStatuses: messageStatuses,
       ),
     );
   }
@@ -200,6 +202,7 @@ class MessageBubble extends StatelessWidget {
     this.onReactionsTap,
     required this.maxWidth,
     this.currentUserId,
+    this.messageStatuses,
   });
 
   final Message message;
@@ -214,6 +217,7 @@ class MessageBubble extends StatelessWidget {
   final VoidCallback? onReactionsTap;
   final double maxWidth;
   final String? currentUserId;
+  final Map<String, MessageStatus>? messageStatuses;
 
   @override
   Widget build(BuildContext context) {
@@ -324,10 +328,11 @@ class MessageBubble extends StatelessWidget {
             ],
           );
 
-    final isOptimistic = message.id.startsWith('optimistic_');
+    final status = messageStatuses?[message.id];
+    final bool isSending = status == MessageStatus.sending;
 
     final Widget bubbleWithEffect = DissolveEffect(
-      isDissolving: isOptimistic,
+      isDissolving: isSending,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         padding: isSticker
@@ -413,16 +418,7 @@ class MessageBubble extends StatelessWidget {
                             : colorScheme.onSurface.withValues(alpha: 0.4),
                       ),
                     if (message.pqAuraHeader != null) const SizedBox(width: 4),
-                    if (isMe)
-                      Icon(
-                        isOptimistic ? Icons.access_time : Icons.done_all,
-                        size: 14,
-                        color: message.isRead
-                            ? (isDesktop ? Colors.blue : Colors.blueAccent)
-                            : colorScheme.onPrimaryContainer.withValues(
-                                alpha: 0.6,
-                              ),
-                      ),
+                    if (isMe) _buildStatusIcon(context, isDesktop),
                   ],
                 ),
               ),
@@ -599,6 +595,46 @@ class MessageBubble extends StatelessWidget {
           );
         }).toList(),
       ),
+    );
+  }
+
+  Widget _buildStatusIcon(BuildContext context, bool isDesktop) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final status = messageStatuses?[message.id];
+
+    if (status == MessageStatus.sending) {
+      return SizedBox(
+        width: 14,
+        height: 14,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
+        ),
+      );
+    }
+
+    if (status == MessageStatus.failed) {
+      return Icon(
+        Icons.error_outline,
+        size: 14,
+        color: colorScheme.error,
+      );
+    }
+
+    if (status == MessageStatus.sent) {
+      return Icon(
+        Icons.done,
+        size: 14,
+        color: colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
+      );
+    }
+
+    return Icon(
+      message.isRead ? Icons.done_all : Icons.done_all,
+      size: 14,
+      color: message.isRead
+          ? (isDesktop ? Colors.blue : Colors.blueAccent)
+          : colorScheme.onPrimaryContainer.withValues(alpha: 0.6),
     );
   }
 }

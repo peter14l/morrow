@@ -770,6 +770,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           child: ChatMessageList(
                             messages: state.messages,
                             isLoading: state.isLoading,
+                            messageStatuses: state.messageStatuses,
                             currentUserId: AuthService().currentUser?.id,
                             onMessageLongPress: _showMessageOptions,
                             onMessageDoubleTap: (message) async {

@@ -11,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/features/messages/domain/models/message_reaction.dart';
 import 'package:oasis/features/messages/data/messaging_service.dart';
+import 'package:oasis/features/messages/data/message_queue_service.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
@@ -59,7 +60,7 @@ class ChatProvider with ChangeNotifier {
   ChatState _state = const ChatState();
   ChatState get state => _state;
   bool _isDisposed = false;
-  int _optimisticCounter = 0;
+  final MessageQueueService _messageQueue = MessageQueueService();
 
   // Services
   final AuthService _authService = AuthService();
@@ -399,7 +400,28 @@ class ChatProvider with ChangeNotifier {
         return true;
       }).toList();
 
-      setState((s) => s.copyWith(messages: filtered, isLoading: false));
+      // Merge server messages with any in-flight optimistic messages
+      // so rapid sends aren't wiped out by polling or reload.
+      setState((s) {
+        final serverIds = filtered.map((m) => m.id).toSet();
+        final inFlight = s.messages
+            .where((m) => !serverIds.contains(m.id))
+            .toList();
+        final mergedIds = serverIds.union(inFlight.map((m) => m.id).toSet());
+        // Preserve status entries only for messages that survived the merge
+        final preservedStatuses = Map<String, MessageStatus>.from(
+          s.messageStatuses,
+        )..removeWhere((key, _) => !mergedIds.contains(key));
+        final preservedClientMap = Map<String, String>.from(
+          s.clientIdToServerId,
+        )..removeWhere((_, serverId) => !serverIds.contains(serverId));
+        return s.copyWith(
+          messages: [...filtered, ...inFlight],
+          messageStatuses: preservedStatuses,
+          clientIdToServerId: preservedClientMap,
+          isLoading: false,
+        );
+      });
       scrollToBottom(force: !silent);
       loadSmartReplies();
       await settingsProvider.saveMessagesToCache(filtered);
@@ -441,63 +463,131 @@ class ChatProvider with ChangeNotifier {
                     now.isAfter(decryptedMessage.expiresAt!)));
         if (isExpired) return;
 
-        // Avoid duplicates (especially from optimistic updates)
-        final index = state.messages.indexWhere(
-          (m) => m.id == decryptedMessage.id,
+        final serverId = decryptedMessage.id;
+
+        // Look up by server ID directly
+        final existingIndex = state.messages.indexWhere(
+          (m) => m.id == serverId,
         );
 
-        // Also check if there's an optimistic message with the same content/type
-        // that this message might be replacing (though ID matching is preferred)
-        int optimisticIndex = -1;
-        if (index == -1 && decryptedMessage.senderId == currentUserId) {
-          optimisticIndex = state.messages.indexWhere(
-            (m) =>
-                m.id.startsWith('optimistic_') &&
-                m.messageType == decryptedMessage.messageType &&
-                (m.content == decryptedMessage.content ||
-                    m.mediaFileName == decryptedMessage.mediaFileName),
+        // Look up clientId via clientIdToServerId reverse map
+        String? matchedClientId;
+        if (existingIndex == -1 && decryptedMessage.senderId == currentUserId) {
+          for (final entry in state.clientIdToServerId.entries) {
+            if (entry.value == serverId) {
+              matchedClientId = entry.key;
+              break;
+            }
+          }
+          // If not found in map, check messages list for client IDs
+          if (matchedClientId == null) {
+            final clientIndex = state.messages.indexWhere(
+              (m) => m.id.length == 36 && m.id.contains('-'),
+            );
+            if (clientIndex != -1 &&
+                state.messages[clientIndex].senderId == currentUserId) {
+              matchedClientId = state.messages[clientIndex].id;
+            }
+          }
+        }
+
+        setState((s) {
+          if (existingIndex != -1) {
+            final updated = List<Message>.from(s.messages);
+            if (decryptedMessage.senderId == currentUserId &&
+                decryptedMessage.content == message.content &&
+                !s.messages[existingIndex].content.contains('🔒') &&
+                s.messages[existingIndex].content != decryptedMessage.content) {
+              updated[existingIndex] = decryptedMessage.copyWith(
+                content: s.messages[existingIndex].content,
+              );
+            } else {
+              updated[existingIndex] = decryptedMessage;
+            }
+
+            Map<String, MessageStatus> updatedStatuses = s.messageStatuses;
+            // If we have a status for this server message, advance to delivered
+            if (s.messageStatuses.containsKey(serverId)) {
+              updatedStatuses = {
+                ...s.messageStatuses,
+                serverId: MessageStatus.delivered,
+              };
+            }
+
+            // Clean up any lingering clientId that maps to this serverId
+            String? staleClientId;
+            for (final entry in s.clientIdToServerId.entries) {
+              if (entry.value == serverId) {
+                staleClientId = entry.key;
+                break;
+              }
+            }
+            if (staleClientId != null &&
+                s.messages.any((m) => m.id == staleClientId)) {
+              updated.removeWhere((m) => m.id == staleClientId);
+            }
+
+            return s.copyWith(
+              messages: updated,
+              messageStatuses: updatedStatuses,
+            );
+          }
+
+          if (matchedClientId != null) {
+            // Realtime arrived before sendMessage RPC returned.
+            // Replace the clientId message with server message.
+            final updated = List<Message>.from(s.messages);
+            final optIndex = s.messages.indexWhere((m) => m.id == matchedClientId);
+            if (optIndex != -1) {
+              if (decryptedMessage.senderId == currentUserId &&
+                  decryptedMessage.content == message.content &&
+                  !s.messages[optIndex].content.contains('🔒') &&
+                  s.messages[optIndex].content != decryptedMessage.content) {
+                updated[optIndex] = decryptedMessage.copyWith(
+                  content: s.messages[optIndex].content,
+                );
+              } else {
+                updated[optIndex] = decryptedMessage;
+              }
+            } else {
+              updated.add(decryptedMessage);
+            }
+            return s.copyWith(
+              messages: updated,
+              messageStatuses: {
+                ...s.messageStatuses,
+                serverId: MessageStatus.delivered,
+              },
+              clientIdToServerId: {
+                ...s.clientIdToServerId,
+                matchedClientId: serverId,
+              },
+            );
+          }
+
+          // New message from other user
+          if (decryptedMessage.senderId != currentUserId) {
+            return s.copyWith(messages: [...s.messages, decryptedMessage]);
+          }
+
+          // Own message not in map yet — append
+          return s.copyWith(
+            messages: [...s.messages, decryptedMessage],
+            messageStatuses: {
+              ...s.messageStatuses,
+              serverId: MessageStatus.delivered,
+            },
           );
-        }
+        });
 
-        List<Message> updatedMessages;
-        if (index != -1) {
-          updatedMessages = List<Message>.from(state.messages);
-          if (decryptedMessage.senderId == currentUserId &&
-              decryptedMessage.content == message.content &&
-              !state.messages[index].content.contains('🔒') &&
-              state.messages[index].content != decryptedMessage.content) {
-            updatedMessages[index] = decryptedMessage.copyWith(
-              content: state.messages[index].content,
-            );
-          } else {
-            updatedMessages[index] = decryptedMessage;
-          }
-        } else if (optimisticIndex != -1) {
-          updatedMessages = List<Message>.from(state.messages);
-          if (decryptedMessage.senderId == currentUserId &&
-              decryptedMessage.content == message.content &&
-              !state.messages[optimisticIndex].content.contains('🔒') &&
-              state.messages[optimisticIndex].content != decryptedMessage.content) {
-            updatedMessages[optimisticIndex] = decryptedMessage.copyWith(
-              content: state.messages[optimisticIndex].content,
-            );
-          } else {
-            updatedMessages[optimisticIndex] = decryptedMessage;
-          }
-        } else {
-          updatedMessages = [...state.messages, decryptedMessage];
-        }
-
-        setState((s) => s.copyWith(messages: updatedMessages));
         scrollToBottom();
         loadSmartReplies();
-        settingsProvider.saveMessagesToCache(updatedMessages);
+        settingsProvider.saveMessagesToCache(state.messages);
 
         // Mark as read if message is from other user
         if (decryptedMessage.senderId != currentUserId) {
           markAsRead();
 
-          // Auto-download media in background
           if (decryptedMessage.mediaUrl != null &&
               decryptedMessage.encryptedKeys != null &&
               decryptedMessage.iv != null &&
@@ -515,7 +605,6 @@ class ChatProvider with ChangeNotifier {
               mediaType = 'recordings';
             }
 
-            // Fire and forget download
             _chatMediaService
                 .downloadAndDecryptMedia(
                   remoteUrl: decryptedMessage.mediaUrl!,
@@ -525,12 +614,10 @@ class ChatProvider with ChangeNotifier {
                   encryptedKeys: decryptedMessage.encryptedKeys!,
                 )
                 .then((localPath) {
-                  // Update state to trigger UI refresh (shows the image instead of download button)
                   final updatedIndex = state.messages.indexWhere(
                     (m) => m.id == decryptedMessage.id,
                   );
                   if (updatedIndex != -1) {
-                    // We just need to force a rebuild, the bubbles check cache in initState
                     setState((s) => s);
                   }
                 })
@@ -561,15 +648,17 @@ class ChatProvider with ChangeNotifier {
         SchedulerBinding.instance.addPostFrameCallback((_) {
           if (_isDisposed) return;
 
-          final index = state.messages.indexWhere((m) => m.id == messageId);
-          if (index < 0) return;
+          setState((s) {
+            final index = s.messages.indexWhere((m) => m.id == messageId);
+            if (index < 0) return s;
 
-          final msg = state.messages[index];
-          final senderId = msg.senderId;
-          final isMe = _authService.currentUser?.id == senderId;
+            final msg = s.messages[index];
+            final senderId = msg.senderId;
+            final isMe = _authService.currentUser?.id == senderId;
 
-          // Only consider it "read" for vanish logic if the person reading is NOT the sender
-          if (userId != senderId) {
+            // Only consider it "read" for vanish logic if the person reading is NOT the sender
+            if (userId == senderId) return s;
+
             DateTime? currentAnyReadAt = msg.anyReadAt;
             if (currentAnyReadAt == null || readAt.isBefore(currentAnyReadAt)) {
               currentAnyReadAt = readAt;
@@ -582,18 +671,23 @@ class ChatProvider with ChangeNotifier {
 
             // Instant vanish: if Whisper Mode and receiver read it, remove immediately
             if (updatedMsg.isEphemeral && updatedMsg.ephemeralDuration == 0) {
-              setState(
-                (s) => s.copyWith(
-                  messages: List<Message>.from(s.messages)..removeAt(index),
-                ),
+              return s.copyWith(
+                messages: s.messages
+                    .where((m) => m.id != messageId)
+                    .toList(),
               );
-              return;
             }
 
-            final updatedMessages = List<Message>.from(state.messages);
-            updatedMessages[index] = updatedMsg;
-            setState((s) => s.copyWith(messages: updatedMessages));
-          }
+            final updated = List<Message>.from(s.messages);
+            updated[index] = updatedMsg;
+            return s.copyWith(
+              messages: updated,
+              messageStatuses: {
+                ...s.messageStatuses,
+                if (isMe) messageId: MessageStatus.read,
+              },
+            );
+          });
         });
       },
     );
@@ -775,7 +869,7 @@ class ChatProvider with ChangeNotifier {
       fileName = imageFile.name;
     } else if (videoFile != null) {
       messageType =
-          MessageType.document; // Videos are sent as document type in this app
+          MessageType.document;
       mediaUrl = videoFile.path;
       final sep = kIsWeb ? '/' : Platform.pathSeparator;
       fileName = videoFile.path.split(sep).last;
@@ -791,9 +885,12 @@ class ChatProvider with ChangeNotifier {
       fileSize = docFile.size;
     }
 
-    // Create and add optimistic message
+    // Generate UUID clientId for WhatsApp-style tracking
+    final clientId = _messageQueue.generateClientId();
+
+    // Create and add optimistic message with UUID as ID
     final optimisticMessage = Message(
-      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}_${_optimisticCounter++}',
+      id: clientId,
       conversationId: conversationId,
       senderId: userId,
       senderName: _authService.currentUser?.username ?? 'Me',
@@ -823,6 +920,10 @@ class ChatProvider with ChangeNotifier {
     setState(
       (s) => s.copyWith(
         messages: [...s.messages, optimisticMessage],
+        messageStatuses: {
+          ...s.messageStatuses,
+          clientId: MessageStatus.sending,
+        },
         isSending: false,
         replyMessage: null,
         selectedImages: const <XFile>[],
@@ -842,7 +943,6 @@ class ChatProvider with ChangeNotifier {
       String? pqAuraHeader;
       String? pqAuraPayload;
 
-      // Prepare recipient keys for media E2EE
       final recipientId = otherUserId ?? state.otherUserId;
       if (recipientId == null) throw Exception('Recipient ID is required');
 
@@ -863,14 +963,12 @@ class ChatProvider with ChangeNotifier {
         mediaRecipientPublicKeys.add(senderPublicKey);
       }
 
-      // Use PQ-Aura -> Signal -> RSA fallback encryption
       EncryptedContent? encrypted;
       if (_encryptionService.isInitialized && content.isNotEmpty) {
         encrypted = await _encryptContent(recipientId, content);
         if (encrypted != null) {
           finalContent = encrypted.content;
 
-          // Extract encryption metadata based on protocol used
           if (encrypted.protocol == 'pq_aura') {
             pqAuraHeader = encrypted.pqAuraHeader;
             pqAuraPayload = encrypted.pqAuraPayload;
@@ -887,13 +985,12 @@ class ChatProvider with ChangeNotifier {
         finalContent = content;
       }
 
-      // Upload media securely if present
       String? remoteMediaUrl;
       String? finalMimeType;
       MediaUploadResult? uploadResult;
 
       void onProgress(double progress) {
-        _updateMessageProgress(optimisticMessage.id, progress);
+        _updateMessageProgress(clientId, progress);
       }
 
       if (imageFile != null) {
@@ -941,8 +1038,6 @@ class ChatProvider with ChangeNotifier {
         remoteMediaUrl = uploadResult.remoteUrl;
       }
 
-      // Generate dual-layer fallback (RSA encrypted copy for both sender and recipient)
-      // Only needed if Signal or PQ-Aura was used, otherwise content is already RSA encrypted.
       if (encrypted != null &&
           encrypted.protocol != 'rsa' &&
           _encryptionService.isInitialized &&
@@ -966,7 +1061,6 @@ class ChatProvider with ChangeNotifier {
         }
       }
 
-      // Send message
       final sentMessage = await _messagingService.sendMessage(
         conversationId: conversationId,
         senderId: userId,
@@ -990,7 +1084,8 @@ class ChatProvider with ChangeNotifier {
         pqAuraPayload: pqAuraPayload,
       );
 
-      // Replace optimistic message with the real one
+      await _messageQueue.dequeue(conversationId, clientId);
+
       var decrypted = await _decryptSingleMessage(sentMessage);
 
       if (decrypted.replyToId != null && decrypted.replyToContent == null) {
@@ -1009,26 +1104,59 @@ class ChatProvider with ChangeNotifier {
         decrypted = decrypted.copyWith(mediaUrl: optimisticMessage.mediaUrl);
       }
 
-      setState(
-        (s) => s.copyWith(
+      // Merge: if realtime already placed the message, update in-place;
+      // otherwise replace the optimistic copy. Also clean up the optimistic
+      // copy if realtime added the server message first.
+      setState((s) {
+        final serverId = decrypted.id;
+        final existing = s.messages.indexWhere((m) => m.id == serverId);
+        if (existing != -1) {
+          final updated = List<Message>.from(s.messages);
+          updated[existing] = decrypted;
+          final optIndex = s.messages.indexWhere((m) => m.id == clientId);
+          if (optIndex != -1 && optIndex != existing) {
+            updated.removeAt(optIndex > existing ? optIndex : optIndex);
+          }
+          return s.copyWith(
+            messages: updated,
+            messageStatuses: {
+              ...s.messageStatuses,
+              serverId: MessageStatus.sent,
+            },
+            clientIdToServerId: {
+              ...s.clientIdToServerId,
+              clientId: serverId,
+            },
+          );
+        }
+        return s.copyWith(
           messages: [
-            ...s.messages.where(
-              (m) => m.id != optimisticMessage.id && m.id != decrypted.id,
-            ),
+            ...s.messages.where((m) => m.id != clientId),
             decrypted,
           ],
-        ),
-      );
+          messageStatuses: {
+            ...s.messageStatuses,
+            decrypted.id: MessageStatus.sent,
+          },
+          clientIdToServerId: {
+            ...s.clientIdToServerId,
+            clientId: decrypted.id,
+          },
+        );
+      });
 
       await settingsProvider.saveMessagesToCache(state.messages);
     } catch (e) {
       debugPrint('Error sending message: $e');
-      // Remove optimistic message on failure
       setState(
         (s) => s.copyWith(
           messages: s.messages
-              .where((m) => m.id != optimisticMessage.id)
+              .where((m) => m.id != clientId)
               .toList(),
+          messageStatuses: {
+            ...s.messageStatuses,
+            clientId: MessageStatus.failed,
+          },
         ),
       );
       onError?.call('Failed to send message: $e');
@@ -1672,9 +1800,11 @@ class ChatProvider with ChangeNotifier {
     final userId = _authService.currentUser?.id;
     if (userId == null) return;
 
-    // Create and add optimistic message
+    final clientId = _messageQueue.generateClientId();
+
+    // Create and add optimistic message with UUID
     final optimisticMessage = Message(
-      id: 'optimistic_${DateTime.now().millisecondsSinceEpoch}',
+      id: clientId,
       conversationId: conversationId,
       senderId: userId,
       senderName: _authService.currentUser?.username ?? 'Me',
@@ -1696,6 +1826,10 @@ class ChatProvider with ChangeNotifier {
     setState(
       (s) => s.copyWith(
         messages: [...s.messages, optimisticMessage],
+        messageStatuses: {
+          ...s.messageStatuses,
+          clientId: MessageStatus.sending,
+        },
         isSending: false,
         replyMessage: null,
       ),
@@ -1723,7 +1857,7 @@ class ChatProvider with ChangeNotifier {
         recipientUserIds: state.participantIds,
         recipientUserId: recipientId,
         onProgress: (progress) {
-          _updateMessageProgress(optimisticMessage.id, progress);
+          _updateMessageProgress(clientId, progress);
         },
       );
 
@@ -1743,23 +1877,58 @@ class ChatProvider with ChangeNotifier {
         },
       );
 
+      await _messageQueue.dequeue(conversationId, clientId);
+
       final decrypted = await _decryptSingleMessage(sentMessage);
-      setState(
-        (s) => s.copyWith(
+      setState((s) {
+        final serverId = decrypted.id;
+        final existing = s.messages.indexWhere((m) => m.id == serverId);
+        if (existing != -1) {
+          final updated = List<Message>.from(s.messages);
+          updated[existing] = decrypted;
+          final optIndex = s.messages.indexWhere((m) => m.id == clientId);
+          if (optIndex != -1 && optIndex != existing) {
+            updated.removeAt(optIndex > existing ? optIndex : optIndex);
+          }
+          return s.copyWith(
+            messages: updated,
+            messageStatuses: {
+              ...s.messageStatuses,
+              serverId: MessageStatus.sent,
+            },
+            clientIdToServerId: {
+              ...s.clientIdToServerId,
+              clientId: serverId,
+            },
+          );
+        }
+        return s.copyWith(
           messages: [
-            ...s.messages.where((m) => m.id != optimisticMessage.id),
+            ...s.messages.where((m) => m.id != clientId),
             decrypted,
           ],
-        ),
-      );
+          messageStatuses: {
+            ...s.messageStatuses,
+            decrypted.id: MessageStatus.sent,
+          },
+          clientIdToServerId: {
+            ...s.clientIdToServerId,
+            clientId: decrypted.id,
+          },
+        );
+      });
       await settingsProvider.saveMessagesToCache(state.messages);
     } catch (e) {
       debugPrint('Error sending audio message: $e');
       setState(
         (s) => s.copyWith(
           messages: s.messages
-              .where((m) => m.id != optimisticMessage.id)
+              .where((m) => m.id != clientId)
               .toList(),
+          messageStatuses: {
+            ...s.messageStatuses,
+            clientId: MessageStatus.failed,
+          },
         ),
       );
       onError?.call('Failed to send audio message: $e');

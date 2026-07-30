@@ -154,7 +154,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
       ],
     );
 
-    // Send/Mic button builder
+    // Send/Mic button builder — circle container stays fixed, only icon morphs inside
     Widget buildActionButton(bool isTyping) {
       final bool showMic = !isTyping && !widget.hasAttachment;
       final String buttonKey;
@@ -166,31 +166,31 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         buttonKey = 'send';
       }
 
-      return material.AnimatedSwitcher(
-        duration: const Duration(milliseconds: 200),
-        transitionBuilder: (child, animation) =>
-            material.ScaleTransition(scale: animation, child: child),
-        child: material.Container(
-          key: material.ValueKey(buttonKey),
-          margin: widget.isDesktop
-              ? const material.EdgeInsets.only(right: 4)
-              : null,
-          decoration: material.BoxDecoration(
-            color: widget.isSending
-                ? colorScheme.onSurface.withValues(alpha: 0.12)
-                : (showMic
-                      ? (widget.isRecording
-                            ? material.Colors.red
-                            : colorScheme.primary)
-                      : colorScheme.secondary),
-            shape: material.BoxShape.circle,
-          ),
-          child: material.IconButton(
-            onPressed: widget.isSending
-                ? null
-                : (showMic ? widget.onToggleRecording : widget.onSend),
-            icon: widget.isSending
+      return material.Container(
+        margin: widget.isDesktop
+            ? const material.EdgeInsets.only(right: 4)
+            : null,
+        decoration: material.BoxDecoration(
+          color: widget.isSending
+              ? colorScheme.onSurface.withValues(alpha: 0.12)
+              : (showMic
+                    ? (widget.isRecording
+                          ? material.Colors.red
+                          : colorScheme.primary)
+                    : colorScheme.secondary),
+          shape: material.BoxShape.circle,
+        ),
+        child: material.IconButton(
+          onPressed: widget.isSending
+              ? null
+              : (showMic ? widget.onToggleRecording : widget.onSend),
+          icon: material.AnimatedSwitcher(
+            duration: const Duration(milliseconds: 200),
+            transitionBuilder: (child, animation) =>
+                material.ScaleTransition(scale: animation, child: child),
+            child: widget.isSending
                 ? material.SizedBox(
+                    key: const material.ValueKey('sending'),
                     width: 20,
                     height: 20,
                     child: material.CircularProgressIndicator(
@@ -199,6 +199,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
                     ),
                   )
                 : material.Icon(
+                    key: material.ValueKey(buttonKey),
                     showMic
                         ? (widget.isRecording
                               ? material.Icons.stop_rounded

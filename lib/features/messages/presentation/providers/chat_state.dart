@@ -5,6 +5,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/models/chat_theme.dart';
 
+/// Per-message delivery status for sent messages.
+/// Mirrors WhatsApp/Telegram-style indicators: single check → double check → blue.
+enum MessageStatus {
+  sending,
+  sent,
+  delivered,
+  read,
+  failed,
+}
+
 /// Immutable UI state for the chat screen.
 /// Extracted from the 4,571-line _ChatScreenState in chat_screen.dart.
 /// Does NOT include RealtimeChannel subscriptions — those live in the Provider.
@@ -44,6 +54,8 @@ class ChatState {
   final String? highlightedMessageId;
   final String conversationType;
   final List<String> participantIds;
+  final Map<String, MessageStatus> messageStatuses;
+  final Map<String, String> clientIdToServerId;
 
   const ChatState({
     this.messages = const [],
@@ -81,6 +93,8 @@ class ChatState {
     this.highlightedMessageId,
     this.conversationType = 'direct',
     this.participantIds = const [],
+    this.messageStatuses = const {},
+    this.clientIdToServerId = const {},
   });
 
   ChatState copyWith({
@@ -119,6 +133,8 @@ class ChatState {
     Object? highlightedMessageId = _sentinel,
     String? conversationType,
     List<String>? participantIds,
+    Map<String, MessageStatus>? messageStatuses,
+    Map<String, String>? clientIdToServerId,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
@@ -185,6 +201,8 @@ class ChatState {
           : (highlightedMessageId as String?),
       conversationType: conversationType ?? this.conversationType,
       participantIds: participantIds ?? this.participantIds,
+      messageStatuses: messageStatuses ?? this.messageStatuses,
+      clientIdToServerId: clientIdToServerId ?? this.clientIdToServerId,
     );
   }
 }
