@@ -168,7 +168,7 @@ class SupportSection extends StatelessWidget {
         SettingsTile(
           icon: material.Icons.info_outline,
           title: 'About Oasis',
-          subtitle: 'Version 1.1.14',
+          subtitle: 'Version 1.1.15',
           iconColor: material.Colors.grey,
           onTap: () => context.push('/settings/about'),
         ),
