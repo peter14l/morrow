@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
-import 'package:flutter/gestures.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:navigation_bar_m3e/navigation_bar_m3e.dart';
@@ -20,7 +19,6 @@ import 'package:oasis/features/settings/presentation/providers/decoy_provider.da
 import 'package:oasis/features/settings/presentation/screens/decoy_calendar_screen.dart';
 import 'package:oasis/screens/spaces/spaces_screen.dart';
 import 'package:oasis/services/app_analytics.dart';
-import 'package:oasis/themes/app_colors.dart';
 
 import 'package:oasis/features/circles/presentation/screens/circle_detail_screen.dart';
 import 'package:oasis/features/circles/presentation/screens/create_circle_screen.dart';
@@ -170,7 +168,6 @@ class _MainLayoutState extends State<MainLayout> {
   /// Routes that are locked when the collaboration kill-switch or focus mode is active.
   static const _restrictedRoutes = {'/feed', '/search'};
   bool _isRailExtended = false;
-  bool _isPrivacyBlurActive = false;
   EncryptionStatus? _encryptionStatus;
 
   // Panel state for Desktop
@@ -451,121 +448,48 @@ class _MainLayoutState extends State<MainLayout> {
           return Scaffold(
             backgroundColor: theme.scaffoldBackgroundColor,
             extendBody: true,
-            body: RawGestureDetector(
-              behavior: HitTestBehavior.translucent,
-              gestures: {
-                _TwoFingerLongPressGestureRecognizer:
-                    GestureRecognizerFactoryWithHandlers<
-                      _TwoFingerLongPressGestureRecognizer
-                    >(
-                      () => _TwoFingerLongPressGestureRecognizer(
-                        onTwoFingerLongPress: () {
-                          setState(
-                            () => _isPrivacyBlurActive = !_isPrivacyBlurActive,
-                          );
-                          if (_isPrivacyBlurActive) {
-                            HapticFeedback.heavyImpact();
-                          } else {
-                            HapticFeedback.mediumImpact();
-                          }
-                        },
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    if (_encryptionStatus == EncryptionStatus.needsRestore)
+                      const SecurityUpgradeBanner(),
+                    Expanded(
+                      child: Row(
+                        children: [
+                          if (isDesktop)
+                            _buildNavigationRail(
+                              context,
+                              currentIndex,
+                              theme,
+                              killSwitchActive: killSwitchActive,
+                              isMica: isMica,
+                              disableTransparency: disableTransparency,
+                            ),
+                          Expanded(child: contentWithPanels),
+                        ],
                       ),
-                      (instance) {},
                     ),
-              },
-              child: Stack(
-                children: [
-                  Column(
-                    children: [
-                      if (_encryptionStatus == EncryptionStatus.needsRestore)
-                        const SecurityUpgradeBanner(),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            if (isDesktop)
-                              _buildNavigationRail(
-                                context,
-                                currentIndex,
-                                theme,
-                                killSwitchActive: killSwitchActive,
-                                isMica: isMica,
-                                disableTransparency: disableTransparency,
-                              ),
-                            Expanded(child: contentWithPanels),
-                          ],
-                        ),
-                      ),
-                    ],
+                  ],
+                ),
+
+                // Encryption PIN Overlay (Full Screen)
+                if (_encryptionStatus == EncryptionStatus.needsRestore ||
+                    _encryptionStatus == EncryptionStatus.needsSetup ||
+                    _encryptionStatus ==
+                        EncryptionStatus.needsSecurityUpgrade)
+                  Positioned.fill(
+                    child: EncryptionPinOverlay(
+                      status: _encryptionStatus!,
+                      onComplete: () {
+                        _checkEncryption(); // Re-check status to clear overlay
+                      },
+                    ),
                   ),
 
-                  // Encryption PIN Overlay (Full Screen)
-                  if (_encryptionStatus == EncryptionStatus.needsRestore ||
-                      _encryptionStatus == EncryptionStatus.needsSetup ||
-                      _encryptionStatus ==
-                          EncryptionStatus.needsSecurityUpgrade)
-                    Positioned.fill(
-                      child: EncryptionPinOverlay(
-                        status: _encryptionStatus!,
-                        onComplete: () {
-                          _checkEncryption(); // Re-check status to clear overlay
-                        },
-                      ),
-                    ),
-
-                  // Hidden Instagram background DM listener (runs on Android only)
-                  const InstagramNotificationListenerWidget(),
-
-                  // Privacy Blur Overlay
-                  if (_isPrivacyBlurActive)
-                    Positioned.fill(
-                      child: motion.Animate(
-                        effects: const [
-                          motion.FadeEffect(
-                            duration: Duration(milliseconds: 300),
-                          ),
-                        ],
-                        child: GestureDetector(
-                          onTap: () =>
-                              setState(() => _isPrivacyBlurActive = false),
-                          child: BackdropFilter(
-                            filter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                            child: Container(
-                              color: OasisColors.deep.withValues(alpha: 0.7),
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(
-                                      Icons.spa_rounded,
-                                      color: OasisColors.glow,
-                                      size: 80,
-                                    ),
-                                    const SizedBox(height: 24),
-                                    Text(
-                                      'Privacy Mode Active',
-                                      style: theme.textTheme.headlineSmall
-                                          ?.copyWith(
-                                            color: OasisColors.white,
-                                            fontFamily: 'Cormorant Garamond',
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      'Tap to resume your Oasis',
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(color: OasisColors.mist),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
+                // Hidden Instagram background DM listener (runs on Android only)
+                const InstagramNotificationListenerWidget(),
+              ],
             ),
             bottomNavigationBar: !isDesktop && (GoRouterState.of(context).uri.path != '/instagram' || InstagramFeedScreen.showNavBarNotifier.value)
                 ? _buildBottomNavigationBar(
@@ -624,118 +548,44 @@ class _MainLayoutState extends State<MainLayout> {
         return Scaffold(
           backgroundColor: Colors.transparent,
           extendBody: true,
-          body: RawGestureDetector(
-            behavior: HitTestBehavior.translucent,
-            gestures: {
-              _TwoFingerLongPressGestureRecognizer:
-                  GestureRecognizerFactoryWithHandlers<
-                    _TwoFingerLongPressGestureRecognizer
-                  >(
-                    () => _TwoFingerLongPressGestureRecognizer(
-                      onTwoFingerLongPress: () {
-                        setState(
-                          () => _isPrivacyBlurActive = !_isPrivacyBlurActive,
-                        );
-                        if (_isPrivacyBlurActive) {
-                          HapticFeedback.heavyImpact();
-                        } else {
-                          HapticFeedback.mediumImpact();
-                        }
-                      },
-                    ),
-                    (instance) {},
-                  ),
-            },
-            child: Stack(
-              children: [
-                Column(
-                  children: [
-                    if (_encryptionStatus == EncryptionStatus.needsRestore)
-                      const SecurityUpgradeBanner(),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          if (isDesktop)
-                            _buildNavigationRail(
-                              context,
-                              currentIndex,
-                              theme,
-                              killSwitchActive: killSwitchActive,
-                              isMica: isMica,
-                              disableTransparency: disableTransparency,
-                            ),
-                          Expanded(child: contentWithPanels),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-
-                // Encryption PIN Overlay (Full Screen)
-                if (_encryptionStatus == EncryptionStatus.needsRestore ||
-                    _encryptionStatus == EncryptionStatus.needsSetup ||
-                    _encryptionStatus == EncryptionStatus.needsSecurityUpgrade)
-                  Positioned.fill(
-                    child: EncryptionPinOverlay(
-                      status: _encryptionStatus!,
-                      onComplete: () {
-                        _checkEncryption(); // Re-check status to clear overlay
-                      },
-                    ),
-                  ),
-
-                // Privacy Blur Overlay
-                if (_isPrivacyBlurActive)
-                  Positioned.fill(
-                    child: motion.Animate(
-                      effects: const [
-                        motion.FadeEffect(
-                          duration: Duration(milliseconds: 300),
-                        ),
-                      ],
-                      child: GestureDetector(
-                        onTap: () =>
-                            setState(() => _isPrivacyBlurActive = false),
-                        child: BackdropFilter(
-                          filter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-                          child: Container(
-                            color: OasisColors.deep.withValues(alpha: 0.7),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.spa_rounded,
-                                    color: OasisColors.glow,
-                                    size: 80,
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Text(
-                                    'Privacy Mode Active',
-                                    style: theme.textTheme.headlineSmall
-                                        ?.copyWith(
-                                          color: OasisColors.white,
-                                          fontFamily: 'Cormorant Garamond',
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Tap to resume your Oasis',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: OasisColors.mist,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+          body: Stack(
+            children: [
+              Column(
+                children: [
+                  if (_encryptionStatus == EncryptionStatus.needsRestore)
+                    const SecurityUpgradeBanner(),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        if (isDesktop)
+                          _buildNavigationRail(
+                            context,
+                            currentIndex,
+                            theme,
+                            killSwitchActive: killSwitchActive,
+                            isMica: isMica,
+                            disableTransparency: disableTransparency,
                           ),
-                        ),
-                      ),
+                        Expanded(child: contentWithPanels),
+                      ],
                     ),
                   ),
-              ],
-            ),
+                ],
+              ),
+
+              // Encryption PIN Overlay (Full Screen)
+              if (_encryptionStatus == EncryptionStatus.needsRestore ||
+                  _encryptionStatus == EncryptionStatus.needsSetup ||
+                  _encryptionStatus == EncryptionStatus.needsSecurityUpgrade)
+                Positioned.fill(
+                  child: EncryptionPinOverlay(
+                    status: _encryptionStatus!,
+                    onComplete: () {
+                      _checkEncryption(); // Re-check status to clear overlay
+                    },
+                  ),
+                ),
+            ],
           ),
           bottomNavigationBar: !isDesktop && (GoRouterState.of(context).uri.path != '/instagram' || InstagramFeedScreen.showNavBarNotifier.value)
               ? _buildBottomNavigationBar(
@@ -2134,58 +1984,6 @@ class AppRouter {
     );
     return _router!;
   }
-}
-
-class _TwoFingerLongPressGestureRecognizer extends MultiTapGestureRecognizer {
-  final VoidCallback onTwoFingerLongPress;
-  final Map<int, Offset> _pointers = {};
-  Timer? _longPressTimer;
-
-  _TwoFingerLongPressGestureRecognizer({required this.onTwoFingerLongPress});
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    if (_pointers.length < 2) {
-      _pointers[event.pointer] = event.position;
-      if (_pointers.length == 2) {
-        _startTimer();
-      }
-    }
-    super.addAllowedPointer(event);
-  }
-
-  void _startTimer() {
-    _longPressTimer?.cancel();
-    _longPressTimer = Timer(const Duration(milliseconds: 800), () {
-      if (_pointers.length == 2) {
-        onTwoFingerLongPress();
-      }
-    });
-  }
-
-  @override
-  void acceptGesture(int pointer) {}
-
-  @override
-  void rejectGesture(int pointer) {
-    _pointers.remove(pointer);
-    if (_pointers.length < 2) {
-      _longPressTimer?.cancel();
-    }
-  }
-
-  @override
-  void handleEvent(PointerEvent event) {
-    if (event is PointerUpEvent || event is PointerCancelEvent) {
-      _pointers.remove(event.pointer);
-      if (_pointers.length < 2) {
-        _longPressTimer?.cancel();
-      }
-    }
-  }
-
-  @override
-  String get debugDescription => 'twoFingerLongPress';
 }
 
 class _RouterRefreshListenable extends ChangeNotifier {
