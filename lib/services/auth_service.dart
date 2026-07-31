@@ -523,6 +523,18 @@ class AuthService with ChangeNotifier {
     await _supabase.auth.updateUser(UserAttributes(password: newPassword));
   }
 
+  Future<void> updateEmail(String newEmail) async {
+    await _supabase.auth.updateUser(
+      UserAttributes(email: newEmail),
+    );
+  }
+
+  Future<void> updatePhone(String newPhone) async {
+    await _supabase.auth.updateUser(
+      UserAttributes(phone: newPhone),
+    );
+  }
+
   Future<void> deleteAccount() async {
     await _supabase.rpc('delete_user_account');
     await signOut();

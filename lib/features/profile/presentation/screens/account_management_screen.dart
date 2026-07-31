@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
-import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/profile/presentation/screens/edit_profile_screen.dart';
 import 'package:oasis/features/settings/presentation/screens/subscription_screen.dart';
@@ -38,9 +36,6 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Account Details'),
@@ -87,7 +82,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     }
 
     final displayName = profile?.fullName ?? profile?.username ?? 'User';
-    final email = user.email ?? '';
+    final email = user.email;
     final avatarUrl = profile?.avatarUrl;
 
     return Container(
@@ -232,8 +227,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     final colorScheme = theme.colorScheme;
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
-    final profileProvider = Provider.of<ProfileProvider>(context);
-    final profile = profileProvider.currentProfile;
+    final authService = Provider.of<AuthService>(context, listen: false);
+    final user = authService.currentUser;
+    final email = user?.email ?? 'Not set';
+    final phone = user?.userMetadata?['phone'] as String?;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,13 +265,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                 context,
                 icon: Icons.security_rounded,
                 title: 'Two-Factor Auth',
-                subtitle: profile?.is2FAEnabled == true
-                    ? 'Enabled'
-                    : 'Enhance account security',
+                subtitle: 'Enhance account security',
                 trailing: Switch.adaptive(
-                  value: profile?.is2FAEnabled ?? false,
-                  onChanged: (_) =>
-                      _show2FANotAvailable(context),
+                  value: false,
+                  onChanged: (_) => _show2FANotAvailable(context),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
                 onTap: () => _show2FANotAvailable(context),
@@ -613,7 +607,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         );
                       }
                     },
-              label: isLoading ? 'Updating...' : 'Update',
+              text: isLoading ? 'Updating...' : 'Update',
             ),
           ],
         ),
@@ -691,7 +685,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         );
                       }
                     },
-              label: isLoading ? 'Sending...' : 'Send Verification',
+              text: isLoading ? 'Sending...' : 'Send Verification',
             ),
           ],
         ),
@@ -760,7 +754,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         );
                       }
                     },
-              label: isLoading ? 'Updating...' : 'Update',
+              text: isLoading ? 'Updating...' : 'Update',
             ),
           ],
         ),
@@ -943,14 +937,3 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
     }
   }
 }
-
-String get email =>
-    Provider.of<AuthService>(navigatorKey.currentContext!, listen: false)
-        .currentUser
-        ?.email ??
-    'Not set';
-
-String get phone =>
-    Provider.of<AuthService>(navigatorKey.currentContext!, listen: false)
-        .currentUser
-        ?.phone;
