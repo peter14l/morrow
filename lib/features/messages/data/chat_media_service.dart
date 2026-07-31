@@ -60,7 +60,7 @@ class ChatMediaService {
           '${DateTime.now().millisecondsSinceEpoch}_${_uuid.v4()}.$fileExt';
       final storagePath = '$userId/$uniqueFileId';
 
-      final remoteUrl = await _s3StorageService.uploadFile(
+      await _s3StorageService.uploadFile(
         bucket: B2Config.b2BucketName,
         fileId: storagePath,
         type: folder,
@@ -156,21 +156,46 @@ class ChatMediaService {
     }
   }
 
+  /// Parses a media URL of the form
+  /// `https://<base>/<type>/<userId>/<fileName>` into the storage type and the
+  /// `userId/fileName` fileId required by the presigned-URL edge function.
+  static ({String type, String fileId})? parseMediaUrl(String url) {
+    if (!url.startsWith('http')) return null;
+    final uri = Uri.parse(url);
+    final segments = uri.pathSegments;
+    if (segments.length < 3) return null;
+    final type = segments[segments.length - 3];
+    final userId = segments[segments.length - 2];
+    final fileName = segments.last;
+    if (type.isEmpty || userId.isEmpty || fileName.isEmpty) return null;
+    return (type: type, fileId: '$userId/$fileName');
+  }
+
   /// Downloads and decrypts media from Cloudflare R2.
+  ///
+  /// [fileId] and [type] are derived from [remoteUrl] when not provided, so
+  /// callers never have to guess the storage path.
   Future<String> downloadAndDecryptMedia({
     required String remoteUrl,
-    required String type,
-    required String fileId,
+    String? type,
+    String? fileId,
     required String iv,
     required Map<String, dynamic> encryptedKeys,
     String? senderId,
   }) async {
     try {
+      final parsed = parseMediaUrl(remoteUrl);
+      final resolvedType = type ?? parsed?.type;
+      final resolvedFileId = fileId ?? parsed?.fileId;
+      if (resolvedType == null || resolvedFileId == null) {
+        throw Exception('Cannot determine storage path from URL: $remoteUrl');
+      }
+
       // 1. Download encrypted bytes
       final encryptedBytes = await _s3StorageService.downloadFile(
         bucket: B2Config.b2BucketName,
-        fileId: fileId,
-        type: type,
+        fileId: resolvedFileId,
+        type: resolvedType,
       );
 
       // 2. Decrypt
@@ -185,11 +210,11 @@ class ChatMediaService {
 
       // 3. Save to cache
       // fileId is "userId/filename.ext", we only want the filename for local cache
-      final fileName = fileId.split('/').last;
+      final fileName = resolvedFileId.split('/').last;
       return await _mediaCacheService.saveToCache(
         decryptedBytes,
         fileName,
-        type,
+        resolvedType,
         remoteUrl,
       );
     } catch (e) {

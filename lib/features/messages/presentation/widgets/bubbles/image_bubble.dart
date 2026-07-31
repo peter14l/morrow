@@ -39,6 +39,13 @@ class _ImageBubbleState extends State<ImageBubble> {
   void initState() {
     super.initState();
     _checkCache();
+    MediaCacheService.cacheVersion.addListener(_checkCache);
+  }
+
+  @override
+  void dispose() {
+    MediaCacheService.cacheVersion.removeListener(_checkCache);
+    super.dispose();
   }
 
   @override
@@ -79,16 +86,12 @@ class _ImageBubbleState extends State<ImageBubble> {
         throw Exception('Encryption metadata missing in message');
       }
 
-      // We need a fileId. We can derive it from the URL or use a random one.
-      // The original upload used a timestamped UUID. For download, we can use the message ID.
-      final fileId = widget.message.id;
-
+      // The storage type and fileId (userId/filename) are derived from the URL.
       final path = await _chatMediaService.downloadAndDecryptMedia(
         remoteUrl: url,
-        type: 'images',
-        fileId: fileId,
         iv: iv,
         encryptedKeys: encryptedKeys,
+        senderId: widget.message.senderId,
       );
 
       if (mounted) {

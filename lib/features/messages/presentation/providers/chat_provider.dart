@@ -588,38 +588,32 @@ class ChatProvider with ChangeNotifier {
         if (decryptedMessage.senderId != currentUserId) {
           markAsRead();
 
-          if (decryptedMessage.mediaUrl != null &&
-              decryptedMessage.encryptedKeys != null &&
-              decryptedMessage.iv != null &&
+          final mediaKeys =
+              decryptedMessage.shareData?['media_keys'] as Map<String, dynamic>?;
+          final mediaIv = decryptedMessage.shareData?['media_iv'] as String?;
+          final isMedia =
+              decryptedMessage.mediaUrl != null &&
+              mediaKeys != null &&
+              mediaIv != null &&
               decryptedMessage.messageType != MessageType.text &&
               decryptedMessage.messageType != MessageType.system &&
-              decryptedMessage.messageType != MessageType.location) {
-            String mediaType = 'images';
-            if (decryptedMessage.messageType == MessageType.document) {
-              if (decryptedMessage.mediaUrl!.contains('videos')) {
-                mediaType = 'videos';
-              } else {
-                mediaType = 'documents';
-              }
-            } else if (decryptedMessage.messageType == MessageType.voice) {
-              mediaType = 'recordings';
-            }
+              decryptedMessage.messageType != MessageType.location;
 
+          if (isMedia) {
+            // Media URL + share_data derive the storage type/fileId and the
+            // media decryption keys. Message content keys (encryptedKeys/iv)
+            // are NOT used for media.
             _chatMediaService
                 .downloadAndDecryptMedia(
                   remoteUrl: decryptedMessage.mediaUrl!,
-                  type: mediaType,
-                  fileId: decryptedMessage.id,
-                  iv: decryptedMessage.iv!,
-                  encryptedKeys: decryptedMessage.encryptedKeys!,
+                  iv: mediaIv,
+                  encryptedKeys: mediaKeys,
+                  senderId: decryptedMessage.senderId,
                 )
                 .then((localPath) {
-                  final updatedIndex = state.messages.indexWhere(
-                    (m) => m.id == decryptedMessage.id,
+                  debugPrint(
+                    '[AutoDownload] Cached ${decryptedMessage.id} at $localPath',
                   );
-                  if (updatedIndex != -1) {
-                    setState((s) => s);
-                  }
                 })
                 .catchError((e) {
                   debugPrint(

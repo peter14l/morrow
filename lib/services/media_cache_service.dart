@@ -6,6 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MediaCacheService {
   static const String _mediaMapPrefix = 'media_path_';
 
+  /// Version counter bumped whenever a media file lands in the cache.
+  /// Media bubbles listen to this so they can re-check for a newly available
+  /// local file after a background auto-download completes.
+  static final ValueNotifier<int> cacheVersion = ValueNotifier<int>(0);
+
   /// Gets the local path for a remote URL if it exists in cache and on disk.
   Future<String?> getLocalPath(String remoteUrl) async {
     try {
@@ -60,6 +65,7 @@ class MediaCacheService {
     await file.writeAsBytes(bytes);
 
     await setLocalPath(remoteUrl, file.path);
+    cacheVersion.value++;
     return file.path;
   }
 

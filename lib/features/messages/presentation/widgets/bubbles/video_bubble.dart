@@ -37,6 +37,13 @@ class _VideoBubbleState extends State<VideoBubble> {
   void initState() {
     super.initState();
     _checkCache();
+    MediaCacheService.cacheVersion.addListener(_checkCache);
+  }
+
+  @override
+  void dispose() {
+    MediaCacheService.cacheVersion.removeListener(_checkCache);
+    super.dispose();
   }
 
   @override
@@ -79,10 +86,9 @@ class _VideoBubbleState extends State<VideoBubble> {
 
       final path = await _chatMediaService.downloadAndDecryptMedia(
         remoteUrl: url,
-        type: 'videos',
-        fileId: widget.message.id,
         iv: iv,
         encryptedKeys: encryptedKeys,
+        senderId: widget.message.senderId,
       );
 
       if (mounted) {

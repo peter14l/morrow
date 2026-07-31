@@ -37,9 +37,16 @@ class _VoiceBubbleState extends State<VoiceBubble> {
   void initState() {
     super.initState();
     _checkCache();
+    MediaCacheService.cacheVersion.addListener(_checkCache);
     if (!widget.message.isUploading) {
       _loadTranscript();
     }
+  }
+
+  @override
+  void dispose() {
+    MediaCacheService.cacheVersion.removeListener(_checkCache);
+    super.dispose();
   }
 
   @override
@@ -82,10 +89,9 @@ class _VoiceBubbleState extends State<VoiceBubble> {
 
       final path = await _chatMediaService.downloadAndDecryptMedia(
         remoteUrl: url,
-        type: 'recordings',
-        fileId: widget.message.id,
         iv: iv,
         encryptedKeys: encryptedKeys,
+        senderId: widget.message.senderId,
       );
 
       if (mounted) {

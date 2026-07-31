@@ -70,10 +70,17 @@ Deno.serve(async (req) => {
     
     // SECURITY: Enforce directory structure
     // Path: <type>/<user_id>/<file_name>
-    
+
     // Extract filename from fileId (to prevent path traversal if user sends "../../etc")
-    const fileName = fileId.split('/').pop();
-    const key = `${type}/${user.id}/${fileName}`;
+    const parts = fileId.split('/');
+    const fileName = parts.pop();
+    // Uploads always land in the authenticated user's own folder.
+    // GET/DELETE must respect the owner encoded in the fileId ("userId/fileName")
+    // so a recipient can fetch (and decrypt) E2EE media uploaded by another user.
+    const ownerId = method === 'PUT'
+      ? user.id
+      : (parts.length >= 1 && parts[0] ? parts[0] : user.id);
+    const key = `${type}/${ownerId}/${fileName}`;
     
     let url;
     if (method === 'PUT') {

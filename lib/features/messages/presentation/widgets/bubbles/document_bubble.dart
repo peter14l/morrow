@@ -33,6 +33,13 @@ class _DocumentBubbleState extends State<DocumentBubble> {
   void initState() {
     super.initState();
     _checkCache();
+    MediaCacheService.cacheVersion.addListener(_checkCache);
+  }
+
+  @override
+  void dispose() {
+    MediaCacheService.cacheVersion.removeListener(_checkCache);
+    super.dispose();
   }
 
   @override
@@ -75,10 +82,9 @@ class _DocumentBubbleState extends State<DocumentBubble> {
 
       final path = await _chatMediaService.downloadAndDecryptMedia(
         remoteUrl: url,
-        type: 'documents',
-        fileId: widget.message.id,
         iv: iv,
         encryptedKeys: encryptedKeys,
+        senderId: widget.message.senderId,
       );
 
       if (mounted) {
