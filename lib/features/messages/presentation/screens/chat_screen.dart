@@ -565,43 +565,41 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
         useRootNavigator: true,
-        builder: (context) => _wrapWithLiquidGlass(
-          child: MessageOptionsSheet(
-            message: message,
-            isOwnMessage: isOwn,
-            onReply: () => _setReplyMessage(message),
-            onEdit: () => _startEditing(message),
-            onForward: () {},
-            onCopy: () {
-              Clipboard.setData(ClipboardData(text: message.content));
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Copied to clipboard',
-                      style: TextStyle(color: Colors.white),
-                    ),
+        builder: (context) => MessageOptionsSheet(
+          message: message,
+          isOwnMessage: isOwn,
+          onReply: () => _setReplyMessage(message),
+          onEdit: () => _startEditing(message),
+          onForward: () {},
+          onCopy: () {
+            Clipboard.setData(ClipboardData(text: message.content));
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Copied to clipboard',
+                    style: TextStyle(color: Colors.white),
                   ),
-                );
-              }
-            },
-            onUnsend: () => _unsendMessage(message),
-            onReactionSelected: (emoji) async {
-              await _reactionsProvider.onReactionSelected(
-                message: message,
-                reaction: emoji,
-                userId: currentUserId ?? '',
-                username: AuthService().currentUser?.username ?? 'Unknown',
-                currentReactions: message.reactions,
-                onReactionsUpdated: (updatedReactions) {
-                  _chatProvider.updateMessageReactions(
-                    message.id,
-                    updatedReactions,
-                  );
-                },
+                ),
               );
-            },
-          ),
+            }
+          },
+          onUnsend: () => _unsendMessage(message),
+          onReactionSelected: (emoji) async {
+            await _reactionsProvider.onReactionSelected(
+              message: message,
+              reaction: emoji,
+              userId: currentUserId ?? '',
+              username: AuthService().currentUser?.username ?? 'Unknown',
+              currentReactions: message.reactions,
+              onReactionsUpdated: (updatedReactions) {
+                _chatProvider.updateMessageReactions(
+                  message.id,
+                  updatedReactions,
+                );
+              },
+            );
+          },
         ),
       );
     }
