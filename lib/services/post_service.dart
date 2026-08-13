@@ -5,6 +5,7 @@ import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/notification_service.dart';
 import 'package:oasis/services/s3_storage_service.dart';
+import 'package:oasis/services/message_send_throttler.dart';
 import 'package:oasis/features/feed/domain/models/enhanced_poll.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -142,19 +143,21 @@ class PostService {
             );
 
             // Send collab request message
-            await _supabase.rpc(
-              'send_message_v3',
-              params: {
-                'p_conversation_id': conversationId,
-                'p_content': 'Invited you to collaborate on a post.',
-                'p_message_type': 'collaborationRequest',
-                'p_post_id': postId,
-                'p_share_data': {
-                  'type': 'collaboration_request',
-                  'post_id': postId,
-                  'status': 'pending',
+            await MessageSendThrottler.instance.enqueue(
+              () => _supabase.rpc(
+                'send_message_v3',
+                params: {
+                  'p_conversation_id': conversationId,
+                  'p_content': 'Invited you to collaborate on a post.',
+                  'p_message_type': 'collaborationRequest',
+                  'p_post_id': postId,
+                  'p_share_data': {
+                    'type': 'collaboration_request',
+                    'post_id': postId,
+                    'status': 'pending',
+                  },
                 },
-              },
+              ),
             );
 
             // Trigger formal notification

@@ -1,6 +1,7 @@
 import 'package:universal_io/io.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -18,6 +19,7 @@ import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/services/message_send_throttler.dart';
 import 'package:oasis/services/sqlite_init.dart';
 
 /// Represents a message in a notification group history
@@ -685,15 +687,17 @@ class NotificationManager {
         debugPrint('[NotificationManager] E2EE check/encryption failed: $e');
       }
 
-      await client.rpc(
-        'send_message_v3',
-        params: {
-          'p_conversation_id': conversationId,
-          'p_content': finalContent,
-          'p_message_type': 'text',
-          'p_encrypted_keys': encryptedKeys,
-          'p_iv': iv,
-        },
+      await MessageSendThrottler.instance.enqueue(
+        () => client.rpc(
+          'send_message_v3',
+          params: {
+            'p_conversation_id': conversationId,
+            'p_content': finalContent,
+            'p_message_type': 'text',
+            'p_encrypted_keys': encryptedKeys,
+            'p_iv': iv,
+          },
+        ),
       );
       debugPrint(
         '[NotificationManager] Reply successfully sent to $conversationId',
@@ -1008,6 +1012,16 @@ class NotificationManager {
     // Request permission on mobile platforms only
     if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
       await messaging.requestPermission(alert: true, badge: true, sound: true);
+    }
+    
+    // Explicitly request Android 13+ runtime notification permission
+    if (Platform.isAndroid) {
+      try {
+        final status = await Permission.notification.request();
+        debugPrint('[NotificationManager] Android notification permission status: $status');
+      } catch (e) {
+        debugPrint('[NotificationManager] Failed to request Android notification permission: $e');
+      }
     }
 
     try {

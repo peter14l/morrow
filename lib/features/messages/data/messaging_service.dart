@@ -394,6 +394,11 @@ class MessagingService extends ChangeNotifier {
     emoji: emoji,
   );
 
+  /// Fetches the full current reaction set for a message.
+  Future<List<MessageReactionModel>> fetchReactionsForMessage(
+    String messageId,
+  ) => _messageOpsService.fetchReactionsForMessage(messageId);
+
   /// Fetches latest location data for a message (polling fallback).
   Future<Map<String, dynamic>?> getMessageLocation(String messageId) async {
     try {

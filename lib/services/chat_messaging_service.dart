@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/core/config/supabase_config.dart';
 import 'package:oasis/core/network/supabase_client.dart';
+import 'package:oasis/services/message_send_throttler.dart';
 
 /// Service dedicated to message transport and lifecycle management.
 ///
@@ -11,9 +12,13 @@ import 'package:oasis/core/network/supabase_client.dart';
 /// messages as read.
 class ChatMessagingService {
   final SupabaseClient _supabase;
+  final MessageSendThrottler _sendThrottler;
 
-  ChatMessagingService({SupabaseClient? client})
-    : _supabase = client ?? SupabaseService().client;
+  ChatMessagingService({
+    SupabaseClient? client,
+    MessageSendThrottler? sendThrottler,
+  }) : _supabase = client ?? SupabaseService().client,
+       _sendThrottler = sendThrottler ?? MessageSendThrottler.instance;
 
   /// Retrieves messages for a specific conversation.
   ///
@@ -188,36 +193,38 @@ class ChatMessagingService {
     String? pqAuraPayload,
   }) async {
     try {
-      final response = await _supabase.rpc(
-        'send_message_v3',
-        params: {
-          'p_conversation_id': conversationId,
-          'p_content': content,
-          'p_message_type': messageType.name,
-          'p_media_url': mediaUrl,
-          'p_media_file_name': mediaFileName,
-          'p_media_file_size': mediaFileSize,
-          'p_voice_duration': voiceDuration,
-          'p_reply_to_id': replyToId,
-          'p_is_ephemeral': whisperMode > 0,
-          'p_ephemeral_duration': whisperMode == 1 ? 0 : 86400,
-          'p_encrypted_keys': encryptedKeys,
-          'p_iv': iv,
-          'p_signal_message_type': signalMessageType,
-          'p_signal_sender_content': signalSenderContent,
-          'p_whisper_mode': whisperMode == 0
-              ? 'OFF'
-              : (whisperMode == 1 ? 'INSTANT' : '24_HOURS'),
-          'p_ripple_id': rippleId,
-          'p_story_id': storyId,
-          'p_post_id': postId,
-          'p_share_data': shareData,
-          'p_location_data': locationData,
-          'p_media_view_mode': mediaViewMode,
-          'p_is_spoiler': isSpoiler,
-          'p_pq_aura_header': pqAuraHeader,
-          'p_pq_aura_payload': pqAuraPayload,
-        },
+      final response = await _sendThrottler.enqueue(
+        () => _supabase.rpc(
+          'send_message_v3',
+          params: {
+            'p_conversation_id': conversationId,
+            'p_content': content,
+            'p_message_type': messageType.name,
+            'p_media_url': mediaUrl,
+            'p_media_file_name': mediaFileName,
+            'p_media_file_size': mediaFileSize,
+            'p_voice_duration': voiceDuration,
+            'p_reply_to_id': replyToId,
+            'p_is_ephemeral': whisperMode > 0,
+            'p_ephemeral_duration': whisperMode == 1 ? 0 : 86400,
+            'p_encrypted_keys': encryptedKeys,
+            'p_iv': iv,
+            'p_signal_message_type': signalMessageType,
+            'p_signal_sender_content': signalSenderContent,
+            'p_whisper_mode': whisperMode == 0
+                ? 'OFF'
+                : (whisperMode == 1 ? 'INSTANT' : '24_HOURS'),
+            'p_ripple_id': rippleId,
+            'p_story_id': storyId,
+            'p_post_id': postId,
+            'p_share_data': shareData,
+            'p_location_data': locationData,
+            'p_media_view_mode': mediaViewMode,
+            'p_is_spoiler': isSpoiler,
+            'p_pq_aura_header': pqAuraHeader,
+            'p_pq_aura_payload': pqAuraPayload,
+          },
+        ),
       );
 
       if (response == null) throw Exception('Failed to send message via RPC');

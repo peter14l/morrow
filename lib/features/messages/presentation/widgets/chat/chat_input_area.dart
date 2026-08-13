@@ -223,198 +223,178 @@ class _ChatInputAreaState extends State<ChatInputArea> {
       decoration: decoration,
       child: material.Row(
         crossAxisAlignment: material.CrossAxisAlignment.center,
-        children: [
-          // Animated leading icons (Attachment & Stickers)
+        children: [          // Left actions container (Attachment, Stickers & Spoiler button).
+          // They live in a single fixed-size slot so appearing/disappearing or
+          // switching on typing never changes the text field's width or the input area's
+          // height — preventing layout jitter and height fluctuations.
           material.ValueListenableBuilder<String>(
             valueListenable:
                 widget.textNotifier ??
                 material.ValueNotifier(widget.controller.text),
             builder: (context, text, child) {
               final bool isTyping = text.trim().isNotEmpty;
+              final bool showSpoiler = isTyping || widget.hasAttachment;
+              final double slotWidth = widget.isDesktop ? 88.0 : 100.0;
+
               return material.SizedBox(
+                width: slotWidth,
                 height: 48,
                 child: material.AnimatedSwitcher(
                   duration: const Duration(milliseconds: 150),
-                  transitionBuilder: (Widget child, Animation<double> animation) {
-                    return material.FadeTransition(
-                      opacity: animation,
-                      child: child,
-                    );
-                  },
-                  child: (isTyping || widget.hasAttachment)
-                      ? const material.SizedBox.shrink(
-                          key: material.ValueKey('leading-hidden'),
-                        )
-                      : material.Row(
-                          key: const material.ValueKey('leading-visible'),
-                        mainAxisSize: material.MainAxisSize.min,
-                        children: [
-                          widget.isDesktop
-                              ? fluent.FlyoutTarget(
-                                  controller: _flyoutController,
-                                  child: material.IconButton(
-                                    onPressed: () {
-                                      _flyoutController.showFlyout(
-                                        autoModeConfiguration:
-                                            fluent.FlyoutAutoConfiguration(
-                                              preferredMode: fluent
-                                                  .FlyoutPlacementMode
-                                                  .topCenter,
-                                            ),
-                                        barrierDismissible: true,
-                                        dismissWithEsc: true,
-                                        builder: (context) {
-                                          return fluent.MenuFlyout(
-                                            items: [
-                                              fluent.MenuFlyoutItem(
-                                                leading: const material.Icon(
-                                                  material.Icons.image_rounded,
-                                                  size: 20,
-                                                  color: material.Color(
-                                                    0xFF3D8BFF,
-                                                  ),
-                                                ),
-                                                text: const material.Text(
-                                                  'Photo',
-                                                ),
-                                                onPressed: () {
-                                                  _flyoutController.close();
-                                                  widget.onPickImage?.call();
-                                                },
-                                              ),
-                                              fluent.MenuFlyoutItem(
-                                                leading: const material.Icon(
-                                                  material
-                                                      .Icons
-                                                      .videocam_rounded,
-                                                  size: 20,
-                                                  color: material.Color(
-                                                    0xFFFF6B6B,
-                                                  ),
-                                                ),
-                                                text: const material.Text(
-                                                  'Video',
-                                                ),
-                                                onPressed: () {
-                                                  _flyoutController.close();
-                                                  widget.onPickVideo?.call();
-                                                },
-                                              ),
-                                              fluent.MenuFlyoutItem(
-                                                leading: const material.Icon(
-                                                  material
-                                                      .Icons
-                                                      .insert_drive_file_rounded,
-                                                  size: 20,
-                                                  color: material.Color(
-                                                    0xFF51CF66,
-                                                  ),
-                                                ),
-                                                text: const material.Text(
-                                                  'File',
-                                                ),
-                                                onPressed: () {
-                                                  _flyoutController.close();
-                                                  widget.onPickFile?.call();
-                                                },
-                                              ),
-                                              fluent.MenuFlyoutItem(
-                                                leading: const material.Icon(
-                                                  material
-                                                      .Icons
-                                                      .audio_file_rounded,
-                                                  size: 20,
-                                                  color: material.Color(
-                                                    0xFFFFD43B,
-                                                  ),
-                                                ),
-                                                text: const material.Text(
-                                                  'Audio',
-                                                ),
-                                                onPressed: () {
-                                                  _flyoutController.close();
-                                                  widget.onPickAudio?.call();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        },
-                                      );
-                                    },
-                                    icon: const material.Icon(
-                                      material.Icons.add_circle_outline,
-                                      color: material.Colors.white70,
-                                      size: 24,
-                                    ),
-                                    constraints:
-                                        const material.BoxConstraints(),
-                                    padding: const material.EdgeInsets.all(8),
-                                  ),
-                                )
-                              : material.IconButton(
-                                  onPressed: widget.onAttachment,
-                                  icon: material.Icon(
-                                    material.Icons.add_circle_outline,
-                                    color: colorScheme.primary,
-                                  ),
-                                ),
-                          material.IconButton(
-                            onPressed: widget.onSticker,
+                  child: showSpoiler
+                      ? material.Center(
+                          key: const material.ValueKey('spoiler-btn-active'),
+                          child: material.IconButton(
+                            onPressed: widget.onSpoilerToggle,
                             icon: material.Icon(
-                              material.Icons.sticky_note_2_outlined,
-                              color: widget.isDesktop
-                                  ? material.Colors.white
-                                  : colorScheme.primary,
-                              size: widget.isDesktop ? 24 : null,
-                            ),
-                            tooltip: 'Stickers & GIFs',
-                          ),
-                          const material.SizedBox(width: 4),
-                        ],
-                      ),
-                    ),
-              );
-            },
-          ),
-
-          // Spoiler Toggle
-          material.ValueListenableBuilder<String>(
-            valueListenable:
-                widget.textNotifier ??
-                material.ValueNotifier(widget.controller.text),
-            builder: (context, text, child) {
-              final bool hasSomething =
-                  text.trim().isNotEmpty || widget.hasAttachment;
-              return material.SizedBox(
-                height: 48,
-                child: material.AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 200),
-                  child: hasSomething
-                      ? material.IconButton(
-                          key: const material.ValueKey('spoiler-btn'),
-                          onPressed: widget.onSpoilerToggle,
-                          icon: material.Icon(
-                            widget.isSpoiler
-                                ? material.Icons.visibility_off
-                                : material.Icons.visibility_off_outlined,
-                            color: widget.isSpoiler
-                                ? colorScheme.primary
-                                : (widget.isDesktop
+                              widget.isSpoiler
+                                  ? material.Icons.visibility_off
+                                  : material.Icons.visibility_off_outlined,
+                              color: widget.isSpoiler
+                                  ? colorScheme.primary
+                                  : (widget.isDesktop
                                       ? material.Colors.white38
                                       : colorScheme.onSurfaceVariant.withValues(
                                           alpha: 0.6,
                                         )),
-                            size: widget.isDesktop ? 22 : 20,
+                              size: widget.isDesktop ? 22 : 20,
+                            ),
+                            tooltip: 'Mark as Spoiler',
+                            constraints: const material.BoxConstraints(),
+                            padding: const material.EdgeInsets.all(8),
                           ),
-                          tooltip: 'Mark as Spoiler',
-                          constraints: const material.BoxConstraints(),
-                          padding: const material.EdgeInsets.all(8),
                         )
-                      : const material.SizedBox.shrink(),
+                      : material.Row(
+                          key: const material.ValueKey('leading-actions-inactive'),
+                          mainAxisSize: material.MainAxisSize.min,
+                          children: [
+                            widget.isDesktop
+                                ? fluent.FlyoutTarget(
+                                    controller: _flyoutController,
+                                    child: material.IconButton(
+                                      onPressed: () {
+                                        _flyoutController.showFlyout(
+                                          autoModeConfiguration:
+                                              fluent.FlyoutAutoConfiguration(
+                                            preferredMode: fluent
+                                                .FlyoutPlacementMode
+                                                .topCenter,
+                                          ),
+                                          barrierDismissible: true,
+                                          dismissWithEsc: true,
+                                          builder: (context) {
+                                            return fluent.MenuFlyout(
+                                              items: [
+                                                fluent.MenuFlyoutItem(
+                                                  leading: const material.Icon(
+                                                    material.Icons.image_rounded,
+                                                    size: 20,
+                                                    color: material.Color(
+                                                      0xFF3D8BFF,
+                                                    ),
+                                                  ),
+                                                  text: const material.Text(
+                                                    'Photo',
+                                                  ),
+                                                  onPressed: () {
+                                                    _flyoutController.close();
+                                                    widget.onPickImage?.call();
+                                                  },
+                                                ),
+                                                fluent.MenuFlyoutItem(
+                                                  leading: const material.Icon(
+                                                    material
+                                                        .Icons
+                                                        .videocam_rounded,
+                                                    size: 20,
+                                                    color: material.Color(
+                                                      0xFFFF6B6B,
+                                                    ),
+                                                  ),
+                                                  text: const material.Text(
+                                                    'Video',
+                                                  ),
+                                                  onPressed: () {
+                                                    _flyoutController.close();
+                                                    widget.onPickVideo?.call();
+                                                  },
+                                                ),
+                                                fluent.MenuFlyoutItem(
+                                                  leading: const material.Icon(
+                                                    material
+                                                        .Icons
+                                                        .insert_drive_file_rounded,
+                                                    size: 20,
+                                                    color: material.Color(
+                                                      0xFF51CF66,
+                                                    ),
+                                                  ),
+                                                  text: const material.Text(
+                                                    'File',
+                                                  ),
+                                                  onPressed: () {
+                                                    _flyoutController.close();
+                                                    widget.onPickFile?.call();
+                                                  },
+                                                ),
+                                                fluent.MenuFlyoutItem(
+                                                  leading: const material.Icon(
+                                                    material
+                                                        .Icons
+                                                        .audio_file_rounded,
+                                                    size: 20,
+                                                    color: material.Color(
+                                                      0xFFFFD43B,
+                                                    ),
+                                                  ),
+                                                  text: const material.Text(
+                                                    'Audio',
+                                                  ),
+                                                  onPressed: () {
+                                                    _flyoutController.close();
+                                                    widget.onPickAudio?.call();
+                                                  },
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        );
+                                      },
+                                      icon: const material.Icon(
+                                        material.Icons.add_circle_outline,
+                                        color: material.Colors.white70,
+                                        size: 24,
+                                      ),
+                                      constraints:
+                                          const material.BoxConstraints(),
+                                      padding: const material.EdgeInsets.all(8),
+                                    ),
+                                  )
+                                : material.IconButton(
+                                    onPressed: widget.onAttachment,
+                                    icon: material.Icon(
+                                      material.Icons.add_circle_outline,
+                                      color: colorScheme.primary,
+                                    ),
+                                  ),
+                            material.IconButton(
+                              onPressed: widget.onSticker,
+                              icon: material.Icon(
+                                material.Icons.sticky_note_2_outlined,
+                                color: widget.isDesktop
+                                    ? material.Colors.white
+                                    : colorScheme.primary,
+                                size: widget.isDesktop ? 24 : null,
+                              ),
+                              tooltip: 'Stickers & GIFs',
+                            ),
+                            const material.SizedBox(width: 4),
+                          ],
+                        ),
                 ),
               );
             },
-          ),
+          ),  
 
           material.Expanded(
             child: widget.isRecording

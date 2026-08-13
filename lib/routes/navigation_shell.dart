@@ -266,28 +266,83 @@ class NavigationShell extends material.StatelessWidget {
     }
 
     if (mode == LiquidGlassMode.fake) {
-      return ClipRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-          child: Container(
-            decoration: BoxDecoration(
+      return material.SafeArea(
+        top: false,
+        child: material.Container(
+          margin: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            bottom: 16.0,
+            top: 8.0,
+          ),
+          decoration: material.BoxDecoration(
+            borderRadius: material.BorderRadius.circular(40.0),
+            border: material.Border.all(
               color: brightness == material.Brightness.dark
-                  ? material.Colors.white.withValues(alpha: 0.1)
-                  : material.Colors.white.withValues(alpha: 0.3),
+                  ? material.Colors.white.withValues(alpha: 0.15)
+                  : material.Colors.black.withValues(alpha: 0.08),
+              width: 1.0,
             ),
-            child: navBar,
+            boxShadow: [
+              material.BoxShadow(
+                color: material.Colors.black.withOpacity(0.08),
+                blurRadius: 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: material.ClipRRect(
+            borderRadius: material.BorderRadius.circular(40.0),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+              child: material.Container(
+                decoration: material.BoxDecoration(
+                  color: brightness == material.Brightness.dark
+                      ? material.Colors.white.withValues(alpha: 0.1)
+                      : material.Colors.white.withValues(alpha: 0.3),
+                ),
+                child: navBar,
+              ),
+            ),
           ),
         ),
       );
     }
     // For real mode, use the platform-safe LiquidGlassWrapper which handles Android/iOS rendering
-    return LiquidGlassWrapper(
-      borderRadius: 0,
-      config: LiquidGlassConfig.Light,
-      backgroundColor: brightness == material.Brightness.dark
-          ? material.Colors.white.withValues(alpha: 0.1)
-          : material.Colors.white.withValues(alpha: 0.3),
-      child: navBar,
+    return material.SafeArea(
+      top: false,
+      child: material.Container(
+        margin: const EdgeInsets.only(
+          left: 24.0,
+          right: 24.0,
+          bottom: 16.0,
+          top: 8.0,
+        ),
+        decoration: material.BoxDecoration(
+          borderRadius: material.BorderRadius.circular(40.0),
+          border: material.Border.all(
+            color: brightness == material.Brightness.dark
+                ? material.Colors.white.withValues(alpha: 0.15)
+                : material.Colors.black.withValues(alpha: 0.08),
+            width: 1.0,
+          ),
+          boxShadow: [
+            material.BoxShadow(
+              color: material.Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: LiquidGlassWrapper(
+          borderRadius: 40.0,
+          config: LiquidGlassConfig.Light,
+          backgroundColor: brightness == material.Brightness.dark
+              ? material.Colors.white.withValues(alpha: 0.1)
+              : material.Colors.white.withValues(alpha: 0.3),
+          child: navBar,
+        ),
+      ),
     );
   }
 

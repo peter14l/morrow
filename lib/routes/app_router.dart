@@ -741,21 +741,40 @@ class _MainLayoutState extends State<MainLayout> {
       return navBar;
     }
 
-    return Container(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(
-          alpha: 0.7,
-        ), // Semi-transparent tint
-        border: Border(
-          top: BorderSide(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.2),
-          ),
+    return SafeArea(
+      top: false,
+      child: Container(
+        margin: const EdgeInsets.only(
+          left: 24.0,
+          right: 24.0,
+          bottom: 16.0,
+          top: 8.0,
         ),
-      ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: navBar,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(40.0),
+          border: Border.all(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(40.0),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: theme.colorScheme.surface.withValues(
+                alpha: 0.7,
+              ), // Semi-transparent tint
+              child: navBar,
+            ),
+          ),
         ),
       ),
     );

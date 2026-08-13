@@ -409,6 +409,11 @@ class MessageOperationsService {
   }
 
   /// Adds a reaction to a message.
+  ///
+  /// Uses a single upsert on (message_id, user_id) instead of a delete+insert
+  /// pair. A delete+insert emits two realtime events whose reaction fetches
+  /// can race out of order, leaving the UI with the just-applied reaction
+  /// wiped out.
   Future<void> addReaction({
     required String messageId,
     required String userId,
@@ -416,23 +421,16 @@ class MessageOperationsService {
     required String username,
   }) async {
     try {
-      // First remove any existing reaction from this user on this message
-      // (Standard behavior: one reaction per user per message)
       await _supabase
           .from(SupabaseConfig.messageReactionsTable)
-          .delete()
-          .eq('message_id', messageId)
-          .eq('user_id', userId);
-
-      // Then insert the new reaction
-      await _supabase.from(SupabaseConfig.messageReactionsTable).insert({
-        'message_id': messageId,
-        'user_id': userId,
-        'emoji': emoji,
-        'reaction': emoji, // Legacy support
-        'username': username,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+          .upsert({
+            'message_id': messageId,
+            'user_id': userId,
+            'emoji': emoji,
+            'reaction': emoji, // Legacy support
+            'username': username,
+            'created_at': DateTime.now().toIso8601String(),
+          }, onConflict: 'message_id,user_id');
     } catch (e) {
       debugPrint('[MessageOps] Error adding reaction: $e');
       rethrow;
@@ -458,33 +456,39 @@ class MessageOperationsService {
     }
   }
 
+  /// Fetches the full current reaction set for a message.
+  Future<List<MessageReactionModel>> fetchReactionsForMessage(
+    String messageId,
+  ) async {
+    final reactions = await _supabase
+        .from(SupabaseConfig.messageReactionsTable)
+        .select('*, ${SupabaseConfig.profilesTable}:user_id (username)')
+        .eq('message_id', messageId);
+
+    return reactions.map((r) {
+      final profile =
+          r[SupabaseConfig.profilesTable] as Map<String, dynamic>?;
+      final createdAtStr = r['created_at'] as String?;
+
+      return MessageReactionModel(
+        id: r['id'] as String? ?? '',
+        messageId: r['message_id'] as String? ?? '',
+        userId: r['user_id'] as String? ?? '',
+        username: profile?['username'] ?? 'Unknown',
+        reaction: r['emoji'] as String? ?? r['reaction'] as String? ?? '',
+        createdAt: createdAtStr != null
+            ? DateTime.parse(createdAtStr)
+            : DateTime.now(),
+      );
+    }).toList();
+  }
+
   Future<void> _fetchReactionsForMessage(
     String messageId,
     Function(String messageId, List<MessageReactionModel> reactions) onUpdate,
   ) async {
     try {
-      final reactions = await _supabase
-          .from(SupabaseConfig.messageReactionsTable)
-          .select('*, ${SupabaseConfig.profilesTable}:user_id (username)')
-          .eq('message_id', messageId);
-
-      final reactionModels = reactions.map((r) {
-        final profile =
-            r[SupabaseConfig.profilesTable] as Map<String, dynamic>?;
-        final createdAtStr = r['created_at'] as String?;
-
-        return MessageReactionModel(
-          id: r['id'] as String? ?? '',
-          messageId: r['message_id'] as String? ?? '',
-          userId: r['user_id'] as String? ?? '',
-          username: profile?['username'] ?? 'Unknown',
-          reaction: r['emoji'] as String? ?? r['reaction'] as String? ?? '',
-          createdAt: createdAtStr != null
-              ? DateTime.parse(createdAtStr)
-              : DateTime.now(),
-        );
-      }).toList();
-
+      final reactionModels = await fetchReactionsForMessage(messageId);
       onUpdate(messageId, reactionModels);
     } catch (e) {
       debugPrint('[MessageOps] Error fetching reactions: $e');

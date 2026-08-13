@@ -1,16 +1,16 @@
-# Graph Report - oasis  (2026-07-29)
+# Graph Report - oasis  (2026-08-13)
 
 ## Corpus Check
-- 1282 files · ~3,401,650 words
+- 1287 files · ~3,408,017 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 28900 nodes · 37324 edges · 651 communities (590 shown, 61 thin omitted)
+- 29109 nodes · 37633 edges · 645 communities (580 shown, 65 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 9 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a64d62fc`
+- Built from commit: `68a51d24`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -610,24 +610,18 @@
 - [[_COMMUNITY_Community 611|Community 611]]
 - [[_COMMUNITY_Community 612|Community 612]]
 - [[_COMMUNITY_Community 620|Community 620]]
-- [[_COMMUNITY_Community 621|Community 621]]
-- [[_COMMUNITY_Community 622|Community 622]]
-- [[_COMMUNITY_Community 623|Community 623]]
 - [[_COMMUNITY_Community 637|Community 637]]
 - [[_COMMUNITY_Community 638|Community 638]]
 - [[_COMMUNITY_Community 639|Community 639]]
 - [[_COMMUNITY_Community 640|Community 640]]
 - [[_COMMUNITY_Community 641|Community 641]]
-- [[_COMMUNITY_Community 647|Community 647]]
 - [[_COMMUNITY_Community 648|Community 648]]
-- [[_COMMUNITY_Community 649|Community 649]]
-- [[_COMMUNITY_Community 650|Community 650]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `_` - 2221 edges
 2. `_` - 1381 edges
 3. `ProfileProvider` - 121 edges
-4. `map` - 66 edges
+4. `map` - 69 edges
 5. `FluentLocalizations` - 50 edges
 6. `ConversationProvider` - 46 edges
 7. `_widget` - 45 edges
@@ -642,10 +636,10 @@
   PQ-DR/tests/protocol_tests.rs → PQ-DR/src/crypto.rs
 - `test_state_persistence()` --calls--> `generate_hybrid_keypair()`  [INFERRED]
   PQ-DR/tests/protocol_tests.rs → PQ-DR/src/crypto.rs
-- `MyCustomTabState` --inherits--> `TabState`  [EXTRACTED]
-  fluent_ui/example/lib/screens/navigation/tab_view.dart → fluent_ui/lib/src/controls/navigation/tab_view/tab.dart
 - `FluentLocalizationsExtension` --extends--> `FluentLocalizations`  [EXTRACTED]
   fluent_ui/lib/l10n/extension/fluent_localizations_extension.dart → fluent_ui/lib/l10n/generated/fluent_localizations.dart
+- `debugCheckHasFluentLocalizations` --references--> `FluentLocalizations`  [EXTRACTED]
+  fluent_ui/lib/src/utils.dart → fluent_ui/lib/l10n/generated/fluent_localizations.dart
 
 ## Import Cycles
 - 1-file cycle: `PQ-DR/src/crypto.rs -> PQ-DR/src/crypto.rs`
@@ -655,7 +649,7 @@
 - 1-file cycle: `PQ-DR/src/state.rs -> PQ-DR/src/state.rs`
 - 1-file cycle: `PQ-DR/src/wasm.rs -> PQ-DR/src/wasm.rs`
 
-## Communities (651 total, 61 thin omitted)
+## Communities (645 total, 65 thin omitted)
 
 ### Community 0 - "Auth & Session Management"
 Cohesion: 0.02
@@ -667,27 +661,27 @@ Nodes (107): static const ColorScheme, AppTheme, _createTheme, dark, _darkBackgr
 
 ### Community 2 - "Notification System"
 Cohesion: 0.01
-Nodes (217): AdaptiveDialog, showConfirm, build, circle, CircleListCard, _CircleListCardState, createState, currentUserId (+209 more)
+Nodes (160): build, canvas, CanvasListTile, isDesktop, onTap, build, circle, CircleListCard (+152 more)
 
 ### Community 3 - "Study Sessions & Focus"
 Cohesion: 0.02
-Nodes (91): ../features/auth/presentation/screens/instagram_migration_screen.dart, ../features/auth/presentation/screens/login_screen.dart, ../features/auth/presentation/screens/onboarding_screen.dart, ../features/auth/presentation/screens/register_screen.dart, ../features/auth/presentation/screens/reset_password_screen.dart, ../features/capsules/presentation/screens/capsule_view_screen.dart, ../features/capsules/presentation/screens/create_capsule_screen.dart, ../features/circles/presentation/screens/circle_join_screen.dart (+83 more)
+Nodes (87): ../features/auth/presentation/screens/instagram_migration_screen.dart, ../features/auth/presentation/screens/login_screen.dart, ../features/auth/presentation/screens/onboarding_screen.dart, ../features/auth/presentation/screens/register_screen.dart, ../features/auth/presentation/screens/reset_password_screen.dart, ../features/capsules/presentation/screens/capsule_view_screen.dart, ../features/capsules/presentation/screens/create_capsule_screen.dart, ../features/circles/presentation/screens/circle_join_screen.dart (+79 more)
 
 ### Community 4 - "Posts & Feed"
 Cohesion: 0.02
-Nodes (160): AuthService, _MyAppState, MyApp, OasisCanvas, package:oasis/core/utils/responsive_layout.dart, package:oasis/features/canvas/presentation/providers/canvas_provider.dart, package:oasis/features/canvas/presentation/widgets/canvas/canvas_list_tile.dart, package:oasis/features/capsules/presentation/providers/capsule_provider.dart (+152 more)
+Nodes (140): AuthService, collaborative_posts_test.mocks.dart, _MyAppState, MockAuthService, MockCircleProvider, MockProfileProvider, MockUserSettingsProvider, MyApp (+132 more)
 
 ### Community 5 - "Stories & Capsules"
 Cohesion: 0.03
-Nodes (63): app_test.dart, Card, container, Checkbox, DefaultTextStyle, InfoBadge, package:fluent_ui/fluent_ui.dart, package:fluent_ui/src/controls/pickers/color_picker/color_spectrum.dart (+55 more)
+Nodes (64): app_test.dart, Card, container, Checkbox, DefaultTextStyle, InfoBadge, package:fluent_ui/fluent_ui.dart, package:fluent_ui/src/controls/pickers/color_picker/color_spectrum.dart (+56 more)
 
 ### Community 6 - "Supabase Data Layer"
 Cohesion: 0.02
-Nodes (142): build, items, scrollController, _scrollToIndex, TimelineScrubber, dart:ui, DigitalWellbeingService, build (+134 more)
+Nodes (159): build, items, scrollController, _scrollToIndex, TimelineScrubber, class FakeConversationProvider extends, class FakeUserSettingsProvider extends, dart:ui (+151 more)
 
 ### Community 7 - "Core App Infrastructure"
 Cohesion: 0.02
-Nodes (80): ChatState get, package:oasis/features/messages/presentation/providers/chat_encryption_provider.dart, package:oasis/features/messages/presentation/providers/chat_settings_provider.dart, package:oasis/features/messages/presentation/providers/chat_state.dart, package:oasis/services/live_location_tracker.dart, package:oasis/services/smart_reply_service.dart, addMembers, _authService (+72 more)
+Nodes (81): ChatState get, package:oasis/features/messages/data/message_queue_service.dart, package:oasis/features/messages/presentation/providers/chat_encryption_provider.dart, package:oasis/features/messages/presentation/providers/chat_settings_provider.dart, package:oasis/services/live_location_tracker.dart, package:oasis/services/smart_reply_service.dart, addMembers, _authService (+73 more)
 
 ### Community 8 - "Wellness & Achievements"
 Cohesion: 0.03
@@ -695,49 +689,47 @@ Nodes (77): ../datasources/wellness_local_datasource.dart, ../../domain/reposito
 
 ### Community 9 - "Circles & Social Feed"
 Cohesion: 0.03
-Nodes (96): content, InviteBubble, isMe, build, canvas, CanvasListTile, isDesktop, onTap (+88 more)
+Nodes (79): content, InviteBubble, isMe, build, communityData, CommunitySetupConfirmationScreen, initState, _handleInitialization (+71 more)
 
 ### Community 10 - "Ripples Feature"
-Cohesion: 0.02
-Nodes (123): ChatMediaPicker, getInitialDirectory, _imagePicker, pickAudio, pickFile, pickMultiImage, pickVideo, ImagePicker (+115 more)
+Cohesion: 0.04
+Nodes (64): package:oasis/widgets/adaptive/adaptive_scaffold.dart, package:video_player/video_player.dart, RipplesProvider, _captionController, CreateRippleScreen, _CreateRippleScreenState, createState, dispose (+56 more)
 
 ### Community 11 - "App Entry & Theme"
-Cohesion: 0.02
-Nodes (122): EnergyMeterService, android, DefaultFirebaseOptions, ios, macos, web, windows, AppScrollBehavior (+114 more)
+Cohesion: 0.03
+Nodes (57): @pragma, AppScrollBehavior, _authSub, _cachedDarkScheme, _cachedDarkTheme, _cachedIsDark, _cachedLightScheme, _cachedLightTheme (+49 more)
 
 ### Community 12 - "Messaging & Chat UI"
 Cohesion: 0.03
-Nodes (75): package:giphy_get/giphy_get.dart, package:oasis/features/messages/data/datasources/chat_media_picker.dart, package:oasis/features/messages/presentation/providers/providers.dart, package:oasis/features/messages/presentation/screens/chat_details_screen.dart, package:oasis/features/messages/presentation/widgets/chat/chat_app_bar.dart, package:oasis/features/messages/presentation/widgets/chat/chat_background.dart, package:oasis/features/messages/presentation/widgets/chat/chat_input_area.dart, package:oasis/features/messages/presentation/widgets/chat/chat_message_list.dart (+67 more)
+Nodes (82): build, ChatTypingIndicator, conversationId, currentUserId, package:giphy_get/giphy_get.dart, package:oasis/features/messages/data/datasources/chat_media_picker.dart, package:oasis/features/messages/presentation/providers/providers.dart, package:oasis/features/messages/presentation/screens/chat_details_screen.dart (+74 more)
 
 ### Community 13 - "Canvas & Creative Tools"
 Cohesion: 0.03
 Nodes (76): package:oasis/features/canvas/domain/utils/shape_recognizer.dart, package:oasis/features/canvas/presentation/widgets/canvas/infinite_canvas.dart, package:oasis/features/canvas/presentation/widgets/canvas/pulse_ripple.dart, package:oasis/features/canvas/presentation/widgets/canvas/scattered_polaroid_spread.dart, package:oasis/features/canvas/presentation/widgets/canvas/starry_night_background.dart, package:oasis/features/canvas/presentation/widgets/canvas/timeline_scrubber.dart, _ActiveUsersRow, _audioRecorder (+68 more)
 
 ### Community 14 - "Direct Messages Screen"
-Cohesion: 0.03
-Nodes (75): package:oasis/features/messages/presentation/screens/chat_screen.dart, package:oasis/widgets/messages/unread_badge_widget.dart, required BorderRadius borderRadius,
-  bool, required double sigma,
-  bool, active, _BentoPinnedGrid, _bgBrightness, _bgOpacity (+67 more)
+Cohesion: 0.02
+Nodes (126): addListener, admin, auth, call, calls, callSteps, channel, clearAllData (+118 more)
 
 ### Community 15 - "Onboarding & Welcome"
-Cohesion: 0.04
-Nodes (50): ../../../core/theme/oasis_colors.dart, ../../../core/theme/oasis_text_styles.dart, glass_card.dart, package:animated_text_kit/animated_text_kit.dart, build, isActive, Page1Welcome, build (+42 more)
+Cohesion: 0.03
+Nodes (79): build, content, SystemMessageBubble, build, colorHex, content, createdAt, GlowingNote (+71 more)
 
 ### Community 16 - "Wellness Service Layer"
 Cohesion: 0.03
 Nodes (72): _achievements, _achievementsKey, AchievementType, _allowCallsDuringZen, _allowCallsDuringZenKey, _awardZenAchievement, blockableFeatures, _blockedFeatures (+64 more)
 
 ### Community 17 - "Adaptive Scaffold & UI"
-Cohesion: 0.04
-Nodes (52): class FakeConversationProvider extends, class FakeUserSettingsProvider extends, initState, package:oasis/features/profile/data/datasources/profile_remote_datasource.dart, package:oasis/features/wellness/presentation/screens/study_sessions_hub_screen.dart, package:oasis/services/wellness_service.dart, backgroundColor, build (+44 more)
+Cohesion: 0.03
+Nodes (79): actions, AdaptiveScaffold, appBar, body, build, _buildLiquidGlassAppBar, floatingActionButton, footer (+71 more)
 
 ### Community 18 - "Call & Attachment Modals"
-Cohesion: 0.02
-Nodes (124): actions, AdaptiveScaffold, appBar, body, build, _buildLiquidGlassAppBar, floatingActionButton, footer (+116 more)
+Cohesion: 0.03
+Nodes (72): AdaptiveDialog, showConfirm, package:flutter/widgets.dart, package:oasis/features/messages/presentation/screens/encryption_setup_screen.dart, package:oasis/features/profile/presentation/screens/account_management_screen.dart, package:oasis/features/settings/presentation/screens/account_privacy_screen.dart, package:oasis/features/settings/presentation/screens/download_data_screen.dart, package:oasis/features/settings/presentation/screens/font_size_screen.dart (+64 more)
 
 ### Community 19 - "Chat Details & Providers"
-Cohesion: 0.03
-Nodes (78): build, _buildRestrictedUI, build, build, _buildRestrictedUI, build, ChatAppBar, ChatProvider (+70 more)
+Cohesion: 0.17
+Nodes (12): package:oasis/features/auth/presentation/screens/pin_reset_screen.dart, build, _controller, createState, dispose, _hasSaved, initState, isConfirmMode (+4 more)
 
 ### Community 20 - "Route Paths & Navigation"
 Cohesion: 0.03
@@ -749,11 +741,11 @@ Nodes (61): dart:js_interop, dart:js_interop_unsafe, JSBoolean, JSObject?, JSObj
 
 ### Community 22 - "Profile & Settings UI"
 Cohesion: 0.03
-Nodes (65): _handleRipplesTap, _handleRipplesTap, package:oasis/features/auth/presentation/widgets/account_switcher_sheet.dart, package:oasis/features/wellness/presentation/widgets/session_dial.dart, package:oasis/features/wellness/presentation/widgets/wellness_badge.dart, Route /edit-profile, Route /ripples, Route /settings (+57 more)
+Nodes (64): _handleRipplesTap, _handleRipplesTap, package:oasis/features/wellness/presentation/widgets/session_dial.dart, package:oasis/features/wellness/presentation/widgets/wellness_badge.dart, Route /edit-profile, Route /ripples, Route /settings, _authService (+56 more)
 
 ### Community 23 - "Privacy & Account Settings"
-Cohesion: 0.12
-Nodes (15): b2BucketName, B2Config, b2FeedBucketName, b2PublicBaseUrl, b2RipplesBucketName, presignedUrlFunctionName, CacheService, clearAll (+7 more)
+Cohesion: 0.09
+Nodes (20): b2BucketName, B2Config, b2FeedBucketName, b2PublicBaseUrl, b2RipplesBucketName, presignedUrlFunctionName, clearFeed, _feedKey (+12 more)
 
 ### Community 24 - "Feed Screen & Indicators"
 Cohesion: 0.00
@@ -764,12 +756,12 @@ Cohesion: 0.13
 Nodes (14): badgeCount, copyWith, currentRoute, hasBadge, icon, id, initial, isOnline (+6 more)
 
 ### Community 26 - "Messaging Service Layer"
-Cohesion: 0.02
-Nodes (79): ChatMessagingService, ConversationService, addReaction, clearChatForMe, clearConversationMessages, deleteMessage, editMessage, _fetchReactionsForMessage (+71 more)
+Cohesion: 0.03
+Nodes (57): ChatMessagingService, ConversationService, addGroupMembers, addReaction, blockUser, _chatMediaService, _chatMessagingService, clearChatForMe (+49 more)
 
 ### Community 27 - "Calling & Audio"
 Cohesion: 0.04
-Nodes (56): LocalTrackPublishedEvent, package:audio_session/audio_session.dart, package:flutter_background/flutter_background.dart, ParticipantConnectedEvent, ParticipantDisconnectedEvent, Room?, RoomDisconnectedEvent, _audioPlayer (+48 more)
+Nodes (55): LocalTrackPublishedEvent, package:audio_session/audio_session.dart, ParticipantConnectedEvent, ParticipantDisconnectedEvent, Room?, Room? get, RoomDisconnectedEvent, _audioPlayer (+47 more)
 
 ### Community 28 - "Vault & Local Auth"
 Cohesion: 0.04
@@ -780,12 +772,12 @@ Cohesion: 0.00
 Nodes (1378): _, accept, accident, accident_solid, accounts, action_center, action_center_asterisk, action_center_mirrored (+1370 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.07
-Nodes (32): package:oasis/core/result/result.dart, package:oasis/features/collections/domain/models/collection_entity.dart, package:oasis/features/collections/domain/repositories/collection_repository.dart, CollectionRepository, CollectionRepositoryImpl, AddToCollectionUseCase, call, _repository (+24 more)
+Cohesion: 0.05
+Nodes (44): CollectionRemoteDatasource, package:oasis/core/result/result.dart, package:oasis/features/collections/data/datasources/collection_remote_datasource.dart, package:oasis/features/collections/domain/models/collection_entity.dart, package:oasis/features/collections/domain/repositories/collection_repository.dart, CollectionRepository, addToCollection, CollectionRepositoryImpl (+36 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.02
-Nodes (116): createUserProfile, getPublicKey, getPublicKeys, ProfileManager, _supabase, updateProfile, uploadProfilePicture, CapsuleRemoteDatasource (+108 more)
+Nodes (85): EncryptionProvisioner, provisionEncryptionKeys, createUserProfile, getPublicKey, getPublicKeys, ProfileManager, _supabase, updateProfile (+77 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.04
@@ -809,7 +801,7 @@ Nodes (50): all, avatarUrl, blockedId, BlockedUser, blockerId, bullying, categor
 
 ### Community 37 - "Community 37"
 Cohesion: 0.04
-Nodes (50): accentColor, animatedBannerUrl, AnimatedProfileBanner, _AnimatedProfileBannerState, animation, artist, BannerAnimation, build (+42 more)
+Nodes (48): accentColor, animatedBannerUrl, animation, artist, BannerAnimation, build, _buildDefaultBanner, color (+40 more)
 
 ### Community 38 - "Community 38"
 Cohesion: 0.04
@@ -817,27 +809,27 @@ Nodes (49): ../../domain/usecases/get_wellness_stats.dart, ../../domain/usecases
 
 ### Community 39 - "Community 39"
 Cohesion: 0.04
-Nodes (49): FlutterLocalNotificationsPlugin, package:flutter_callkit_incoming/flutter_callkit_incoming.dart, package:flutter_local_notifications/flutter_local_notifications.dart, package:oasis/services/desktop_call_notifier.dart, package:oasis/services/sqlite_init.dart, _activeCallNotificationId, activeConversationId, _activeMessageGroups (+41 more)
+Nodes (52): FlutterLocalNotificationsPlugin, package:flutter_callkit_incoming/flutter_callkit_incoming.dart, package:flutter_local_notifications/flutter_local_notifications.dart, package:oasis/services/desktop_call_notifier.dart, package:oasis/services/sqlite_init.dart, Route chat_nested, Route post_details, _activeCallNotificationId (+44 more)
 
 ### Community 40 - "Community 40"
-Cohesion: 0.07
-Nodes (27): BorderStyle, EdgeInsetsGeometry get, TeachingTipBorder, ShapeBorder?, borderRadius, copyWith, dimensions, getInnerPath (+19 more)
+Cohesion: 0.08
+Nodes (24): BorderStyle, EdgeInsetsGeometry get, borderRadius, copyWith, dimensions, getInnerPath, getOuterPath, gradient (+16 more)
 
 ### Community 41 - "Community 41"
 Cohesion: 0.04
 Nodes (49): _autoSaveTimer, _breakReminderThresholdMinutes, _categoryMinutes, _categoryStorageKeyPrefix, checkBreakReminder, _currentCategory, _currentSessionElapsedSeconds, debugAddMinutes (+41 more)
 
 ### Community 42 - "Community 42"
-Cohesion: 0.04
-Nodes (49): CallService, IAPService, package:flutter_callkit_incoming/entities/android_params.dart, package:flutter_callkit_incoming/entities/call_event.dart, package:flutter_callkit_incoming/entities/call_kit_params.dart, package:flutter_callkit_incoming/entities/ios_params.dart, package:flutter_callkit_incoming/entities/notification_params.dart, package:oasis/core/storage/hive_service.dart (+41 more)
+Cohesion: 0.03
+Nodes (84): AddToCollectionUseCase, CallService, CheckPostInCollectionUseCase, CheckPostInCollectionUseCase get, CollectionsState get, CreateCollectionUseCase, DeleteCollectionUseCase, GetCollectionDetailUseCase (+76 more)
 
 ### Community 43 - "Community 43"
-Cohesion: 0.09
-Nodes (21): package:oasis/features/feed/domain/repositories/post_repository.dart, PostRepository, PostRepositoryImpl, call, CreatePost, _repository, call, DeletePost (+13 more)
+Cohesion: 0.03
+Nodes (60): bookmarkPost, createPost, deletePost, _enrichWithCommunity, _enrichWithProfile, getBookmarkedPosts, getCommunityPosts, getPoll (+52 more)
 
 ### Community 44 - "Community 44"
 Cohesion: 0.01
-Nodes (257): AnimatedSwitcherTransitionBuilder?, animationCurve, animationDuration, build, child, createState, debugFillProperties, displayMode (+249 more)
+Nodes (249): AnimatedSwitcherTransitionBuilder?, animationCurve, animationDuration, build, child, createState, debugFillProperties, displayMode (+241 more)
 
 ### Community 45 - "Community 45"
 Cohesion: 0.03
@@ -845,35 +837,35 @@ Nodes (67): backgroundUrl, bgBrightness, bgOpacity, build, ChatBackground, ChatM
 
 ### Community 46 - "Community 46"
 Cohesion: 0.03
-Nodes (81): material.SingleTickerProviderStateMixin, package:oasis/services/search_service.dart, build, _buildBulletPoint, _canDelete, _confirmController, createState, DeleteAccountScreen (+73 more)
+Nodes (69): material.SingleTickerProviderStateMixin, package:oasis/services/search_service.dart, build, _buildBulletPoint, _canDelete, _confirmController, createState, DeleteAccountScreen (+61 more)
 
 ### Community 47 - "Community 47"
 Cohesion: 0.04
 Nodes (47): albumArtUrl, artist, artworkStyle, avatarUrl, caption, copyWith, createdAt, data (+39 more)
 
 ### Community 48 - "Community 48"
-Cohesion: 0.01
-Nodes (205): Animation, applyTo, AvatarRippleAnimation, _AvatarRippleAnimationState, backgroundColor, baseColor, BouncyScrollPhysics, build (+197 more)
+Cohesion: 0.03
+Nodes (77): Animation, build, color, _controller, createState, CurvesExt, dispose, initState (+69 more)
 
 ### Community 49 - "Community 49"
-Cohesion: 0.10
-Nodes (19): dart:math, animationValue, _drawCenterMarker, _drawCenterRipple, _drawConnections, _drawNebulaBackground, _drawParticles, _drawRadialGrid (+11 more)
+Cohesion: 0.04
+Nodes (46): clearSharedFiles, ../datasources/sharing_remote_datasource.dart, getFileSize, getInitialShareIntent, _getMimeType, getShareIntentStream, shareExternally, SharingRemoteDatasource (+38 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.05
-Nodes (38): activeTheme, backgroundUrl, bgBrightness, bgOpacity, bubbleColorReceived, bubbleColorSent, ChatState, conversationType (+30 more)
+Cohesion: 0.04
+Nodes (46): package:file_picker/file_picker.dart, PlatformFile, build, file, FilePreview, onDismiss, activeTheme, backgroundUrl (+38 more)
 
 ### Community 51 - "Community 51"
-Cohesion: 0.02
-Nodes (109): AppNotification?, _authService, build, buildActions, _buildCommunitiesGrid, _buildCommunityCard, _buildDesktopLayout, _buildEmptyState (+101 more)
+Cohesion: 0.06
+Nodes (40): _authService, build, buildActions, _buildCommunitiesGrid, _buildCommunityCard, _buildDesktopLayout, _buildEmptyState, buildLeading (+32 more)
 
 ### Community 52 - "Community 52"
-Cohesion: 0.04
-Nodes (42): addParticipant, _client, ConversationRemoteDatasource, createConversation, deleteConversation, getConversation, getConversations, getParticipants (+34 more)
+Cohesion: 0.06
+Nodes (30): addParticipant, _client, ConversationRemoteDatasource, createConversation, deleteConversation, getConversation, getConversations, getParticipants (+22 more)
 
 ### Community 53 - "Community 53"
 Cohesion: 0.05
-Nodes (45): package:oasis/services/spotify_service.dart, SpotifyService, _ArtworkPickerSheet, _ArtworkPickerSheetState, _audioPlayer, build, _buildAlbumArt, _buildAlbumArtOption (+37 more)
+Nodes (43): package:oasis/services/spotify_service.dart, SpotifyService, _ArtworkPickerSheet, _ArtworkPickerSheetState, _audioPlayer, build, _buildAlbumArt, _buildAlbumArtOption (+35 more)
 
 ### Community 54 - "Community 54"
 Cohesion: 0.04
@@ -884,8 +876,8 @@ Cohesion: 0.05
 Nodes (43): package:oasis/features/ripples/data/repositories/ripple_repository_impl.dart, _activeSessionTimer, _adService, checkLockout, clear, commentOnRipple, _currentLayout, _currentUserId (+35 more)
 
 ### Community 56 - "Community 56"
-Cohesion: 0.04
-Nodes (64): Border?, build, child, hasPaperClip, hasTape, rotation, ScrapbookMotifWrapper, PreferredSizeWidget? (+56 more)
+Cohesion: 0.03
+Nodes (86): Border?, BorderRadiusGeometry, build, child, hasPaperClip, hasTape, rotation, ScrapbookMotifWrapper (+78 more)
 
 ### Community 57 - "Community 57"
 Cohesion: 0.05
@@ -900,8 +892,8 @@ Cohesion: 0.05
 Nodes (42): static Color, static const Color, static const TextStyle, AppTextStyles, background, bodyLarge, bodyMedium, border (+34 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.03
-Nodes (68): CommentRepository, FeedRepository, FeedState get, package:oasis/features/feed/data/datasources/feed_local_datasource.dart, package:oasis/features/feed/domain/models/comment.dart, package:oasis/features/feed/domain/repositories/comment_repository.dart, package:oasis/features/feed/domain/repositories/feed_repository.dart, package:oasis/features/feed/presentation/providers/feed_state.dart (+60 more)
+Cohesion: 0.02
+Nodes (81): CommentRepository, FeedState get, package:oasis/features/feed/data/datasources/feed_local_datasource.dart, package:oasis/features/feed/domain/models/comment.dart, package:oasis/features/feed/domain/repositories/comment_repository.dart, package:oasis/features/feed/presentation/providers/feed_state.dart, addPost, _adService (+73 more)
 
 ### Community 61 - "Community 61"
 Cohesion: 0.05
@@ -909,7 +901,7 @@ Nodes (41): achievements, blockedFeatures, checkAndAwardAchievements, currentSes
 
 ### Community 62 - "Community 62"
 Cohesion: 0.05
-Nodes (41): RipplesLayoutType get, _activeSessionTimer, cancelSession, checkLockout, commentOnRipple, _currentLayout, _currentUserId, dispose (+33 more)
+Nodes (40): RipplesLayoutType get, _activeSessionTimer, cancelSession, checkLockout, commentOnRipple, _currentLayout, _currentUserId, dispose (+32 more)
 
 ### Community 63 - "Community 63"
 Cohesion: 0.01
@@ -920,20 +912,22 @@ Cohesion: 0.05
 Nodes (39): AddCanvasItem, CanvasState get, CreateCanvas, DeleteCanvas, GetCanvases, GetCanvasTimeline, OasisCanvas? get, package:oasis/features/canvas/data/repositories/canvas_repository_impl.dart (+31 more)
 
 ### Community 65 - "Community 65"
-Cohesion: 0.07
-Nodes (24): getCouplePartnerId, getPartnerFcmToken, HomeCheckinRepository, sendHomeArrivedNotification, sendNotReachedHomeNotification, _sendPushNotification, package:oasis/services/notification_manager.dart, package:win_toast/win_toast.dart (+16 more)
+Cohesion: 0.05
+Nodes (45): applyTo, AvatarRippleAnimation, _AvatarRippleAnimationState, backgroundColor, baseColor, BouncyScrollPhysics, build, _burstAnimation (+37 more)
 
 ### Community 66 - "Community 66"
 Cohesion: 0.05
-Nodes (39): PQAuraBridge, package:oasis/features/messages/data/pq_aura/pq_aura_store.dart, _activeSessions, ad, _bridge, clearAllData, closeSession, _corruptSessions (+31 more)
+Nodes (41): PQAuraBridge, main, package:oasis/core/crypto/pq_aura_bridge.dart, package:oasis/features/messages/data/pq_aura/pq_aura_store.dart, _activeSessions, ad, _bridge, clearAllData (+33 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.05
 Nodes (39): _achievementsKey, _blockedFeaturesKey, _categoryStorageKeyPrefix, _dailyGoalKey, dailyGoalMinutes, _energyMeterKey, focusModeEnabled, _focusModeKey (+31 more)
 
 ### Community 68 - "Community 68"
-Cohesion: 0.02
-Nodes (132): clearSharedFiles, getFileSize, getInitialShareIntent, _getMimeType, getShareIntentStream, shareExternally, List, build (+124 more)
+Cohesion: 0.03
+Nodes (75): package:oasis/features/messages/presentation/screens/chat_screen.dart, package:oasis/widgets/messages/unread_badge_widget.dart, required BorderRadius borderRadius,
+  bool, required double sigma,
+  bool, active, _BentoPinnedGrid, _bgBrightness, _bgOpacity (+67 more)
 
 ### Community 69 - "Community 69"
 Cohesion: 0.06
@@ -941,11 +935,11 @@ Nodes (32): package:oasis/features/profile/domain/models/user_profile_entity.dar
 
 ### Community 70 - "Community 70"
 Cohesion: 0.03
-Nodes (73): UploadProgressRing, build, content, SystemMessageBubble, build, StreakBanner, streakCount, binding (+65 more)
+Nodes (82): DirectionalFocusIntent, build, createState, value, backgroundColor, backgroundColorDisabled, _DeliverySpeed, _DeliverySpeedSummary (+74 more)
 
 ### Community 71 - "Community 71"
 Cohesion: 0.03
-Nodes (67): DirectionalFocusIntent, build, _buildSection, onAccept, PrivacyPolicyScreen, showAcceptButton, build, _buildSection (+59 more)
+Nodes (67): IconData, build, _buildSection, onAccept, PrivacyPolicyScreen, showAcceptButton, build, _buildSection (+59 more)
 
 ### Community 72 - "Community 72"
 Cohesion: 0.05
@@ -957,27 +951,27 @@ Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch
 
 ### Community 74 - "Community 74"
 Cohesion: 0.02
-Nodes (88): CommentService, build, _buildGuidelineCard, _buildMenuItem, CommunityGuidelinesScreen, name, theme, _loadFeed (+80 more)
+Nodes (89): build, _buildTextContent, containsUrl, content, extractUrl, isDisplayableCaption, isMe, isSpoiler (+81 more)
 
 ### Community 75 - "Community 75"
 Cohesion: 0.05
 Nodes (37): bucketCommunityImages, bucketMessageAttachments, bucketPostImages, bucketPostVideos, bucketProfilePictures, bucketStories, channelConversationParticipants, channelMessages (+29 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.05
-Nodes (42): ../../data/models/ad_campaign.dart, ../../data/services/privacy_ad_service.dart, main, package:oasis/core/config/app_config.dart, package:oasis/features/canvas/presentation/screens/canvas_list_screen.dart, package:oasis/features/circles/presentation/screens/circles_list_screen.dart, package:oasis/services/call_service.dart, package:oasis/services/update_service.dart (+34 more)
+Cohesion: 0.03
+Nodes (126): CollaborationRequestBubble, _CollaborationRequestBubbleState, PulseRipple, _PulseRippleState, StarryNightBackground, _StarryNightBackgroundState, VoiceMemoWidget, _VoiceMemoWidgetState (+118 more)
 
 ### Community 77 - "Community 77"
 Cohesion: 0.05
 Nodes (38): AppUser? get, main, package:oasis/features/auth/domain/models/app_user.dart, package:oasis/models/community_model.dart, static AppUser get, static Community get, static List, static Post get (+30 more)
 
 ### Community 78 - "Community 78"
-Cohesion: 0.04
-Nodes (53): @visibleForTesting, AppConfig, appVersion, getWebUrl, ../config/supabase_config.dart, _checkInitialized, _clientInstance, currentUserEmail (+45 more)
+Cohesion: 0.06
+Nodes (33): @visibleForTesting, reset, setMockClient, package:package_info_plus/package_info_plus.dart, AdService, _client, getHouseAds, _instance (+25 more)
 
 ### Community 79 - "Community 79"
-Cohesion: 0.04
-Nodes (54): class, build, _buildRuleExample, CommunityDescriptionRulesScreen, _CommunityDescriptionRulesScreenState, createState, _descriptionController, dispose (+46 more)
+Cohesion: 0.10
+Nodes (21): _allowUserComments, _allowUserPosts, build, _buildModeratorItem, _buildModeratorSection, _buildSettingItem, CommunityPrivacyModerationScreen, _CommunityPrivacyModerationScreenState (+13 more)
 
 ### Community 80 - "Community 80"
 Cohesion: 0.05
@@ -992,24 +986,24 @@ Cohesion: 0.05
 Nodes (41): IdentityKeyStore, InMemorySignalProtocolStore, PreKeyStore, SessionStore, clearAll, containsPreKey, containsSession, containsSignedPreKey (+33 more)
 
 ### Community 83 - "Community 83"
-Cohesion: 0.05
-Nodes (37): package:oasis/features/stories/presentation/widgets/story_viewers_sheet.dart, _animController, _audioPlayer, _authService, build, _buildOwnerControls, _buildProgressBar, _buildSticker (+29 more)
+Cohesion: 0.03
+Nodes (69): _authService, _buildDesktopCommentPane, _buildRipplesButton, createState, didChangeAppLifecycleState, FeedScreen, _isScrolled, _loadStories (+61 more)
 
 ### Community 84 - "Community 84"
-Cohesion: 0.04
-Nodes (54): Dio, package:dio/dio.dart, package:gal/gal.dart, package:oasis/core/config/feature_flags.dart, _dio, downloadDocument, downloadImage, downloadVideo (+46 more)
+Cohesion: 0.03
+Nodes (64): Dio, package:dio/dio.dart, package:gal/gal.dart, package:oasis/core/config/feature_flags.dart, package:path_provider/path_provider.dart, cacheVersion, clearMediaCache, getLocalPath (+56 more)
 
 ### Community 85 - "Community 85"
 Cohesion: 0.06
-Nodes (34): build, _cacheService, _chatMediaService, _checkCache, createState, didUpdateWidget, _downloadMedia, initState (+26 more)
+Nodes (35): build, _cacheService, _chatMediaService, _checkCache, createState, didUpdateWidget, dispose, _downloadMedia (+27 more)
 
 ### Community 86 - "Community 86"
-Cohesion: 0.06
-Nodes (32): getHashtagPosts, getTrendingHashtags, searchHashtags, searchPosts, SearchRemoteDatasource, searchUsers, _supabase, package:oasis/features/search/data/datasources/search_remote_datasource.dart (+24 more)
+Cohesion: 0.05
+Nodes (39): getHashtagPosts, getTrendingHashtags, searchHashtags, searchPosts, SearchRemoteDatasource, searchUsers, _supabase, main (+31 more)
 
 ### Community 87 - "Community 87"
 Cohesion: 0.06
-Nodes (35): activeItemId, authorId, canvasId, CanvasItemEntity, CanvasItemType, CanvasPresenceEntity, color, content (+27 more)
+Nodes (34): activeItemId, authorId, canvasId, CanvasItemType, CanvasPresenceEntity, color, content, copyWith (+26 more)
 
 ### Community 88 - "Community 88"
 Cohesion: 0.06
@@ -1017,7 +1011,7 @@ Nodes (35): avatarUrl, caption, count, createdAt, emoji, emojiLabels, emojis, ex
 
 ### Community 89 - "Community 89"
 Cohesion: 0.06
-Nodes (43): CanvasProvider, package:oasis/services/canvas_audio_service.dart, package:oasis/services/canvas_service.dart, _AddItemTray, _AddItemTrayState, _addPhoto, _addSticker, _addTextNote (+35 more)
+Nodes (41): CanvasProvider, package:oasis/services/canvas_audio_service.dart, package:oasis/services/canvas_service.dart, _addPhoto, _addSticker, _addTextNote, build, CanvasDetailScreen (+33 more)
 
 ### Community 90 - "Community 90"
 Cohesion: 0.10
@@ -1041,51 +1035,51 @@ Nodes (34): package:oasis/features/profile/presentation/providers/profile_state.
 
 ### Community 95 - "Community 95"
 Cohesion: 0.06
-Nodes (31): backgroundUrl, build, ChatInputArea, _ChatInputAreaState, controller, createState, dispose, _flyoutController (+23 more)
+Nodes (34): backgroundUrl, build, ChatInputArea, _ChatInputAreaState, controller, createState, dispose, _flyoutController (+26 more)
 
 ### Community 96 - "Community 96"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 97 - "Community 97"
-Cohesion: 0.06
-Nodes (33): actions, build, child, color, _controller, createState, dispose, DoubleTapLike (+25 more)
+Cohesion: 0.07
+Nodes (29): actions, build, child, color, _controller, createState, dispose, _dragExtent (+21 more)
 
 ### Community 98 - "Community 98"
-Cohesion: 0.08
-Nodes (24): package:oasis/features/messages/data/datasources/message_remote_datasource.dart, package:oasis/features/messages/domain/models/message_entity.dart, package:oasis/features/messages/domain/repositories/message_repository.dart, deleteMessage, getMessages, getReactions, _messageFromJson, MessageRepositoryImpl (+16 more)
+Cohesion: 0.06
+Nodes (31): ../models/message_entity.dart, package:oasis/features/messages/data/datasources/message_remote_datasource.dart, package:oasis/features/messages/domain/models/message_entity.dart, package:oasis/features/messages/domain/repositories/message_repository.dart, deleteMessage, getMessages, getReactions, deleteMessage (+23 more)
 
 ### Community 99 - "Community 99"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 100 - "Community 100"
-Cohesion: 0.08
-Nodes (25): build, ChatThemePreview, ChatThemeSelector, onCustomTheme, onPresetSelected, selectedPreset, theme, backgroundColor (+17 more)
+Cohesion: 0.06
+Nodes (33): _valueChanged, build, ChatThemePreview, ChatThemeSelector, onCustomTheme, onPresetSelected, selectedPreset, theme (+25 more)
 
 ### Community 101 - "Community 101"
-Cohesion: 0.13
-Nodes (15): build, builder, ChatWhisperGesture, _ChatWhisperGestureState, createState, _dragOffset, _dragProgress, _dragThreshold (+7 more)
+Cohesion: 0.05
+Nodes (38): package:oasis/widgets/instagram_notification_overlay.dart, package:webview_flutter/webview_flutter.dart, Route /instagram, _cachedController, _canGoBack, _canGoForward, _controller, createState (+30 more)
 
 ### Community 102 - "Community 102"
-Cohesion: 0.05
-Nodes (41): PostPatterns, package:oasis/features/feed/presentation/widgets/polls/poll_widgets.dart, package:timeago/timeago.dart, Post, build, post, PostContent, build (+33 more)
+Cohesion: 0.04
+Nodes (44): List, Paint, CanvasDrawingPainter, DrawingPoint, paint, point, pointsList, shouldRepaint (+36 more)
 
 ### Community 103 - "Community 103"
-Cohesion: 0.08
-Nodes (28): DecoyProvider, AppRouter, _handleSubmit, build, _changePin, _controllers, createState, _currentPin (+20 more)
+Cohesion: 0.04
+Nodes (56): DecoyProvider, AppRouter, build, child, _controllers, createState, _currentPin, currentY (+48 more)
 
 ### Community 104 - "Community 104"
 Cohesion: 0.06
 Nodes (31): build, _buildEmailVerification, _buildNewPinEntry, _buildPinInput, _buildProcessing, _buildStepContent, _buildSuccess, _buildWarning (+23 more)
 
 ### Community 105 - "Community 105"
-Cohesion: 0.05
-Nodes (44): ad_injection_test.mocks.dart, AdService, @GenerateMocks, auth_remote_datasource_test.mocks.dart, datasource, main, mockAuth, mockSupabase (+36 more)
+Cohesion: 0.07
+Nodes (27): @GenerateMocks, call_provider_real_path_test.mocks.dart, authController, main, _makeCall, mockAcceptCall, mockAuth, mockCallService (+19 more)
 
 ### Community 106 - "Community 106"
 Cohesion: 0.06
-Nodes (30): bubbleColorReceived, bubbleColorSent, build, _buildContent, _buildEmptyState, _buildMessageItem, _buildReactionBadges, _buildSkeletonLoading (+22 more)
+Nodes (33): bubbleColorReceived, bubbleColorSent, build, _buildContent, _buildEmptyState, _buildMessageItem, _buildReactionBadges, _buildSkeletonLoading (+25 more)
 
 ### Community 107 - "Community 107"
 Cohesion: 0.06
@@ -1096,8 +1090,8 @@ Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 109 - "Community 109"
-Cohesion: 0.08
-Nodes (25): addCanvasItem, createCanvas, _decryptItem, deleteCanvas, deleteCanvasItem, _encryption, fetchCanvasItems, fetchUserCanvases (+17 more)
+Cohesion: 0.05
+Nodes (37): addCanvasItem, createCanvas, _decryptItem, deleteCanvas, deleteCanvasItem, _encryption, fetchCanvasItems, fetchUserCanvases (+29 more)
 
 ### Community 110 - "Community 110"
 Cohesion: 0.07
@@ -1116,12 +1110,12 @@ Cohesion: 0.11
 Nodes (17): CircleRemoteDatasource, package:oasis/features/circles/data/datasources/circle_remote_datasource.dart, createCircle, createCirclePost, createCommitment, deleteCircle, deletePost, getCircle (+9 more)
 
 ### Community 114 - "Community 114"
-Cohesion: 0.07
-Nodes (28): build, content, createdAt, JournalEntryWidget, GlobalKey, oasis_colors.dart, package:flutter_syntax_view/flutter_syntax_view.dart, package:google_fonts/google_fonts.dart (+20 more)
+Cohesion: 0.12
+Nodes (17): GlobalKey, package:flutter_syntax_view/flutter_syntax_view.dart, backgroundColor, build, child, codeSnippet, CodeSnippetCard, _CodeSnippetCardState (+9 more)
 
 ### Community 115 - "Community 115"
-Cohesion: 0.05
-Nodes (38): @GenerateNiceMocks, AccountRegistryManager, getAccount, _isLoading, loadRegistry, markAsUsed, _registeredAccounts, _registry (+30 more)
+Cohesion: 0.04
+Nodes (48): AppConfig, appVersion, getWebUrl, ../config/supabase_config.dart, ChatMediaPicker, getInitialDirectory, _imagePicker, pickAudio (+40 more)
 
 ### Community 116 - "Community 116"
 Cohesion: 0.01
@@ -1136,16 +1130,16 @@ Cohesion: 0.07
 Nodes (29): circleId, CommitmentResponseEntity, CommitmentStatus, completed, completedAt, completedCount, copyWith, createdAt (+21 more)
 
 ### Community 119 - "Community 119"
-Cohesion: 0.05
-Nodes (37): File, package:archive/archive.dart, _availablePosts, bio, caption, _currentStatus, email, fullName (+29 more)
+Cohesion: 0.06
+Nodes (30): package:archive/archive.dart, _availablePosts, bio, caption, _currentStatus, email, fullName, InstagramMigrationService (+22 more)
 
 ### Community 120 - "Community 120"
 Cohesion: 0.05
-Nodes (37): package:oasis/core/utils/haptic_utils.dart, package:oasis/features/feed/domain/models/post_mood.dart, PulseStatus?, build, currentMood, isMatchMoodEnabled, mood, MoodChip (+29 more)
+Nodes (40): package:oasis/features/feed/domain/models/post_mood.dart, package:oasis/widgets/pulse_picker_sheet.dart, PulseStatus?, build, currentMood, isMatchMoodEnabled, mood, MoodChip (+32 more)
 
 ### Community 121 - "Community 121"
-Cohesion: 0.08
-Nodes (25): build, CalendarDatePickerPage, _CalendarDatePickerPageState, createState, getDisplayLanguage, isGroupLabelVisible, isoLangs, isOutOfScopeEnabled (+17 more)
+Cohesion: 0.15
+Nodes (13): build, CalendarViewPage, _CalendarViewPageState, createState, getDisplayLanguage, isGroupLabelVisible, isoLangs, isOutOfScopeEnabled (+5 more)
 
 ### Community 122 - "Community 122"
 Cohesion: 0.01
@@ -1156,56 +1150,56 @@ Cohesion: 0.07
 Nodes (29): CharacterCountStatus, _copyToClipboard, CrossPostingService, CrossPostPlatform, CrossPostResult, current, error, formatForPlatform (+21 more)
 
 ### Community 124 - "Community 124"
-Cohesion: 0.08
-Nodes (23): package:tray_manager/tray_manager.dart, _doubleClickDuration, enableCloseToTray, initialize, _instance, _isInitialized, _lastEffectEnabled, _lastEffectIsDark (+15 more)
+Cohesion: 0.07
+Nodes (26): package:tray_manager/tray_manager.dart, DesktopWindowService, _doubleClickDuration, enableCloseToTray, initialize, _instance, _isInitialized, _lastEffectEnabled (+18 more)
 
 ### Community 125 - "Community 125"
 Cohesion: 0.05
-Nodes (40): AccentColor get, AppTheme, build, MyApp, AppTheme, _color, _displayMode, _indicator (+32 more)
+Nodes (44): AccentColor get, build, CalendarDatePickerPage, _CalendarDatePickerPageState, createState, getDisplayLanguage, isGroupLabelVisible, isoLangs (+36 more)
 
 ### Community 126 - "Community 126"
-Cohesion: 0.03
-Nodes (70): CallProvider, _handleInitialization, package:livekit_client/livekit_client.dart, package:oasis/features/calling/presentation/providers/call_provider.dart, package:oasis/routes/app_router.dart, Route active_call, Route chat_nested, Route post_details (+62 more)
+Cohesion: 0.04
+Nodes (61): CallProvider, package:livekit_client/livekit_client.dart, package:oasis/features/calling/presentation/providers/call_provider.dart, Route active_call, _animation, build, _buildActiveControls, CallControlBar (+53 more)
 
 ### Community 127 - "Community 127"
-Cohesion: 0.05
-Nodes (36): deleteAllNotifications, getNotifications, getUnreadCount, markAllAsRead, markAsRead, NotificationRemoteDatasource, _supabase, stream (+28 more)
+Cohesion: 0.08
+Nodes (23): DeleteAllNotifications, GetNotifications, MarkAllNotificationsRead, MarkNotificationRead, NotificationState get, package:oasis/features/notifications/data/repositories/notification_repository_impl.dart, package:oasis/features/notifications/domain/usecases/notification_usecases.dart, package:oasis/features/notifications/presentation/providers/notification_state.dart (+15 more)
 
 ### Community 128 - "Community 128"
-Cohesion: 0.07
-Nodes (29): copyWith, createdAt, endsAt, fromJson, fromString, hasVoted, id, isActive (+21 more)
+Cohesion: 0.04
+Nodes (56): copyWith, createdAt, endsAt, EnhancedPoll, fromJson, fromString, hasVoted, id (+48 more)
 
 ### Community 129 - "Community 129"
-Cohesion: 0.08
-Nodes (28): build, child, _controllers, createState, _currentPin, currentY, DecoyCalendarScreen, _DecoyCalendarScreenState (+20 more)
+Cohesion: 0.06
+Nodes (31): clearQueue, clientId, content, conversationId, copyWith, dequeue, enqueue, fromJson (+23 more)
 
 ### Community 130 - "Community 130"
-Cohesion: 0.40
-Nodes (5): GlobalCupertinoLocalizations, GlobalMaterialLocalizations, GlobalWidgetsLocalizations, FluentApp, _FluentAppState
+Cohesion: 0.07
+Nodes (35): AppNotification?, _buildMobileHeader, package:oasis/features/notifications/presentation/providers/notification_provider.dart, NotificationProvider, Route /circles, Route /notifications, Route /profile, Route /search (+27 more)
 
 ### Community 131 - "Community 131"
-Cohesion: 0.40
-Nodes (5): build, Route canvas_detail, Route create_canvas, Route join_circle, build
+Cohesion: 0.10
+Nodes (20): build, package:oasis/features/canvas/presentation/providers/canvas_provider.dart, package:oasis/features/canvas/presentation/widgets/canvas/canvas_list_tile.dart, Route canvas_detail, Route create_canvas, Route join_circle, build, canvas (+12 more)
 
 ### Community 132 - "Community 132"
-Cohesion: 0.04
-Nodes (49): addGroupMembers, ConversationService, createGroupConversation, _decryptionService, getChatBackground, getConversationDetails, getConversations, getMuteStatus (+41 more)
+Cohesion: 0.06
+Nodes (31): clear, _conversations, _conversationsSubscription, _currentUserId, dispose, getRecentUnreadMessages, _handleReadReceiptUpdate, _handleTypingUpdate (+23 more)
 
 ### Community 133 - "Community 133"
 Cohesion: 0.09
 Nodes (23): package:oasis/features/canvas/domain/models/canvas_models.dart, package:oasis/features/canvas/domain/repositories/canvas_repository.dart, CanvasRepository, CanvasRepositoryImpl, main, AddCanvasItem, call, _repository (+15 more)
 
 ### Community 134 - "Community 134"
-Cohesion: 0.07
-Nodes (35): @freezed, GroupedReaction, Post, Message, _, emoji, fromJson, GroupedReaction (+27 more)
+Cohesion: 0.08
+Nodes (32): GroupedReaction, _, emoji, fromJson, GroupedReaction, MessageReactionModel, _, emoji (+24 more)
 
 ### Community 135 - "Community 135"
 Cohesion: 0.07
 Nodes (26): CapsuleState get, CreateCapsule, GetCapsules, OpenCapsule, package:oasis/features/capsules/data/repositories/capsule_repository_impl.dart, package:oasis/features/capsules/domain/usecases/create_capsule.dart, package:oasis/features/capsules/domain/usecases/get_capsules.dart, package:oasis/features/capsules/domain/usecases/open_capsule.dart (+18 more)
 
 ### Community 136 - "Community 136"
-Cohesion: 0.07
-Nodes (26): CircleEntity? get, CircleState get, package:oasis/features/circles/presentation/providers/circle_state.dart, activeCircle, addCommitment, circleFeed, circles, clear (+18 more)
+Cohesion: 0.06
+Nodes (36): CircleEntity? get, CircleState get, package:oasis/features/circles/domain/models/circles_models.dart, package:oasis/features/circles/domain/repositories/circle_repository.dart, package:oasis/features/circles/presentation/providers/circle_state.dart, activeCircle, addCommitment, circleFeed (+28 more)
 
 ### Community 137 - "Community 137"
 Cohesion: 0.08
@@ -1213,27 +1207,27 @@ Nodes (25): ColorPalette get, canUsePalette, _colorPaletteKey, _getPaletteBaseCo
 
 ### Community 138 - "Community 138"
 Cohesion: 0.07
-Nodes (28): CallEntity? get, activeCall, currentCallId, dispose, hasActiveCall, id, incomingCall, initiateCall (+20 more)
+Nodes (27): CallEntity? get, activeCall, currentCallId, dispose, hasActiveCall, id, incomingCall, initiateCall (+19 more)
 
 ### Community 139 - "Community 139"
 Cohesion: 0.08
-Nodes (24): all, build, _buildCategorySelection, _buildSubcategorySelection, color, _complete, createState, _currentStep (+16 more)
+Nodes (26): all, build, _buildCategorySelection, _buildSubcategorySelection, color, _complete, createState, _currentStep (+18 more)
 
 ### Community 140 - "Community 140"
-Cohesion: 0.03
-Nodes (77): build, isMe, message, PostShareBubble, build, isMe, message, RippleShareBubble (+69 more)
+Cohesion: 0.09
+Nodes (30): package:oasis/features/wellness/presentation/providers/study_session_provider.dart, package:oasis/features/wellness/presentation/screens/active_study_session_screen.dart, package:oasis/features/wellness/presentation/widgets/create_study_session_sheet.dart, package:oasis/themes/app_colors.dart, package:oasis/widgets/custom_snackbar.dart, StudySessionProvider, ActiveStudySessionScreen, build (+22 more)
 
 ### Community 141 - "Community 141"
-Cohesion: 0.05
-Nodes (39): AddToCollectionUseCase, CheckPostInCollectionUseCase, CheckPostInCollectionUseCase get, CollectionsState get, CreateCollectionUseCase, DeleteCollectionUseCase, GetCollectionDetailUseCase, GetCollectionsForPostUseCase (+31 more)
+Cohesion: 0.03
+Nodes (77): build, _buildRestrictedUI, build, build, _buildRestrictedUI, build, ChatAppBar, ChatProvider (+69 more)
 
 ### Community 142 - "Community 142"
 Cohesion: 0.04
-Nodes (50): package:oasis/services/privacy_audit_service.dart, auditService, build, client, createState, _getColorForAction, _getIconForAction, initState (+42 more)
+Nodes (47): main, package:oasis/features/messages/data/encryption_service.dart, addItem, CanvasService, createCanvas, _decryptItem, deleteCanvas, deleteItem (+39 more)
 
 ### Community 143 - "Community 143"
-Cohesion: 0.09
-Nodes (22): BlockUserDialog, build, commentId, createState, _descriptionController, dispose, _duration, _durationOptions (+14 more)
+Cohesion: 0.08
+Nodes (27): MyColors, ThemeExtension, AppThemeExtension, BlockUserDialog, build, commentId, createState, _descriptionController (+19 more)
 
 ### Community 144 - "Community 144"
 Cohesion: 0.07
@@ -1245,7 +1239,7 @@ Nodes (17): build, _buildCategorySection, _buildHeader, category, createState, d
 
 ### Community 146 - "Community 146"
 Cohesion: 0.06
-Nodes (32): BackdropFilterLayer? get, BackdropKey?, BackdropKey? get, FragmentShader get, LiquidGlassSettings get, package:liquid_glass_renderer/src/internal/optimized_clip.dart, alwaysNeedsCompositing, backdropKey (+24 more)
+Nodes (31): BackdropFilterLayer? get, BackdropKey?, BackdropKey? get, LiquidGlassSettings get, package:liquid_glass_renderer/src/internal/optimized_clip.dart, alwaysNeedsCompositing, backdropKey, build (+23 more)
 
 ### Community 147 - "Community 147"
 Cohesion: 0.08
@@ -1272,8 +1266,8 @@ Cohesion: 0.05
 Nodes (44): package:oasis/core/providers/safe_change_notifier.dart, PresenceService, clear, dispose, getUserPresence, _heartbeatInterval, _heartbeatTimer, isUserOnline (+36 more)
 
 ### Community 153 - "Community 153"
-Cohesion: 0.03
-Nodes (59): createCircle, createCirclePost, createCommitment, deleteCircle, deletePost, fetchUserCircles, getCircle, getCircleFeed (+51 more)
+Cohesion: 0.04
+Nodes (51): createCircle, createCirclePost, createCommitment, deleteCircle, deletePost, fetchUserCircles, getCircle, getCircleFeed (+43 more)
 
 ### Community 154 - "Community 154"
 Cohesion: 0.01
@@ -1281,23 +1275,23 @@ Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch
 
 ### Community 155 - "Community 155"
 Cohesion: 0.03
-Nodes (59): AuthProvidersDelegate, addPasskeyToCurrentUser, _authProvidersDelegate, _getEmailFromUsername, onAuthStateChange, registerWithPasskey, resetPassword, restoreSession (+51 more)
+Nodes (61): AuthProvidersDelegate, addPasskeyToCurrentUser, _authProvidersDelegate, _getEmailFromUsername, onAuthStateChange, registerWithPasskey, resetPassword, restoreSession (+53 more)
 
 ### Community 156 - "Community 156"
 Cohesion: 0.09
 Nodes (22): ColorScheme get, EdgeInsets get, colorScheme, isDesktopScreen, isSmallScreen, isTabletScreen, mediaQuery, safePadding (+14 more)
 
 ### Community 157 - "Community 157"
-Cohesion: 0.14
-Nodes (13): package:sqflite/sqflite.dart, clearAllData, CurationTrackingService, _database, _dbName, getSyncData, getTopCategories, getTrackingSummary (+5 more)
+Cohesion: 0.03
+Nodes (67): CommentService, _loadFeed, _onScroll, _refreshFeed, _loadFeed, _refreshFeed, package:oasis/services/comment_service.dart, FeedProvider (+59 more)
 
 ### Community 158 - "Community 158"
-Cohesion: 0.07
-Nodes (27): AppAnalytics, AuthState get, package:oasis/features/auth/presentation/providers/auth_state.dart, package:oasis/services/app_analytics.dart, _analytics, clear, clearError, currentAccount (+19 more)
+Cohesion: 0.04
+Nodes (54): build, createState, ForwardMessageModal, _ForwardMessageModalState, _forwardToConversation, _isSending, message, _searchQuery (+46 more)
 
 ### Community 159 - "Community 159"
-Cohesion: 0.09
-Nodes (22): assetKeys, build, builder, child, createState, didUpdateWidget, initState, _loadShaders (+14 more)
+Cohesion: 0.12
+Nodes (16): assetKeys, build, builder, child, createState, didUpdateWidget, initState, _loadShaders (+8 more)
 
 ### Community 160 - "Community 160"
 Cohesion: 0.08
@@ -1308,16 +1302,16 @@ Cohesion: 0.08
 Nodes (24): albumId, caption, contributorIds, conversationId, coverImageUrl, createdAt, creatorId, creatorUsername (+16 more)
 
 ### Community 162 - "Community 162"
-Cohesion: 0.09
-Nodes (28): material.State, material.StatefulWidget, package:oasis/services/vault_service.dart, Route /messages/new-group, Route /new-message, build, _buildCompactRadio, _checkLockStatus (+20 more)
+Cohesion: 0.08
+Nodes (23): addReaction, clearChatForMe, clearConversationMessages, deleteMessage, editMessage, fetchReactionsForMessage, getTypingStatus, incrementMediaViewCount (+15 more)
 
 ### Community 163 - "Community 163"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 164 - "Community 164"
-Cohesion: 0.09
-Nodes (23): activeColor, build, color, commitment, CommitmentCard, _CommitmentCardState, createState, currentUserId (+15 more)
+Cohesion: 0.03
+Nodes (56): build, builder, createState, _dragOffset, _dragProgress, _dragThreshold, isWhisperMode, _onVerticalDragEnd (+48 more)
 
 ### Community 165 - "Community 165"
 Cohesion: 0.01
@@ -1328,104 +1322,104 @@ Cohesion: 0.13
 Nodes (14): Community, copyWith, createdAt, creatorId, description, fromJson, id, imageUrl (+6 more)
 
 ### Community 167 - "Community 167"
-Cohesion: 0.08
-Nodes (23): DeleteAllNotifications, GetNotifications, MarkAllNotificationsRead, MarkNotificationRead, NotificationState get, package:oasis/features/notifications/data/repositories/notification_repository_impl.dart, package:oasis/features/notifications/domain/usecases/notification_usecases.dart, package:oasis/features/notifications/presentation/providers/notification_state.dart (+15 more)
+Cohesion: 0.04
+Nodes (51): package:oasis/core/utils/responsive_layout.dart, package:oasis/features/canvas/presentation/screens/canvas_list_screen.dart, package:oasis/features/circles/presentation/screens/circles_list_screen.dart, package:oasis/services/data_export_service.dart, package:oasis/widgets/desktop_header.dart, build, _buildExportItem, createState (+43 more)
 
 ### Community 168 - "Community 168"
-Cohesion: 0.08
-Nodes (23): Future, avatarUrl, clearAll, copyWith, email, fromJson, fullName, getAllAccounts (+15 more)
+Cohesion: 0.06
+Nodes (34): FlutterSecureStorage, package:flutter_secure_storage/flutter_secure_storage.dart, avatarUrl, clearAll, copyWith, email, fromJson, fullName (+26 more)
 
 ### Community 169 - "Community 169"
-Cohesion: 0.08
-Nodes (23): GetTrendingHashtags, package:oasis/features/search/data/repositories/search_repository_impl.dart, package:oasis/features/search/domain/usecases/search_usecases.dart, package:oasis/features/search/presentation/providers/search_state.dart, allResults, clearSearch, _getTrendingHashtags, hashtags (+15 more)
+Cohesion: 0.06
+Nodes (34): GetTrendingHashtags, package:oasis/features/search/data/repositories/search_repository_impl.dart, package:oasis/features/search/domain/usecases/search_usecases.dart, package:oasis/features/search/presentation/providers/search_state.dart, allResults, clearSearch, _getTrendingHashtags, hashtags (+26 more)
 
 ### Community 170 - "Community 170"
-Cohesion: 0.08
-Nodes (23): package:oasis/core/storage/secure_storage.dart, package:oasis/features/settings/presentation/providers/decoy_provider.dart, changePin, _channel, _decoyEnabledKey, _decoyPinKey, disableDecoy, enableDecoy (+15 more)
+Cohesion: 0.09
+Nodes (23): build, _buildDynamicBackground, _buildFooter, _buildOnboardingPageContent, _buildPage, colors, createState, _currentPage (+15 more)
 
 ### Community 171 - "Community 171"
 Cohesion: 0.08
 Nodes (23): avatarUrl, caption, commentsCount, content, copyWith, createdAt, fromJson, id (+15 more)
 
 ### Community 172 - "Community 172"
-Cohesion: 0.09
-Nodes (23): package:oasis/core/theme/oasis_text_styles.dart, _bioController, _bioFocus, _buildStepItem, createState, dispose, _emailController, _emailFocus (+15 more)
+Cohesion: 0.02
+Nodes (135): AuthProvider, build, CommunityNameThemeScreen, _CommunityNameThemeScreenState, createState, dispose, _formKey, _nameController (+127 more)
 
 ### Community 173 - "Community 173"
-Cohesion: 0.07
-Nodes (27): package:basic_utils/basic_utils.dart, package:pointycastle/export.dart, argon2, Argon2DeriveParams, decryptWithKey, derivedKey, deriveRecoveryKey, deriveSecureBackupKey (+19 more)
+Cohesion: 0.05
+Nodes (42): FlutterSecureStoragePlatform, containsKey, delete, deleteAll, _deriveIV, _deriveKey, FlutterSecureStorageWindows, read (+34 more)
 
 ### Community 174 - "Community 174"
 Cohesion: 0.09
 Nodes (22): ../auth/presentation/screens/onboarding_screen.dart, build, _buildPage, _completeOnboarding, createState, _currentPage, dispose, initState (+14 more)
 
 ### Community 175 - "Community 175"
-Cohesion: 0.09
-Nodes (23): build, child, _controller, createState, dispose, _generateStars, initState, offset (+15 more)
+Cohesion: 0.04
+Nodes (45): build, child, _controller, createState, dispose, _generateStars, initState, offset (+37 more)
 
 ### Community 176 - "Community 176"
 Cohesion: 0.09
 Nodes (22): _AnimatedReaction, animationStream, build, _buildBurstReaction, _buildHeartReaction, createState, dispose, emoji (+14 more)
 
 ### Community 177 - "Community 177"
-Cohesion: 0.05
-Nodes (36): package:oasis/core/constants/app_strings.dart, package:oasis/routes/route_paths.dart, package:url_launcher/url_launcher.dart, RoutePaths.changelog, RoutePaths.privacyPolicy, RoutePaths.termsOfService, AboutAppScreen, build (+28 more)
+Cohesion: 0.11
+Nodes (19): MediaDownloadService, package:oasis/services/media_download_service.dart, package:photo_view/photo_view.dart, build, caption, createState, _disableProtection, dispose (+11 more)
 
 ### Community 178 - "Community 178"
 Cohesion: 0.11
 Nodes (17): canOpen, content, copyWith, createdAt, encryptedKeys, fromJson, id, isLocked (+9 more)
 
 ### Community 179 - "Community 179"
-Cohesion: 0.04
-Nodes (58): addPasskeyToCurrentUser, AuthProvidersDelegate, registerWithPasskey, signInWithApple, signInWithEmailAndPassword, signInWithPasskey, signOut, signUp (+50 more)
+Cohesion: 0.02
+Nodes (109): ad_injection_test.mocks.dart, AdService, @GenerateNiceMocks, auth_remote_datasource_test.mocks.dart, call_audio_test.mocks.dart, class MockGotrueSubscription extends, class MockPostgrestFilterBuilder extends, datasource (+101 more)
 
 ### Community 180 - "Community 180"
-Cohesion: 0.07
-Nodes (26): icons.dart, package:clipboard/clipboard.dart, package:collection/collection.dart, package:example/screens/settings.dart, package:example/screens/theming/typography.dart, build, clipboard, color (+18 more)
+Cohesion: 0.04
+Nodes (43): Color, icons.dart, backgroundColor, build, count, size, textColor, UnreadBadgeWidget (+35 more)
 
 ### Community 181 - "Community 181"
 Cohesion: 0.09
 Nodes (22): CanvasRemoteDatasource, package:oasis/features/canvas/data/datasources/canvas_remote_datasource.dart, addCanvasItem, createCanvas, deleteCanvas, deleteCanvasItem, getCanvas, getCanvases (+14 more)
 
 ### Community 182 - "Community 182"
-Cohesion: 0.03
-Nodes (64): Color, build, child, color, ContextMenuButton, DesktopContextMenu, enabled, HapticUtils (+56 more)
+Cohesion: 0.09
+Nodes (22): build, child, color, ContextMenuButton, DesktopContextMenu, enabled, HapticUtils, icon (+14 more)
 
 ### Community 183 - "Community 183"
-Cohesion: 0.06
-Nodes (33): Duration?, _audioPlayer, audioUrl, build, color, createState, _cycleSpeed, dispose (+25 more)
+Cohesion: 0.09
+Nodes (23): AudioPlayer, _audioPlayer, audioUrl, build, color, createState, _cycleSpeed, dispose (+15 more)
 
 ### Community 184 - "Community 184"
-Cohesion: 0.08
-Nodes (26): ../models/call_entity.dart, acceptCall, CallRepository, createCall, ../repositories/call_repository.dart, declineCall, endCall, getActiveCalls (+18 more)
+Cohesion: 0.05
+Nodes (37): ../../domain/models/call_entity.dart, ../../domain/repositories/call_repository.dart, ../models/call_entity.dart, acceptCall, CallRepository, createCall, ../repositories/call_repository.dart, declineCall (+29 more)
 
 ### Community 185 - "Community 185"
-Cohesion: 0.10
-Nodes (26): package:oasis/core/config/razorpay_config.dart, package:oasis/services/razorpay_service.dart, package:oasis/widgets/subscription/razorpay_windows_view.dart, build, _buildFeatureItem, _buildPricingCard, createState, _currentSubscriptionId (+18 more)
+Cohesion: 0.11
+Nodes (22): package:oasis/core/config/razorpay_config.dart, package:oasis/services/razorpay_service.dart, package:oasis/widgets/subscription/razorpay_windows_view.dart, build, _buildFeatureItem, _buildPricingCard, createState, _currentSubscriptionId (+14 more)
 
 ### Community 186 - "Community 186"
 Cohesion: 0.10
 Nodes (20): package:oasis/features/ripples/domain/models/ripple_entity.dart, package:oasis/features/ripples/domain/repositories/ripple_repository.dart, RippleRepositoryImpl, RippleRepository, call, CreateRipple, DeleteRipple, _repository (+12 more)
 
 ### Community 187 - "Community 187"
-Cohesion: 0.09
-Nodes (24): center, _channel, conversationId, createState, _currentMessage, didChangeDependencies, dispose, initState (+16 more)
+Cohesion: 0.04
+Nodes (47): build, isMe, message, PostShareBubble, build, isMe, message, RippleShareBubble (+39 more)
 
 ### Community 188 - "Community 188"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 189 - "Community 189"
-Cohesion: 0.08
-Nodes (24): EnhancedPoll, _addOption, build, _buildOptionTile, _buildThisOrThatOption, _buildThisOrThatOptions, _correctAnswerIndex, _createPoll (+16 more)
+Cohesion: 0.03
+Nodes (74): AuthService get, build, _buildFooter, createState, _handleAction, initState, _isLoading, isMe (+66 more)
 
 ### Community 190 - "Community 190"
-Cohesion: 0.02
-Nodes (127): AudioPlayer, AudioRecorder, dart:async, EnergyMeterState, EnergyMeterState get, package:oasis/models/energy_meter_state.dart, package:oasis/models/feed_layout_strategy.dart, package:oasis/models/location_data.dart (+119 more)
+Cohesion: 0.04
+Nodes (45): AudioRecorder, dart:async, package:oasis/models/location_data.dart, package:record/record.dart, _audioRecorder, ChatRecordingProvider, dispose, formatDuration (+37 more)
 
 ### Community 191 - "Community 191"
-Cohesion: 0.11
-Nodes (20): CurationTrackingService, package:oasis/services/curation_tracking_service.dart, package:sqflite_common_ffi/sqflite_ffi.dart, main, build, _buildSummaryItem, _confirmClearData, createState (+12 more)
+Cohesion: 0.05
+Nodes (46): HomeLocationService?, package:geolocator/geolocator.dart, package:oasis/features/couples/data/partner_repository.dart, package:oasis/features/couples/presentation/providers/partner_provider.dart, PartnerProvider, Route /settings/partner-setup, build, _buildInfoCard (+38 more)
 
 ### Community 192 - "Community 192"
 Cohesion: 0.08
@@ -1436,16 +1430,16 @@ Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 194 - "Community 194"
-Cohesion: 0.08
-Nodes (23): EncryptionProvisioner, package:oasis/features/auth/data/datasources/session_local_datasource.dart, package:oasis/services/auth/encryption_provisioner.dart, addPasskeyToCurrentUser, _encryptionProvisioner, getRegisteredAccounts, _localDatasource, _notificationService (+15 more)
+Cohesion: 0.10
+Nodes (19): EnergyMeterState, EnergyMeterState get, package:oasis/models/energy_meter_state.dart, _applyRecovery, deductEnergy, dispose, EnergyMeterService, forceRecovery (+11 more)
 
 ### Community 195 - "Community 195"
 Cohesion: 0.11
 Nodes (17): return, fallback, now, null, requiredString, safeBool, safeDateTime, safeDateTimeOrNull (+9 more)
 
 ### Community 196 - "Community 196"
-Cohesion: 0.05
-Nodes (41): acceptInvite, avatarUrl, _client, createdAt, _currentUserId, declineInvite, displayName, dissolvePartnership (+33 more)
+Cohesion: 0.09
+Nodes (21): acceptInvite, avatarUrl, _client, createdAt, _currentUserId, declineInvite, displayName, dissolvePartnership (+13 more)
 
 ### Community 197 - "Community 197"
 Cohesion: 0.10
@@ -1460,8 +1454,8 @@ Cohesion: 0.09
 Nodes (21): conversationId, createdAt, errorMessage, failure, fromJson, hasMedia, hasText, isEmpty (+13 more)
 
 ### Community 200 - "Community 200"
-Cohesion: 0.07
-Nodes (26): ActivityGraph, build, _buildContributionGrid, _buildContributionSquare, _buildDayLabel, _buildLegendSquare, _buildMonthLabels, _buildYearButton (+18 more)
+Cohesion: 0.12
+Nodes (15): error, HapticUtils, heartbeatPulse, heavyImpact, homeArrivedVibration, lightImpact, mediumImpact, messageSent (+7 more)
 
 ### Community 201 - "Community 201"
 Cohesion: 0.09
@@ -1473,7 +1467,7 @@ Nodes (14): package:oasis/features/stories/data/datasources/stories_remote_datas
 
 ### Community 203 - "Community 203"
 Cohesion: 0.01
-Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
+Nodes (186): fluent_localizations.dart, alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip (+178 more)
 
 ### Community 204 - "Community 204"
 Cohesion: 0.10
@@ -1492,28 +1486,28 @@ Cohesion: 0.10
 Nodes (19): Alignment, package:sensors_plus/sensors_plus.dart, alignment, _Blob, build, child, color, createState (+11 more)
 
 ### Community 208 - "Community 208"
-Cohesion: 0.06
-Nodes (38): EncryptionService, package:oasis/features/auth/presentation/screens/pin_reset_screen.dart, _checkEncryption, build, _controllers, createState, _currentPin, dispose (+30 more)
+Cohesion: 0.04
+Nodes (54): EncryptionService, package:oasis/widgets/recovery_key_sheet.dart, _checkEncryption, build, _checkInitialState, createState, _encryptionService, EncryptionSetupScreen (+46 more)
 
 ### Community 209 - "Community 209"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 210 - "Community 210"
-Cohesion: 0.08
-Nodes (22): UserProfileEntity, package:oasis/widgets/pulse_picker_sheet.dart, copyWith, currentProfile, error, followers, following, hasSentRequest (+14 more)
+Cohesion: 0.05
+Nodes (36): AttachmentOptionsSheet, build, onAudioSelected, onFileSelected, onLocationSelected, onPhotoSelected, onVideoSelected, build (+28 more)
 
 ### Community 211 - "Community 211"
 Cohesion: 0.10
 Nodes (22): _, fromJson, class, _encryptedKeys, hashCode, id, identical, _locationData (+14 more)
 
 ### Community 212 - "Community 212"
-Cohesion: 0.10
-Nodes (20): ColorScheme, static Picture?, static Size?, animate, animationValue, build, _cachedPicture, _cachedSize (+12 more)
+Cohesion: 0.04
+Nodes (56): _ProgressRingPainter, _LinePainter, _TrianglePainter, _BoxSpectrumPainter, build, CheckerboardPainter, ColorBoxSpectrum, _ColorBoxSpectrumState (+48 more)
 
 ### Community 213 - "Community 213"
-Cohesion: 0.08
-Nodes (26): build, createState, RatingControlPage, _RatingControlPageState, ratingFirst, ratingSecond, ratingThird, build (+18 more)
+Cohesion: 0.15
+Nodes (13): build, checked, createState, crost, crostOpen, crosts, expanderKey, ExpanderPage (+5 more)
 
 ### Community 214 - "Community 214"
 Cohesion: 0.01
@@ -1529,39 +1523,39 @@ Nodes (18): AppAnalytics, _instance, logCallStarted, logEvent, logSessionStart, 
 
 ### Community 217 - "Community 217"
 Cohesion: 0.06
-Nodes (37): build, _cacheService, _chatMediaService, _checkCache, createState, didUpdateWidget, DocumentBubble, _DocumentBubbleState (+29 more)
+Nodes (34): center, _channel, conversationId, createState, _currentMessage, didChangeDependencies, dispose, initState (+26 more)
 
 ### Community 218 - "Community 218"
 Cohesion: 0.07
-Nodes (27): build, _buildContent, _buildDoodleContent, _buildShapeContent, CanvasItemWidget, _CanvasItemWidgetState, _canvasScale, color (+19 more)
+Nodes (28): build, _buildContent, _buildDoodleContent, _buildShapeContent, CanvasItemWidget, _CanvasItemWidgetState, _canvasScale, color (+20 more)
 
 ### Community 219 - "Community 219"
 Cohesion: 0.11
 Nodes (19): build, _buildCardVisually, _buildInteractiveCard, createState, didUpdateWidget, _displayItems, _dragOffset, height (+11 more)
 
 ### Community 220 - "Community 220"
-Cohesion: 0.11
-Nodes (22): _FakeCallService, _TestableCallProvider, ChangeNotifier, ColorState, MessagingService, FlyoutController, AuthProvider, CallProvider (+14 more)
+Cohesion: 0.12
+Nodes (21): _FakeCallService, _TestableCallProvider, ChangeNotifier, ColorState, MessagingService, AuthProvider, CallProvider, CanvasProvider (+13 more)
 
 ### Community 221 - "Community 221"
 Cohesion: 0.09
 Nodes (22): clearAllData, closeSession, decryptMediaKey, decryptMessage, deleteSession, encryptGroupMediaKey, encryptGroupMessage, encryptMediaKey (+14 more)
 
 ### Community 222 - "Community 222"
-Cohesion: 0.04
-Nodes (53): NotificationService, package:oasis/features/feed/data/datasources/post_remote_datasource.dart, package:oasis/models/notification.dart, package:oasis/services/notification_service.dart, acceptCollaboration, bookmarkPost, createPost, declineCollaboration (+45 more)
+Cohesion: 0.06
+Nodes (33): NotificationService, package:oasis/models/notification.dart, package:oasis/services/notification_service.dart, CommentService, createComment, deleteComment, getCommentReplies, getPostComments (+25 more)
 
 ### Community 223 - "Community 223"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 224 - "Community 224"
-Cohesion: 0.12
-Nodes (16): FocusNode, build, createState, displayInfoBar, _firstOpen, _hasActionButton, InfoBarsPage, _InfoBarsPageState (+8 more)
+Cohesion: 0.07
+Nodes (27): package:url_launcher/link.dart, build, comboboxValue, createState, HomePage, _HomePageState, imageUrl, main (+19 more)
 
 ### Community 225 - "Community 225"
-Cohesion: 0.10
-Nodes (19): currentEnergy, dayStart, deductEnergy, EnergyMeterState, energyPercentage, expansionCost, fromJson, initial (+11 more)
+Cohesion: 0.06
+Nodes (33): bool get, ../models/ad_campaign.dart, currentEnergy, dayStart, deductEnergy, EnergyMeterState, energyPercentage, expansionCost (+25 more)
 
 ### Community 226 - "Community 226"
 Cohesion: 0.10
@@ -1581,39 +1575,39 @@ Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch
 
 ### Community 230 - "Community 230"
 Cohesion: 0.12
-Nodes (20): AppUser?, AppUser, _, _AppUser, fromJson, AppUserPatterns, class, hashCode (+12 more)
+Nodes (19): AppUser?, _, _AppUser, fromJson, AppUserPatterns, class, hashCode, id (+11 more)
 
 ### Community 231 - "Community 231"
 Cohesion: 0.14
 Nodes (14): auto_suggest_box.dart, ComboBoxItem, build, cats, colors, comboboxKey, ComboBoxPage, _ComboBoxPageState (+6 more)
 
 ### Community 232 - "Community 232"
-Cohesion: 0.08
-Nodes (27): build, ColorBoxSpectrum, _ColorBoxSpectrumState, ColorRingSpectrum, _ColorRingSpectrumState, colorState, createState, _drawLabel (+19 more)
+Cohesion: 0.09
+Nodes (27): EnergyMeterService, material.WidgetsBindingObserver, package:oasis/providers/presence_provider.dart, package:oasis/services/deep_link_service.dart, package:oasis/services/energy_meter_service.dart, package:oasis/services/home_arrival_service.dart, package:oasis/services/home_checkin_service.dart, package:oasis/services/sharing_service.dart (+19 more)
 
 ### Community 233 - "Community 233"
-Cohesion: 0.10
-Nodes (18): apple_liquid_glass, debugPaintLiquidGlassGeometry, liquid_glass_renderer, library, package:liquid_glass_renderer/liquid_glass_renderer.dart, src/fake_glass.dart, src/glass_glow.dart, src/internal/glass_drag_builder.dart (+10 more)
+Cohesion: 0.07
+Nodes (27): package:oasis/core/utils/map_positioner.dart, package:oasis/features/feed/presentation/widgets/feed_layout_switcher.dart, package:oasis/features/wellness/presentation/widgets/energy_meter_widget.dart, package:oasis/painters/pulse_background_painter.dart, package:oasis/widgets/pulse_node_widget.dart, _backgroundController, build, _buildExpandedPostOverlay (+19 more)
 
 ### Community 234 - "Community 234"
 Cohesion: 0.11
-Nodes (18): package:oasis/widgets/custom_text_field.dart, createState, dispose, _emailSubmitted, _formKey, _identifierController, _identifierFocus, _isLoggingIn (+10 more)
+Nodes (26): @immutable, ButtonThemeData, Diagnosticable, ContentDialogThemeData, MenuBarItem, TooltipThemeData, CheckboxThemeData, RadioButtonThemeData (+18 more)
 
 ### Community 235 - "Community 235"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 236 - "Community 236"
-Cohesion: 0.09
-Nodes (23): package:oasis/features/auth/domain/models/auth_models.dart, package:oasis/features/auth/domain/repositories/auth_repository.dart, package:oasis/services/session_registry_service.dart, AuthRepository, AuthRepositoryImpl, call, _repository, RestoreSession (+15 more)
+Cohesion: 0.02
+Nodes (94): AppAnalytics, AuthState get, EncryptionProvisioner, package:oasis/features/auth/data/datasources/session_local_datasource.dart, package:oasis/features/auth/domain/models/auth_models.dart, package:oasis/features/auth/domain/repositories/auth_repository.dart, package:oasis/features/auth/presentation/providers/auth_state.dart, package:oasis/services/app_analytics.dart (+86 more)
 
 ### Community 237 - "Community 237"
 Cohesion: 0.11
 Nodes (18): authRequired, AuthRequiredRoutes, _authService, getAuthRedirectLocation, getGuestRedirectLocation, getReturnUrlFromState, guestOnly, GuestOnlyRoutes (+10 more)
 
 ### Community 238 - "Community 238"
-Cohesion: 0.11
-Nodes (18): build, _closeWindow, createState, height, icon, isClose, _isHovered, kWin11CaptionButtonHeight (+10 more)
+Cohesion: 0.08
+Nodes (25): _authService, createState, dispose, files, _handleSharedFiles, init, _instance, _intentDataStreamSubscription (+17 more)
 
 ### Community 239 - "Community 239"
 Cohesion: 0.01
@@ -1628,20 +1622,20 @@ Cohesion: 0.12
 Nodes (17): build, _canvasScale, createState, dispose, drawingLayer, InfiniteCanvas, _InfiniteCanvasState, _initialOffset (+9 more)
 
 ### Community 242 - "Community 242"
-Cohesion: 0.10
-Nodes (20): AppButton, backgroundColor, borderRadius, build, _buildFluentButton, _buildMaterialButtonChild, disabled, _getMaterialButtonStyle (+12 more)
+Cohesion: 0.12
+Nodes (16): acceptCollaboration, bookmarkPost, createPost, declineCollaboration, deletePost, getBookmarkedPosts, getCommunityPosts, getPost (+8 more)
 
 ### Community 243 - "Community 243"
-Cohesion: 0.11
-Nodes (19): _buildImage, _cacheService, _chatMediaService, _checkCache, createState, didUpdateWidget, _downloadMedia, ImageBubble (+11 more)
+Cohesion: 0.03
+Nodes (78): build, _cacheService, _chatMediaService, _checkCache, createState, didUpdateWidget, dispose, DocumentBubble (+70 more)
 
 ### Community 244 - "Community 244"
 Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 245 - "Community 245"
-Cohesion: 0.11
-Nodes (19): CacheService, MediaCacheService, package:oasis/services/cache_service.dart, build, _buildStorageBar, _buildUsageItem, _cacheService, _calculateStorageUsage (+11 more)
+Cohesion: 0.07
+Nodes (26): ControllableFormBox get, NumberFormBox, ControllableFormBox, controller, createState, didChange, didUpdateWidget, dispose (+18 more)
 
 ### Community 246 - "Community 246"
 Cohesion: 0.12
@@ -1652,16 +1646,16 @@ Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 248 - "Community 248"
-Cohesion: 0.10
-Nodes (18): dart:typed_data, FlutterSecureStoragePlatform, containsKey, delete, deleteAll, _deriveIV, _deriveKey, FlutterSecureStorageWindows (+10 more)
+Cohesion: 0.17
+Nodes (12): DoubleTapGestureRecognizer, build, _controller, createState, dispose, initState, _gesturesController, _lazyController (+4 more)
 
 ### Community 249 - "Community 249"
-Cohesion: 0.11
-Nodes (19): _blockedUsers, BlockedUsersScreen, _BlockedUsersScreenState, build, createState, _formatDate, initState, _isLoading (+11 more)
+Cohesion: 0.06
+Nodes (33): _blockedUsers, BlockedUsersScreen, _BlockedUsersScreenState, build, createState, _formatDate, initState, _isLoading (+25 more)
 
 ### Community 250 - "Community 250"
-Cohesion: 0.11
-Nodes (19): MediaDownloadService, package:oasis/services/media_download_service.dart, package:photo_view/photo_view.dart, build, caption, createState, _disableProtection, dispose (+11 more)
+Cohesion: 0.13
+Nodes (15): build, _controller, createState, dispose, imageUrl, initState, _isExpanded, items (+7 more)
 
 ### Community 251 - "Community 251"
 Cohesion: 0.01
@@ -1684,12 +1678,12 @@ Cohesion: 0.07
 Nodes (26): package:permission_handler/permission_handler.dart, build, _checking, createState, _granted, isActive, Page5Contacts, _Page5ContactsState (+18 more)
 
 ### Community 256 - "Community 256"
-Cohesion: 0.11
-Nodes (18): package:oasis/features/auth/presentation/providers/auth_provider.dart, package:oasis/features/auth/presentation/widgets/auth_layout_wrapper.dart, createState, dispose, _emailController, _emailFocus, _formKey, _hasAcceptedTerms (+10 more)
+Cohesion: 0.08
+Nodes (23): package:oasis/core/storage/secure_storage.dart, package:oasis/features/settings/presentation/providers/decoy_provider.dart, changePin, _channel, _decoyEnabledKey, _decoyPinKey, disableDecoy, enableDecoy (+15 more)
 
 ### Community 257 - "Community 257"
-Cohesion: 0.11
-Nodes (16): Axis, _valueChanged, build, numberOfPages, onPageIndexChanged, orientation, PipsPager, selectedPageIndex (+8 more)
+Cohesion: 0.14
+Nodes (13): ../models/wellness_entity.dart, currentSessionSeconds, getCategoryUsage, getScreenTimeData, getWeeklyAverage, getWeeklyData, recordScreenTime, _repository (+5 more)
 
 ### Community 258 - "Community 258"
 Cohesion: 0.01
@@ -1701,31 +1695,31 @@ Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch
 
 ### Community 260 - "Community 260"
 Cohesion: 0.01
-Nodes (186): fluent_localizations.dart, alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip (+178 more)
+Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 261 - "Community 261"
 Cohesion: 0.12
 Nodes (17): angle, build, _controller, createState, dispose, distance, _GlassShard, initState (+9 more)
 
 ### Community 262 - "Community 262"
-Cohesion: 0.04
-Nodes (52): bool get, CustomerInfo? get, ../models/ad_campaign.dart, ../models/user_customization.dart, Offerings? get, package:flutter_dotenv/flutter_dotenv.dart, package:purchases_flutter/purchases_flutter.dart, dispose (+44 more)
+Cohesion: 0.12
+Nodes (16): CustomerInfo? get, Offerings? get, package:flutter_dotenv/flutter_dotenv.dart, _customerInfo, identify, init, _instance, _isInitialized (+8 more)
 
 ### Community 263 - "Community 263"
-Cohesion: 0.12
-Nodes (16): ProfileRemoteDatasource, acceptFollowRequest, declineFollowRequest, followUser, getFollowers, getFollowing, getProfile, getProfileByUsername (+8 more)
+Cohesion: 0.11
+Nodes (17): ProfileRemoteDatasource, package:oasis/features/profile/data/datasources/profile_remote_datasource.dart, acceptFollowRequest, declineFollowRequest, followUser, getFollowers, getFollowing, getProfile (+9 more)
 
 ### Community 264 - "Community 264"
-Cohesion: 0.10
-Nodes (20): SettingsLocalDatasource, SettingsRemoteDatasource, package:oasis/features/settings/data/datasources/settings_local_datasource.dart, package:oasis/features/settings/data/datasources/settings_remote_datasource.dart, package:oasis/features/settings/domain/models/user_settings_entity.dart, package:oasis/features/settings/domain/repositories/settings_repository.dart, getSettings, getSettings (+12 more)
+Cohesion: 0.06
+Nodes (36): _dailyLimitKey, _dataSaverKey, _feedLayoutKey, _fontFamilyKey, _fontSizeFactorKey, getSettings, _highContrastKey, _micaEnabledKey (+28 more)
 
 ### Community 265 - "Community 265"
-Cohesion: 0.18
-Nodes (11): package:oasis/services/data_export_service.dart, build, _buildExportItem, createState, DownloadDataScreen, _DownloadDataScreenState, _error, _exportService (+3 more)
+Cohesion: 0.10
+Nodes (24): package:oasis/services/vault_service.dart, Route /messages/new-group, Route /new-message, build, _buildCompactRadio, _checkLockStatus, _toggleChatLock, _BentoItem (+16 more)
 
 ### Community 266 - "Community 266"
-Cohesion: 0.11
-Nodes (18): static final Set, build, createState, createWidget, DeferredLoadingPlaceholder, DeferredWidget, DeferredWidgetBuilder, _DeferredWidgetState (+10 more)
+Cohesion: 0.07
+Nodes (29): static final Set, typedef, attention, build, color, critical, foregroundColor, InfoBadge (+21 more)
 
 ### Community 267 - "Community 267"
 Cohesion: 0.01
@@ -1736,8 +1730,8 @@ Cohesion: 0.12
 Nodes (16): avatarUrl, createdAt, fromHashtag, fromJson, fromUser, Hashtag, id, imageUrl (+8 more)
 
 ### Community 269 - "Community 269"
-Cohesion: 0.05
-Nodes (39): build, createState, items, BreadcrumbBarPage, _BreadcrumbBarPageState, resetItems, avatar, card (+31 more)
+Cohesion: 0.12
+Nodes (16): avatar, card, _client, format, full, getAvatar, getOptimizedUrl, getPostImage (+8 more)
 
 ### Community 270 - "Community 270"
 Cohesion: 0.12
@@ -1748,8 +1742,8 @@ Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 272 - "Community 272"
-Cohesion: 0.12
-Nodes (16): ColorSpectrumShape, build, ColorPickerPage, _ColorPickerPageState, createState, _isAlphaEnabled, _isAlphaSliderVisible, _isAlphaTextInputVisible (+8 more)
+Cohesion: 0.06
+Nodes (34): Axis, ColorSpectrumShape, build, ColorPickerPage, _ColorPickerPageState, createState, _isAlphaEnabled, _isAlphaSliderVisible (+26 more)
 
 ### Community 273 - "Community 273"
 Cohesion: 0.01
@@ -1760,20 +1754,20 @@ Cohesion: 0.01
 Nodes (185): alphaSliderTooltip, am, backButtonTooltip, blueLabel, clickToSearch, closeButtonLabel, closeNavigationTooltip, closeTabLabelSuffix (+177 more)
 
 ### Community 275 - "Community 275"
-Cohesion: 0.11
-Nodes (17): package:oasis/widgets/recovery_key_sheet.dart, build, _checkInitialState, createState, _encryptionService, EncryptionSetupScreen, _EncryptionSetupScreenState, _errorMessage (+9 more)
+Cohesion: 0.09
+Nodes (23): Hashtag?, package:oasis/widgets/comments_modal.dart, _authService, build, createState, _handleComment, _handleLike, _handleShare (+15 more)
 
 ### Community 276 - "Community 276"
-Cohesion: 0.12
-Nodes (17): _animation, build, child, _controller, createState, dispose, _dragOffset, enabled (+9 more)
+Cohesion: 0.10
+Nodes (19): AccountRegistryManager, getAccount, _isLoading, loadRegistry, markAsUsed, _registeredAccounts, _registry, removeAccount (+11 more)
 
 ### Community 277 - "Community 277"
-Cohesion: 0.12
-Nodes (15): double get, SnapRectToPixels, snapToPixel, snapToPixels, LiquidShape get, package:flutter/rendering.dart, Rect, createRenderObject (+7 more)
+Cohesion: 0.07
+Nodes (24): addPasskeyToCurrentUser, AuthProvidersDelegate, registerWithPasskey, signInWithApple, signInWithEmailAndPassword, signInWithPasskey, signOut, signUp (+16 more)
 
 ### Community 278 - "Community 278"
-Cohesion: 0.03
-Nodes (65): EncryptionProvisioner, provisionEncryptionKeys, dart:convert, ChatDecryptionService, decryptMessageContent, determineMessageType, _encryptionService, _isBase64 (+57 more)
+Cohesion: 0.05
+Nodes (39): dart:convert, dart:typed_data, ChatDecryptionService, decryptMessageContent, determineMessageType, _encryptionService, _isBase64, _signalService (+31 more)
 
 ### Community 279 - "Community 279"
 Cohesion: 0.01
@@ -1796,8 +1790,8 @@ Cohesion: 0.12
 Nodes (16): data, error, fromJson, getCategories, _getPlatformString, getTrending, GiphyMedia, GiphyResult (+8 more)
 
 ### Community 284 - "Community 284"
-Cohesion: 0.09
-Nodes (21): allowMeshGradients, FeatureFlags, _isAndroid, isDesktop, _isIOS, _isLinux, _isMacOS, isMobile (+13 more)
+Cohesion: 0.12
+Nodes (15): allowMeshGradients, FeatureFlags, _isAndroid, isDesktop, _isIOS, _isLinux, _isMacOS, isMobile (+7 more)
 
 ### Community 285 - "Community 285"
 Cohesion: 0.14
@@ -1808,44 +1802,44 @@ Cohesion: 0.13
 Nodes (14): checkAndAwardAchievements, dailyGoalMinutes, focusModeEnabled, focusProgress, focusRemainingSeconds, getAchievements, getTotalXp, GetWellnessStats (+6 more)
 
 ### Community 287 - "Community 287"
-Cohesion: 0.13
-Nodes (18): _, fromJson, _, fromJson, _, fromJson, displayNameOrUsername, empty (+10 more)
+Cohesion: 0.11
+Nodes (22): @freezed, _, AppUser, fromJson, _, fromJson, Post, _ (+14 more)
 
 ### Community 288 - "Community 288"
-Cohesion: 0.12
-Nodes (15): Community, copyWith, createdAt, description, fromMap, id, imageUrl, isPrivate (+7 more)
+Cohesion: 0.07
+Nodes (26): DateTime, Community, copyWith, createdAt, description, fromMap, id, imageUrl (+18 more)
 
 ### Community 289 - "Community 289"
 Cohesion: 0.12
 Nodes (15): ConversationEntity, copyWith, createdAt, fromJson, id, isArchived, isMuted, isPinned (+7 more)
 
 ### Community 290 - "Community 290"
-Cohesion: 0.12
-Nodes (16): animationDuration, build, child, _controller, createState, didUpdateWidget, dispose, DissolveEffect (+8 more)
+Cohesion: 0.10
+Nodes (20): ColorScheme, static Picture?, static Size?, animate, animationValue, build, _cachedPicture, _cachedSize (+12 more)
 
 ### Community 291 - "Community 291"
 Cohesion: 0.01
-Nodes (172): AudioCache get, ByteBuffer, _i10.CiphertextMessage, _i11.AudioCache, _i12.Completer, _i4.RTCSessionDescription, _i5.RTCDataChannel, _i6.RTCDTMFSender (+164 more)
+Nodes (176): AudioCache get, ByteBuffer, _i11.AudioCache, _i12.Completer, _i2.MediaStream, _i3.MediaStreamTrack, _i4.RTCSessionDescription, _i5.RTCDataChannel (+168 more)
 
 ### Community 292 - "Community 292"
 Cohesion: 0.01
-Nodes (159): _i4.GoTrueClient, _i4.PostgrestFilterBuilder, _i4.PostgrestTransformBuilder, _i4.SupabaseQueryBuilder, _i4.SupabaseStreamFilterBuilder, acceptCollaboration, addListener, admin (+151 more)
+Nodes (167): _i4.GoTrueAdminApi, _i4.GoTrueClient, _i4.PostgrestBuilder, _i4.PostgrestFilterBuilder, _i4.PostgrestTransformBuilder, _i4.RealtimeChannel, _i4.RealtimeClient, _i4.ResendResponse (+159 more)
 
 ### Community 293 - "Community 293"
-Cohesion: 0.06
-Nodes (30): autofocus, BaseButton, _BaseButtonState, build, child, createState, debugFillProperties, defaultStyleOf (+22 more)
+Cohesion: 0.10
+Nodes (20): autofocus, build, child, createState, debugFillProperties, defaultStyleOf, enabled, focusable (+12 more)
 
 ### Community 294 - "Community 294"
 Cohesion: 0.12
 Nodes (16): package:oasis/features/ripples/data/datasources/ripple_remote_datasource.dart, commentOnRipple, createRipple, _currentUserId, deleteRipple, getComments, getRippleById, getRipples (+8 more)
 
 ### Community 295 - "Community 295"
-Cohesion: 0.13
-Nodes (14): blockUser, cleanupExpiredMutes, getBlockedUsers, getFilteredUserIds, getMutedUsers, getUserReports, isUserBlocked, isUserMuted (+6 more)
+Cohesion: 0.05
+Nodes (35): getCouplePartnerId, getPartnerFcmToken, HomeCheckinRepository, sendHomeArrivedNotification, sendNotReachedHomeNotification, _sendPushNotification, package:app_links/app_links.dart, package:oasis/routes/app_router.dart (+27 more)
 
 ### Community 296 - "Community 296"
-Cohesion: 0.20
-Nodes (9): TimeCapsule, build, capsule, CapsuleFeedItem, color, EnvelopePainter, _formatDuration, paint (+1 more)
+Cohesion: 0.10
+Nodes (20): PartnerProfile, PartnerRepository, PartnerProfile? get, acceptInvite, clearError, _currentPartner, declineInvite, dissolvePartnership (+12 more)
 
 ### Community 297 - "Community 297"
 Cohesion: 0.12
@@ -1864,44 +1858,44 @@ Cohesion: 0.13
 Nodes (15): animationValue, baseColor, build, _controller, createState, dispose, FluidMeshBackground, _FluidMeshBackgroundState (+7 more)
 
 ### Community 301 - "Community 301"
-Cohesion: 0.10
-Nodes (20): DateTime? get, dateOnly, DateTimeX, hour12, isFuture, isPast, isSameDay, int get (+12 more)
+Cohesion: 0.09
+Nodes (21): canvas_models.dart, dateOnly, DateTimeX, hour12, isFuture, isPast, isSameDay, int get (+13 more)
 
 ### Community 302 - "Community 302"
 Cohesion: 0.02
-Nodes (128): AppPrivateCommandCallback?, EditableTextContextMenuBuilder?, EditableTextState, EditableTextState get, _addTextDependentAttachments, autocorrect, autofill, autofillHints (+120 more)
+Nodes (127): AppPrivateCommandCallback?, EditableTextContextMenuBuilder?, EditableTextState, EditableTextState get, _addTextDependentAttachments, autocorrect, autofill, autofillHints (+119 more)
 
 ### Community 303 - "Community 303"
 Cohesion: 0.02
 Nodes (128): _i2.AppUser, _i3.ProfileState, _i4.UserProfileEntity, _i5.CircleState, _i6.CircleEntity, _i7.FunctionsClient, _i7.GoTrueClient, _i7.PostgrestClient (+120 more)
 
 ### Community 304 - "Community 304"
-Cohesion: 0.05
-Nodes (40): Equatable, ShapeGeometry, LiquidGlassMode, CollectionEntity, copyWith, createdAt, description, hasPreview (+32 more)
+Cohesion: 0.07
+Nodes (26): Equatable, ShapeGeometry, CollectionEntity, copyWith, createdAt, description, hasPreview, id (+18 more)
 
 ### Community 305 - "Community 305"
 Cohesion: 0.13
 Nodes (14): Collection, copyWith, createdAt, description, fromJson, hasPreview, id, isPrivate (+6 more)
 
 ### Community 306 - "Community 306"
-Cohesion: 0.05
-Nodes (39): package:oasis/features/feed/domain/models/hashtag.dart, package:oasis/services/hashtag_service.dart, extractHashtags, extractMentions, formatText, getHashtagDetails, getPostsByHashtag, getTrendingHashtags (+31 more)
+Cohesion: 0.11
+Nodes (19): build, controller, createState, _currentQuery, dispose, focusNode, _getLastWord, _hashtagService (+11 more)
 
 ### Community 307 - "Community 307"
 Cohesion: 0.02
-Nodes (120): BoxPainter, CurvedAnimation, EdgeInsetsDirectional, build, createState, didUpdateWidget, dispose, _handleFocusChanged (+112 more)
+Nodes (119): BoxPainter, CurvedAnimation, EdgeInsetsDirectional, build, createState, didUpdateWidget, dispose, _handleFocusChanged (+111 more)
 
 ### Community 308 - "Community 308"
 Cohesion: 0.11
 Nodes (18): ChatTheme? get, _activeTheme, _backgroundUrl, _bgBrightness, _bgOpacity, ChatSettingsProvider, conversationId, _ephemeralDuration (+10 more)
 
 ### Community 309 - "Community 309"
-Cohesion: 0.13
-Nodes (14): package:oasis/features/feed/presentation/widgets/post/post_actions.dart, package:oasis/features/feed/presentation/widgets/post/post_content.dart, package:oasis/features/feed/presentation/widgets/post/post_footer.dart, package:oasis/features/feed/presentation/widgets/post/post_header.dart, build, isOwnPost, onBookmark, onComment (+6 more)
+Cohesion: 0.04
+Nodes (48): PostPatterns, package:oasis/features/feed/presentation/widgets/polls/poll_widgets.dart, package:oasis/features/feed/presentation/widgets/post/post_actions.dart, package:oasis/features/feed/presentation/widgets/post/post_content.dart, package:oasis/features/feed/presentation/widgets/post/post_footer.dart, package:oasis/features/feed/presentation/widgets/post/post_header.dart, package:timeago/timeago.dart, Post (+40 more)
 
 ### Community 310 - "Community 310"
-Cohesion: 0.22
-Nodes (9): EncryptionStatus?, package:oasis/widgets/security_pin_sheet.dart, build, _checkStatus, createState, initState, SecurityUpgradeBanner, _SecurityUpgradeBannerState (+1 more)
+Cohesion: 0.17
+Nodes (11): ActivityGraph, build, _buildContributionGrid, _buildContributionSquare, _buildDayLabel, _buildLegendSquare, _buildMonthLabels, _buildYearButton (+3 more)
 
 ### Community 311 - "Community 311"
 Cohesion: 0.19
@@ -1924,20 +1918,20 @@ Cohesion: 0.02
 Nodes (112): admin, appendSearchParams, asStream, auth, catchError, channel, containedBy, contains (+104 more)
 
 ### Community 316 - "Community 316"
-Cohesion: 0.02
-Nodes (105): _FakeAuthResponse_11, _FakeAuthSessionUrlResponse_13, _FakeFunctionsClient_0, _FakeGetClaimsResponse_17, _FakeGoTrueAdminApi_9, _FakeGoTrueMFAApi_10, _FakeOAuthResponse_12, _FakeObject_16 (+97 more)
+Cohesion: 0.03
+Nodes (100): _FakeObject_17, _FakeAuthResponse_11, _FakeAuthSessionUrlResponse_13, _FakeFunctionsClient_0, _FakeGetClaimsResponse_17, _FakeGoTrueAdminApi_9, _FakeGoTrueMFAApi_10, _FakeOAuthResponse_12 (+92 more)
 
 ### Community 317 - "Community 317"
-Cohesion: 0.07
-Nodes (26): ../models/energy_meter_entity.dart, ../models/wellness_entity.dart, ../repositories/wellness_repository.dart, WellnessRepositoryImpl, WellnessRepository, canInteract, deductEnergy, forceRecovery (+18 more)
+Cohesion: 0.14
+Nodes (13): ../models/energy_meter_entity.dart, ../repositories/wellness_repository.dart, WellnessRepositoryImpl, WellnessRepository, canInteract, deductEnergy, forceRecovery, getEnergyMeterState (+5 more)
 
 ### Community 318 - "Community 318"
-Cohesion: 0.09
-Nodes (20): ../datasources/sharing_remote_datasource.dart, SharingRemoteDatasource, ../../domain/models/shared_media_entity.dart, ../../domain/repositories/sharing_repository.dart, ../models/shared_media_entity.dart, ../repositories/sharing_repository.dart, getShareIntent, _datasource (+12 more)
+Cohesion: 0.15
+Nodes (12): ../models/shared_media_entity.dart, ../repositories/sharing_repository.dart, getShareIntent, SharingRepositoryImpl, shareExternally, shareToConversation, SharingRepository, call (+4 more)
 
 ### Community 319 - "Community 319"
-Cohesion: 0.12
-Nodes (16): _ProgressRingPainter, _LinePainter, _TrianglePainter, _FluidFillPainter, _BoxSpectrumPainter, CheckerboardPainter, _RingSpectrumPainter, CustomPainter (+8 more)
+Cohesion: 0.10
+Nodes (20): AppButton, backgroundColor, borderRadius, build, _buildFluentButton, _buildMaterialButtonChild, disabled, _getMaterialButtonStyle (+12 more)
 
 ### Community 320 - "Community 320"
 Cohesion: 0.02
@@ -1945,39 +1939,39 @@ Nodes (99): FocusNode get, allowExpressions, autofocus, build, buttonKey, clearB
 
 ### Community 321 - "Community 321"
 Cohesion: 0.02
-Nodes (97): AutoSuggestBoxItemBuilder, AutoSuggestBoxSorter, BoxHeightStyle, BoxWidthStyle, FocusScopeNode, adjustedTileHeight, autofocus, AutoSuggestBox (+89 more)
+Nodes (95): AutoSuggestBoxItemBuilder, AutoSuggestBoxSorter, BoxHeightStyle, BoxWidthStyle, FocusScopeNode, adjustedTileHeight, autofocus, AutoSuggestBox (+87 more)
 
 ### Community 322 - "Community 322"
 Cohesion: 0.13
 Nodes (18): Comment?, Comment, _, _Comment, fromJson, class, CommentPatterns, hashCode (+10 more)
 
 ### Community 323 - "Community 323"
-Cohesion: 0.07
-Nodes (25): build, colorHex, content, createdAt, GlowingNote, _hexToColor, DateTime, createdAt (+17 more)
+Cohesion: 0.20
+Nodes (9): exitStatus, fromJson, id, joinedAt, sessionId, StudySessionParticipant, toJson, userId (+1 more)
 
 ### Community 324 - "Community 324"
-Cohesion: 0.03
-Nodes (78): AssertionError, GeofenceMonitorService? get, HomeLocationService?, main, package:geolocator/geolocator.dart, package:oasis/core/storage/prefs_storage.dart, package:oasis/features/couples/data/partner_repository.dart, package:oasis/features/couples/presentation/providers/partner_provider.dart (+70 more)
+Cohesion: 0.06
+Nodes (32): AssertionError, GeofenceMonitorService? get, main, package:oasis/core/storage/prefs_storage.dart, package:oasis/models/home_location.dart, package:oasis/services/geofence_monitor_service.dart, package:oasis/services/home_location_service.dart, package:shared_preferences/shared_preferences.dart (+24 more)
 
 ### Community 325 - "Community 325"
 Cohesion: 0.02
-Nodes (97): build, controller, createState, dispose, initState, addItem, addItems, addRepaintBoundaries (+89 more)
+Nodes (95): build, controller, createState, dispose, initState, addItem, addItems, addRepaintBoundaries (+87 more)
 
 ### Community 326 - "Community 326"
-Cohesion: 0.03
-Nodes (54): addToCollection, createCollection, deleteCollection, _fromJson, getCollectionItems, getCollectionsForPost, getUserCollections, isPostInCollection (+46 more)
+Cohesion: 0.04
+Nodes (46): acceptFollowRequest, declineFollowRequest, followUser, getFollowers, getFollowing, getProfile, getProfileByUsername, hasSentFollowRequest (+38 more)
 
 ### Community 327 - "Community 327"
-Cohesion: 0.14
-Nodes (13): commentOnRipple, createRipple, deleteRipple, getComments, getRippleById, getRipples, getSavedRipples, likeRipple (+5 more)
+Cohesion: 0.04
+Nodes (40): dart:io, File, commentOnRipple, createRipple, deleteRipple, getComments, getRippleById, getRipples (+32 more)
 
 ### Community 328 - "Community 328"
 Cohesion: 0.03
-Nodes (94): @immutable, BoxShadow, Brightness, ButtonThemeData, Diagnosticable, ContentDialogThemeData, MenuBarItem, TooltipThemeData (+86 more)
+Nodes (68): BoxShadow, Brightness, IconThemeData, ResourceDictionary, accentColor, acrylicBackgroundColor, activeColor, animationCurve (+60 more)
 
 ### Community 329 - "Community 329"
-Cohesion: 0.12
-Nodes (14): code, message, toString, _accessToken, artworkStyles, _featuredTracks, getFeaturedTracks, _getValidToken (+6 more)
+Cohesion: 0.22
+Nodes (8): android, DefaultFirebaseOptions, ios, macos, web, windows, package:firebase_core/firebase_core.dart, static const FirebaseOptions
 
 ### Community 330 - "Community 330"
 Cohesion: 0.15
@@ -1989,51 +1983,51 @@ Nodes (88): accentFillColorDisabled, accentTextFillColorDisabled, cardBackground
 
 ### Community 332 - "Community 332"
 Cohesion: 0.02
-Nodes (87): build, createState, debugFillProperties, didChangeDependencies, didUpdateWidget, dispose, tabs, TabWidthBehavior (+79 more)
+Nodes (86): build, createState, debugFillProperties, didChangeDependencies, didUpdateWidget, dispose, tabs, TabWidthBehavior (+78 more)
 
 ### Community 333 - "Community 333"
-Cohesion: 0.13
-Nodes (14): build, _buildTextContent, containsUrl, content, extractUrl, isDisplayableCaption, isMe, isSpoiler (+6 more)
+Cohesion: 0.29
+Nodes (6): clearAllData, hasSession, initialize, _isInitialized, PQAuraInitializer, static bool get
 
 ### Community 334 - "Community 334"
-Cohesion: 0.12
-Nodes (15): Color get, Duration? get, Page, allowSnapshotting, barrierColor, _barrierLabel, _builder, buildPage (+7 more)
+Cohesion: 0.14
+Nodes (13): Color get, Duration? get, allowSnapshotting, barrierColor, _barrierLabel, _builder, buildPage, child (+5 more)
 
 ### Community 335 - "Community 335"
-Cohesion: 0.13
-Nodes (15): ButtonTheme, ContentDialogTheme, TooltipTheme, InheritedTheme, CheckboxTheme, RadioButtonTheme, SliderTheme, ToggleButtonTheme (+7 more)
+Cohesion: 0.12
+Nodes (15): arrivalTime, build, createState, hhTime, selected, simpleTime, timePickerKey, TimePickerPage (+7 more)
 
 ### Community 336 - "Community 336"
 Cohesion: 0.02
 Nodes (86): animation, build, child, _concealOtherTooltips, _concealTooltip, _controller, _createNewEntry, createState (+78 more)
 
 ### Community 337 - "Community 337"
-Cohesion: 0.09
-Nodes (21): build, comboboxKey, createState, currencyFormat, disabled, fontSize, NumberBoxPage, _NumberBoxPageState (+13 more)
+Cohesion: 0.12
+Nodes (17): build, comboboxKey, createState, currencyFormat, disabled, fontSize, NumberBoxPage, _NumberBoxPageState (+9 more)
 
 ### Community 338 - "Community 338"
-Cohesion: 0.15
-Nodes (12): angle, calculatedAt, calculateDynamicDistance, distance, fromJson, generateClusteredPosition, generateFibonacciPosition, isInDeepSpace (+4 more)
+Cohesion: 0.40
+Nodes (6): AnimatedWidgetBaseState, ImplicitlyAnimatedWidget, AnimatedFluentTheme, _AnimatedFluentThemeState, AnimatedAcrylic, _AnimatedAcrylicState
 
 ### Community 339 - "Community 339"
-Cohesion: 0.03
-Nodes (81): _FakeGoTrueClient_4, MockGoTrueClient, FunctionsClient get, GoTrueAdminApi get, GoTrueMFAApi get, _i2.GoTrueClient, package:mockito/src/dummies.dart, package:supabase/supabase.dart (+73 more)
+Cohesion: 0.02
+Nodes (86): _FakeGoTrueClient_4, MockGoTrueClient, FunctionsClient get, GoTrueAdminApi get, GoTrueClient get, GoTrueMFAApi get, _i2.GoTrueClient, package:mockito/src/dummies.dart (+78 more)
 
 ### Community 340 - "Community 340"
 Cohesion: 0.17
 Nodes (11): create_comment.dart, create_post.dart, delete_post.dart, get_comments.dart, get_feed_posts.dart, get_following_posts.dart, get_post_details.dart, like_post.dart (+3 more)
 
 ### Community 341 - "Community 341"
-Cohesion: 0.17
-Nodes (11): cleanupExpiredStories, createStory, deleteStory, getFollowingStories, getStoryViewers, getUserStories, reactToStory, removeReaction (+3 more)
+Cohesion: 0.10
+Nodes (18): Duration?, Future, copyWith, currentLayout, currentUserId, error, isLoading, isRipplesLocked (+10 more)
 
 ### Community 342 - "Community 342"
 Cohesion: 0.12
 Nodes (16): data, _debugMode, error, fromJson, _getPlatformString, getTrending, id, isSuccess (+8 more)
 
 ### Community 343 - "Community 343"
-Cohesion: 0.13
-Nodes (14): canvas_models.dart, copyWith, coverColor, createdAt, createdBy, fromJson, hashCode, id (+6 more)
+Cohesion: 0.10
+Nodes (18): empty, filtered, main, msgInterval, nullMap, presenceInterval, receipts, row (+10 more)
 
 ### Community 344 - "Community 344"
 Cohesion: 0.03
@@ -2044,16 +2038,16 @@ Cohesion: 0.03
 Nodes (74): l10n/extension/fluent_localizations_extension.dart, l10n/generated/fluent_localizations.dart, package:scroll_pos/scroll_pos.dart, src/controls/buttons/base.dart, src/controls/buttons/button.dart, src/controls/buttons/filled_button.dart, src/controls/buttons/hyperlink_button.dart, src/controls/buttons/icon_button.dart (+66 more)
 
 ### Community 346 - "Community 346"
-Cohesion: 0.07
-Nodes (25): copyShortcut, cutShortcut, FluentLocalizationsExtension, getColorDisplayName, pasteShortcut, selectAllShortcut, undoShortcut, countOccurrences (+17 more)
+Cohesion: 0.11
+Nodes (17): addGroupMembers, ConversationService, createGroupConversation, _decryptionService, getChatBackground, getConversationDetails, getConversations, getMuteStatus (+9 more)
 
 ### Community 347 - "Community 347"
-Cohesion: 0.06
-Nodes (31): FlyoutPlacementMode, package:example/theme.dart, attachKey, barrierDismissible, contextAttachKey, contextController, controller, createState (+23 more)
+Cohesion: 0.03
+Nodes (65): AppTheme, build, createState, dispose, initState, main, MyApp, FlyoutPlacementMode (+57 more)
 
 ### Community 348 - "Community 348"
 Cohesion: 0.03
-Nodes (78): DoubleTapGestureRecognizer, build, createState, value, build, checked, createState, build (+70 more)
+Nodes (72): build, createState, value, build, createState, items, build, createState (+64 more)
 
 ### Community 349 - "Community 349"
 Cohesion: 0.03
@@ -2061,23 +2055,19 @@ Nodes (63): additionalOffset, animation, _assignAutoMode, _attach, _attachState,
 
 ### Community 350 - "Community 350"
 Cohesion: 0.03
-Nodes (66): build, builder, close, closeAfterClick, color, constraints, createState, debugFillProperties (+58 more)
+Nodes (67): build, builder, close, closeAfterClick, color, constraints, createState, debugFillProperties (+59 more)
 
 ### Community 351 - "Community 351"
 Cohesion: 0.03
 Nodes (65): ActivateIntent, ButtonActivateIntent, GestureDragEndCallback?, GestureDragStartCallback?, GestureDragUpdateCallback?, GestureLongPressEndCallback?, GestureLongPressStartCallback?, GestureTapCancelCallback? (+57 more)
 
 ### Community 352 - "Community 352"
-Cohesion: 0.09
-Nodes (26): AppException, AuthenticationException, code, fieldErrors, message, NetworkException, stackTrace, statusCode (+18 more)
+Cohesion: 0.16
+Nodes (14): AuthException, code, data, exception, Failure, getOrElse, getOrThrow, isFailure (+6 more)
 
 ### Community 353 - "Community 353"
 Cohesion: 0.14
 Nodes (13): dartFileBuffer, fileHeader, formatProcess, generateFor, header, lowercaseFirst, main, outputFile (+5 more)
-
-### Community 354 - "Community 354"
-Cohesion: 0.17
-Nodes (11): copyWith, errorMessage, hashtags, loadingState, posts, query, SearchLoadingState, SearchState (+3 more)
 
 ### Community 355 - "Community 355"
 Cohesion: 0.03
@@ -2094,28 +2084,28 @@ Alpine Ski House (+55 more)
 
 ### Community 356 - "Community 356"
 Cohesion: 0.03
-Nodes (63): required Offset velocity,
-  double, alignment, _applyRubberBandResistance, barHeight, bottomPadding, build, buildJellyTransform, child (+55 more)
+Nodes (65): required Offset velocity,
+  double, alignment, _applyRubberBandResistance, barHeight, _BottomBarTab, bottomPadding, build, buildJellyTransform (+57 more)
 
 ### Community 357 - "Community 357"
-Cohesion: 0.03
-Nodes (67): GestureMode, HitTestBehavior, behavior, build, builder, child, createState, currentDragOffset (+59 more)
+Cohesion: 0.04
+Nodes (59): GestureMode, HitTestBehavior, behavior, build, builder, child, createState, currentDragOffset (+51 more)
 
 ### Community 358 - "Community 358"
-Cohesion: 0.15
-Nodes (13): package:oasis/features/stories/domain/models/story_entity.dart, package:oasis/features/stories/domain/repositories/stories_repository.dart, StoriesRepositoryImpl, StoriesRepository, call, CreateStory, DeleteStory, _repository (+5 more)
+Cohesion: 0.11
+Nodes (19): package:oasis/features/stories/domain/models/story_entity.dart, package:oasis/features/stories/domain/repositories/stories_repository.dart, StoriesRepositoryImpl, StoriesRepository, call, CreateStory, DeleteStory, _repository (+11 more)
 
 ### Community 359 - "Community 359"
-Cohesion: 0.05
-Nodes (40): class RenderLiquidGlassLayer extends, ClipPathLayer, FragmentShader, _clipRectLayer, cornerRadiusNotifier, fromARGB, glassColorNotifier, settingsNotifier (+32 more)
+Cohesion: 0.07
+Nodes (29): class RenderLiquidGlassLayer extends, ClipPathLayer, FragmentShader, _clipRectLayer, package:flutter_shaders/flutter_shaders.dart, package:liquid_glass_renderer/src/logging.dart, backdropKey, _blurLayerHandle (+21 more)
 
 ### Community 360 - "Community 360"
-Cohesion: 0.15
-Nodes (13): package:oasis/core/theme/oasis_colors.dart, package:oasis/services/instagram_migration_service.dart, package:oasis/widgets/app_button.dart, build, createState, InstagramImportSettingsScreen, _InstagramImportSettingsScreenState, _isProcessingZip (+5 more)
+Cohesion: 0.12
+Nodes (17): AutofillClient, AutomaticKeepAliveClientMixin, _TextBoxState, _LinkPaneItemAction, _KeepAlivePage, _KeepAlivePageState, NavigationPaneItem, PaneItem (+9 more)
 
 ### Community 361 - "Community 361"
-Cohesion: 0.13
-Nodes (14): Radius?, borderRadius, build, child, color, dash, DottedBorder, DottedBorderPainter (+6 more)
+Cohesion: 0.12
+Nodes (16): package:collection/collection.dart, package:example/screens/settings.dart, package:example/screens/theming/typography.dart, build, color, context, createState, displayInfoBar (+8 more)
 
 ### Community 362 - "Community 362"
 Cohesion: 0.18
@@ -2126,26 +2116,26 @@ Cohesion: 0.07
 Nodes (45): AsRef, Choice, ConstantTimeEq, D, Default, Drop, EncapsulationKey, Eq (+37 more)
 
 ### Community 364 - "Community 364"
-Cohesion: 0.07
-Nodes (29): Alignment? nonTargetedAlignment,
-  FlyoutPlacementMode, Duration? transitionDuration,
-  FlyoutTransitionBuilder, arrowCrossAxisWidth, arrowMainAxisWidth, barrierColor, barrierDismissible, borderColor, borderMargin (+21 more)
+Cohesion: 0.05
+Nodes (38): Alignment? nonTargetedAlignment,
+  FlyoutPlacementMode, Clip, Duration? transitionDuration,
+  FlyoutTransitionBuilder, arrowCrossAxisWidth, arrowMainAxisWidth, barrierColor, barrierDismissible, borderColor (+30 more)
 
 ### Community 365 - "Community 365"
 Cohesion: 0.03
-Nodes (60): build, _buildAlphaSlider, _buildColorModeAndHexInput, _buildHSVInputs, _buildInputs, _buildMoreButton, _buildNumberInput, _buildPreviewBox (+52 more)
+Nodes (58): build, _buildAlphaSlider, _buildColorModeAndHexInput, _buildHSVInputs, _buildInputs, _buildMoreButton, _buildNumberInput, _buildPreviewBox (+50 more)
 
 ### Community 366 - "Community 366"
-Cohesion: 0.03
-Nodes (61): AnimatedWidgetBaseState, ColorTween?, ImageFilter?, ImageFilter get, ImplicitlyAnimatedWidget, ShapeBorderTween?, static final Color, static _NoiseTextureCacher? (+53 more)
+Cohesion: 0.04
+Nodes (55): ColorTween?, ImageFilter?, ImageFilter get, ShapeBorderTween?, static final Color, static _NoiseTextureCacher?, Acrylic, _AcrylicGuts (+47 more)
 
 ### Community 367 - "Community 367"
 Cohesion: 0.04
-Nodes (50): DragStartBehavior, _actionHandler, _actionMap, _adjustX, amount, animationCurve, animationDuration, autofocus (+42 more)
+Nodes (54): CustomClipper, DragStartBehavior, _ComboBoxResizeClipper, _actionHandler, _actionMap, _adjustX, amount, animationCurve (+46 more)
 
 ### Community 368 - "Community 368"
-Cohesion: 0.14
-Nodes (14): build, createState, dispose, initState, OasisLogoMark, _OasisLogoMarkState, _OasisLogoPainter, paint (+6 more)
+Cohesion: 0.12
+Nodes (15): package:oasis/features/couples/data/home_checkin_repository.dart, checkIn, clearPendingVerification, getLastArrivalTime, getLastCheckInTime, hasPendingVerification, hasRecentArrival, HomeCheckinService (+7 more)
 
 ### Community 369 - "Community 369"
 Cohesion: 0.03
@@ -2161,7 +2151,7 @@ Nodes (9): Image?, Navbar(), NavLinks, cn(), features, BentoCard(), BentoCardPro
 
 ### Community 372 - "Community 372"
 Cohesion: 0.04
-Nodes (48): GenerateAppTitle?, InitialRouteListFactory?, package:flutter_localizations/flutter_localizations.dart, RouteFactory?, actions, backButtonDispatcher, build, _buildApp (+40 more)
+Nodes (54): _MenuScrollBehavior, _ComboBoxScrollBehavior, GenerateAppTitle?, InitialRouteListFactory?, NavigationViewScrollBehavior, package:flutter_localizations/flutter_localizations.dart, RouteFactory?, ScrollBehavior (+46 more)
 
 ### Community 373 - "Community 373"
 Cohesion: 0.04
@@ -2176,8 +2166,8 @@ Cohesion: 0.04
 Nodes (50): autofocus, build, contentPadding, createState, _date, DatePicker, _DatePickerContentPopUp, __DatePickerContentPopUpState (+42 more)
 
 ### Community 376 - "Community 376"
-Cohesion: 0.14
-Nodes (13): ../../domain/models/navigation_entity.dart, ../../domain/repositories/spaces_repository.dart, AppShellEntity, _appShell, dispose, getAppShell, getCurrentTab, _isOnline (+5 more)
+Cohesion: 0.13
+Nodes (15): build, ChangePasswordScreen, _ChangePasswordScreenState, _confirmPasswordController, createState, _currentPasswordController, dispose, _errorText (+7 more)
 
 ### Community 377 - "Community 377"
 Cohesion: 0.04
@@ -2192,8 +2182,8 @@ Cohesion: 0.09
 Nodes (22): build, buildDisplayMode, content, createState, displayMode, hasTopBar, header, indicator (+14 more)
 
 ### Community 380 - "Community 380"
-Cohesion: 0.17
-Nodes (11): ../../domain/models/call_entity.dart, ../../domain/repositories/call_repository.dart, acceptCall, createCall, declineCall, endCall, getActiveCalls, getCall (+3 more)
+Cohesion: 0.12
+Nodes (15): apply, body, bodyLarge, bodyStrong, caption, debugFillProperties, display, fromBrightness (+7 more)
 
 ### Community 381 - "Community 381"
 Cohesion: 0.21
@@ -2208,12 +2198,12 @@ Cohesion: 0.04
 Nodes (45): ColorSwatch, static const ShadedColor, static final AccentColor, AccentColor, accentColors, basedOnLuminance, black, blue (+37 more)
 
 ### Community 384 - "Community 384"
-Cohesion: 0.17
-Nodes (12): build, CommunityNameThemeScreen, _CommunityNameThemeScreenState, createState, dispose, _formKey, _nameController, _onNext (+4 more)
+Cohesion: 0.13
+Nodes (15): ButtonTheme, ContentDialogTheme, TooltipTheme, InheritedTheme, CheckboxTheme, RadioButtonTheme, SliderTheme, ToggleButtonTheme (+7 more)
 
 ### Community 385 - "Community 385"
-Cohesion: 0.05
-Nodes (43): class FluentTextSelectionHandleControls extends, anchor, anchors, build, buildHandle, buttonItems, canSelectAll, children (+35 more)
+Cohesion: 0.04
+Nodes (52): @Deprecated, class FluentTextSelectionHandleControls extends, ContextMenuButtonItem, anchor, anchors, build, buildHandle, buildToolbar (+44 more)
 
 ### Community 386 - "Community 386"
 Cohesion: 0.05
@@ -2221,43 +2211,43 @@ Nodes (43): class _RenderTitleSubtitleOverflow extends RenderBox, backButton, ba
 
 ### Community 387 - "Community 387"
 Cohesion: 0.05
-Nodes (42): attach, bounds, _buildGeometryPicture, detach, _devicePixelRatio, dispose, fromLiquidGlassShape, gatherShapeData (+34 more)
+Nodes (39): attach, bounds, _buildGeometryPicture, detach, _devicePixelRatio, dispose, fromLiquidGlassShape, gatherShapeData (+31 more)
 
 ### Community 388 - "Community 388"
 Cohesion: 0.08
-Nodes (32): @internal, _ContainerWithoutPadding, InheritedWidget, RawShapeType, RenderLiquidGlassGeometry, TransformTrackingRenderObjectMixin, TransformTrackingRepaintBoundaryMixin, LiquidGlassRenderObject (+24 more)
+Nodes (35): @internal, _ContainerWithoutPadding, InheritedWidget, GeometryCache, RawShapeType, RenderedGeometryCache, RenderLiquidGlassGeometry, UnrenderedGeometryCache (+27 more)
 
 ### Community 389 - "Community 389"
-Cohesion: 0.03
-Nodes (64): AuthService get, build, _buildFooter, CollaborationRequestBubble, _CollaborationRequestBubbleState, createState, _handleAction, initState (+56 more)
+Cohesion: 0.14
+Nodes (14): class, build, _buildRuleExample, CommunityDescriptionRulesScreen, _CommunityDescriptionRulesScreenState, createState, _descriptionController, dispose (+6 more)
 
 ### Community 390 - "Community 390"
-Cohesion: 0.22
-Nodes (9): FeedLayoutType get, buildFeed, dispose, FeedLayoutStrategy, FeedLayoutType, FeedLayoutTypeExtension, InteractionType, onPostInteraction (+1 more)
+Cohesion: 0.08
+Nodes (23): FeedLayoutType get, LiquidGlassMode, buildFeed, dispose, FeedLayoutStrategy, FeedLayoutType, FeedLayoutTypeExtension, InteractionType (+15 more)
 
 ### Community 391 - "Community 391"
-Cohesion: 0.14
-Nodes (13): getRegisteredAccounts, onAuthStateChange, removeAccount, resetPassword, restoreSession, signInWithApple, signInWithEmail, signInWithGoogle (+5 more)
+Cohesion: 0.16
+Nodes (14): ../../data/models/ad_campaign.dart, ../../data/services/privacy_ad_service.dart, _handlePaymentSuccess, _startRazorpayWindowsFlow, SubscriptionService, build, createState, _fallbackIcon (+6 more)
 
 ### Community 392 - "Community 392"
 Cohesion: 0.05
 Nodes (41): Axis get, class RenderDynamicOverflow extends RenderBox, Clip get, CrossAxisAlignment get, LayerHandle, alignment, alwaysDisplayOverflowWidget, clipBehavior (+33 more)
 
 ### Community 393 - "Community 393"
-Cohesion: 0.17
-Nodes (12): bool?, build, checked, CheckBoxPage, _CheckBoxPageState, createState, firstChecked, firstDisabled (+4 more)
+Cohesion: 0.14
+Nodes (14): _animation, build, _controller, _controllers, createState, dispose, _EnergyArcPainter, EnergyMeter (+6 more)
 
 ### Community 394 - "Community 394"
-Cohesion: 0.15
-Nodes (12): CollectionRemoteDatasource, package:oasis/features/collections/data/datasources/collection_remote_datasource.dart, addToCollection, createCollection, deleteCollection, getCollectionItems, getCollectionsForPost, getUserCollections (+4 more)
+Cohesion: 0.14
+Nodes (13): ../../domain/models/navigation_entity.dart, ../../domain/repositories/spaces_repository.dart, AppShellEntity, _appShell, dispose, getAppShell, getCurrentTab, _isOnline (+5 more)
 
 ### Community 395 - "Community 395"
-Cohesion: 0.15
-Nodes (12): _dailyLimitKey, _dataSaverKey, _feedLayoutKey, _fontFamilyKey, _fontSizeFactorKey, getSettings, _highContrastKey, _micaEnabledKey (+4 more)
+Cohesion: 0.14
+Nodes (13): animationValue, _drawCenterMarker, _drawCenterRipple, _drawConnections, _drawNebulaBackground, _drawParticles, _drawRadialGrid, gridColor (+5 more)
 
 ### Community 396 - "Community 396"
-Cohesion: 0.15
-Nodes (12): address, copyWith, distanceTo, fromJson, getDisplayString, HomeLocation, latitude, longitude (+4 more)
+Cohesion: 0.11
+Nodes (16): code, message, toString, address, copyWith, distanceTo, fromJson, getDisplayString (+8 more)
 
 ### Community 397 - "Community 397"
 Cohesion: 0.43
@@ -2281,12 +2271,12 @@ Nodes (23): barMargin, barPadding, build, closeFlyout, _controller, createState,
 
 ### Community 402 - "Community 402"
 Cohesion: 0.05
-Nodes (40): class RenderLiquidGlassBlendGroup extends, GlassGroupLink get, package:flutter_shaders/flutter_shaders.dart, package:liquid_glass_renderer/src/internal/render_liquid_glass_geometry.dart, package:liquid_glass_renderer/src/liquid_glass_blend_group.dart, package:liquid_glass_renderer/src/rendering/liquid_glass_render_object.dart, RenderLiquidGlassGeometry, blend (+32 more)
+Nodes (41): class RenderLiquidGlassBlendGroup extends, GlassGroupLink get, package:liquid_glass_renderer/src/internal/render_liquid_glass_geometry.dart, package:liquid_glass_renderer/src/liquid_glass_blend_group.dart, package:liquid_glass_renderer/src/liquid_glass.dart, package:liquid_glass_renderer/src/rendering/liquid_glass_render_object.dart, package:liquid_glass_renderer/src/shaders.dart, RenderLiquidGlassGeometry (+33 more)
 
 ### Community 403 - "Community 403"
-Cohesion: 0.04
-Nodes (54): InfoBarSeverityCheck, InfoBarTheme, OverlayEntry, required InfoBarPopupBuilder builder,
-  Alignment, action, actionStyle, alignment, alreadyInitialized (+46 more)
+Cohesion: 0.05
+Nodes (41): InfoBarSeverityCheck, InfoBarTheme, OverlayEntry, required InfoBarPopupBuilder builder,
+  Alignment, action, actionStyle, alignment, alreadyInitialized (+33 more)
 
 ### Community 404 - "Community 404"
 Cohesion: 0.05
@@ -2299,23 +2289,23 @@ Nodes (6): chat_encryption_provider.dart, chat_provider.dart, chat_reactions_pro
 
 ### Community 406 - "Community 406"
 Cohesion: 0.04
-Nodes (58): call_audio_test.mocks.dart, MockSupabaseClient, _i10.AdService, _i11.AudioPlayer, _i11.SubscriptionService, _i15.RTCPeerConnection, _i17.UserSettingsProvider, _i1.Mock (+50 more)
+Nodes (53): MockAcceptCall, MockCallService, MockEndCall, MockGetActiveCalls, MockInitiateCall, MockSupabaseClient, MockSupabaseClient, _i10.AdService (+45 more)
 
 ### Community 407 - "Community 407"
-Cohesion: 0.15
-Nodes (12): FlutterSecureStorage, package:flutter_secure_storage/flutter_secure_storage.dart, static final SecureStorage, contains, delete, deleteAll, _instance, read (+4 more)
+Cohesion: 0.17
+Nodes (12): bool?, build, checked, CheckBoxPage, _CheckBoxPageState, createState, firstChecked, firstDisabled (+4 more)
 
 ### Community 408 - "Community 408"
 Cohesion: 0.05
-Nodes (41): FluentLocalizationsAr, FluentLocalizationsBe, FluentLocalizationsBn, FluentLocalizationsCa, FluentLocalizationsCs, FluentLocalizationsDe, FluentLocalizationsEl, FluentLocalizationsEn (+33 more)
+Nodes (43): FluentLocalizationsAr, FluentLocalizationsBe, FluentLocalizationsBn, FluentLocalizationsCa, FluentLocalizationsCs, FluentLocalizationsDe, FluentLocalizationsEl, FluentLocalizationsEn (+35 more)
 
 ### Community 409 - "Community 409"
 Cohesion: 0.33
 Nodes (5): comment.dart, enhanced_poll.dart, hashtag.dart, post.dart, post_mood.dart
 
 ### Community 410 - "Community 410"
-Cohesion: 0.17
-Nodes (11): createdAt, creatorId, durationMinutes, fromJson, id, isLockedIn, startTime, status (+3 more)
+Cohesion: 0.06
+Nodes (33): createdAt, creatorId, durationMinutes, fromJson, id, isLockedIn, startTime, status (+25 more)
 
 ### Community 411 - "Community 411"
 Cohesion: 0.33
@@ -2323,7 +2313,7 @@ Nodes (6): FfiInitialMessage, FfiKeyPair, FfiMessage, FfiPreKeyBundle, RatchetSt
 
 ### Community 412 - "Community 412"
 Cohesion: 0.05
-Nodes (39): build, checked, createState, _alignment, animationCurve, animationDuration, autofocus, checkedDecoration (+31 more)
+Nodes (37): build, checked, createState, _alignment, animationCurve, animationDuration, autofocus, checkedDecoration (+29 more)
 
 ### Community 413 - "Community 413"
 Cohesion: 0.60
@@ -2334,52 +2324,52 @@ Cohesion: 0.05
 Nodes (38): @nonVirtual, dart:collection, GeometryRenderLink get, package:liquid_glass_renderer/src/internal/snap_rect_to_pixels.dart, alwaysNeedsCompositing, attach, _backdropKey, _buildGeometryImage (+30 more)
 
 ### Community 415 - "Community 415"
-Cohesion: 0.05
-Nodes (37): class RenderLiquidGlass extends, Clip, build, child, clipBehavior, OptimizedClip, shape, package:liquid_glass_renderer/src/glass_shadow.dart (+29 more)
+Cohesion: 0.06
+Nodes (31): class RenderLiquidGlass extends, package:liquid_glass_renderer/src/glass_shadow.dart, package:liquid_glass_renderer/src/internal/transform_tracking_repaint_boundary_mixin.dart, attach, _auto, blendGroupLink, build, _buildContent (+23 more)
 
 ### Community 416 - "Community 416"
-Cohesion: 0.15
-Nodes (15): AuthProvider, Route /welcome, _finishMigrationAndRegister, _loginWithEmailAndPassword, _confirmController, createState, dispose, _formKey (+7 more)
+Cohesion: 0.21
+Nodes (12): AppException, AuthenticationException, code, fieldErrors, message, NetworkException, stackTrace, statusCode (+4 more)
 
 ### Community 417 - "Community 417"
 Cohesion: 0.50
 Nodes (3): attachment_option_card.dart, recording_dot.dart, view_mode_button.dart
 
 ### Community 418 - "Community 418"
-Cohesion: 0.05
-Nodes (37): @experimental, BackdropFilterEngineLayer?, _GlassifyShaderLayer? get, ImageFilterEngineLayer?, package:liquid_glass_renderer/src/liquid_glass.dart, package:liquid_glass_renderer/src/liquid_glass_settings.dart, Size, _addMaskToScene (+29 more)
+Cohesion: 0.06
+Nodes (35): BackdropFilterEngineLayer?, FragmentShader get, _GlassifyShaderLayer? get, ImageFilterEngineLayer?, package:liquid_glass_renderer/src/liquid_glass_settings.dart, Size, _addMaskToScene, addToScene (+27 more)
 
 ### Community 419 - "Community 419"
 Cohesion: 0.15
-Nodes (11): MethodChannel, package:oasis/themes/app_theme.dart, package:oasis/widgets/mesh_gradient_background.dart, build, callerAvatar, callerName, callId, channel (+3 more)
+Nodes (11): build, content, createdAt, JournalEntryWidget, oasis_colors.dart, package:google_fonts/google_fonts.dart, static TextStyle, ctaLabel (+3 more)
 
 ### Community 420 - "Community 420"
 Cohesion: 0.50
 Nodes (3): AuthCredentials, identifier, password
 
 ### Community 421 - "Community 421"
-Cohesion: 0.18
-Nodes (11): ../../data/services/customization_service.dart, static const List, BoostDialog, _BoostDialogState, _boostTiers, build, circleId, circleName (+3 more)
+Cohesion: 0.15
+Nodes (11): MethodChannel, package:oasis/themes/app_theme.dart, package:oasis/widgets/mesh_gradient_background.dart, build, callerAvatar, callerName, callId, channel (+3 more)
 
 ### Community 422 - "Community 422"
-Cohesion: 0.06
-Nodes (33): CupertinoPageRoute, HookWidget, BasicApp, blendNotifier, Blink, build, child, main (+25 more)
+Cohesion: 0.03
+Nodes (62): CupertinoPageRoute, dart:math, HookWidget, apple_liquid_glass, BasicApp, blendNotifier, Blink, build (+54 more)
 
 ### Community 423 - "Community 423"
 Cohesion: 0.06
-Nodes (33): package:liquid_glass_renderer/src/internal/multi_shader_builder.dart, package:liquid_glass_renderer/src/shaders.dart, Path get, Rect get, addToScene, alwaysNeedsCompositing, backdropKey, _blur (+25 more)
+Nodes (35): @experimental, Matrix4 get, package:liquid_glass_renderer/src/internal/multi_shader_builder.dart, Path get, Rect get, addToScene, alwaysNeedsCompositing, backdropKey (+27 more)
 
 ### Community 431 - "Community 431"
 Cohesion: 0.06
-Nodes (34): autofocus, build, buttonBuilder, closeAfterClick, _createMenuItem, createState, _createSubMenuItem, debugFillProperties (+26 more)
+Nodes (32): autofocus, build, buttonBuilder, closeAfterClick, _createMenuItem, createState, _createSubMenuItem, debugFillProperties (+24 more)
 
 ### Community 446 - "Community 446"
 Cohesion: 0.17
 Nodes (11): AdCampaign, bannerUrl, categoryTarget, description, destinationUrl, endDate, fromJson, id (+3 more)
 
 ### Community 463 - "Community 463"
-Cohesion: 0.17
-Nodes (11): copyWith, currentLayout, currentUserId, error, isLoading, isRipplesLocked, lockoutEndTime, remainingDuration (+3 more)
+Cohesion: 0.15
+Nodes (12): ../models/conversation_entity.dart, ConversationRepository, createConversation, deleteConversation, getConversation, getConversations, getUnreadCount, ConversationRepositoryImpl (+4 more)
 
 ### Community 464 - "Community 464"
 Cohesion: 0.05
@@ -2387,15 +2377,15 @@ Nodes (37): class RenderBreadcrumbBar, build, createState, items, DynamicOverflo
 
 ### Community 465 - "Community 465"
 Cohesion: 0.06
-Nodes (32): curve, animationCurve, animationDuration, build, content, contentBackgroundColor, contentPadding, contentShape (+24 more)
+Nodes (30): curve, animationCurve, animationDuration, build, content, contentBackgroundColor, contentPadding, contentShape (+22 more)
 
 ### Community 466 - "Community 466"
 Cohesion: 0.07
 Nodes (26): BoxConstraints?, autofocus, build, child, color, constraints, elevation, FlyoutContent (+18 more)
 
 ### Community 467 - "Community 467"
-Cohesion: 0.20
-Nodes (9): contributeToCapsule, createCapsule, deleteCapsule, getCapsuleById, getCapsules, openCapsule, _supabase, _transformResponse (+1 more)
+Cohesion: 0.15
+Nodes (12): angle, calculatedAt, calculateDynamicDistance, distance, fromJson, generateClusteredPosition, generateFibonacciPosition, isInDeepSpace (+4 more)
 
 ### Community 468 - "Community 468"
 Cohesion: 0.06
@@ -2406,12 +2396,12 @@ Cohesion: 0.06
 Nodes (31): Flyout, FlyoutPlacementMode get, add, additionalOffset, build, builder, close, contains (+23 more)
 
 ### Community 470 - "Community 470"
-Cohesion: 0.09
-Nodes (21): build, _buildAnimatedDots, _controller, createState, dispose, initState, textStyle, TypingIndicatorWidget (+13 more)
+Cohesion: 0.06
+Nodes (31): build, child, error, FormRow, helper, _kDefaultPadding, padding, textStyle (+23 more)
 
 ### Community 471 - "Community 471"
-Cohesion: 0.05
-Nodes (38): CrossAxisAlignment, EdgeInsetsGeometry?, build, child, error, FormRow, helper, _kDefaultPadding (+30 more)
+Cohesion: 0.07
+Nodes (29): CrossAxisAlignment, MouseCursor?, autofocus, build, contentAlignment, contentPadding, cursor, debugFillProperties (+21 more)
 
 ### Community 472 - "Community 472"
 Cohesion: 0.13
@@ -2419,35 +2409,35 @@ Nodes (20): addToExternrefTable0(), _assertClass(), cachedTextDecoder, decodeTex
 
 ### Community 473 - "Community 473"
 Cohesion: 0.17
-Nodes (11): CircleEntity, activeCircle, circleFeed, circles, CircleState, copyWith, error, hasMoreFeed (+3 more)
+Nodes (11): cleanupExpiredStories, createStory, deleteStory, getFollowingStories, getStoryViewers, getUserStories, reactToStory, removeReaction (+3 more)
 
 ### Community 474 - "Community 474"
 Cohesion: 0.07
 Nodes (28): all, backgroundColor, buttonColor, buttonForegroundColor, checkedInputColor, copyWith, data, debugFillProperties (+20 more)
 
 ### Community 475 - "Community 475"
-Cohesion: 0.17
-Nodes (11): allowedMoods, copyWith, currentMood, description, displayText, emoji, fromString, label (+3 more)
+Cohesion: 0.11
+Nodes (16): copyShortcut, cutShortcut, FluentLocalizationsExtension, getColorDisplayName, pasteShortcut, selectAllShortcut, undoShortcut, build (+8 more)
 
 ### Community 476 - "Community 476"
-Cohesion: 0.12
-Nodes (14): build, communityData, CommunitySetupConfirmationScreen, empty, filtered, main, msgInterval, nullMap (+6 more)
+Cohesion: 0.17
+Nodes (11): CircleEntity, activeCircle, circleFeed, circles, CircleState, copyWith, error, hasMoreFeed (+3 more)
 
 ### Community 477 - "Community 477"
-Cohesion: 0.20
-Nodes (10): package:oasis/features/circles/domain/models/circles_models.dart, package:oasis/features/circles/domain/repositories/circle_repository.dart, CircleRepository, CircleRepositoryImpl, call, CreateCircle, _repository, call (+2 more)
+Cohesion: 0.17
+Nodes (11): UserProfileEntity, copyWith, currentProfile, error, followers, following, hasSentRequest, isFollowing (+3 more)
 
 ### Community 478 - "Community 478"
-Cohesion: 0.07
-Nodes (27): build, createState, value, autofocus, checkedDecoration, content, data, debugFillProperties (+19 more)
+Cohesion: 0.06
+Nodes (31): build, createState, value, FocusNode, autofocus, checkedDecoration, content, data (+23 more)
 
 ### Community 479 - "Community 479"
 Cohesion: 0.08
 Nodes (25): BorderSide?, FocusTheme, borderRadius, build, _buildBorder, buildPrimaryDecoration, buildSecondaryDecoration, child (+17 more)
 
 ### Community 480 - "Community 480"
-Cohesion: 0.06
-Nodes (31): package:logging/logging.dart, package:meta/meta.dart, maybeOf, of, settings, updateShouldNotify, useFake, _activeLoggers (+23 more)
+Cohesion: 0.08
+Nodes (25): package:logging/logging.dart, _activeLoggers, deactivateLoggers, geometry, initAllLogs, initLoggers, isLogActive, layer (+17 more)
 
 ### Community 481 - "Community 481"
 Cohesion: 0.14
@@ -2462,28 +2452,28 @@ Cohesion: 0.16
 Nodes (22): c_char, RatchetState, FfiInitialMessage, FfiKeyPair, FfiMessage, FfiPreKeyBundle, pqa_create_bundle(), pqa_decrypt() (+14 more)
 
 ### Community 484 - "Community 484"
-Cohesion: 0.20
-Nodes (9): ../models/navigation_entity.dart, getAppShell, getCurrentTab, SpacesRepositoryImpl, navigateToTab, SpacesRepository, updateBadgeCount, updateOnlineStatus (+1 more)
+Cohesion: 0.17
+Nodes (11): package:oasis/models/pulse_node_position.dart, calculateCenterOffset, cartesianToPolar, distanceBetween, generateClusteredPositions, generateFibonacciPositions, isInViewport, lerpOffset (+3 more)
 
 ### Community 485 - "Community 485"
 Cohesion: 0.09
 Nodes (22): ../settings.dart, _AcrylicChildren, AcrylicPage, _AcrylicPageState, blurAmout, build, buildColorBox, _buildLabel (+14 more)
 
 ### Community 486 - "Community 486"
-Cohesion: 0.09
-Nodes (22): BorderRadius?, BoxShape, package:shimmer/shimmer.dart, backgroundColor, borderRadius, build, child, elevation (+14 more)
+Cohesion: 0.06
+Nodes (36): BorderRadius?, BoxShape, package:shimmer/shimmer.dart, Radius?, backgroundColor, borderRadius, build, child (+28 more)
 
 ### Community 487 - "Community 487"
-Cohesion: 0.09
-Nodes (22): class _TestEncryptionService extends, backupSignalIdentity, cachedPrimaryKey, ChangeNotifier, clearKeys, decryptData, decryptMediaFile, decryptMessage (+14 more)
+Cohesion: 0.06
+Nodes (31): class _TestEncryptionService extends, EncryptionStatus?, package:oasis/widgets/security_pin_sheet.dart, backupSignalIdentity, cachedPrimaryKey, ChangeNotifier, clearKeys, decryptData (+23 more)
 
 ### Community 488 - "Community 488"
 Cohesion: 0.09
-Nodes (22): CloseButtonVisibilityMode, build, closeButtonVisibilityMode, createState, currentIndex, _flyoutController, generateTab, initState (+14 more)
+Nodes (23): CloseButtonVisibilityMode, build, closeButtonVisibilityMode, createState, currentIndex, _flyoutController, generateTab, initState (+15 more)
 
 ### Community 489 - "Community 489"
-Cohesion: 0.06
-Nodes (34): AccentColor, build, ButtonPage, _ButtonPageState, checked, createState, filledDisabled, hyperlinkDisabled (+26 more)
+Cohesion: 0.10
+Nodes (21): AccentColor, build, ButtonPage, _ButtonPageState, checked, createState, filledDisabled, hyperlinkDisabled (+13 more)
 
 ### Community 490 - "Community 490"
 Cohesion: 0.10
@@ -2503,19 +2493,19 @@ Nodes (20): autofocus, build, checked, checkedButtonStyle, child, data, debugFil
 
 ### Community 494 - "Community 494"
 Cohesion: 0.17
-Nodes (10): package:oasis/features/messages/presentation/widgets/previews/media_view_mode_selector.dart, build, imagePath, ImagePreview, mediaViewMode, onDismiss, build, mediaViewMode (+2 more)
+Nodes (11): _accessToken, artworkStyles, _featuredTracks, getFeaturedTracks, _getValidToken, _parseTrack, searchTracks, SpotifyService (+3 more)
 
 ### Community 495 - "Community 495"
-Cohesion: 0.17
-Nodes (10): Button, defaultStyleOf, kDefaultButtonPadding, themeStyleOf, backgroundColor, defaultStyleOf, FilledButton, foregroundColor (+2 more)
+Cohesion: 0.20
+Nodes (10): ../../data/services/customization_service.dart, BoostDialog, _BoostDialogState, _boostTiers, build, circleId, circleName, createState (+2 more)
 
 ### Community 496 - "Community 496"
-Cohesion: 0.12
-Nodes (14): package:path/path.dart, allDartFiles, deletedCount, duplicates, featureFiles, featuresDir, libDir, main (+6 more)
+Cohesion: 0.07
+Nodes (27): package:path/path.dart, package:sqflite/sqflite.dart, allDartFiles, deletedCount, duplicates, featureFiles, featuresDir, libDir (+19 more)
 
 ### Community 497 - "Community 497"
-Cohesion: 0.17
-Nodes (11): package:oasis/models/pulse_node_position.dart, calculateCenterOffset, cartesianToPolar, distanceBetween, generateClusteredPositions, generateFibonacciPositions, isInViewport, lerpOffset (+3 more)
+Cohesion: 0.18
+Nodes (10): attempt, config, initialDelay, jitterFactor, maxAttempts, maxDelay, multiplier, random (+2 more)
 
 ### Community 498 - "Community 498"
 Cohesion: 0.10
@@ -2523,18 +2513,18 @@ Nodes (20): required bool preferLeft,
   double, clamp, debugCheckHasFluentLocalizations, debugCheckHasFluentTheme, debugCheckHasFlyout, fitsLeft, fitsRight, getBorderRadius (+12 more)
 
 ### Community 499 - "Community 499"
-Cohesion: 0.08
-Nodes (23): package:oasis/services/screen_time_service.dart, package:shared_preferences/shared_preferences.dart, required Widget body,
+Cohesion: 0.09
+Nodes (21): package:oasis/services/screen_time_service.dart, required Widget body,
   ThemeMode, required Widget child,
-  ThemeMode, main, createScaffoldTestApp, createTestApp, createTestScreenTimeService (+15 more)
+  ThemeMode, createScaffoldTestApp, createTestApp, createTestScreenTimeService, enterTextByKey, init (+13 more)
 
 ### Community 500 - "Community 500"
 Cohesion: 0.11
 Nodes (19): AutoSuggestBox, Cat?, AutoSuggestBoxItem, AutoSuggestBoxState, asgbKey, AutoSuggestBoxPage, _AutoSuggestBoxPageState, build (+11 more)
 
 ### Community 501 - "Community 501"
-Cohesion: 0.20
-Nodes (9): fromJson, id, isActive, itemId, itemType, purchasedAt, toJson, UserCustomization (+1 more)
+Cohesion: 0.18
+Nodes (10): package:oasis/features/feed/domain/models/hashtag.dart, extractHashtags, extractMentions, formatText, getHashtagDetails, getPostsByHashtag, getTrendingHashtags, HashtagService (+2 more)
 
 ### Community 502 - "Community 502"
 Cohesion: 0.25
@@ -2546,7 +2536,7 @@ Nodes (18): GeometryTransformTrackingLayer? get, addToScene, alwaysNeedsAddToSce
 
 ### Community 504 - "Community 504"
 Cohesion: 0.20
-Nodes (10): _RawLiquidGlassFilter, _RawShapes, SingleChildRenderObjectWidget, RawFakeGlass, _RenderGlassGlowLayerWidget, GlassShadow, _RawGlassify, _RawLiquidGlassBlendGroup (+2 more)
+Nodes (10): package:oasis/services/hashtag_service.dart, build, createState, _hashtagService, initState, _isLoading, _loadTrendingHashtags, _trendingHashtags (+2 more)
 
 ### Community 505 - "Community 505"
 Cohesion: 0.26
@@ -2569,32 +2559,32 @@ Cohesion: 0.20
 Nodes (9): addToCollection, createCollection, deleteCollection, getCollectionItems, getCollectionsForPost, getUserCollections, isPostInCollection, removeFromCollection (+1 more)
 
 ### Community 510 - "Community 510"
-Cohesion: 0.04
-Nodes (46): ControllableFormBox get, NumberFormBox, ControllableFormBox, controller, createState, didChange, didUpdateWidget, dispose (+38 more)
+Cohesion: 0.20
+Nodes (10): ScrollMetrics, ScrollPhysics, SpringDescription get, applyBoundaryConditions, applyPhysicsToUserOffset, applyTo, createBallisticSimulation, frictionFactor (+2 more)
 
 ### Community 511 - "Community 511"
-Cohesion: 0.13
-Nodes (15): build, createState, value, backgroundColor, backgroundColorDisabled, _DeliverySpeed, _DeliverySpeedSummary, _ExportQuality (+7 more)
+Cohesion: 0.18
+Nodes (10): package:purchases_flutter/purchases_flutter.dart, buyProduct, fetchProducts, IAPService, init, _instance, _isAvailable, _packages (+2 more)
 
 ### Community 512 - "Community 512"
-Cohesion: 0.50
-Nodes (4): CustomClipper, _ComboBoxResizeClipper, _StarClipper, RRect
+Cohesion: 0.18
+Nodes (10): activeCanvas, activeItems, canvases, CanvasState, copyWith, error, hashCode, isLoading (+2 more)
 
 ### Community 513 - "Community 513"
-Cohesion: 0.12
-Nodes (15): apply, body, bodyLarge, bodyStrong, caption, debugFillProperties, display, fromBrightness (+7 more)
+Cohesion: 0.22
+Nodes (10): DateTime? get, _, fromJson, authorAvatar, authorName, commentCount, createdAt, likeCount (+2 more)
 
 ### Community 514 - "Community 514"
-Cohesion: 0.50
-Nodes (4): FluentTextSelectionControls, FluentTextSelectionHandleControls, TextSelectionControls?, TextSelectionHandleControls
+Cohesion: 0.20
+Nodes (9): countOccurrences, isAlphabetic, isAlphanumeric, isBlank, isNumeric, reversed, StringX, stripHtml (+1 more)
 
 ### Community 515 - "Community 515"
-Cohesion: 0.10
-Nodes (22): ComboBox, FluentDialogRoute, ComboboxFormField, _ComboboxFormFieldState, ComboBoxState, EditableComboBox, EditableComboboxFormField, _EditableComboboxFormFieldState (+14 more)
+Cohesion: 0.09
+Nodes (24): ComboBox, FluentDialogRoute, ComboboxFormField, _ComboboxFormFieldState, ComboBoxState, EditableComboBox, EditableComboboxFormField, _EditableComboboxFormFieldState (+16 more)
 
 ### Community 516 - "Community 516"
 Cohesion: 0.20
-Nodes (10): Route /instagram-migration, Route /login, Route /privacy-policy, Route /terms-of-service, _handleDelete, _completeOnboarding, build, _register (+2 more)
+Nodes (9): SnapRectToPixels, Rect, bounds, points, recognize, RecognizedShape, RecognizedShapeType, ShapeRecognizer (+1 more)
 
 ### Community 517 - "Community 517"
 Cohesion: 0.13
@@ -2605,8 +2595,8 @@ Cohesion: 0.13
 Nodes (13): cacheDir, cacheFile, child, cwd, fs, globalConfigDir, globalVersionFile, homeDir (+5 more)
 
 ### Community 519 - "Community 519"
-Cohesion: 0.15
-Nodes (15): EquatableMixin, OutlinedBorder, OutlinedBorder get, borderRadius, copyWith, _equivalentOutlinedBorder, getInnerPath, getOuterPath (+7 more)
+Cohesion: 0.08
+Nodes (26): double get, EquatableMixin, LiquidShape get, OutlinedBorder, OutlinedBorder get, createRenderObject, _drawShape, paint (+18 more)
 
 ### Community 520 - "Community 520"
 Cohesion: 0.13
@@ -2617,8 +2607,8 @@ Cohesion: 0.50
 Nodes (4): CalendarDatePicker, CalendarDatePickerState, CalendarView, CalendarViewState
 
 ### Community 522 - "Community 522"
-Cohesion: 0.18
-Nodes (10): getLastActiveUserId, getRegisteredAccounts, markAsUsed, _prefs, _registry, removeAccount, saveAccount, SessionLocalDatasource (+2 more)
+Cohesion: 0.20
+Nodes (9): ../models/navigation_entity.dart, getAppShell, getCurrentTab, SpacesRepositoryImpl, navigateToTab, SpacesRepository, updateBadgeCount, updateOnlineStatus (+1 more)
 
 ### Community 523 - "Community 523"
 Cohesion: 0.15
@@ -2629,20 +2619,24 @@ Cohesion: 0.46
 Nodes (13): Check-Command(), Check-EnvFile(), Invoke-In-Root(), Run-BuildAndroid(), Run-BuildWeb(), Run-BuildWindows(), Run-DeployNetlify(), Show-Menu() (+5 more)
 
 ### Community 525 - "Community 525"
-Cohesion: 0.18
-Nodes (10): activeCanvas, activeItems, canvases, CanvasState, copyWith, error, hashCode, isLoading (+2 more)
+Cohesion: 0.20
+Nodes (9): fromJson, id, isActive, itemId, itemType, purchasedAt, toJson, UserCustomization (+1 more)
 
 ### Community 526 - "Community 526"
-Cohesion: 0.18
-Nodes (10): build, color, DialPainter, label, paint, progress, SessionDial, shouldRepaint (+2 more)
+Cohesion: 0.20
+Nodes (9): copyWith, currentOffset, errorMessage, hasMore, loadingState, NotificationLoadingState, notifications, NotificationState (+1 more)
 
 ### Community 527 - "Community 527"
 Cohesion: 0.24
 Nodes (9): JsValue, RatchetState, Result, Self, Vec, pqa_decrypt_wasm(), pqa_encrypt_wasm(), WasmMessage (+1 more)
 
+### Community 528 - "Community 528"
+Cohesion: 0.20
+Nodes (10): _RawLiquidGlassFilter, _RawShapes, SingleChildRenderObjectWidget, RawFakeGlass, _RenderGlassGlowLayerWidget, GlassShadow, _RawGlassify, _RawLiquidGlassBlendGroup (+2 more)
+
 ### Community 529 - "Community 529"
 Cohesion: 0.20
-Nodes (9): BorderRadiusGeometry, backgroundColor, borderColor, borderRadius, build, Card, child, margin (+1 more)
+Nodes (9): contributeToCapsule, createCapsule, deleteCapsule, getCapsuleById, getCapsules, openCapsule, _supabase, _transformResponse (+1 more)
 
 ### Community 530 - "Community 530"
 Cohesion: 0.42
@@ -2650,19 +2644,19 @@ Nodes (11): jboolean, jbyteArray, JClass, jlong, JNIEnv, jstring, Java_com_oasis
 
 ### Community 531 - "Community 531"
 Cohesion: 0.20
-Nodes (9): copyWith, cursor, error, FeedState, FeedType, hasMore, isLoading, isLoadingMore (+1 more)
+Nodes (9): NotificationRepositoryImpl, NotificationRepository, call, DeleteAllNotifications, GetNotifications, GetUnreadNotificationCount, MarkAllNotificationsRead, MarkNotificationRead (+1 more)
 
 ### Community 532 - "Community 532"
-Cohesion: 0.03
-Nodes (63): dart:ffi, dart:io, package:path_provider/path_provider.dart, package:sqlite3/open.dart, clearAll, createPreKeyBundle, deleteIdentityKeys, deleteSession (+55 more)
+Cohesion: 0.05
+Nodes (38): dart:ffi, package:oasis/services/curation_tracking_service.dart, package:sqflite_common_ffi/sqflite_ffi.dart, package:sqlite3/open.dart, clearAll, createPreKeyBundle, deleteIdentityKeys, deleteSession (+30 more)
 
 ### Community 533 - "Community 533"
 Cohesion: 0.18
 Nodes (10): ../screens/forms/auto_suggest_box.dart, ../screens/forms/calendar_date_picker.dart, ../screens/forms/calendar_view.dart, ../screens/forms/color_picker.dart, ../screens/forms/combobox.dart, ../screens/forms/date_picker.dart, ../screens/forms/number_box.dart, ../screens/forms/password_box.dart (+2 more)
 
 ### Community 534 - "Community 534"
-Cohesion: 0.29
-Nodes (7): build, createState, initState, _InitStateCounter, _InitStateCounterState, main, onInitState
+Cohesion: 0.25
+Nodes (8): build, checked, createState, disabled, firstValue, secondValue, ToggleSwitchPage, _ToggleSwitchPageState
 
 ### Community 535 - "Community 535"
 Cohesion: 0.22
@@ -2673,16 +2667,16 @@ Cohesion: 0.28
 Nodes (6): package:alchemist/alchemist.dart, package:liquid_glass_renderer/experimental.dart, shared.dart, main, main, main
 
 ### Community 537 - "Community 537"
-Cohesion: 0.29
-Nodes (5): main, package:integration_test/integration_test.dart, package:oasis/features/auth/presentation/screens/login_screen.dart, package:oasis/main.dart, main
+Cohesion: 0.22
+Nodes (8): package:oasis/features/notifications/data/datasources/notification_remote_datasource.dart, package:oasis/features/notifications/domain/repositories/notification_repository.dart, deleteAllNotifications, getNotifications, getUnreadCount, markAllAsRead, markAsRead, _remoteDatasource
 
 ### Community 538 - "Community 538"
-Cohesion: 0.29
-Nodes (6): package:file_picker/file_picker.dart, PlatformFile, build, file, FilePreview, onDismiss
+Cohesion: 0.22
+Nodes (8): copyWith, dark, failure, lerp, light, main, success, toString
 
 ### Community 539 - "Community 539"
-Cohesion: 0.20
-Nodes (9): copyWith, currentOffset, errorMessage, hasMore, loadingState, NotificationLoadingState, notifications, NotificationState (+1 more)
+Cohesion: 0.25
+Nodes (7): deleteAllNotifications, getNotifications, getUnreadCount, markAllAsRead, markAsRead, NotificationRemoteDatasource, _supabase
 
 ### Community 540 - "Community 540"
 Cohesion: 0.43
@@ -2693,8 +2687,8 @@ Cohesion: 0.33
 Nodes (6): Icon, build, fallbackIcon, firstWhereOrNull, _Iterable, WindowsIcon
 
 ### Community 543 - "Community 543"
-Cohesion: 0.22
-Nodes (8): AuthState, copyWith, currentAccount, error, isAuthenticated, isLoading, registeredAccounts, RegisteredAccount
+Cohesion: 0.25
+Nodes (7): stream, deleteAllNotifications, getNotifications, getUnreadCount, markAllAsRead, markAsRead, notificationsStream
 
 ### Community 544 - "Community 544"
 Cohesion: 0.29
@@ -2705,44 +2699,44 @@ Cohesion: 0.38
 Nodes (4): _displayItem(), _displayNextItem(), _finishSearch(), Search
 
 ### Community 546 - "Community 546"
-Cohesion: 0.22
-Nodes (8): capsules, CapsuleState, copyWith, error, isCreating, isLoading, selectedCapsule, unlockedCapsules
+Cohesion: 0.20
+Nodes (9): TimeCapsule, capsules, CapsuleState, copyWith, error, isCreating, isLoading, selectedCapsule (+1 more)
 
 ### Community 547 - "Community 547"
 Cohesion: 0.60
 Nodes (5): benchmark.sh script, print_error(), print_info(), print_success(), print_warning()
 
 ### Community 548 - "Community 548"
-Cohesion: 0.25
-Nodes (7): defaultStyleOf, IconButtonMode, of, SmallIconButton, themeStyleOf, updateShouldNotify, IconButtonMode?
+Cohesion: 0.06
+Nodes (27): BaseButton, _BaseButtonState, Button, defaultStyleOf, kDefaultButtonPadding, themeStyleOf, backgroundColor, defaultStyleOf (+19 more)
 
 ### Community 549 - "Community 549"
-Cohesion: 0.40
-Nodes (5): EndNavigationIndicator, _EndNavigationIndicatorState, NavigationIndicator, NavigationIndicatorState, StickyNavigationIndicator
+Cohesion: 0.29
+Nodes (7): build, createState, initState, _InitStateCounter, _InitStateCounterState, main, onInitState
 
 ### Community 550 - "Community 550"
 Cohesion: 0.33
 Nodes (5): InitInput, InitOutput, SyncInitInput, WasmMessage, WasmRatchetState
 
 ### Community 551 - "Community 551"
-Cohesion: 0.50
-Nodes (4): Route /register, Route /register?add_account=true, build, build
+Cohesion: 0.29
+Nodes (5): main, package:integration_test/integration_test.dart, package:oasis/features/auth/presentation/screens/login_screen.dart, package:oasis/main.dart, main
 
 ### Community 552 - "Community 552"
 Cohesion: 0.47
 Nodes (5): main(), parse_env_file(), parse_social_content(), Parses SOCIAL_CONTENT.md specifically for the Reddit section., Simple parser for dotenv files to load into os.environ if python-dotenv is not i
 
 ### Community 553 - "Community 553"
-Cohesion: 0.06
-Nodes (37): createState, dispose, initState, main, _appTheme, appTitle, _index, link (+29 more)
+Cohesion: 0.47
+Nodes (6): build, Route create_capsule, Route /create-post, Route create_ripple, _showCreateMenu, _showFluentCreateMenu
 
 ### Community 555 - "Community 555"
 Cohesion: 0.40
 Nodes (5): _FlyoutPositionDelegate, _SubItemPositionDelegate, _TooltipPositionDelegate, _ComboBoxMenuRouteLayout, SingleChildLayoutDelegate
 
 ### Community 556 - "Community 556"
-Cohesion: 1.33
-Nodes (3): MyColors, ThemeExtension, AppThemeExtension
+Cohesion: 0.40
+Nodes (6): EndNavigationIndicator, _EndNavigationIndicatorState, NavigationIndicator, NavigationIndicatorState, StickyNavigationIndicator, _StickyNavigationIndicatorState
 
 ### Community 557 - "Community 557"
 Cohesion: 0.40
@@ -2781,12 +2775,12 @@ Cohesion: 0.40
 Nodes (4): ../screens/theming/colors.dart, ../screens/theming/icons.dart, ../screens/theming/reveal_focus.dart, ../screens/theming/typography.dart
 
 ### Community 566 - "Community 566"
-Cohesion: 0.50
-Nodes (3): CustomPaint, package:oasis/widgets/dotted_border_painter.dart, main
+Cohesion: 0.33
+Nodes (5): package:oasis/features/notifications/domain/models/notification_entity.dart, package:oasis/services/notification_decryption_service.dart, NotificationDecryptionService, decryptionService, main
 
 ### Community 567 - "Community 567"
-Cohesion: 0.25
-Nodes (7): ../models/message_entity.dart, deleteMessage, getMessages, getReactions, reactToMessage, removeReaction, sendMessage
+Cohesion: 0.67
+Nodes (3): notifyAllUsersOfLaunch(), GET(), LAUNCH_DATE
 
 ### Community 568 - "Community 568"
 Cohesion: 0.50
@@ -2809,76 +2803,36 @@ Cohesion: 0.50
 Nodes (3): fs, path, stdinTimeout
 
 ### Community 574 - "Community 574"
-Cohesion: 0.25
-Nodes (7): bounds, points, recognize, RecognizedShape, RecognizedShapeType, ShapeRecognizer, type
-
-### Community 575 - "Community 575"
-Cohesion: 0.29
-Nodes (6): build, ChatTypingIndicator, conversationId, currentUserId, package:oasis/providers/typing_indicator_provider.dart, package:oasis/widgets/messages/typing_indicator_widget.dart
+Cohesion: 0.67
+Nodes (3): _ComboBoxRoute, _ComboBoxRouteResult, PopupRoute
 
 ### Community 577 - "Community 577"
 Cohesion: 0.67
 Nodes (3): _highlight(), _highlightText(), SphinxHighlight
 
-### Community 579 - "Community 579"
-Cohesion: 0.67
-Nodes (3): @Deprecated, buildToolbar, deriveLegacyBackupKey
-
-### Community 594 - "Community 594"
-Cohesion: 0.29
-Nodes (6): call, GetStoryViewers, ReactToStory, RemoveStoryReaction, _repository, ViewStory
-
-### Community 610 - "Community 610"
-Cohesion: 0.47
-Nodes (6): build, Route create_capsule, Route /create-post, Route create_ripple, _showCreateMenu, _showFluentCreateMenu
-
-### Community 620 - "Community 620"
-Cohesion: 0.33
-Nodes (6): _MenuScrollBehavior, _ComboBoxScrollBehavior, NavigationViewScrollBehavior, ScrollBehavior, FluentScrollBehavior, _TabViewScrollBehavior
-
-### Community 621 - "Community 621"
-Cohesion: 0.40
-Nodes (5): AutofillClient, _TextBoxState, RestorationMixin, TextBox, TextSelectionGestureDetectorBuilderDelegate
-
-### Community 622 - "Community 622"
-Cohesion: 0.40
-Nodes (5): _AdjustSliderIntent, intent, _SearchIntent, _SettingsIntent, _SwitchTabIntent
-
-### Community 623 - "Community 623"
-Cohesion: 0.67
-Nodes (3): notifyAllUsersOfLaunch(), GET(), LAUNCH_DATE
-
-### Community 647 - "Community 647"
-Cohesion: 0.50
-Nodes (4): @pragma, callingMain, firebaseMessagingBackgroundHandler, notificationTapBackground
-
 ### Community 648 - "Community 648"
 Cohesion: 0.67
 Nodes (3): DismissAction, _DismissAction, _DismissAction
 
-### Community 649 - "Community 649"
-Cohesion: 0.67
-Nodes (3): _ComboBoxRoute, _ComboBoxRouteResult, PopupRoute
-
 ## Knowledge Gaps
-- **23789 isolated node(s):** `fs`, `path`, `os`, `{ spawn }`, `homeDir` (+23784 more)
+- **23929 isolated node(s):** `fs`, `path`, `os`, `{ spawn }`, `homeDir` (+23924 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **61 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **65 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `_` connect `Feed Screen & Indicators` to `Community 88`, `Notification System`, `Onboarding Celebration`, `Community 470`?**
-  _High betweenness centrality (0.140) - this node is a cross-community bridge._
-- **Why does `_` connect `Onboarding Celebration` to `Community 88`, `Notification System`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
-- **Why does `_` connect `Community 490` to `Notification System`, `Community 301`, `Community 532`, `Community 278`, `Community 346`?**
+- **Why does `_` connect `Feed Screen & Indicators` to `Community 88`, `Call & Attachment Modals`, `Onboarding Celebration`, `Community 470`?**
+  _High betweenness centrality (0.138) - this node is a cross-community bridge._
+- **Why does `_` connect `Onboarding Celebration` to `Community 88`, `Call & Attachment Modals`?**
+  _High betweenness centrality (0.074) - this node is a cross-community bridge._
+- **Why does `_` connect `Community 490` to `Community 327`, `Community 301`, `Call & Attachment Modals`, `Community 278`, `Community 475`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `fs`, `path`, `os` to the rest of the system?**
-  _23791 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _23931 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Auth & Session Management` be split into smaller, more focused modules?**
   _Cohesion score 0.015037593984962405 - nodes in this community are weakly interconnected._
 - **Should `User Profile & Social Graph` be split into smaller, more focused modules?**
   _Cohesion score 0.018518518518518517 - nodes in this community are weakly interconnected._
 - **Should `Notification System` be split into smaller, more focused modules?**
-  _Cohesion score 0.011765576439248186 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.014717552846115 - nodes in this community are weakly interconnected._

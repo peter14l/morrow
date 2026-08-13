@@ -2,6 +2,15 @@
 
 All notable changes to the Oasis project will be documented in this file. This project follows [Semantic Versioning](https://semver.org/).
 
+## [1.1.16] - 2026-08-13
+
+### Interface & Design
+- **Floating Bottom Navigation Bar** - Redesigned bottom navigation bar to be a floating capsule with glassmorphism/blur effects, margin/padding, and border decoration when transparency effects are on.
+- **Stable Chat Input Bar Layout** - Combined the attachment, sticker/GIF, and spoiler toggle buttons into a single fixed-size container to completely prevent layout wrapping jitters and height jumps while typing.
+
+### Push Notifications
+- **FCM Permission Request** - Added explicit request for OS-level runtime notifications permission on Android 13+ to ensure FCM messages are received and displayed successfully.
+
 ## [1.1.13] - 2026-07-28
 
 ### Security & Privacy

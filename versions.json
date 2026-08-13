@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.15",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.15.apk",
-    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
+    "latestVersion": "1.1.16",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.16.apk",
+    "releaseNotes": "• Redesigned bottom navigation bar to be a floating capsule when transparency effects are on.\n• Combined attachment, sticker/GIF, and spoiler buttons in a single fixed-size container to prevent textbox height jitter.\n• Added explicit system runtime permission check for push notifications on Android 13+.",
     "isRequired": false,
-    "releaseDate": "2026-05-15T10:00:00Z"
+    "releaseDate": "2026-08-13T16:53:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.15",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.15.msix",
-    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
+    "latestVersion": "1.1.16",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.16.msix",
+    "releaseNotes": "• Redesigned bottom navigation bar to be a floating capsule when transparency effects are on.\n• Combined attachment, sticker/GIF, and spoiler buttons in a single fixed-size container to prevent textbox height jitter.\n• Added explicit system runtime permission check for push notifications on Android 13+.",
     "isRequired": false,
-    "releaseDate": "2026-05-15T10:00:00Z"
+    "releaseDate": "2026-08-13T16:53:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.15",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.15.dmg",
-    "releaseNotes": "• Added global toggle to disable transparency and blur effects in Settings.\n• Fixed account switching bug where previous accounts were forgotten.\n• Improved session registry robustness to prevent data loss.\n• Added ability to remove specific accounts from the switcher.",
+    "latestVersion": "1.1.16",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.16.dmg",
+    "releaseNotes": "• Redesigned bottom navigation bar to be a floating capsule when transparency effects are on.\n• Combined attachment, sticker/GIF, and spoiler buttons in a single fixed-size container to prevent textbox height jitter.\n• Added explicit system runtime permission check for push notifications on Android 13+.",
     "isRequired": false,
-    "releaseDate": "2026-05-15T10:00:00Z"
+    "releaseDate": "2026-08-13T16:53:00Z"
   }
 }

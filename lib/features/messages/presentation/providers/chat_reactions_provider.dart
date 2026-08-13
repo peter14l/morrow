@@ -118,6 +118,14 @@ class ChatReactionsProvider with ChangeNotifier {
           username: username,
         );
       }
+
+      // Authoritative refresh: re-fetch the full reaction set from the server
+      // so a stale realtime fetch can never leave the UI with a reaction that
+      // was applied (or removed) but then wiped out by an out-of-order update.
+      final freshReactions = await _messagingService.fetchReactionsForMessage(
+        message.id,
+      );
+      onReactionsUpdated(freshReactions);
     } catch (e) {
       debugPrint('Error updating reaction: $e');
       onError?.call('Failed to update reaction');
