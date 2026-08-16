@@ -1,0 +1,79 @@
+<Page
+    x:Class="Oasis.WinUI.Views.Shell.MainShellPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <NavigationView x:Name="NavView"
+                    IsBackButtonVisible="Collapsed"
+                    IsSettingsVisible="True"
+                    OpenPaneLength="240"
+                    PaneDisplayMode="Auto"
+                    SelectionChanged="NavView_SelectionChanged"
+                    BackRequested="NavView_BackRequested">
+
+        <NavigationView.MenuItems>
+            <NavigationViewItem x:Name="FeedItem"
+                                Content="Feed"
+                                Tag="feed"
+                                Icon="Home" />
+            <NavigationViewItem x:Name="SearchItem"
+                                Content="Search &amp; Explore"
+                                Tag="search"
+                                Icon="Find" />
+            <NavigationViewItem x:Name="MessagesItem"
+                                Content="Messages"
+                                Tag="messages"
+                                Icon="Message" />
+            <NavigationViewItem x:Name="SpacesItem"
+                                Content="Spaces"
+                                Tag="spaces"
+                                Icon="People" />
+            <NavigationViewItem x:Name="WellnessItem"
+                                Content="Wellness &amp; Focus"
+                                Tag="wellness"
+                                Icon="Clock" />
+            <NavigationViewItem x:Name="NotificationsItem"
+                                Content="Notifications"
+                                Tag="notifications">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xEA8F;" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem x:Name="ProfileItem"
+                                Content="Profile"
+                                Tag="profile"
+                                Icon="Contact" />
+        </NavigationView.MenuItems>
+
+        <NavigationView.PaneFooter>
+            <StackPanel Padding="8,8" Spacing="4">
+                <!-- Avatar + name row — clicking navigates to Profile -->
+                <Button x:Name="UserAvatarButton"
+                        HorizontalAlignment="Stretch"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Padding="8,6"
+                        Click="UserAvatarButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <PersonPicture x:Name="NavAvatarPicture" Width="32" Height="32" />
+                        <TextBlock x:Name="UserLabel"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   FontSize="13" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="SignOutButton"
+                        Content="Sign out"
+                        HorizontalAlignment="Stretch"
+                        Click="SignOutButton_Click" />
+            </StackPanel>
+        </NavigationView.PaneFooter>
+
+        <Frame x:Name="ContentFrame" />
+    </NavigationView>
+</Page>

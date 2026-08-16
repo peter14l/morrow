@@ -261,7 +261,7 @@ class _VoiceBubbleState extends State<VoiceBubble> {
           : CrossAxisAlignment.start,
       children: [
         VoiceMessagePlayer(
-          audioUrl: _localPath!,
+          audioUrl: _localPath ?? widget.message.mediaUrl ?? "",
           duration: widget.message.voiceDuration,
           isMe: widget.isMe,
           color: color,

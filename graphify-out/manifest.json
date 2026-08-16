@@ -2960,7 +2960,7 @@
     "semantic_hash": ""
   },
   "lib/features/messages/data/chat_media_service.dart": {
-    "mtime": 1785479002.99451,
+    "mtime": 1786852220.9347632,
     "ast_hash": "c4335faa36bf6c1a57517c3c8868ef22",
     "semantic_hash": ""
   },
@@ -3265,8 +3265,8 @@
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/voice_bubble.dart": {
-    "mtime": 1785478552.7255285,
-    "ast_hash": "2c7a329c412479e55de9d2bb82505f30",
+    "mtime": 1786852237.0692792,
+    "ast_hash": "7653333dad2c1d8c400122311c4d8379",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_app_bar.dart": {
@@ -3805,8 +3805,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/about_app_screen.dart": {
-    "mtime": 1785485866.9948423,
-    "ast_hash": "bbb2ab3d5a7282d4fac07dbc65d39601",
+    "mtime": 1786639846.4335384,
+    "ast_hash": "617567b7d04abbbcb6ea20ee5b08123c",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/account_privacy_screen.dart": {
@@ -3920,8 +3920,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/sections/support_section.dart": {
-    "mtime": 1785485866.5320299,
-    "ast_hash": "6d55cbc16ec1598baf5ad1d872ed75b0",
+    "mtime": 1786639847.9704306,
+    "ast_hash": "3fb833175c51ae9fdcbfb619410db49d",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/widgets/privacy_transparency_card.dart": {
@@ -37132,6 +37132,926 @@
   "lib/services/message_send_throttler.dart": {
     "mtime": 1786639040.6644747,
     "ast_hash": "570b02456d73ed2153c6312a02c22459",
+    "semantic_hash": ""
+  },
+  "winui/Oasis.WinUI.slnx": {
+    "mtime": 1786769442.5947747,
+    "ast_hash": "7e0d0e6d8884b036c8523708a5ac8c88",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/App.xaml.cs": {
+    "mtime": 1786816069.5267944,
+    "ast_hash": "d9a419b29fa8fd2b4c8a808d16996fde",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Auth/AuthService.cs": {
+    "mtime": 1786850309.6665628,
+    "ast_hash": "31f11e00be908666714c46ef84ba2c75",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Auth/RegisteredAccount.cs": {
+    "mtime": 1786765943.3038347,
+    "ast_hash": "18a7377b35766a2753d591059a5064dd",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Config/AppConfig.cs": {
+    "mtime": 1786765892.4889946,
+    "ast_hash": "1ef69f08d77bf0f94d1b261a941e0fbe",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Config/OasisEnv.cs": {
+    "mtime": 1786812998.2208421,
+    "ast_hash": "f816b4d75af2928942aea285452014db",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Config/SupabaseConfig.cs": {
+    "mtime": 1786765900.8084552,
+    "ast_hash": "9ea3e8fdcb2914c65364ae4d673dafe2",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Converters/Converters.cs": {
+    "mtime": 1786773900.832659,
+    "ast_hash": "c9bfa5e51be9712f9cbf6eb6b6aa27fe",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Crypto/KeyManagementService.cs": {
+    "mtime": 1786783213.8866637,
+    "ast_hash": "ec5fb7f3b3f072ca7cc5acf2229e84de",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Crypto/PQAuraService.cs": {
+    "mtime": 1786773417.920935,
+    "ast_hash": "246edb271622d58b919d5745c4ce90b6",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Crypto/PqAuraNative.cs": {
+    "mtime": 1786774967.9016123,
+    "ast_hash": "25b07dff17715c9425b0c8592b07ef8d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Comment.cs": {
+    "mtime": 1786772394.8961976,
+    "ast_hash": "cd769e5d894848be252f70f690bc7917",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Community.cs": {
+    "mtime": 1786772419.689282,
+    "ast_hash": "637f6be87496ab5bb4df6b631de2ae5a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Conversation.cs": {
+    "mtime": 1786783261.4971442,
+    "ast_hash": "9380f15106aaaf6d74e878f3eca3e9f5",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/JsonUtil.cs": {
+    "mtime": 1786852099.07673,
+    "ast_hash": "6ecbffac4f942da3b5d4eae0b35dfd6c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Message.cs": {
+    "mtime": 1786851902.9257154,
+    "ast_hash": "3dafef8e297713ce4261dd412e5329c1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Post.cs": {
+    "mtime": 1786772387.8528016,
+    "ast_hash": "1be649a4e7a922a83c50abcd1cbfa50b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/Profile.cs": {
+    "mtime": 1786870639.7572298,
+    "ast_hash": "bb5d618fe20bef8c1a13d120ab6bf3cd",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Models/TableRows.cs": {
+    "mtime": 1786870499.8784335,
+    "ast_hash": "34a90d137ce61779116eb18d5329c51b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Networking/SupabaseService.cs": {
+    "mtime": 1786766571.9483428,
+    "ast_hash": "058ff0b3eef829567fe0a5ae84ac7520",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/FeedService.cs": {
+    "mtime": 1786773351.5768995,
+    "ast_hash": "7b3883c66f5ac8f1885c0ae23bf2c13b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/MessagingService.cs": {
+    "mtime": 1786852896.458303,
+    "ast_hash": "2687fb5033981a4ecdc2271aa50f821a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/NotificationService.cs": {
+    "mtime": 1786870598.9094932,
+    "ast_hash": "616c82a2b0d4b331d40cc83a3d059aff",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/SettingsService.cs": {
+    "mtime": 1786773398.902087,
+    "ast_hash": "948e999464a1c9cca119b6138da6c4b0",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/SpacesService.cs": {
+    "mtime": 1786773132.48279,
+    "ast_hash": "560fc2b2de7f224c8d5ab3a0a4df3444",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Storage/SecureStorage.cs": {
+    "mtime": 1786766550.2896667,
+    "ast_hash": "501471f956e9e2a464d7ad0219449045",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/MainWindow.xaml.cs": {
+    "mtime": 1786814546.927255,
+    "ast_hash": "94abd8e079c351e51e9b5ab9c91476c4",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Oasis.WinUI.csproj": {
+    "mtime": 1786871007.2413218,
+    "ast_hash": "d4ed6c391950b31d2581fff817c3f733",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Services/Logger.cs": {
+    "mtime": 1786800594.1093986,
+    "ast_hash": "8289817d4055a8d376b4f7b2cad4ed39",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Auth/LoginPage.xaml.cs": {
+    "mtime": 1786769933.1983852,
+    "ast_hash": "2deb097ab80a8e695c9022cac8e0c55b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Auth/RegisterPage.xaml.cs": {
+    "mtime": 1786769933.8853474,
+    "ast_hash": "53bf38fa27c9a3e9857f72c79558b5f1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Settings/SettingsPage.xaml.cs": {
+    "mtime": 1786854832.3423407,
+    "ast_hash": "3a8bc6b11c5ae73bf44bfbe5e616aa7b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/ChatPage.xaml.cs": {
+    "mtime": 1786852908.448066,
+    "ast_hash": "1eb9ac89bb72fa98d0a1ba8f691135e9",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/CommunityPage.xaml.cs": {
+    "mtime": 1786773939.225147,
+    "ast_hash": "c30a706f241fcc11f7cae3007b7814af",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/ConversationsPage.xaml.cs": {
+    "mtime": 1786783677.3546028,
+    "ast_hash": "4c580263245ae55abf4dc4a8926f24f2",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/FeedPage.xaml.cs": {
+    "mtime": 1786870722.240279,
+    "ast_hash": "86f204bb704ca88c04b19fcf2ed18c7a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/GifPickerDialog.cs": {
+    "mtime": 1786851235.6108148,
+    "ast_hash": "aaf9c98bfe0ff658f3c3dcd3d797a332",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/KeyRestorePrompt.cs": {
+    "mtime": 1786783372.4837732,
+    "ast_hash": "06faa261afceaeb90b3227a141fd0510",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/MainShellPage.xaml.cs": {
+    "mtime": 1786870582.077188,
+    "ast_hash": "a82d64afe4036a8fab54ab57a68e8374",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/SpacesPage.xaml.cs": {
+    "mtime": 1786773917.1177359,
+    "ast_hash": "5108b8db8a4f8c8613bd36133512a029",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/VoiceRecordDialog.cs": {
+    "mtime": 1786811608.0601714,
+    "ast_hash": "395b8145d11d9ca455598dd7f8cf00c7",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/App.g.cs": {
+    "mtime": 1786816312.7047172,
+    "ast_hash": "7da6e8b563f99bc4e10599fbcf007f82",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/App.g.i.cs": {
+    "mtime": 1786816305.521373,
+    "ast_hash": "35f5c3fd88ae0e1d9ee181cf48326159",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/MainWindow.g.cs": {
+    "mtime": 1786816312.8700247,
+    "ast_hash": "9d0270a6d929460879f331695677e9bb",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/MainWindow.g.i.cs": {
+    "mtime": 1786816305.5277205,
+    "ast_hash": "3a65095a83c43049750ba1feb44bd9ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Oasis.WinUI.GlobalUsings.g.cs": {
+    "mtime": 1786816301.7962844,
+    "ast_hash": "9706b2dbf69f7db452e8b0d5baf54dcf",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.cs": {
+    "mtime": 1786816312.8710244,
+    "ast_hash": "8d14ecaf612501fd9377c3454ff7c04b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.i.cs": {
+    "mtime": 1786816305.5287192,
+    "ast_hash": "38469246246c5357e6b14024ca4146f0",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.cs": {
+    "mtime": 1786816312.8710244,
+    "ast_hash": "4a8922ea2a93b1ba371ae55c51679c32",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.i.cs": {
+    "mtime": 1786816305.5287192,
+    "ast_hash": "9b18bd44171e26024e7ab08102f027ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.cs": {
+    "mtime": 1786816312.8753593,
+    "ast_hash": "263ef516512b712d562bd2e8b9a06893",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.i.cs": {
+    "mtime": 1786816305.5302217,
+    "ast_hash": "078da29053b6f337282502d896af241f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.cs": {
+    "mtime": 1786816312.8806944,
+    "ast_hash": "717668725187948523fc182c6e8b0c7c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.i.cs": {
+    "mtime": 1786816305.5312283,
+    "ast_hash": "8d0e628e6e5b4f737a9440499a5a8375",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.cs": {
+    "mtime": 1786816312.8832083,
+    "ast_hash": "b078f8deea6ae8bd237af097c2786cb4",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.i.cs": {
+    "mtime": 1786816305.5322287,
+    "ast_hash": "77c2f75cca9134ebad888e8541920d0a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/XamlTypeInfo.g.cs": {
+    "mtime": 1786816312.9098494,
+    "ast_hash": "0a2846f30b63e906adeb5ec28d23553e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Oasis.WinUI.csproj.FileListAbsolute.txt": {
+    "mtime": 1786816314.697811,
+    "ast_hash": "af13cba35990234a8d1cc129792c3817",
+    "semantic_hash": ""
+  },
+  "winui/build_and_install.ps1": {
+    "mtime": 1786849943.261094,
+    "ast_hash": "069a9ce97ca48b81c294d1ee29ebd790",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+    "mtime": 1786816313.0585792,
+    "ast_hash": "8479efdf06e2d26e053d27ffa6964185",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Oasis.WinUI.AssemblyInfo.cs": {
+    "mtime": 1786816313.138432,
+    "ast_hash": "1ac50ba54b36bc1b4d87ff5fca3b350d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.cs": {
+    "mtime": 1786816312.8773675,
+    "ast_hash": "e766b3251734eb6220a86223a00bc29a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.i.cs": {
+    "mtime": 1786816305.5302217,
+    "ast_hash": "9beca77f871f894d0e773fd285383db3",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.cs": {
+    "mtime": 1786816312.879101,
+    "ast_hash": "f4f84ff297991201b9eb9347d0b63834",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.i.cs": {
+    "mtime": 1786816305.5302217,
+    "ast_hash": "2cbb3bc6cf0844a12258e3df19eb3646",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.cs": {
+    "mtime": 1786816312.8806944,
+    "ast_hash": "ff6de3a3d1da92812b053f85beb19c7d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.i.cs": {
+    "mtime": 1786816305.5312283,
+    "ast_hash": "5f191f61ae7432068835f3dc82b55914",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.cs": {
+    "mtime": 1786816312.8837767,
+    "ast_hash": "2478775594a5e0ba04db134c048b5290",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.i.cs": {
+    "mtime": 1786816305.535728,
+    "ast_hash": "b738be5de9aa95a3dc86324bcbb96ed8",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+    "mtime": 1786849295.700167,
+    "ast_hash": "8479efdf06e2d26e053d27ffa6964185",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/App.g.cs": {
+    "mtime": 1786852783.791012,
+    "ast_hash": "7da6e8b563f99bc4e10599fbcf007f82",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/App.g.i.cs": {
+    "mtime": 1786849923.036807,
+    "ast_hash": "35f5c3fd88ae0e1d9ee181cf48326159",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/MainWindow.g.cs": {
+    "mtime": 1786850224.82439,
+    "ast_hash": "9d0270a6d929460879f331695677e9bb",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/MainWindow.g.i.cs": {
+    "mtime": 1786849923.055032,
+    "ast_hash": "3a65095a83c43049750ba1feb44bd9ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Oasis.WinUI.AssemblyInfo.cs": {
+    "mtime": 1786850225.0852342,
+    "ast_hash": "1ac50ba54b36bc1b4d87ff5fca3b350d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Oasis.WinUI.GlobalUsings.g.cs": {
+    "mtime": 1786815861.931403,
+    "ast_hash": "9706b2dbf69f7db452e8b0d5baf54dcf",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Auth/LoginPage.g.cs": {
+    "mtime": 1786850224.82539,
+    "ast_hash": "8d14ecaf612501fd9377c3454ff7c04b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Auth/LoginPage.g.i.cs": {
+    "mtime": 1786849923.055652,
+    "ast_hash": "38469246246c5357e6b14024ca4146f0",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Auth/RegisterPage.g.cs": {
+    "mtime": 1786850224.82539,
+    "ast_hash": "4a8922ea2a93b1ba371ae55c51679c32",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Auth/RegisterPage.g.i.cs": {
+    "mtime": 1786849923.0566618,
+    "ast_hash": "9b18bd44171e26024e7ab08102f027ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Settings/SettingsPage.g.cs": {
+    "mtime": 1786855155.869918,
+    "ast_hash": "d607c8afb1fcc72c510b3628ff7acf34",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Settings/SettingsPage.g.i.cs": {
+    "mtime": 1786855148.148782,
+    "ast_hash": "55fd389dcf8a8d9d071a8417f1ee743d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/ChatPage.g.cs": {
+    "mtime": 1786850224.8273904,
+    "ast_hash": "e766b3251734eb6220a86223a00bc29a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/ChatPage.g.i.cs": {
+    "mtime": 1786849923.0601132,
+    "ast_hash": "9beca77f871f894d0e773fd285383db3",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/CommunityPage.g.cs": {
+    "mtime": 1786850224.828895,
+    "ast_hash": "f4f84ff297991201b9eb9347d0b63834",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/CommunityPage.g.i.cs": {
+    "mtime": 1786849923.0611188,
+    "ast_hash": "2cbb3bc6cf0844a12258e3df19eb3646",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/ConversationsPage.g.cs": {
+    "mtime": 1786850224.829903,
+    "ast_hash": "ff6de3a3d1da92812b053f85beb19c7d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/ConversationsPage.g.i.cs": {
+    "mtime": 1786849923.0621195,
+    "ast_hash": "5f191f61ae7432068835f3dc82b55914",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/FeedPage.g.cs": {
+    "mtime": 1786871034.2206945,
+    "ast_hash": "1eb3881805a193143b21e5b764d59f79",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/FeedPage.g.i.cs": {
+    "mtime": 1786871025.216712,
+    "ast_hash": "3357c7b64e935a01cb1d27934d8d7c9b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/MainShellPage.g.cs": {
+    "mtime": 1786871129.3075378,
+    "ast_hash": "21a09b56cd5c0e8ce1bd1c0c2029e691",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/MainShellPage.g.i.cs": {
+    "mtime": 1786871120.031021,
+    "ast_hash": "e5a19891873adede0130a9d676bd0845",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/SpacesPage.g.cs": {
+    "mtime": 1786850224.8319018,
+    "ast_hash": "2478775594a5e0ba04db134c048b5290",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Shell/SpacesPage.g.i.cs": {
+    "mtime": 1786849923.0671203,
+    "ast_hash": "b738be5de9aa95a3dc86324bcbb96ed8",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/XamlTypeInfo.g.cs": {
+    "mtime": 1786871034.4226408,
+    "ast_hash": "e04e237a066ac826bc8ed6600ca87dca",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/MultipleQualifiersPerDimensionFound.txt": {
+    "mtime": 1786816314.6617324,
+    "ast_hash": "f8320b26d30ab433c5a54546d21f414c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/qualifiers.txt": {
+    "mtime": 1786816314.6535368,
+    "ast_hash": "371aede4d157c6c7344faeba7312af6e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/MultipleQualifiersPerDimensionFound.txt": {
+    "mtime": 1786850226.766235,
+    "ast_hash": "f8320b26d30ab433c5a54546d21f414c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Oasis.WinUI.csproj.FileListAbsolute.txt": {
+    "mtime": 1786871042.6083505,
+    "ast_hash": "ea245c86d43c95674cf75c01b1c459fa",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/ProjectArchitectures.txt": {
+    "mtime": 1786850226.8147538,
+    "ast_hash": "1b1ea49ce1a9948085ecd1cafab84f4b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/PublishOutputs.f31487a082.txt": {
+    "mtime": 1786849689.4145117,
+    "ast_hash": "1c7376f15801e82a5a53d8b85c43d8b2",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/_pkginfo.txt": {
+    "mtime": 1786871040.5733063,
+    "ast_hash": "cebdb28263dff119da84a0c930bc0a89",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/package.map.txt": {
+    "mtime": 1786871131.6908114,
+    "ast_hash": "f4dff55afc7ac8157c13e7d6004134d3",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/qualifiers.txt": {
+    "mtime": 1786850226.7612362,
+    "ast_hash": "371aede4d157c6c7344faeba7312af6e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/AppPackages/Oasis.WinUI_1.1.16.0_x64_Test/Add-AppDevPackage.ps1": {
+    "mtime": 1766383550.0,
+    "ast_hash": "38d8e43a201534d3641dda64ef5e45f6",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/AppPackages/Oasis.WinUI_1.1.16.0_x64_Test/Install.ps1": {
+    "mtime": 1766383550.0,
+    "ast_hash": "0b40052613ab310b2077f374191943fc",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/CollectionService.cs": {
+    "mtime": 1786870523.5809546,
+    "ast_hash": "7f72479c1248945b543a9fb715e97810",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/SearchService.cs": {
+    "mtime": 1786870506.793832,
+    "ast_hash": "adbe63b86ecc95539a850d6eef0c528d",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/StoryCapsuleService.cs": {
+    "mtime": 1786870518.573838,
+    "ast_hash": "9df384726383ec8b5fdd56cdd8ca9c27",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Core/Services/WellnessService.cs": {
+    "mtime": 1786870512.68367,
+    "ast_hash": "1c95bf38084524e168d939acddca5c8b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Profile/ProfilePage.xaml.cs": {
+    "mtime": 1786854885.9982867,
+    "ast_hash": "1d7ea5ae85f1c5ce83da641120bd2d95",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/NotificationsPage.xaml.cs": {
+    "mtime": 1786870577.52644,
+    "ast_hash": "239bb2b44d7403d3dd68a74d5824cad7",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/SearchPage.xaml.cs": {
+    "mtime": 1786870556.2864792,
+    "ast_hash": "6cff8faadd4f461f3baa28ad856ae56b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/Views/Shell/WellnessPage.xaml.cs": {
+    "mtime": 1786870567.4315348,
+    "ast_hash": "e38f915fe3e190418d65d2c1b7ebe421",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+    "mtime": 1786854491.2959564,
+    "ast_hash": "8479efdf06e2d26e053d27ffa6964185",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/App.g.cs": {
+    "mtime": 1786870423.4981515,
+    "ast_hash": "cf15779d284e659fb8d34df91c67cdf1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/App.g.i.cs": {
+    "mtime": 1786870411.7047205,
+    "ast_hash": "f5b9356a8a6cfd384ad89ed985c2cf0a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/MainWindow.g.cs": {
+    "mtime": 1786870423.6971543,
+    "ast_hash": "4b3c8e73ba61395645be54db54a6444b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/MainWindow.g.i.cs": {
+    "mtime": 1786854310.7482395,
+    "ast_hash": "3a65095a83c43049750ba1feb44bd9ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.AssemblyInfo.cs": {
+    "mtime": 1786854491.3690965,
+    "ast_hash": "f711b05509b3787f089f467a5e6e9be1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.GlobalUsings.g.cs": {
+    "mtime": 1786854245.1589596,
+    "ast_hash": "9706b2dbf69f7db452e8b0d5baf54dcf",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.cs": {
+    "mtime": 1786870423.7309196,
+    "ast_hash": "19eeadc40b75e9157200ae4a70c2aaf2",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.i.cs": {
+    "mtime": 1786854310.7482395,
+    "ast_hash": "38469246246c5357e6b14024ca4146f0",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.cs": {
+    "mtime": 1786870423.761169,
+    "ast_hash": "cf4f18bd3389d21cf830c95f26b7df68",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.i.cs": {
+    "mtime": 1786854310.7482395,
+    "ast_hash": "9b18bd44171e26024e7ab08102f027ee",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Profile/ProfilePage.g.cs": {
+    "mtime": 1786870423.8418381,
+    "ast_hash": "4acf26a7cbbcfc8081e2bb59a8ffa630",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Profile/ProfilePage.g.i.cs": {
+    "mtime": 1786870411.7456617,
+    "ast_hash": "6c696192372fbf714aa20a09327b5efc",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.cs": {
+    "mtime": 1786870423.8750448,
+    "ast_hash": "568f29710603e4056c3dcb789a7473b4",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.i.cs": {
+    "mtime": 1786870411.7683733,
+    "ast_hash": "4311fbaa67280a722597dbca4cae866c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.cs": {
+    "mtime": 1786870423.8780627,
+    "ast_hash": "10d2efddc85ed392786a345fadefe81f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.i.cs": {
+    "mtime": 1786854310.7502418,
+    "ast_hash": "9beca77f871f894d0e773fd285383db3",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.cs": {
+    "mtime": 1786870423.924934,
+    "ast_hash": "2e0d0375b48bdd8b98bf1e58dedcf7af",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.i.cs": {
+    "mtime": 1786854310.7507486,
+    "ast_hash": "2cbb3bc6cf0844a12258e3df19eb3646",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.cs": {
+    "mtime": 1786870423.9586122,
+    "ast_hash": "e83776e98d087ab737fe609f03fc5bef",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.i.cs": {
+    "mtime": 1786854310.751758,
+    "ast_hash": "5f191f61ae7432068835f3dc82b55914",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.cs": {
+    "mtime": 1786870423.9952095,
+    "ast_hash": "d2bef31deaea339f1d60a0952f1b7ec5",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.i.cs": {
+    "mtime": 1786854310.751758,
+    "ast_hash": "8d0e628e6e5b4f737a9440499a5a8375",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.cs": {
+    "mtime": 1786870424.0308878,
+    "ast_hash": "db859601e714a0f0f25ae2dad4e88d89",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.i.cs": {
+    "mtime": 1786854310.753147,
+    "ast_hash": "519c2a05b09315f38a67fd0e6054c45e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.cs": {
+    "mtime": 1786870424.0691688,
+    "ast_hash": "d547ce97d39c66a73ffd994ea90ca92f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.i.cs": {
+    "mtime": 1786854310.7541578,
+    "ast_hash": "b738be5de9aa95a3dc86324bcbb96ed8",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/XamlTypeInfo.g.cs": {
+    "mtime": 1786870424.2178137,
+    "ast_hash": "0091d0fe18ae11f61c247b3dddd42f4f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Profile/ProfilePage.g.cs": {
+    "mtime": 1786855155.867376,
+    "ast_hash": "7a05c555ff3f2a00be303a7b5aabf261",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Release/net10.0-windows10.0.26100.0/win-x64/Views/Profile/ProfilePage.g.i.cs": {
+    "mtime": 1786855148.148782,
+    "ast_hash": "3ecc0dc91072833f9a0647ed562a2797",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+    "mtime": 1786870455.473633,
+    "ast_hash": "8479efdf06e2d26e053d27ffa6964185",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/App.g.cs": {
+    "mtime": 1786870658.0364995,
+    "ast_hash": "cf15779d284e659fb8d34df91c67cdf1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/App.g.i.cs": {
+    "mtime": 1786870445.6192992,
+    "ast_hash": "f5b9356a8a6cfd384ad89ed985c2cf0a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/MainWindow.g.cs": {
+    "mtime": 1786870455.2096972,
+    "ast_hash": "4b3c8e73ba61395645be54db54a6444b",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/MainWindow.g.i.cs": {
+    "mtime": 1786870445.6268559,
+    "ast_hash": "e6e1de555b7ec8a31ad1569c5f19312e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.AssemblyInfo.cs": {
+    "mtime": 1786870455.552531,
+    "ast_hash": "f711b05509b3787f089f467a5e6e9be1",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.GlobalUsings.g.cs": {
+    "mtime": 1786870440.9301631,
+    "ast_hash": "9706b2dbf69f7db452e8b0d5baf54dcf",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.cs": {
+    "mtime": 1786870455.2096972,
+    "ast_hash": "19eeadc40b75e9157200ae4a70c2aaf2",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Auth/LoginPage.g.i.cs": {
+    "mtime": 1786870445.6288593,
+    "ast_hash": "99652f668eda37389bbf3fc333b98eed",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.cs": {
+    "mtime": 1786870455.2114453,
+    "ast_hash": "cf4f18bd3389d21cf830c95f26b7df68",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Auth/RegisterPage.g.i.cs": {
+    "mtime": 1786870445.6288593,
+    "ast_hash": "fca2a461d831f0583d2fa54e5da137e0",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Profile/ProfilePage.g.cs": {
+    "mtime": 1786870455.2134495,
+    "ast_hash": "4acf26a7cbbcfc8081e2bb59a8ffa630",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Profile/ProfilePage.g.i.cs": {
+    "mtime": 1786870445.6298597,
+    "ast_hash": "6c696192372fbf714aa20a09327b5efc",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.cs": {
+    "mtime": 1786870455.2134495,
+    "ast_hash": "568f29710603e4056c3dcb789a7473b4",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Settings/SettingsPage.g.i.cs": {
+    "mtime": 1786870445.630858,
+    "ast_hash": "4311fbaa67280a722597dbca4cae866c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.cs": {
+    "mtime": 1786870455.2157006,
+    "ast_hash": "10d2efddc85ed392786a345fadefe81f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/ChatPage.g.i.cs": {
+    "mtime": 1786870445.6338997,
+    "ast_hash": "58ffec52d47032c52f918ca789e82682",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.cs": {
+    "mtime": 1786870455.2166986,
+    "ast_hash": "2e0d0375b48bdd8b98bf1e58dedcf7af",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/CommunityPage.g.i.cs": {
+    "mtime": 1786870445.6349094,
+    "ast_hash": "f0a3d10b3f95fa78cf269b93a726c29c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.cs": {
+    "mtime": 1786870455.2178688,
+    "ast_hash": "e83776e98d087ab737fe609f03fc5bef",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/ConversationsPage.g.i.cs": {
+    "mtime": 1786870445.6349094,
+    "ast_hash": "116dbe80406de517f41dfb42754d03dc",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.cs": {
+    "mtime": 1786870762.1312535,
+    "ast_hash": "b001ba2303b7cea2f8bc143f7899626f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/FeedPage.g.i.cs": {
+    "mtime": 1786870749.8107536,
+    "ast_hash": "c61dd09a500a3089e97bea422cefe62e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.cs": {
+    "mtime": 1786870658.2211058,
+    "ast_hash": "d1a68ebb034f4344a9e90f2fe6a966e3",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/MainShellPage.g.i.cs": {
+    "mtime": 1786870592.4795527,
+    "ast_hash": "e07b3264a0722f07384a31c7b98e4917",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/NotificationsPage.g.cs": {
+    "mtime": 1786870699.1277502,
+    "ast_hash": "d9846c965a385676f1280770b5d24810",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/NotificationsPage.g.i.cs": {
+    "mtime": 1786870690.2148764,
+    "ast_hash": "3627caaea8749d4ff1662267c7582846",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/SearchPage.g.cs": {
+    "mtime": 1786870699.1287496,
+    "ast_hash": "b1cb897e22fe5bcf0c9f7128194b4024",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/SearchPage.g.i.cs": {
+    "mtime": 1786870690.2158961,
+    "ast_hash": "2085633b5949dfb99c68d545d40aa990",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.cs": {
+    "mtime": 1786870455.22171,
+    "ast_hash": "d547ce97d39c66a73ffd994ea90ca92f",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/SpacesPage.g.i.cs": {
+    "mtime": 1786870445.637911,
+    "ast_hash": "818f72dbd12c1961164f50fc8cfd5523",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/WellnessPage.g.cs": {
+    "mtime": 1786870699.1337478,
+    "ast_hash": "a25b87209ffbb95882df2aa37fe3587a",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Views/Shell/WellnessPage.g.i.cs": {
+    "mtime": 1786870690.2178874,
+    "ast_hash": "16f68de6709f7a4d1a122f75613ec6df",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/XamlTypeInfo.g.cs": {
+    "mtime": 1786870699.1597278,
+    "ast_hash": "e04e237a066ac826bc8ed6600ca87dca",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/MultipleQualifiersPerDimensionFound.txt": {
+    "mtime": 1786854493.591668,
+    "ast_hash": "f8320b26d30ab433c5a54546d21f414c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.csproj.FileListAbsolute.txt": {
+    "mtime": 1786854493.618881,
+    "ast_hash": "edeb18930ef2e6574bf1dfec4baa82c9",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/Debug/net10.0-windows10.0.26100.0/qualifiers.txt": {
+    "mtime": 1786854493.5867982,
+    "ast_hash": "371aede4d157c6c7344faeba7312af6e",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/MultipleQualifiersPerDimensionFound.txt": {
+    "mtime": 1786870457.5031052,
+    "ast_hash": "f8320b26d30ab433c5a54546d21f414c",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/Oasis.WinUI.csproj.FileListAbsolute.txt": {
+    "mtime": 1786870983.704732,
+    "ast_hash": "256badecf836b85a4d4e31b6c99796ed",
+    "semantic_hash": ""
+  },
+  "winui/src/Oasis.WinUI/obj/x64/Debug/net10.0-windows10.0.26100.0/qualifiers.txt": {
+    "mtime": 1786870457.4984765,
+    "ast_hash": "371aede4d157c6c7344faeba7312af6e",
     "semantic_hash": ""
   }
 }

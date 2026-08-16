@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+    <Platform Name="ARM64" />
+  </Configurations>
+  <Project Path="src\Oasis.WinUI\Oasis.WinUI.csproj" />
+</Solution>

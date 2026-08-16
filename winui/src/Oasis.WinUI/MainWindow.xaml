@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="Oasis.WinUI.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:Oasis.WinUI"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tb="using:H.NotifyIcon"
+    Title="Oasis"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="BaseAlt" />
+    </Window.SystemBackdrop>
+
+    <Grid>
+        <tb:TaskbarIcon
+            x:Name="MyNotifyIcon"
+            IconSource="Assets/AppIcon.ico"
+            ToolTipText="Oasis">
+            <tb:TaskbarIcon.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Open Oasis" Command="{x:Bind RestoreCommand}" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="Exit" Command="{x:Bind ExitCommand}" />
+                </MenuFlyout>
+            </tb:TaskbarIcon.ContextFlyout>
+        </tb:TaskbarIcon>
+
+        <Frame x:Name="RootFrame" />
+    </Grid>
+</Window>

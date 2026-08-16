@@ -1,0 +1,91 @@
+<Page
+    x:Class="Oasis.WinUI.Views.Shell.ConversationsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Oasis.WinUI.Core.Converters"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:ImageUrlConverter x:Key="ImageUrlConverter" />
+        <converters:DateTimeToStringConverter x:Key="DateTimeToStringConverter" />
+        <converters:PositiveNumberToVisibilityConverter x:Key="PositiveNumberToVisibilityConverter" />
+
+        <DataTemplate x:Key="ConversationTemplate">
+            <Grid Padding="0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <PersonPicture Width="44" Height="44"
+                               ProfilePicture="{Binding OtherUserAvatar, Converter={StaticResource ImageUrlConverter}}" />
+
+                <StackPanel Grid.Column="1" Margin="12,0,8,0" VerticalAlignment="Center" Spacing="2">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
+                        <TextBlock Text="{Binding LastMessageTime, Converter={StaticResource DateTimeToStringConverter}}"
+                                   FontSize="11"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding LastMessagePreview}"
+                               FontSize="13"
+                               MaxLines="1"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+
+                <Border Grid.Column="2"
+                        MinWidth="20" Height="20" CornerRadius="10"
+                        Background="{ThemeResource AccentFillColorDefaultBrush}"
+                        Padding="6,0"
+                        VerticalAlignment="Top"
+                        Visibility="{Binding UnreadCount, Converter={StaticResource PositiveNumberToVisibilityConverter}}">
+                    <TextBlock Text="{Binding UnreadCount}" FontSize="12" FontWeight="SemiBold"
+                               Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="340" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0" Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                <Button Content="New conversation" Click="NewConversationButton_Click" />
+                <Button Content="Refresh" Click="RefreshButton_Click" />
+            </StackPanel>
+
+            <ListView x:Name="ConversationsList" Grid.Row="1"
+                      IsItemClickEnabled="True"
+                      SelectionMode="None"
+                      ItemClick="ConversationsList_ItemClick"
+                      ItemTemplate="{StaticResource ConversationTemplate}" />
+        </Grid>
+
+        <Border Grid.Column="1"
+                BorderThickness="1,0,0,0"
+                BorderBrush="{ThemeResource DividerStrokeColorDefaultBrush}">
+            <Grid>
+                <Frame x:Name="DetailFrame" />
+                <TextBlock x:Name="EmptyStateText"
+                           Text="Select a conversation"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </Grid>
+        </Border>
+    </Grid>
+</Page>
