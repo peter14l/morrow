@@ -154,13 +154,6 @@
             android:enabled="true"
             android:exported="false" />
 
-        <service
-            android:name=".OasisMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

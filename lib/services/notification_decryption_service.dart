@@ -24,6 +24,7 @@ class NotificationDecryptionService {
       'body': notification.message,
       'content': notification.message,
       'sender_id': notification.actorId,
+      'actor_id': notification.actorId,
       'encrypted_keys': notification.metadata?['encrypted_keys'],
       'iv': notification.metadata?['iv'],
       'signal_message_type': notification.metadata?['signal_message_type'],
@@ -40,16 +41,39 @@ class NotificationDecryptionService {
     Map<String, dynamic> data, {
     String? targetUserId,
   }) async {
-    final String? content = data['body'] ?? data['content'] ?? data['message'];
+    // Check if metadata is nested as a JSON string or map in 'metadata'
+    Map<String, dynamic> mergedData = Map<String, dynamic>.from(data);
+    if (data['metadata'] != null) {
+      if (data['metadata'] is String) {
+        try {
+          final parsed = jsonDecode(data['metadata'] as String);
+          if (parsed is Map) {
+            mergedData.addAll(Map<String, dynamic>.from(parsed));
+          }
+        } catch (_) {}
+      } else if (data['metadata'] is Map) {
+        mergedData.addAll(Map<String, dynamic>.from(data['metadata']));
+      }
+    }
+
+    final String? content =
+        mergedData['signal_sender_content'] ??
+        mergedData['body'] ??
+        mergedData['content'] ??
+        mergedData['message'];
     if (content == null) return null;
 
     // If it's the generic placeholder, try to find actual ciphertext in signal_sender_content or data['body']
     final bool isGenericPlaceholder =
-        content == 'New Encrypted Message' || content.contains('🔒');
+        content == 'New Encrypted Message' ||
+        content == 'New message' ||
+        content.contains('🔒');
 
-    final bool hasEncryptedKeys = data['encrypted_keys'] != null;
-    final bool hasSignalType = data['signal_message_type'] != null;
-    final bool hasPQAura = data['pq_aura_header'] != null && data['pq_aura_payload'] != null;
+    final bool hasEncryptedKeys = mergedData['encrypted_keys'] != null;
+    final bool hasSignalType = mergedData['signal_message_type'] != null;
+    final bool hasPQAura =
+        mergedData['pq_aura_header'] != null &&
+        mergedData['pq_aura_payload'] != null;
     final bool isLikelyEncrypted =
         !content.contains(' ') && (content.length > 30 || _isBase64(content));
 
@@ -64,13 +88,13 @@ class NotificationDecryptionService {
 
     try {
       final userId = targetUserId ?? _authService.currentUser?.id;
-      final senderId = data['sender_id'] ?? data['actor_id'];
+      final senderId = mergedData['sender_id'] ?? mergedData['actor_id'];
 
       if (userId == null) {
         debugPrint(
           '[NotificationDecryption] Decryption failed: No active session/userId',
         );
-        return '🔒 New Message';
+        return '🔒 Encrypted message';
       }
 
       // Initialize encryption services if needed
@@ -81,8 +105,7 @@ class NotificationDecryptionService {
         await _encryptionService.init();
       }
 
-      // SignalService handles its own per-user initialization now
-      // but we might want to ensure it's ready for this user
+      // SignalService handles its own per-user initialization
       await _signalService.init(userId: userId);
 
       // 0. Try PQ-Aura decryption first if applicable
@@ -91,14 +114,14 @@ class NotificationDecryptionService {
           '[NotificationDecryption] Attempting PQ-Aura decryption for $userId...',
         );
         try {
-          final header = base64Decode(data['pq_aura_header'].toString());
-          final payload = base64Decode(data['pq_aura_payload'].toString());
+          final header = base64Decode(mergedData['pq_aura_header'].toString());
+          final payload = base64Decode(mergedData['pq_aura_payload'].toString());
           final decrypted = await PQAuraService.instance.decryptMessage(
-            senderId,
+            senderId.toString(),
             header,
             payload,
           );
-          if (decrypted != null) {
+          if (decrypted != null && decrypted.isNotEmpty) {
             return decrypted;
           }
         } catch (e) {
@@ -111,35 +134,40 @@ class NotificationDecryptionService {
         debugPrint(
           '[NotificationDecryption] Attempting Signal decryption for $userId...',
         );
-        final signalType = int.tryParse(data['signal_message_type'].toString());
+        final signalType = int.tryParse(mergedData['signal_message_type'].toString());
         if (signalType != null) {
           try {
-            // Use signal_sender_content if body is just a placeholder
+            // Use signal_sender_content or fallback content
             final ciphertext =
-                (isGenericPlaceholder && data['signal_sender_content'] != null)
-                ? data['signal_sender_content']
-                : content;
+                mergedData['signal_sender_content']?.toString() ??
+                (isGenericPlaceholder ? '' : content);
 
-            final decrypted = await _signalService.decryptMessage(
-              senderId,
-              ciphertext,
-              signalType,
-              localUserId: userId,
-            );
-
-            // If signal decryption returned a placeholder but we have RSA fallback
-            if ((decrypted.contains('🔒') ||
-                    decrypted.contains('Optimizing secure connection')) &&
-                data['signal_sender_content'] != null &&
-                hasEncryptedKeys &&
-                data['iv'] != null) {
-              debugPrint(
-                '[NotificationDecryption] Signal returned placeholder, trying RSA fallback...',
+            if (ciphertext.isNotEmpty) {
+              final decrypted = await _signalService.decryptMessage(
+                senderId.toString(),
+                ciphertext,
+                signalType,
+                localUserId: userId,
               );
-              return await _decryptRSAFallback(data, userId: userId);
-            }
 
-            return decrypted;
+              if (decrypted.isNotEmpty &&
+                  !decrypted.contains('🔒') &&
+                  !decrypted.contains('Optimizing secure connection')) {
+                return decrypted;
+              }
+
+              // If signal decryption returned placeholder but we have RSA fallback
+              if (hasEncryptedKeys && mergedData['iv'] != null) {
+                debugPrint(
+                  '[NotificationDecryption] Signal returned placeholder, trying RSA fallback...',
+                );
+                return await _decryptRSAFallback(mergedData, userId: userId);
+              }
+
+              if (decrypted.isNotEmpty) {
+                return decrypted;
+              }
+            }
           } catch (e) {
             debugPrint('[NotificationDecryption] Signal decryption failed: $e');
           }
@@ -147,11 +175,14 @@ class NotificationDecryptionService {
       }
 
       // 2. Try RSA decryption
-      if (hasEncryptedKeys && data['iv'] != null) {
+      if (hasEncryptedKeys && mergedData['iv'] != null) {
         debugPrint(
           '[NotificationDecryption] Attempting RSA decryption for $userId...',
         );
-        return await _decryptRSAFallback(data, userId: userId);
+        final rsaDecrypted = await _decryptRSAFallback(mergedData, userId: userId);
+        if (rsaDecrypted != null && rsaDecrypted.isNotEmpty) {
+          return rsaDecrypted;
+        }
       }
     } catch (e) {
       debugPrint('[NotificationDecryption] Decryption error: $e');
@@ -175,8 +206,7 @@ class NotificationDecryptionService {
   bool _isBase64(String str) {
     try {
       base64.decode(str);
-      return str.length >
-          10; // Simple length check to avoid false positives for tiny strings
+      return str.length > 10;
     } catch (_) {
       return false;
     }
@@ -187,16 +217,21 @@ class NotificationDecryptionService {
     String? userId,
   }) async {
     final String? content =
-        data['signal_sender_content'] ?? data['body'] ?? data['content'];
+        data['signal_sender_content']?.toString() ??
+        data['body']?.toString() ??
+        data['content']?.toString();
     final dynamic encryptedKeysRaw = data['encrypted_keys'];
-    final String? iv = data['iv'];
+    final String? iv = data['iv']?.toString();
 
     if (content == null || encryptedKeysRaw == null || iv == null) return null;
 
-    Map<String, String> encryptedKeys;
+    Map<String, String> encryptedKeys = {};
     if (encryptedKeysRaw is String) {
       try {
-        encryptedKeys = Map<String, String>.from(jsonDecode(encryptedKeysRaw));
+        final decoded = jsonDecode(encryptedKeysRaw);
+        if (decoded is Map) {
+          encryptedKeys = decoded.map((k, v) => MapEntry(k.toString(), v.toString()));
+        }
       } catch (e) {
         debugPrint(
           '[NotificationDecryption] Failed to parse encrypted_keys string: $e',
@@ -204,7 +239,7 @@ class NotificationDecryptionService {
         return null;
       }
     } else if (encryptedKeysRaw is Map) {
-      encryptedKeys = Map<String, String>.from(encryptedKeysRaw);
+      encryptedKeys = encryptedKeysRaw.map((k, v) => MapEntry(k.toString(), v.toString()));
     } else {
       return null;
     }

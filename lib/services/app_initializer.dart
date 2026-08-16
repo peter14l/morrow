@@ -211,29 +211,45 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     return;
   }
 
-  // Note: Standard message notifications are now handled NATIVELY by the OS
-  // via OasisMessagingService.kt (Android) and NotificationServiceExtension (iOS).
-  // We only handle Desktop/Web here, or fallback if native isn't available.
+  // Background notification handler for all platforms (Mobile and Desktop)
+  try {
+    final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
 
-  if (!kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux)) {
     final String title =
-        message.data['title'] ??
         message.notification?.title ??
+        message.data['title'] ??
+        message.data['sender_name'] ??
         'New Notification';
-    final String body =
-        message.data['body'] ?? message.notification?.body ?? 'New Message';
-    final String? payload = message.data.isNotEmpty
-        ? jsonEncode(message.data)
-        : null;
+    String body =
+        message.notification?.body ??
+        message.data['body'] ??
+        message.data['content'] ??
+        'New Message';
 
-    // Simplified display for desktop (decryption on desktop can be added later)
+    // Decrypt body if encrypted
+    try {
+      final decryptedBody = await NotificationDecryptionService()
+          .decryptMessage(message.data, targetUserId: receiverId);
+      if (decryptedBody != null &&
+          decryptedBody.isNotEmpty &&
+          !decryptedBody.contains('🔒')) {
+        body = decryptedBody;
+      } else if (body.length > 60 && !body.contains(' ')) {
+        body = '🔒 Encrypted message';
+      }
+    } catch (e) {
+      debugPrint('[Background FCM] Decryption failed: $e');
+    }
+
     await NotificationManager.instance.showNotification(
       title: title,
       body: body,
-      payload: payload,
+      payload: message.data.isNotEmpty ? jsonEncode(message.data) : null,
       senderAvatar: message.data['sender_avatar'],
       messageType: messageType,
     );
+  } catch (e) {
+    debugPrint('[Background FCM] Error displaying notification: $e');
   }
 }
 

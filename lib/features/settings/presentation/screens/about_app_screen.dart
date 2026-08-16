@@ -69,7 +69,7 @@ class AboutAppScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    'Version 1.1.16',
+                    'Version 1.1.17',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w500,

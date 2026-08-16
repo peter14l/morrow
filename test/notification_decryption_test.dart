@@ -1,16 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:oasis/services/notification_decryption_service.dart';
 import 'package:oasis/features/notifications/domain/models/notification_entity.dart';
-
+import 'test_setup.dart';
 
 void main() {
   late NotificationDecryptionService decryptionService;
-  // Note: Since NotificationDecryptionService is a singleton and creates its own services,
-  // we might need to adjust it to allow injection for testing, or use a more complex mocking setup.
-  // For this test, we'll focus on the logic that doesn't strictly depend on service initialization
-  // OR we can try to initialize a minimal mock environment.
 
   setUp(() {
+    setupTestEnvironment();
     decryptionService = NotificationDecryptionService();
   });
 

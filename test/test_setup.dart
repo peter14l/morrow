@@ -13,7 +13,10 @@ class MockSupabaseClient extends Mock implements SupabaseClient {
   );
 }
 
-class MockGoTrueClient extends Mock implements GoTrueClient {}
+class MockGoTrueClient extends Mock implements GoTrueClient {
+  @override
+  Stream<AuthState> get onAuthStateChange => const Stream.empty();
+}
 
 void setupTestEnvironment() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -5,6 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/core/storage/secure_storage.dart';
 import 'package:oasis/services/key_management_service.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
@@ -84,7 +85,7 @@ class EncryptionService {
 
   final KeyManagementService _keyManager = KeyManagementService();
   final SecureStorage _secureStorage = SecureStorage();
-  final SupabaseClient _supabase = Supabase.instance.client;
+  SupabaseClient get _supabase => SupabaseService().client;
 
   bool _isInitialized = false;
   bool _isInitializing = false;
