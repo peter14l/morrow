@@ -102,7 +102,6 @@ class _CircleDetailScreenState extends State<CircleDetailScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -174,24 +173,42 @@ class _FeedTab extends StatelessWidget {
         }
 
         if (provider.circleFeed.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+          return RefreshIndicator(
+            onRefresh: () async {
+              final currentUserId = AuthService().currentUser?.id;
+              if (currentUserId != null && provider.activeCircle != null) {
+                await provider.loadCircleFeed(
+                  provider.activeCircle!.id,
+                  currentUserId,
+                  refresh: true,
+                );
+              }
+            },
+            child: ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
               children: [
-                Icon(
-                  FluentIcons.feed_24_regular,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'No posts yet',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Be the first to post in this circle!',
-                  style: Theme.of(context).textTheme.bodySmall,
+                SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        FluentIcons.feed_24_regular,
+                        size: 64,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No posts yet',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Be the first to post in this circle!',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

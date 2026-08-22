@@ -404,11 +404,13 @@ class _FeedScreenState extends State<FeedScreen>
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isM3E = themeProvider.isM3EEnabled;
     final isDesktop = ResponsiveLayout.isDesktop(context);
-    final settings = context.watch<UserSettingsProvider>();
+    final feedLayout = context.select<UserSettingsProvider, FeedLayoutType>(
+      (s) => s.feedLayout,
+    );
     final useFluent = themeProvider.useFluentUI;
 
     Widget layout;
-    switch (settings.feedLayout) {
+    switch (feedLayout) {
       case FeedLayoutType.classic:
         layout = ClassicFeedLayout(
           scrollController: _scrollController,
@@ -462,13 +464,13 @@ class _FeedScreenState extends State<FeedScreen>
         fluent.Tooltip(
           message: 'Change Layout',
           child: fluent.IconButton(
-            icon: Icon(settings.feedLayout.icon, size: 20),
+            icon: Icon(feedLayout.icon, size: 20),
             onPressed: () => _showLayoutSwitcher(context),
           ),
         ),
       ] else ...[
         IconButton(
-          icon: Icon(settings.feedLayout.icon),
+          icon: Icon(feedLayout.icon),
           onPressed: () => _showLayoutSwitcher(context),
           tooltip: 'Change Layout',
         ),
@@ -723,16 +725,20 @@ class _FeedScreenState extends State<FeedScreen>
   }
 
   Widget _buildMobileHeader(ColorScheme colorScheme, [bool isM3E = false]) {
-    final settings = context.watch<UserSettingsProvider>();
-    final notificationProvider = context.watch<NotificationProvider>();
-    final profileProvider = context.watch<ProfileProvider>();
-    final unreadCount = notificationProvider.state.unreadCount;
-    final avatarUrl = profileProvider.currentProfile?.avatarUrl;
+    final feedLayout = context.select<UserSettingsProvider, FeedLayoutType>(
+      (s) => s.feedLayout,
+    );
+    final unreadCount = context.select<NotificationProvider, int>(
+      (p) => p.state.unreadCount,
+    );
+    final avatarUrl = context.select<ProfileProvider, String?>(
+      (p) => p.currentProfile?.avatarUrl,
+    );
 
     return Row(
       children: [
         IconButton(
-          icon: Icon(settings.feedLayout.icon, size: 24),
+          icon: Icon(feedLayout.icon, size: 24),
           onPressed: () => _showLayoutSwitcher(context),
           tooltip: 'Change Layout',
         ),

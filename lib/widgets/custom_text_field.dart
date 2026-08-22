@@ -25,7 +25,6 @@ class CustomTextField extends StatelessWidget {
   final bool showCursor;
   final void Function()? onTap;
   final void Function(String)? onChanged;
-  final String? initialValue;
   final String? label;
   final bool enabled;
   final material.Color? fillColor;
@@ -64,7 +63,6 @@ class CustomTextField extends StatelessWidget {
     this.showCursor = true,
     this.onTap,
     this.onChanged,
-    this.initialValue,
     this.label,
     this.enabled = true,
     this.fillColor,
@@ -127,7 +125,6 @@ class CustomTextField extends StatelessWidget {
         showCursor: showCursor,
         onTap: onTap,
         onChanged: onChanged,
-        initialValue: initialValue,
         enabled: enabled,
         style: theme.textTheme.bodyLarge?.copyWith(color: effectiveTextColor),
         decoration: material.InputDecoration(

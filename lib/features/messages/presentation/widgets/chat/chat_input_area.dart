@@ -82,9 +82,35 @@ class ChatInputArea extends StatefulWidget {
 
 class _ChatInputAreaState extends State<ChatInputArea> {
   final fluent.FlyoutController _flyoutController = fluent.FlyoutController();
+  material.ValueNotifier<String>? _fallbackTextNotifier;
+
+  ValueListenable<String> get _effectiveTextNotifier {
+    if (widget.textNotifier != null) return widget.textNotifier!;
+    if (_fallbackTextNotifier == null) {
+      _fallbackTextNotifier = material.ValueNotifier<String>(widget.controller.text);
+      widget.controller.addListener(_onControllerTextChanged);
+    }
+    return _fallbackTextNotifier!;
+  }
+
+  void _onControllerTextChanged() {
+    _fallbackTextNotifier?.value = widget.controller.text;
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatInputArea oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerTextChanged);
+      _fallbackTextNotifier?.value = widget.controller.text;
+      widget.controller.addListener(_onControllerTextChanged);
+    }
+  }
 
   @override
   void dispose() {
+    widget.controller.removeListener(_onControllerTextChanged);
+    _fallbackTextNotifier?.dispose();
     _flyoutController.dispose();
     super.dispose();
   }
@@ -132,8 +158,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         ),
         const material.Spacer(),
         material.ValueListenableBuilder<String>(
-          valueListenable:
-              widget.textNotifier ?? ValueNotifier(widget.controller.text),
+          valueListenable: _effectiveTextNotifier,
           builder: (context, text, child) {
             final durationText = widget.controller.text.isEmpty
                 ? _formatDuration(widget.recordDuration)
@@ -228,9 +253,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
           // switching on typing never changes the text field's width or the input area's
           // height — preventing layout jitter and height fluctuations.
           material.ValueListenableBuilder<String>(
-            valueListenable:
-                widget.textNotifier ??
-                material.ValueNotifier(widget.controller.text),
+            valueListenable: _effectiveTextNotifier,
             builder: (context, text, child) {
               final bool isTyping = text.trim().isNotEmpty;
               final bool showSpoiler = isTyping || widget.hasAttachment;
@@ -486,9 +509,7 @@ class _ChatInputAreaState extends State<ChatInputArea> {
           ),
           const material.SizedBox(width: 4),
           material.ValueListenableBuilder<String>(
-            valueListenable:
-                widget.textNotifier ??
-                material.ValueNotifier(widget.controller.text),
+            valueListenable: _effectiveTextNotifier,
             builder: (context, text, child) {
               return material.Padding(
                 padding: const material.EdgeInsets.only(bottom: 0),

@@ -309,96 +309,101 @@ class _OasisProScreenState extends State<OasisProScreen> {
             child: CircularProgressIndicator(color: Colors.blueAccent),
           )
         else
-          CustomScrollView(
-            slivers: [
-              if (!isDesktop)
-                SliverAppBar(
-                  backgroundColor: Colors.transparent,
-                  leading: IconButton(
-                    icon: const Icon(
-                      FluentIcons.dismiss_24_filled,
-                      color: Colors.white,
-                    ),
-                    onPressed: () => context.pop(),
-                  ),
-                  expandedHeight: 200,
-                  flexibleSpace: FlexibleSpaceBar(
-                    centerTitle: true,
-                    title: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'Oasis Pro',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 24,
-                          ),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: CustomScrollView(
+                slivers: [
+                  if (!isDesktop)
+                    SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      leading: IconButton(
+                        icon: const Icon(
+                          FluentIcons.dismiss_24_filled,
+                          color: Colors.white,
                         ),
-                        Text(
-                          'Elevate your experience',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.white70,
-                          ),
+                        onPressed: () => context.pop(),
+                      ),
+                      expandedHeight: 200,
+                      flexibleSpace: FlexibleSpaceBar(
+                        centerTitle: true,
+                        title: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Text(
+                              'Oasis Pro',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 24,
+                              ),
+                            ),
+                            Text(
+                              'Elevate your experience',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ),
+
+                  SliverPadding(
+                    padding: const EdgeInsets.all(24),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildFeatureItem(
+                          FluentIcons.video_clip_24_regular,
+                          'Ad-Free Experience',
+                          'Enjoy a clean feed without any interruptions.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.shield_lock_24_regular,
+                          'Unlimited Vault & Capsules',
+                          'Store unlimited items and active time capsules.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.draw_shape_24_regular,
+                          'Unlimited Canvas & Circles',
+                          'Create as many collaborative spaces as you need.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.heart_pulse_24_regular,
+                          'Advanced Wellness',
+                          'Weekly reports, custom focus modes, and wind-down.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.data_usage_24_regular,
+                          'Creator Analytics',
+                          '90-day history, demographics, and posting heatmaps.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.arrow_download_24_regular,
+                          'Power Features',
+                          '2GB+ file uploads and media downloads.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.color_24_regular,
+                          'Vibrant Themes',
+                          'Exclusive aurora, wildfire, neon dreams, and ocean depths color palettes.',
+                        ),
+                        _buildFeatureItem(
+                          FluentIcons.cloud_24_regular,
+                          'Unlimited Media Storage',
+                          'Keep your photos and videos forever. No 14-day limits.',
+                        ),
+                        const SizedBox(height: 40),
+
+                        ..._plans.map((plan) => _buildPricingCard(plan)),
+
+                        const SizedBox(height: 40),
+                      ]),
                     ),
                   ),
-                ),
-
-              SliverPadding(
-                padding: const EdgeInsets.all(24),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildFeatureItem(
-                      FluentIcons.video_clip_24_regular,
-                      'Ad-Free Experience',
-                      'Enjoy a clean feed without any interruptions.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.shield_lock_24_regular,
-                      'Unlimited Vault & Capsules',
-                      'Store unlimited items and active time capsules.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.draw_shape_24_regular,
-                      'Unlimited Canvas & Circles',
-                      'Create as many collaborative spaces as you need.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.heart_pulse_24_regular,
-                      'Advanced Wellness',
-                      'Weekly reports, custom focus modes, and wind-down.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.data_usage_24_regular,
-                      'Creator Analytics',
-                      '90-day history, demographics, and posting heatmaps.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.arrow_download_24_regular,
-                      'Power Features',
-                      '2GB+ file uploads and media downloads.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.color_24_regular,
-                      'Vibrant Themes',
-                      'Exclusive aurora, wildfire, neon dreams, and ocean depths color palettes.',
-                    ),
-                    _buildFeatureItem(
-                      FluentIcons.cloud_24_regular,
-                      'Unlimited Media Storage',
-                      'Keep your photos and videos forever. No 14-day limits.',
-                    ),
-                    const SizedBox(height: 40),
-
-                    ..._plans.map((plan) => _buildPricingCard(plan)),
-
-                    const SizedBox(height: 40),
-                  ]),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
       ],
     );

@@ -328,20 +328,16 @@ class _MainLayoutState extends State<MainLayout> {
         kIsWeb || (isM3E && themeProvider.isM3ETransparencyDisabled);
     final currentIndex = _getCurrentIndex();
     final isDesktop = ResponsiveLayout.isDesktop(context);
+    final killSwitchActive = context.select<WellnessService, bool>(
+      (w) => w.zenModeEnabled,
+    );
+    final micaEnabled = context.select<UserSettingsProvider, bool>(
+      (s) => s.micaEnabled,
+    );
+    final isMica = micaEnabled && Platform.isWindows;
+    final useFluent = themeProvider.useFluentUI;
 
-    return Consumer3<ScreenTimeService, WellnessService, UserSettingsProvider>(
-      builder: (context, svc, wellness, userSettings, _) {
-        final useFluent = themeProvider.useFluentUI;
-        final killSwitchActive = wellness.zenModeEnabled;
-        final isMica = userSettings.micaEnabled && Platform.isWindows;
-
-        final panelColor = isMica
-            ? theme.colorScheme.surface
-            : (isM3E
-                  ? theme.colorScheme.surfaceContainer
-                  : const Color(0xFF0C0F14).withValues(alpha: 0.8));
-
-        final slidingPanelColor = context.shouldUseSolidBackground
+    final slidingPanelColor = context.shouldUseSolidBackground
             ? (theme.brightness == ui.Brightness.dark
                   ? const Color(0xFF1A1D24)
                   : Colors.white)
@@ -602,8 +598,6 @@ class _MainLayoutState extends State<MainLayout> {
             killSwitchActive: killSwitchActive,
           ),
         );
-      },
-    );
   }
 
   Widget? _buildFloatingActionButton(

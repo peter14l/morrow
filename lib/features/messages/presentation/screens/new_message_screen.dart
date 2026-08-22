@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,33 +20,55 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
   final MessagingService _messagingService = MessagingService();
   final AuthService _authService = AuthService();
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounceTimer;
 
   List<UserProfileEntity> _searchResults = [];
   bool _isSearching = false;
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
 
+  void _onSearchChanged(String query) {
+    _debounceTimer?.cancel();
+    if (query.trim().isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+      });
+      return;
+    }
+    setState(() => _isSearching = true);
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _searchUsers(query);
+    });
+  }
+
   Future<void> _searchUsers(String query) async {
     if (query.trim().isEmpty) {
-      setState(() => _searchResults = []);
+      if (mounted) {
+        setState(() {
+          _searchResults = [];
+          _isSearching = false;
+        });
+      }
       return;
     }
 
-    setState(() => _isSearching = true);
-
     try {
       final results = await _profileRepository.searchUsers(query: query);
-      setState(() {
-        _searchResults = results;
-        _isSearching = false;
-      });
-    } catch (e) {
-      setState(() => _isSearching = false);
       if (mounted) {
+        setState(() {
+          _searchResults = results;
+          _isSearching = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSearching = false);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
@@ -177,7 +200,7 @@ class _NewMessageScreenState extends State<NewMessageScreen> {
                           )
                         : null,
                   ),
-                  onChanged: _searchUsers,
+                  onChanged: _onSearchChanged,
                 ),
               ),
 
