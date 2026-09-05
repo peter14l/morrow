@@ -74,6 +74,13 @@ class AppScrollBehavior extends material.ScrollBehavior {
         ui.PointerDeviceKind.mouse,
         ui.PointerDeviceKind.trackpad,
       };
+
+  @override
+  material.ScrollPhysics getScrollPhysics(material.BuildContext context) {
+    return const material.BouncingScrollPhysics(
+      parent: material.AlwaysScrollableScrollPhysics(),
+    );
+  }
 }
 
 

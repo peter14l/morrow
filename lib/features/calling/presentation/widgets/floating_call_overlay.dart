@@ -36,11 +36,19 @@ class _FloatingCallOverlayState extends State<FloatingCallOverlay> {
         onPanUpdate: (details) {
           setState(() {
             _position += details.delta;
-
-            // Keep within bounds
             _position = Offset(
-              _position.dx.clamp(0, size.width - 120),
-              _position.dy.clamp(0, size.height - 160),
+              _position.dx.clamp(16.0, size.width - 136.0),
+              _position.dy.clamp(40.0, size.height - 200.0),
+            );
+          });
+        },
+        onPanEnd: (details) {
+          // Magnetic snap to nearest edge (iOS style)
+          final snapLeft = _position.dx < (size.width / 2);
+          setState(() {
+            _position = Offset(
+              snapLeft ? 16.0 : (size.width - 136.0),
+              _position.dy.clamp(40.0, size.height - 200.0),
             );
           });
         },

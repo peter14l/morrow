@@ -101,9 +101,15 @@ class _CallingScreenState extends State<CallingScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_hasPopped) {
           _hasPopped = true;
-          final router = GoRouter.of(context);
-          if (router.canPop()) {
-            router.pop();
+          try {
+            final router = GoRouter.of(context);
+            if (router.canPop()) {
+              router.pop();
+            }
+          } catch (_) {
+            if (Navigator.of(context).canPop()) {
+              Navigator.of(context).pop();
+            }
           }
         }
       });

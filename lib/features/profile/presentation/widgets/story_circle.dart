@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:oasis/features/stories/domain/models/story_entity.dart';
 import 'package:provider/provider.dart';
+import 'package:oasis/themes/theme_provider.dart';
 
 class StoryCircle extends StatelessWidget {
   final StoryEntity story;

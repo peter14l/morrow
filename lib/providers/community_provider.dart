@@ -2,14 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:oasis/models/community.dart';
 import 'package:oasis/features/feed/domain/models/post.dart';
 import 'package:oasis/services/community_service.dart';
-import 'package:oasis/services/post_service.dart';
-import 'package:oasis/services/feed_service.dart';
+import 'package:oasis/features/feed/data/datasources/post_remote_datasource.dart';
 import 'package:oasis/core/providers/safe_change_notifier.dart';
 
 class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
   final CommunityService _communityService = CommunityService();
-  final FeedService _feedService = FeedService();
-  final PostService _postService = PostService();
+  final PostRemoteDatasource _postDatasource = PostRemoteDatasource();
 
   List<Community> _allCommunities = [];
   List<Community> _userCommunities = [];
@@ -271,14 +269,10 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
     notifyListeners();
 
     try {
-      // We need an instance of PostService here.
-      // Ideally it should be injected or instantiated.
-      // Since CommunityProvider currently only has CommunityService, let's instantiate PostService locally or add it.
-      final postService =
-          PostService(); // Using specific import aliasing if needed, but standard import should work
-      _communityPosts = await postService.getCommunityPosts(
+      final postMaps = await _postDatasource.getCommunityPosts(
         communityId: communityId,
       );
+      _communityPosts = postMaps.map((json) => Post.fromJson(json)).toList();
     } catch (e) {
       debugPrint('Error loading community posts: $e');
       // Don't set global error for posts failure to allow community info to show
@@ -296,7 +290,7 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
     try {
       _updatePostLikeStatus(postId, true);
       notifyListeners();
-      await _feedService.likePost(userId: userId, postId: postId);
+      await _postDatasource.likePost(userId: userId, postId: postId);
     } catch (e) {
       _updatePostLikeStatus(postId, false);
       notifyListeners();
@@ -312,7 +306,7 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
     try {
       _updatePostLikeStatus(postId, false);
       notifyListeners();
-      await _feedService.unlikePost(userId: userId, postId: postId);
+      await _postDatasource.unlikePost(userId: userId, postId: postId);
     } catch (e) {
       _updatePostLikeStatus(postId, true);
       notifyListeners();
@@ -328,7 +322,7 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
     try {
       _updatePostBookmarkStatus(postId, true);
       notifyListeners();
-      await _feedService.bookmarkPost(userId: userId, postId: postId);
+      await _postDatasource.bookmarkPost(userId: userId, postId: postId);
     } catch (e) {
       _updatePostBookmarkStatus(postId, false);
       notifyListeners();
@@ -344,7 +338,7 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
     try {
       _updatePostBookmarkStatus(postId, false);
       notifyListeners();
-      await _feedService.unbookmarkPost(userId: userId, postId: postId);
+      await _postDatasource.unbookmarkPost(userId: userId, postId: postId);
     } catch (e) {
       _updatePostBookmarkStatus(postId, true);
       notifyListeners();
@@ -355,9 +349,7 @@ class CommunityProvider with ChangeNotifier, SafeChangeNotifier {
   /// Delete a post
   Future<void> deletePost(String postId) async {
     try {
-      // In a real app, you'd verify ownership or have backend RLS handle it
-      // For now, assume current user is owner if they can trigger this
-      await _postService.deletePost(postId, ''); // userId dummy
+      await _postDatasource.deletePost(postId, '');
       _communityPosts.removeWhere((p) => p.id == postId);
       notifyListeners();
     } catch (e) {

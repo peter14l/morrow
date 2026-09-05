@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart' show debugPrintThrottled;
 
+import 'package:oasis/core/performance/power_manager.dart';
 import 'package:oasis/services/screen_time_service.dart';
 import 'package:oasis/services/energy_meter_service.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
@@ -62,6 +63,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
 
     if (state == material.AppLifecycleState.paused ||
         state == material.AppLifecycleState.detached) {
+      PowerManager.instance.setBackgrounded(true);
       screenTime.stopTracking();
       energyMeter.onPaused();
       wellness.onPaused();
@@ -79,6 +81,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
       }
       presence.pauseHeartbeat();
     } else if (state == material.AppLifecycleState.resumed) {
+      PowerManager.instance.setBackgrounded(false);
       // Use a microtask to spread the resume load across frames
       Future.microtask(() {
         if (!mounted) return;

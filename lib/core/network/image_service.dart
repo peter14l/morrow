@@ -46,9 +46,7 @@ class ImageService {
           transform: TransformOptions(
             width: transform.width,
             height: transform.height,
-            format: transform.format,
             quality: transform.quality,
-            resize: transform.resizeMode,
           ),
         );
   }

@@ -8,6 +8,7 @@ import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/services/app_initializer.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/widgets/liquid_glass_wrapper.dart';
@@ -82,30 +83,28 @@ class NavigationShell extends material.StatelessWidget {
         displayMode: fluent.PaneDisplayMode.auto,
         items: [
           fluent.PaneItem(
-            icon: const material.Icon(FluentIcons.home_24_regular),
-            selectedIcon: const material.Icon(FluentIcons.home_24_filled),
-            title: const Text('Feed'),
+            icon: material.Icon(currentIndex == 0 ? FluentIcons.home_24_filled : FluentIcons.home_24_regular),
+            title: const fluent.Text('Feed'),
             body: const material.SizedBox.shrink(),
           ),
           fluent.PaneItem(
-            icon: const material.Icon(FluentIcons.people_24_regular),
-            selectedIcon: const material.Icon(FluentIcons.people_24_filled),
-            title: const Text('Circles'),
+            icon: material.Icon(currentIndex == 1 ? FluentIcons.people_24_filled : FluentIcons.people_24_regular),
+            title: const fluent.Text('Circles'),
             body: const material.SizedBox.shrink(),
           ),
           fluent.PaneItem(
-            icon: Stack(
-              clipBehavior: Clip.none,
+            icon: material.Stack(
+              clipBehavior: material.Clip.none,
               children: [
-                const material.Icon(FluentIcons.chat_24_regular),
+                material.Icon(currentIndex == 2 ? FluentIcons.chat_24_filled : FluentIcons.chat_24_regular),
                 if (unreadCount > 0)
-                  Positioned(
+                  material.Positioned(
                     top: -2,
                     right: -2,
                     child: fluent.InfoBadge(
-                      source: Text(
+                      source: fluent.Text(
                         unreadCount > 99 ? '99+' : unreadCount.toString(),
-                        style: const TextStyle(
+                        style: const fluent.TextStyle(
                           fontSize: 8,
                           color: material.Colors.white,
                         ),
@@ -114,52 +113,31 @@ class NavigationShell extends material.StatelessWidget {
                   ),
               ],
             ),
-            selectedIcon: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                const material.Icon(FluentIcons.chat_24_filled),
-                if (unreadCount > 0)
-                  Positioned(
-                    top: -2,
-                    right: -2,
-                    child: fluent.InfoBadge(
-                      source: Text(
-                        unreadCount > 99 ? '99+' : unreadCount.toString(),
-                        style: const TextStyle(
-                          fontSize: 8,
-                          color: material.Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            title: const Text('Messages'),
+            title: const fluent.Text('Messages'),
             body: const material.SizedBox.shrink(),
           ),
           fluent.PaneItem(
-            icon: const material.Icon(FluentIcons.alert_24_regular),
-            selectedIcon: const material.Icon(FluentIcons.alert_24_filled),
-            title: const Text('Alerts'),
+            icon: material.Icon(currentIndex == 3 ? FluentIcons.alert_24_filled : FluentIcons.alert_24_regular),
+            title: const fluent.Text('Alerts'),
             body: const material.SizedBox.shrink(),
           ),
         ],
         footerItems: [
           fluent.PaneItem(
             icon: const material.Icon(FluentIcons.person_24_regular),
-            title: const Text('Profile'),
+            title: const fluent.Text('Profile'),
             body: const material.SizedBox.shrink(),
             onTap: () => context.go('/profile'),
           ),
           fluent.PaneItem(
             icon: const material.Icon(FluentIcons.settings_24_regular),
-            title: const Text('Settings'),
+            title: const fluent.Text('Settings'),
             body: const material.SizedBox.shrink(),
             onTap: () => context.go('/settings'),
           ),
         ],
       ),
-      content: Stack(
+      content: material.Stack(
         children: [
           child,
           const GlobalMigrationIndicator(),
@@ -225,7 +203,7 @@ class NavigationShell extends material.StatelessWidget {
 
     // Always wrap to handle global transparency toggle and liquid glass
     return material.Scaffold(
-      body: Stack(
+      body: material.Stack(
         children: [
           child,
           const GlobalMigrationIndicator(),
@@ -240,20 +218,20 @@ class NavigationShell extends material.StatelessWidget {
     );
   }
 
-  Widget _applyLiquidGlassToBottomNav(
-    Widget navBar,
+  material.Widget _applyLiquidGlassToBottomNav(
+    material.Widget navBar,
     LiquidGlassMode mode,
     material.Brightness brightness,
-    BuildContext context,
+    material.BuildContext context,
   ) {
-    final themeProvider = material.Provider.of<ThemeProvider>(
+    final themeProvider = Provider.of<ThemeProvider>(
       context,
       listen: false,
     );
     final disableTransparency = themeProvider.isM3ETransparencyDisabled || kIsWeb;
 
     if (disableTransparency) {
-      return Container(
+      return material.Container(
         color: brightness == material.Brightness.dark
             ? const material.Color(0xFF1A1D24)
             : material.Colors.white,
@@ -269,7 +247,7 @@ class NavigationShell extends material.StatelessWidget {
       return material.SafeArea(
         top: false,
         child: material.Container(
-          margin: const EdgeInsets.only(
+          margin: const material.EdgeInsets.only(
             left: 24.0,
             right: 24.0,
             bottom: 16.0,
@@ -293,7 +271,7 @@ class NavigationShell extends material.StatelessWidget {
           ),
           child: material.ClipRRect(
             borderRadius: material.BorderRadius.circular(40.0),
-            child: BackdropFilter(
+            child: material.BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: material.Container(
                 decoration: material.BoxDecoration(
@@ -312,7 +290,7 @@ class NavigationShell extends material.StatelessWidget {
     return material.SafeArea(
       top: false,
       child: material.Container(
-        margin: const EdgeInsets.only(
+        margin: const material.EdgeInsets.only(
           left: 24.0,
           right: 24.0,
           bottom: 16.0,
@@ -448,18 +426,18 @@ class UnreadMessagesBadge extends material.StatelessWidget {
       builder: (context, provider, _) {
         final count = provider.totalUnreadCount;
         if (useFluent) {
-          return Stack(
-            clipBehavior: Clip.none,
+          return material.Stack(
+            clipBehavior: material.Clip.none,
             children: [
               child,
               if (count > 0)
-                Positioned(
+                material.Positioned(
                   top: -2,
                   right: -2,
                   child: fluent.InfoBadge(
-                    source: Text(
+                    source: fluent.Text(
                       count > 99 ? '99+' : count.toString(),
-                      style: const TextStyle(
+                      style: const fluent.TextStyle(
                         fontSize: 8,
                         color: material.Colors.white,
                       ),

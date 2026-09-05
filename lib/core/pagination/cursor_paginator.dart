@@ -47,12 +47,11 @@ class CursorPaginator {
     }
 
     // Apply ordering (always include ID for deterministic ties)
-    query = query
+    final List<dynamic> response = await query
         .order(orderColumn, ascending: ascending)
         .order('id', ascending: ascending)
         .limit(effectiveLimit + 1);
 
-    final List<dynamic> response = await query;
     final items = List<Map<String, dynamic>>.from(response);
 
     final hasMore = items.length > effectiveLimit;

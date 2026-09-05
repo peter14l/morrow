@@ -1,0 +1,203 @@
+name: Build Oasis WinUI (WinUI 3)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "winui/**"
+      - ".github/workflows/build-winui.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "winui/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: winui-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "1"
+  CONFIGURATION: Release
+  PLATFORM: x64
+  APP_VERSION: "1.1.16"
+
+jobs:
+  build:
+    name: Build, package and sign
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Resolve version
+        id: version
+        shell: pwsh
+        run: |
+          $version = "${{ env.APP_VERSION }}"
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $version = "${{ github.ref_name }}".TrimStart("v")
+          }
+          Write-Output "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Restore
+        run: dotnet restore winui/Oasis.WinUI.slnx
+
+      - name: Build (compile check)
+        run: dotnet build winui/Oasis.WinUI.slnx -c "${{ env.CONFIGURATION }}" -p:Platform="${{ env.PLATFORM }}" --no-restore -p:EnableMsixTooling=false
+
+      - name: Publish self-contained single-file EXE
+        shell: pwsh
+        run: |
+          dotnet publish winui/src/Oasis.WinUI/Oasis.WinUI.csproj `
+            -c "${{ env.CONFIGURATION }}" `
+            -p:Platform="${{ env.PLATFORM }}" `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:WindowsAppSDKSelfContained=true `
+            -p:PublishReadyToRun=false `
+            -p:EnableMsixTooling=false `
+            -p:WindowsPackageType=None `
+            -o winui/dist/publish
+          if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
+          Copy-Item ".env.example" "winui/dist/publish/.env.example" -Force
+
+      - name: Prepare signing certificate
+        id: cert
+        shell: pwsh
+        run: |
+          if ("${{ secrets.SIGNING_CERTIFICATE }}" -ne "") {
+            $bytes = [Convert]::FromBase64String("${{ secrets.SIGNING_CERTIFICATE }}")
+            [IO.File]::WriteAllBytes("$env:RUNNER_TEMP\oasis.pfx", $bytes)
+            $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2("$env:RUNNER_TEMP\oasis.pfx", "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}", "DefaultKeySet")
+            $match = [regex]::Match($cert.Subject, 'CN=([^,]+)')
+            if (-not $match.Success) { throw "Could not extract CN from certificate subject: $($cert.Subject)" }
+            Write-Output "cert_exists=true" >> $env:GITHUB_OUTPUT
+            Write-Output "cert_cn=$($match.Groups[1].Value)" >> $env:GITHUB_OUTPUT
+            Write-Output "cert_thumbprint=$($cert.Thumbprint)" >> $env:GITHUB_OUTPUT
+          } else {
+            Write-Output "cert_exists=false" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Package MSIX
+        id: msix
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuild = & $vswhere -latest -requires Microsoft.Component.MSBuild -find "MSBuild\**\Bin\MSBuild.exe" | Select-Object -First 1
+          if (-not $msbuild) { throw "Visual Studio MSBuild not found" }
+          New-Item -ItemType Directory -Force -Path "winui/dist/msix" | Out-Null
+
+          $manifest = "winui/src/Oasis.WinUI/Package.appxmanifest"
+          $content = Get-Content $manifest -Raw
+
+          $rawVersion = "${{ steps.version.outputs.version }}"
+          $parts = $rawVersion.Split(".")
+          if ($parts.Length -lt 4) { $rawVersion = (($parts + @("0") * (4 - $parts.Length)) -join ".") }
+
+          if ("${{ steps.cert.outputs.cert_exists }}" -eq "true") {
+            $cn = "${{ steps.cert.outputs.cert_cn }}"
+            $content = $content -replace 'Publisher="CN=[^"]*"', ("Publisher=""CN=$cn""")
+          }
+          $content = $content -replace 'Version="[^"]*"', ("Version=""$rawVersion""")
+          Set-Content -Path $manifest -Value $content -Encoding UTF8
+
+          $args = @(
+            "winui/src/Oasis.WinUI/Oasis.WinUI.csproj",
+            "/t:Build",
+            "/p:GenerateAppxPackageOnBuild=true",
+            "/p:Configuration=${{ env.CONFIGURATION }}",
+            "/p:Platform=${{ env.PLATFORM }}",
+            "/p:AppxPackageDir=$env:GITHUB_WORKSPACE\winui\dist\msix\",
+            "/p:AppxBundle=Never",
+            "/p:UapAppxPackageBuildMode=SideloadOnly",
+            "/p:WindowsAppSDKSelfContained=true",
+            "/p:AppxPackageVersion=$rawVersion"
+          )
+          if ("${{ steps.cert.outputs.cert_exists }}" -eq "true") {
+            $args += "/p:AppxPackageSigningEnabled=true"
+            $args += "/p:PackageCertificateKeyFile=$env:RUNNER_TEMP\oasis.pfx"
+            $args += "/p:PackageCertificatePassword=${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}"
+          } else {
+            $args += "/p:AppxPackageSigningEnabled=false"
+          }
+          & $msbuild $args
+          if ($LASTEXITCODE -ne 0) { throw "MSIX packaging failed" }
+          Get-ChildItem "winui/dist/msix" -Recurse -Filter *.msix | ForEach-Object { Write-Output "MSIX: $($_.Name) ($([math]::Round($_.Length/1MB,1)) MB)" }
+
+      - name: Sign application EXE
+        shell: pwsh
+        run: |
+          if ("${{ steps.cert.outputs.cert_exists }}" -ne "true") {
+            Write-Output "No signing certificate - skipping EXE signing"
+            return
+          }
+          $signtool = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windows.sdk.buildtools" -Recurse -Filter "signtool.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "\\x64\\" } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signtool) { throw "signtool not found in BuildTools package" }
+          $exe = "winui/dist/publish/Oasis.WinUI.exe"
+          & $signtool.FullName sign /fd SHA256 /f "$env:RUNNER_TEMP\oasis.pfx" /p "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}" /tr "http://timestamp.digicert.com" /td SHA256 "$exe"
+          if ($LASTEXITCODE -ne 0) { throw "signtool failed for application EXE" }
+
+      - name: Package portable zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "winui/dist/publish/*" -DestinationPath "winui/dist/Oasis-${{ steps.version.outputs.version }}-win-x64-portable.zip" -Force
+
+      - name: Build installer (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found" }
+          & $iscc "winui/setup/OasisSetup.iss" "/DMyAppVersion=${{ steps.version.outputs.version }}" "/DStageDir=$env:GITHUB_WORKSPACE\winui\dist\publish" "/DOutputDir=$env:GITHUB_WORKSPACE\winui\dist"
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compile failed" }
+
+      - name: Sign installer
+        shell: pwsh
+        run: |
+          if ("${{ steps.cert.outputs.cert_exists }}" -ne "true") {
+            Write-Output "No signing certificate - skipping installer signing"
+            return
+          }
+          $signtool = Get-ChildItem "$env:USERPROFILE\.nuget\packages\microsoft.windows.sdk.buildtools" -Recurse -Filter "signtool.exe" -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match "\\x64\\" } |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          $setup = Get-ChildItem "winui/dist" -Filter "Oasis-*-setup.exe" | Select-Object -First 1
+          if (-not $setup) { throw "setup.exe not found" }
+          & $signtool.FullName sign /fd SHA256 /f "$env:RUNNER_TEMP\oasis.pfx" /p "${{ secrets.SIGNING_CERTIFICATE_PASSWORD }}" /tr "http://timestamp.digicert.com" /td SHA256 $setup.FullName
+          if ($LASTEXITCODE -ne 0) { throw "signtool failed for installer" }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oasis-win-x64-${{ steps.version.outputs.version }}
+          path: |
+            winui/dist/Oasis-*-setup.exe
+            winui/dist/Oasis-*-portable.zip
+            winui/dist/msix/**/*.msix
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            winui/dist/Oasis-*-setup.exe
+            winui/dist/Oasis-*-portable.zip
+            winui/dist/msix/**/*.msix
+          generate_release_notes: true

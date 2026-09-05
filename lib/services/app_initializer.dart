@@ -73,20 +73,7 @@ import 'package:oasis/features/settings/domain/usecases/settings_usecases.dart';
 import 'package:oasis/features/stories/presentation/providers/stories_provider.dart';
 import 'package:oasis/features/collections/presentation/providers/collections_provider.dart';
 import 'package:oasis/features/collections/data/repositories/collection_repository_impl.dart';
-import 'package:oasis/features/collections/domain/usecases/get_collections.dart';
-import 'package:oasis/features/collections/domain/usecases/create_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/update_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/delete_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/add_to_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/remove_from_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/get_collection_detail.dart';
-import 'package:oasis/features/collections/domain/usecases/check_post_in_collection.dart';
-import 'package:oasis/features/collections/domain/usecases/get_collections_for_post.dart';
 import 'package:oasis/features/calling/data/repositories/call_repository_impl.dart';
-import 'package:oasis/features/calling/domain/usecases/initiate_call.dart';
-import 'package:oasis/features/calling/domain/usecases/accept_call.dart';
-import 'package:oasis/features/calling/domain/usecases/end_call.dart';
-import 'package:oasis/features/calling/domain/usecases/get_active_calls.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
@@ -635,20 +622,9 @@ class AppInitializer {
         ChangeNotifierProvider(create: (_) => CapsuleProvider()),
         ChangeNotifierProvider(create: (_) => StoriesProvider()),
         ChangeNotifierProvider(
-          create: (_) {
-            final repo = CollectionRepositoryImpl();
-            return CollectionsProvider(
-              getCollectionsUseCase: GetCollectionsUseCase(repo),
-              createCollectionUseCase: CreateCollectionUseCase(repo),
-              updateCollectionUseCase: UpdateCollectionUseCase(repo),
-              deleteCollectionUseCase: DeleteCollectionUseCase(repo),
-              addToCollectionUseCase: AddToCollectionUseCase(repo),
-              removeFromCollectionUseCase: RemoveFromCollectionUseCase(repo),
-              getCollectionDetailUseCase: GetCollectionDetailUseCase(repo),
-              checkPostInCollectionUseCase: CheckPostInCollectionUseCase(repo),
-              getCollectionsForPostUseCase: GetCollectionsForPostUseCase(repo),
-            );
-          },
+          create: (_) => CollectionsProvider(
+            repository: CollectionRepositoryImpl(),
+          ),
         ),
         ChangeNotifierProvider<VaultService>.value(
           value: services.vaultService,
@@ -680,10 +656,7 @@ class AppInitializer {
             final repo = CallRepositoryImpl();
             return CallProvider(
               callService: callService ?? DisabledCallService(),
-              initiateCall: InitiateCall(repo),
-              acceptCall: AcceptCall(repo),
-              endCall: EndCall(repo),
-              getActiveCalls: GetActiveCalls(repo),
+              callRepository: repo,
             );
           },
           update: (context, service, provider) => provider!,

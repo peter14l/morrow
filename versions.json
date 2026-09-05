@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.18",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.18.apk",
-    "releaseNotes": "• 120fps Rebuild Optimizations: Replaced root shell and feed timer watchers with scoped selectors.\n• Form & Input Stability: Fixed ChatInputArea ValueNotifier lifecycle and debounced user searches.\n• Adaptive & Responsive Layouts: Responsive grid scaling in Collections, pull-to-refresh on empty feeds, and desktop width bounds.\n• Design System Harmonization: Unified OasisColors and semantic Material 3 theme tokens.",
+    "latestVersion": "1.1.19",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.19.apk",
+    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
     "isRequired": false,
-    "releaseDate": "2026-08-22T21:35:00Z"
+    "releaseDate": "2026-09-06T00:10:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.18",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.18.msix",
-    "releaseNotes": "• 120fps Rebuild Optimizations: Replaced root shell and feed timer watchers with scoped selectors.\n• Form & Input Stability: Fixed ChatInputArea ValueNotifier lifecycle and debounced user searches.\n• Adaptive & Responsive Layouts: Responsive grid scaling in Collections, pull-to-refresh on empty feeds, and desktop width bounds.\n• Design System Harmonization: Unified OasisColors and semantic Material 3 theme tokens.",
+    "latestVersion": "1.1.19",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.19.msix",
+    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
     "isRequired": false,
-    "releaseDate": "2026-08-22T21:35:00Z"
+    "releaseDate": "2026-09-06T00:10:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.18",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.18.dmg",
-    "releaseNotes": "• 120fps Rebuild Optimizations: Replaced root shell and feed timer watchers with scoped selectors.\n• Form & Input Stability: Fixed ChatInputArea ValueNotifier lifecycle and debounced user searches.\n• Adaptive & Responsive Layouts: Responsive grid scaling in Collections, pull-to-refresh on empty feeds, and desktop width bounds.\n• Design System Harmonization: Unified OasisColors and semantic Material 3 theme tokens.",
+    "latestVersion": "1.1.19",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.19.dmg",
+    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
     "isRequired": false,
-    "releaseDate": "2026-08-22T21:35:00Z"
+    "releaseDate": "2026-09-06T00:10:00Z"
   }
 }

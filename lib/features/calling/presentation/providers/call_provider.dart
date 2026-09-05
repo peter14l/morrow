@@ -3,14 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:livekit_client/livekit_client.dart';
+import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/call_service.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/core/providers/safe_change_notifier.dart';
 import '../../domain/models/call_entity.dart';
-import '../../domain/usecases/initiate_call.dart';
-import '../../domain/usecases/accept_call.dart';
-import '../../domain/usecases/end_call.dart';
-import '../../domain/usecases/get_active_calls.dart';
+import '../../domain/repositories/call_repository.dart';
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
@@ -28,6 +26,7 @@ class CallState {
   final bool isSpeakerphoneOn;
   final bool isScreenSharing;
   final bool isMinimized;
+  final bool isReconnecting;
   final bool isUnanswered;
 
   const CallState({
@@ -42,36 +41,34 @@ class CallState {
     this.isSpeakerphoneOn = false,
     this.isScreenSharing = false,
     this.isMinimized = false,
+    this.isReconnecting = false,
     this.isUnanswered = false,
   });
 
-  factory CallState.initial() {
-    return const CallState(isLoading: true);
-  }
+  factory CallState.initial() => const CallState();
 
   CallState copyWith({
     CallEntity? activeCall,
-    bool clearActiveCall = false,
     CallEntity? incomingCall,
-    bool clearIncomingCall = false,
     List<CallEntity>? activeCalls,
     Room? room,
-    bool clearRoom = false,
     bool? isLoading,
     String? error,
     bool clearError = false,
+    bool clearActiveCall = false,
+    bool clearIncomingCall = false,
+    bool clearRoom = false,
     bool? isMuted,
     bool? isVideoOn,
     bool? isSpeakerphoneOn,
     bool? isScreenSharing,
     bool? isMinimized,
+    bool? isReconnecting,
     bool? isUnanswered,
   }) {
     return CallState(
       activeCall: clearActiveCall ? null : (activeCall ?? this.activeCall),
-      incomingCall: clearIncomingCall
-          ? null
-          : (incomingCall ?? this.incomingCall),
+      incomingCall: clearIncomingCall ? null : (incomingCall ?? this.incomingCall),
       activeCalls: activeCalls ?? this.activeCalls,
       room: clearRoom ? null : (room ?? this.room),
       isLoading: isLoading ?? this.isLoading,
@@ -81,6 +78,7 @@ class CallState {
       isSpeakerphoneOn: isSpeakerphoneOn ?? this.isSpeakerphoneOn,
       isScreenSharing: isScreenSharing ?? this.isScreenSharing,
       isMinimized: isMinimized ?? this.isMinimized,
+      isReconnecting: isReconnecting ?? this.isReconnecting,
       isUnanswered: isUnanswered ?? this.isUnanswered,
     );
   }
@@ -89,11 +87,9 @@ class CallState {
 /// Provider for call state management using LiveKit
 class CallProvider extends ChangeNotifier with SafeChangeNotifier {
   final CallService _callService;
-  final InitiateCall _initiateCall;
-  final AcceptCall _acceptCall;
-  final EndCall _endCall;
-  final GetActiveCalls _getActiveCalls;
-  final PQAuraService _pqAuraService;
+  final CallRepository _callRepository;
+  final PQAuraService? _pqAuraService;
+  PQAuraService get _pqAura => _pqAuraService ?? PQAuraService.instance;
   bool _isInitialized = false;
   bool _isEnding = false;
   Timer? _ringingTimer;
@@ -108,28 +104,25 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
 
   CallProvider({
     required CallService callService,
-    required InitiateCall initiateCall,
-    required AcceptCall acceptCall,
-    required EndCall endCall,
-    required GetActiveCalls getActiveCalls,
+    required CallRepository callRepository,
     SupabaseClient? supabase,
     PQAuraService? pqAuraService,
   }) : _callService = callService,
-       _initiateCall = initiateCall,
-       _acceptCall = acceptCall,
-       _endCall = endCall,
-       _getActiveCalls = getActiveCalls,
-       _pqAuraService = pqAuraService ?? PQAuraService.instance {
+       _callRepository = callRepository,
+       _pqAuraService = pqAuraService {
     _callService.addListener(_onCallServiceUpdate);
 
-    // Listen to auth state changes to automatically start/stop listener
-    (supabase ?? Supabase.instance.client).auth.onAuthStateChange.listen((data) {
-      if (data.session != null) {
-        if (_isInitialized) {
-          _startListenerWithRetry();
+    // Listen to auth state changes to automatically start/stop listener if Supabase is initialized
+    try {
+      final client = supabase ?? (SupabaseService.isInitialized ? Supabase.instance.client : null);
+      client?.auth.onAuthStateChange.listen((data) {
+        if (data.session != null) {
+          if (_isInitialized) {
+            _startListenerWithRetry();
+          }
         }
-      }
-    });
+      });
+    } catch (_) {}
 
     _startListenerWithRetry();
     _isInitialized = true;
@@ -235,10 +228,10 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       final e2eeKey = Uint8List.fromList(List.generate(32, (_) => random.nextInt(256)));
       
       // 1b. Encrypt via PQAuraService
-      final encryptedOffer = await _pqAuraService.encryptMediaKey(receiverId, e2eeKey);
+      final encryptedOffer = await _pqAura.encryptMediaKey(receiverId, e2eeKey);
 
       // 2. Create call in DB with the offer
-      final call = await _initiateCall.call(
+      final call = await _callRepository.createCall(
         conversationId: conversationId,
         callerId: callerId,
         receiverId: receiverId,
@@ -346,7 +339,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       await _callService.initLocalStream(call.type == CallType.video);
 
       // 2. Update DB status
-      final acceptedCall = await _acceptCall.call(
+      final acceptedCall = await _callRepository.acceptCall(
         callId: call.id,
         userId: call.receiverId,
       );
@@ -378,7 +371,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       _state = _state.copyWith(isLoading: true, clearError: true);
       notifyListeners();
 
-      await _endCall.decline(callId, userId);
+      await _callRepository.declineCall(callId, userId);
       await _callService.endCall();
 
       _state = _state.copyWith(
@@ -415,7 +408,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
       );
       notifyListeners();
 
-      await _endCall.call(callId);
+      await _callRepository.endCall(callId);
       // _callService.endCall() calls _cleanup() which calls notifyListeners()
       // internally, but _onCallServiceUpdate is already guarded by _isEnding,
       // so that extra notification won't cause a state conflict.
@@ -442,7 +435,7 @@ class CallProvider extends ChangeNotifier with SafeChangeNotifier {
 
   Future<void> loadActiveCalls(String userId) async {
     try {
-      final calls = await _getActiveCalls.calls(userId);
+      final calls = await _callRepository.getActiveCalls(userId);
       _state = _state.copyWith(activeCalls: calls);
       notifyListeners();
     } catch (e) {

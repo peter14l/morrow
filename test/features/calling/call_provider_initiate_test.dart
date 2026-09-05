@@ -130,9 +130,9 @@ CallEntity _makeCall({String id = 'call-123', CallType type = CallType.voice}) {
   return CallEntity(
     id: id,
     conversationId: 'conv-abc',
-    hostId: 'user-host',
-    channelName: 'oasis_$id',
-    status: CallStatus.pinging,
+    callerId: 'user-caller',
+    receiverId: 'user-receiver',
+    status: CallStatus.ringing,
     type: type,
     startedAt: now,
     createdAt: now,
@@ -388,9 +388,9 @@ void main() {
       final entity = CallEntity(
         id: 'round-trip-id',
         conversationId: 'conv-1',
-        hostId: 'host-1',
-        channelName: 'oasis_round-trip-id',
-        status: CallStatus.pinging,
+        callerId: 'host-1',
+        receiverId: 'receiver-1',
+        status: CallStatus.ringing,
         type: CallType.video,
         startedAt: now,
         createdAt: now,
@@ -401,7 +401,7 @@ void main() {
 
       expect(restored.id, entity.id);
       expect(restored.type, CallType.video);
-      expect(restored.status, CallStatus.pinging);
+      expect(restored.status, CallStatus.ringing);
       expect(restored.isVideoCall, isTrue);
       expect(restored.isVoiceCall, isFalse);
     });
@@ -411,16 +411,16 @@ void main() {
       final active = CallEntity(
         id: 'a',
         conversationId: 'c',
-        hostId: 'h',
-        channelName: 'ch',
+        callerId: 'h',
+        receiverId: 'r',
         status: CallStatus.active,
         startedAt: now,
         createdAt: now,
       );
-      final pinging = active.copyWith(status: CallStatus.pinging);
+      final ringing = active.copyWith(status: CallStatus.ringing);
 
       expect(active.isActive, isTrue);
-      expect(pinging.isActive, isFalse);
+      expect(ringing.isActive, isFalse);
     });
   });
 }

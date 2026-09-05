@@ -19,8 +19,10 @@ class CallService extends ChangeNotifier {
   static CallService? _instance;
   static CallService get instance => _instance ?? CallService();
 
-  final SupabaseClient _supabase;
-  final AudioPlayer _audioPlayer;
+  final SupabaseClient? _supabaseClient;
+  SupabaseClient get _supabase => _supabaseClient ?? SupabaseService().client;
+  AudioPlayer? _audioPlayerInstance;
+  AudioPlayer get _audioPlayer => _audioPlayerInstance ??= AudioPlayer();
   bool _isPlayingRingtone = false;
 
   CallEntity? _currentCall;
@@ -46,10 +48,12 @@ class CallService extends ChangeNotifier {
   CallService({
     SupabaseClient? supabase,
     AudioPlayer? audioPlayer,
-  }) : _supabase = supabase ?? SupabaseService().client,
-       _audioPlayer = audioPlayer ?? AudioPlayer() {
+  }) : _supabaseClient = supabase,
+       _audioPlayerInstance = audioPlayer {
     _instance = this;
-    _configureAudioPlayer();
+    if (audioPlayer != null) {
+      _configureAudioPlayer();
+    }
   }
 
   /// Debounced notifyListeners to batch rapid state changes (e.g. LiveKit events)

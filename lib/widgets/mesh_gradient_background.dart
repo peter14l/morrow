@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 
+import 'package:oasis/core/performance/power_manager.dart';
+
 class MeshGradientBackground extends StatefulWidget {
   final Widget child;
   final bool animate;
@@ -27,11 +29,29 @@ class _MeshGradientBackgroundState extends State<MeshGradientBackground>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 15),
-    )..repeat(reverse: true);
+    );
+    if (widget.animate && !PowerManager.instance.shouldThrottleEffects) {
+      _controller.repeat(reverse: true);
+    }
+    PowerManager.instance.addListener(_onPowerModeChanged);
+  }
+
+  void _onPowerModeChanged() {
+    if (!mounted) return;
+    if (widget.animate && !PowerManager.instance.shouldThrottleEffects) {
+      if (!_controller.isAnimating) {
+        _controller.repeat(reverse: true);
+      }
+    } else {
+      if (_controller.isAnimating) {
+        _controller.stop();
+      }
+    }
   }
 
   @override
   void dispose() {
+    PowerManager.instance.removeListener(_onPowerModeChanged);
     _controller.dispose();
     super.dispose();
   }

@@ -216,7 +216,7 @@ class _UnifiedVibePickerSheetState extends State<UnifiedVibePickerSheet> {
                         return; // Prevent setting empty custom pulse
                       }
                     }
-                    widget.onPulseSelect(_selectedPulse, customText);
+                    widget.onPulseSelect(_selectedPulse!, customText);
                   }
                   Navigator.pop(context);
                 },

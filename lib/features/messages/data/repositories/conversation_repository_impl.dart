@@ -1,6 +1,7 @@
 import 'package:oasis/features/messages/data/datasources/conversation_remote_datasource.dart';
 import 'package:oasis/features/messages/domain/models/conversation_entity.dart';
 import 'package:oasis/features/messages/domain/repositories/conversation_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/core/network/supabase_client.dart';
 
 /// Implementation of ConversationRepository

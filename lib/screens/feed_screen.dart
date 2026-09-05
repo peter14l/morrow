@@ -11,11 +11,12 @@ import 'package:oasis/features/feed/presentation/widgets/post/post_card_v2.dart'
 import 'package:share_plus/share_plus.dart';
 import 'package:oasis/features/stories/domain/models/story_entity.dart';
 import 'package:oasis/features/feed/presentation/widgets/stories_bar.dart';
-import 'package:oasis/widgets/capsules/capsule_carousel.dart';
+import 'package:oasis/features/capsules/presentation/widgets/capsule_carousel.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/features/feed/presentation/widgets/feed_layout_switcher.dart';
-import 'package:oasis/screens/ripples_screen.dart';
-import 'package:oasis/screens/pulse_feed_screen.dart';
+import 'package:oasis/features/ripples/presentation/screens/ripples_screen.dart';
+import 'package:oasis/features/feed/presentation/screens/pulse_feed_screen.dart';
+import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/widgets/comments_modal.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
@@ -121,11 +122,7 @@ class _FeedScreenState extends State<FeedScreen>
     if (userId == null) return;
 
     final provider = context.read<FeedProvider>();
-    if (_tabController.index == 0) {
-      provider.switchFeedType(FeedType.following, userId: userId);
-    } else {
-      provider.switchFeedType(FeedType.forYou, userId: userId);
-    }
+    provider.loadFeed(userId: userId, refresh: true);
   }
 
   void _loadStories() async {

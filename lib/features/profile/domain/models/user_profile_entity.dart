@@ -24,6 +24,12 @@ class UserProfileEntity {
   final int xp;
   final int level;
   final bool isPro;
+  final String? moodEmoji;
+  final String? pulseStatus;
+  final String? pulseText;
+  final String? currentMood;
+  final String? cozyStatus;
+  final bool fortressMode;
   final DateTime createdAt;
 
   String get displayName =>
@@ -33,6 +39,9 @@ class UserProfileEntity {
   int get safeFollowingCount => followingCount < 0 ? 0 : followingCount;
   int get safePostsCount => postsCount < 0 ? 0 : postsCount;
   int get safeXp => xp < 0 ? 0 : xp;
+
+  bool get hasActivePulse => pulseStatus != null && pulseStatus!.isNotEmpty;
+  bool get hasActiveCozyStatus => cozyStatus != null && cozyStatus!.isNotEmpty;
 
   const UserProfileEntity({
     required this.id,
@@ -60,6 +69,12 @@ class UserProfileEntity {
     this.windDownTime,
     this.xp = 0,
     this.level = 1,
+    this.moodEmoji,
+    this.pulseStatus,
+    this.pulseText,
+    this.currentMood,
+    this.cozyStatus,
+    this.fortressMode = false,
     required this.createdAt,
   });
 
@@ -90,6 +105,12 @@ class UserProfileEntity {
       windDownTime: json['wind_down_time'] as String?,
       xp: json['xp'] as int? ?? 0,
       level: json['level'] as int? ?? 1,
+      moodEmoji: json['mood_emoji'] as String?,
+      pulseStatus: json['pulse_status'] as String?,
+      pulseText: json['pulse_text'] as String?,
+      currentMood: json['current_mood'] as String?,
+      cozyStatus: json['cozy_status'] as String?,
+      fortressMode: json['fortress_mode'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : DateTime.now(),
@@ -123,6 +144,12 @@ class UserProfileEntity {
       'wind_down_time': windDownTime,
       'xp': xp,
       'level': level,
+      'mood_emoji': moodEmoji,
+      'pulse_status': pulseStatus,
+      'pulse_text': pulseText,
+      'current_mood': currentMood,
+      'cozy_status': cozyStatus,
+      'fortress_mode': fortressMode,
       'created_at': createdAt.toIso8601String(),
     };
   }
@@ -153,6 +180,12 @@ class UserProfileEntity {
     String? windDownTime,
     int? xp,
     int? level,
+    String? moodEmoji,
+    String? pulseStatus,
+    String? pulseText,
+    String? currentMood,
+    String? cozyStatus,
+    bool? fortressMode,
     DateTime? createdAt,
   }) {
     return UserProfileEntity(
@@ -181,6 +214,12 @@ class UserProfileEntity {
       windDownTime: windDownTime ?? this.windDownTime,
       xp: xp ?? this.xp,
       level: level ?? this.level,
+      moodEmoji: moodEmoji ?? this.moodEmoji,
+      pulseStatus: pulseStatus ?? this.pulseStatus,
+      pulseText: pulseText ?? this.pulseText,
+      currentMood: currentMood ?? this.currentMood,
+      cozyStatus: cozyStatus ?? this.cozyStatus,
+      fortressMode: fortressMode ?? this.fortressMode,
       createdAt: createdAt ?? this.createdAt,
     );
   }

@@ -2,16 +2,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:oasis/features/canvas/data/repositories/canvas_repository_impl.dart';
 import 'package:oasis/features/canvas/domain/models/canvas_models.dart';
-import 'package:oasis/features/canvas/domain/usecases/usecases.dart';
 import 'package:oasis/features/canvas/presentation/providers/canvas_state.dart';
 
 /// Provider for Canvas feature using Clean Architecture.
 class CanvasProvider extends ChangeNotifier {
-  final GetCanvases _getCanvases;
-  final CreateCanvas _createCanvas;
-  final DeleteCanvas _deleteCanvas;
-  final AddCanvasItem _addCanvasItem;
-  final GetCanvasTimeline _getCanvasTimeline;
   final CanvasRepositoryImpl _repository;
 
   CanvasState _state = const CanvasState();
@@ -19,24 +13,8 @@ class CanvasProvider extends ChangeNotifier {
   StreamSubscription<Map<String, CanvasPresenceEntity>>? _presenceSubscription;
 
   CanvasProvider({
-    GetCanvases? getCanvases,
-    CreateCanvas? createCanvas,
-    DeleteCanvas? deleteCanvas,
-    AddCanvasItem? addCanvasItem,
-    GetCanvasTimeline? getCanvasTimeline,
     CanvasRepositoryImpl? repository,
-  }) : _repository = repository ?? CanvasRepositoryImpl(),
-       _getCanvases =
-           getCanvases ?? GetCanvases(repository ?? CanvasRepositoryImpl()),
-       _createCanvas =
-           createCanvas ?? CreateCanvas(repository ?? CanvasRepositoryImpl()),
-       _deleteCanvas =
-           deleteCanvas ?? DeleteCanvas(repository ?? CanvasRepositoryImpl()),
-       _addCanvasItem =
-           addCanvasItem ?? AddCanvasItem(repository ?? CanvasRepositoryImpl()),
-       _getCanvasTimeline =
-           getCanvasTimeline ??
-           GetCanvasTimeline(repository ?? CanvasRepositoryImpl());
+  }) : _repository = repository ?? CanvasRepositoryImpl();
 
   // ─── Getters ──────────────────────────────────────────────────────────────────
   CanvasState get state => _state;
@@ -56,7 +34,7 @@ class CanvasProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final canvases = await _getCanvases(userId);
+      final canvases = await _repository.getCanvases(userId);
       _state = _state.copyWith(canvases: canvases, isLoading: false);
     } catch (e) {
       _state = _state.copyWith(error: e.toString(), isLoading: false);
@@ -78,7 +56,7 @@ class CanvasProvider extends ChangeNotifier {
     }
 
     try {
-      final canvas = await _createCanvas(
+      final canvas = await _repository.createCanvas(
         createdBy: createdBy,
         title: title,
         coverColor: coverColor,
@@ -96,7 +74,7 @@ class CanvasProvider extends ChangeNotifier {
 
   Future<bool> deleteCanvas(String canvasId) async {
     try {
-      await _deleteCanvas(canvasId);
+      await _repository.deleteCanvas(canvasId);
       _state = _state.copyWith(
         canvases: _state.canvases.where((c) => c.id != canvasId).toList(),
         activeCanvas: _state.activeCanvas?.id == canvasId
@@ -160,7 +138,7 @@ class CanvasProvider extends ChangeNotifier {
     }
 
     try {
-      final items = await _getCanvasTimeline(canvasId);
+      final items = await _repository.getCanvasItems(canvasId);
       _state = _state.copyWith(activeItems: items, isLoading: false);
     } catch (e) {
       _state = _state.copyWith(error: e.toString(), isLoading: false);
@@ -237,7 +215,7 @@ class CanvasProvider extends ChangeNotifier {
   }) async {
     if (_state.activeCanvas == null) return;
     try {
-      final item = await _addCanvasItem(
+      final item = await _repository.addCanvasItem(
         canvasId: _state.activeCanvas!.id,
         authorId: authorId,
         type: type,

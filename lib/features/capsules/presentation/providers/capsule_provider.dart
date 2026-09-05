@@ -2,20 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:oasis/features/capsules/data/repositories/capsule_repository_impl.dart';
 import 'package:oasis/features/capsules/domain/models/time_capsule_entity.dart';
 import 'package:oasis/features/capsules/domain/repositories/capsule_repository.dart';
-import 'package:oasis/features/capsules/domain/usecases/create_capsule.dart';
-import 'package:oasis/features/capsules/domain/usecases/get_capsules.dart';
-import 'package:oasis/features/capsules/domain/usecases/open_capsule.dart';
 import 'package:oasis/features/capsules/presentation/providers/capstate.dart'
     show CapsuleState;
 
 /// Provider for Capsule feature using Clean Architecture
 class CapsuleProvider extends ChangeNotifier {
-  final CapsuleRepository _repository = CapsuleRepositoryImpl();
+  final CapsuleRepository _repository;
 
-  // Use cases
-  final GetCapsules _getCapsules = GetCapsules(CapsuleRepositoryImpl());
-  final CreateCapsule _createCapsule = CreateCapsule(CapsuleRepositoryImpl());
-  final OpenCapsule _openCapsule = OpenCapsule(CapsuleRepositoryImpl());
+  CapsuleProvider({CapsuleRepository? repository})
+      : _repository = repository ?? CapsuleRepositoryImpl();
 
   CapsuleState _state = const CapsuleState();
 
@@ -33,7 +28,7 @@ class CapsuleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final capsules = await _getCapsules(userId: userId);
+      final capsules = await _repository.getCapsules(userId: userId);
       _state = _state.copyWith(capsules: capsules, isLoading: false);
     } catch (e) {
       _state = _state.copyWith(error: e.toString(), isLoading: false);
@@ -69,7 +64,7 @@ class CapsuleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final capsule = await _createCapsule(
+      final capsule = await _repository.createCapsule(
         userId: userId,
         content: content,
         unlockDate: unlockDate,
@@ -96,7 +91,7 @@ class CapsuleProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final opened = await _openCapsule(capsuleId);
+      final opened = await _repository.openCapsule(capsuleId);
       final updatedCapsules = _state.capsules.map((c) {
         return c.id == capsuleId ? opened : c;
       }).toList();
