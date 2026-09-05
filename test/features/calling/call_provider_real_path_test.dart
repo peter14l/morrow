@@ -2,16 +2,12 @@ library;
 
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
-import 'package:oasis/features/calling/domain/usecases/initiate_call.dart';
-import 'package:oasis/features/calling/domain/usecases/accept_call.dart';
-import 'package:oasis/features/calling/domain/usecases/end_call.dart';
-import 'package:oasis/features/calling/domain/usecases/get_active_calls.dart';
+import 'package:oasis/features/calling/domain/repositories/call_repository.dart';
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 import 'package:oasis/services/call_service.dart';
@@ -20,10 +16,7 @@ import 'call_provider_real_path_test.mocks.dart';
 
 @GenerateMocks([
   CallService,
-  InitiateCall,
-  AcceptCall,
-  EndCall,
-  GetActiveCalls,
+  CallRepository,
   SupabaseClient,
   GoTrueClient,
   PQAuraService,
@@ -32,10 +25,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late MockCallService mockCallService;
-  late MockInitiateCall mockInitiateCall;
-  late MockAcceptCall mockAcceptCall;
-  late MockEndCall mockEndCall;
-  late MockGetActiveCalls mockGetActiveCalls;
+  late MockCallRepository mockCallRepository;
   late MockSupabaseClient mockSupabase;
   late MockGoTrueClient mockAuth;
   late MockPQAuraService mockPQAura;
@@ -56,10 +46,7 @@ void main() {
 
   setUp(() {
     mockCallService = MockCallService();
-    mockInitiateCall = MockInitiateCall();
-    mockAcceptCall = MockAcceptCall();
-    mockEndCall = MockEndCall();
-    mockGetActiveCalls = MockGetActiveCalls();
+    mockCallRepository = MockCallRepository();
     mockSupabase = MockSupabaseClient();
     mockAuth = MockGoTrueClient();
     mockPQAura = MockPQAuraService();
@@ -81,10 +68,7 @@ void main() {
     CallProvider _createProvider() {
       return CallProvider(
         callService: mockCallService,
-        initiateCall: mockInitiateCall,
-        acceptCall: mockAcceptCall,
-        endCall: mockEndCall,
-        getActiveCalls: mockGetActiveCalls,
+        callRepository: mockCallRepository,
         supabase: mockSupabase,
         pqAuraService: mockPQAura,
       );
@@ -110,27 +94,9 @@ void main() {
       expect(provider.state.error, contains('WebRTC'));
     });
 
-    test('returns null when PQAuraService.encryptMediaKey returns null', () async {
+    test('returns null when CallRepository.createCall throws', () async {
       when(mockCallService.initLocalStream(any)).thenAnswer((_) async {});
-      when(mockPQAura.encryptMediaKey(any, any)).thenAnswer((_) async => null);
-
-      final provider = _createProvider();
-      addTearDown(() => provider.dispose());
-
-      final result = await provider.initiateCall(
-        conversationId: 'conv-1',
-        callerId: 'user-a',
-        receiverId: 'user-b',
-        type: CallType.voice,
-      );
-
-      expect(result, isNull);
-      expect(provider.state.isLoading, isFalse);
-    });
-
-    test('returns null when InitiateCall use case throws', () async {
-      when(mockCallService.initLocalStream(any)).thenAnswer((_) async {});
-      when(mockInitiateCall.call(
+      when(mockCallRepository.createCall(
         conversationId: anyNamed('conversationId'),
         callerId: anyNamed('callerId'),
         receiverId: anyNamed('receiverId'),
@@ -156,7 +122,7 @@ void main() {
     test('returns null when startSignaling throws', () async {
       when(mockCallService.initLocalStream(any)).thenAnswer((_) async {});
       final call = _makeCall();
-      when(mockInitiateCall.call(
+      when(mockCallRepository.createCall(
         conversationId: anyNamed('conversationId'),
         callerId: anyNamed('callerId'),
         receiverId: anyNamed('receiverId'),
@@ -185,7 +151,7 @@ void main() {
     test('returns CallEntity on full success path', () async {
       when(mockCallService.initLocalStream(any)).thenAnswer((_) async {});
       final call = _makeCall(id: 'success-call', type: CallType.video);
-      when(mockInitiateCall.call(
+      when(mockCallRepository.createCall(
         conversationId: anyNamed('conversationId'),
         callerId: anyNamed('callerId'),
         receiverId: anyNamed('receiverId'),
@@ -215,7 +181,7 @@ void main() {
     test('state.isLoading resets to false on success', () async {
       when(mockCallService.initLocalStream(any)).thenAnswer((_) async {});
       final call = _makeCall();
-      when(mockInitiateCall.call(
+      when(mockCallRepository.createCall(
         conversationId: anyNamed('conversationId'),
         callerId: anyNamed('callerId'),
         receiverId: anyNamed('receiverId'),

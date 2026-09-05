@@ -886,6 +886,11 @@ class PQAuraService {
       return null;
     }
   }
+
+  /// Close and clean up a session
+  Future<void> closeSession(String remoteUserId) async {
+    _activeSessions.remove(remoteUserId);
+  }
 }
 
 /// Encrypted message structure for web.

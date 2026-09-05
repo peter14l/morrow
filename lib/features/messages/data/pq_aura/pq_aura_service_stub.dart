@@ -81,7 +81,7 @@ class PQAuraService {
   }
 
   /// Close and clean up a session
-  void closeSession(String remoteUserId) {}
+  Future<void> closeSession(String remoteUserId) async {}
 
   /// Delete a session and its keys
   Future<void> deleteSession(String remoteUserId) async {}

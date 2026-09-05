@@ -8,16 +8,12 @@ import 'dart:typed_data' as _i5;
 import 'dart:ui' as _i7;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i12;
+import 'package:mockito/src/dummies.dart' as _i9;
 import 'package:oasis/features/calling/domain/models/call_entity.dart' as _i2;
-import 'package:oasis/features/calling/domain/usecases/accept_call.dart' as _i9;
-import 'package:oasis/features/calling/domain/usecases/end_call.dart' as _i10;
-import 'package:oasis/features/calling/domain/usecases/get_active_calls.dart'
-    as _i11;
-import 'package:oasis/features/calling/domain/usecases/initiate_call.dart'
+import 'package:oasis/features/calling/domain/repositories/call_repository.dart'
     as _i8;
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart'
-    as _i13;
+    as _i10;
 import 'package:oasis/services/call_service.dart' as _i4;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i3;
 
@@ -345,16 +341,16 @@ class MockCallService extends _i1.Mock implements _i4.CallService {
   );
 }
 
-/// A class which mocks [InitiateCall].
+/// A class which mocks [CallRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockInitiateCall extends _i1.Mock implements _i8.InitiateCall {
-  MockInitiateCall() {
+class MockCallRepository extends _i1.Mock implements _i8.CallRepository {
+  MockCallRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i6.Future<_i2.CallEntity> call({
+  _i6.Future<_i2.CallEntity> createCall({
     required String? conversationId,
     required String? callerId,
     required String? receiverId,
@@ -362,7 +358,7 @@ class MockInitiateCall extends _i1.Mock implements _i8.InitiateCall {
     Map<String, dynamic>? offer,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [], {
+            Invocation.method(#createCall, [], {
               #conversationId: conversationId,
               #callerId: callerId,
               #receiverId: receiverId,
@@ -372,7 +368,7 @@ class MockInitiateCall extends _i1.Mock implements _i8.InitiateCall {
             returnValue: _i6.Future<_i2.CallEntity>.value(
               _FakeCallEntity_0(
                 this,
-                Invocation.method(#call, [], {
+                Invocation.method(#createCall, [], {
                   #conversationId: conversationId,
                   #callerId: callerId,
                   #receiverId: receiverId,
@@ -383,76 +379,19 @@ class MockInitiateCall extends _i1.Mock implements _i8.InitiateCall {
             ),
           )
           as _i6.Future<_i2.CallEntity>);
-}
-
-/// A class which mocks [AcceptCall].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAcceptCall extends _i1.Mock implements _i9.AcceptCall {
-  MockAcceptCall() {
-    _i1.throwOnMissingStub(this);
-  }
 
   @override
-  _i6.Future<_i2.CallEntity> call({
-    required String? callId,
-    required String? userId,
-  }) =>
+  _i6.Future<_i2.CallEntity?> getCall(String? callId) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [], {#callId: callId, #userId: userId}),
-            returnValue: _i6.Future<_i2.CallEntity>.value(
-              _FakeCallEntity_0(
-                this,
-                Invocation.method(#call, [], {
-                  #callId: callId,
-                  #userId: userId,
-                }),
-              ),
-            ),
+            Invocation.method(#getCall, [callId]),
+            returnValue: _i6.Future<_i2.CallEntity?>.value(),
           )
-          as _i6.Future<_i2.CallEntity>);
-}
-
-/// A class which mocks [EndCall].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockEndCall extends _i1.Mock implements _i10.EndCall {
-  MockEndCall() {
-    _i1.throwOnMissingStub(this);
-  }
+          as _i6.Future<_i2.CallEntity?>);
 
   @override
-  _i6.Future<_i2.CallEntity> call(String? callId) =>
+  _i6.Future<List<_i2.CallEntity>> getActiveCalls(String? userId) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [callId]),
-            returnValue: _i6.Future<_i2.CallEntity>.value(
-              _FakeCallEntity_0(this, Invocation.method(#call, [callId])),
-            ),
-          )
-          as _i6.Future<_i2.CallEntity>);
-
-  @override
-  _i6.Future<void> decline(String? callId, String? userId) =>
-      (super.noSuchMethod(
-            Invocation.method(#decline, [callId, userId]),
-            returnValue: _i6.Future<void>.value(),
-            returnValueForMissingStub: _i6.Future<void>.value(),
-          )
-          as _i6.Future<void>);
-}
-
-/// A class which mocks [GetActiveCalls].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockGetActiveCalls extends _i1.Mock implements _i11.GetActiveCalls {
-  MockGetActiveCalls() {
-    _i1.throwOnMissingStub(this);
-  }
-
-  @override
-  _i6.Future<List<_i2.CallEntity>> calls(String? userId) =>
-      (super.noSuchMethod(
-            Invocation.method(#calls, [userId]),
+            Invocation.method(#getActiveCalls, [userId]),
             returnValue: _i6.Future<List<_i2.CallEntity>>.value(
               <_i2.CallEntity>[],
             ),
@@ -460,12 +399,45 @@ class MockGetActiveCalls extends _i1.Mock implements _i11.GetActiveCalls {
           as _i6.Future<List<_i2.CallEntity>>);
 
   @override
-  _i6.Future<_i2.CallEntity?> call(String? callId) =>
+  _i6.Future<_i2.CallEntity> acceptCall({
+    required String? callId,
+    required String? userId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#call, [callId]),
-            returnValue: _i6.Future<_i2.CallEntity?>.value(),
+            Invocation.method(#acceptCall, [], {
+              #callId: callId,
+              #userId: userId,
+            }),
+            returnValue: _i6.Future<_i2.CallEntity>.value(
+              _FakeCallEntity_0(
+                this,
+                Invocation.method(#acceptCall, [], {
+                  #callId: callId,
+                  #userId: userId,
+                }),
+              ),
+            ),
           )
-          as _i6.Future<_i2.CallEntity?>);
+          as _i6.Future<_i2.CallEntity>);
+
+  @override
+  _i6.Future<void> declineCall(String? callId, String? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#declineCall, [callId, userId]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<_i2.CallEntity> endCall(String? callId) =>
+      (super.noSuchMethod(
+            Invocation.method(#endCall, [callId]),
+            returnValue: _i6.Future<_i2.CallEntity>.value(
+              _FakeCallEntity_0(this, Invocation.method(#endCall, [callId])),
+            ),
+          )
+          as _i6.Future<_i2.CallEntity>);
 
   @override
   _i6.Stream<_i2.CallEntity> watchCall(String? callId) =>
@@ -635,7 +607,7 @@ class MockSupabaseClient extends _i1.Mock implements _i3.SupabaseClient {
       (super.noSuchMethod(
             Invocation.method(#removeChannel, [channel]),
             returnValue: _i6.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i9.dummyValue<String>(
                 this,
                 Invocation.method(#removeChannel, [channel]),
               ),
@@ -962,7 +934,7 @@ class MockGoTrueClient extends _i1.Mock implements _i3.GoTrueClient {
               #captchaToken: captchaToken,
             }),
             returnValue: _i6.Future<String>.value(
-              _i12.dummyValue<String>(
+              _i9.dummyValue<String>(
                 this,
                 Invocation.method(#getSSOSignInUrl, [], {
                   #providerId: providerId,
@@ -1296,7 +1268,7 @@ class MockGoTrueClient extends _i1.Mock implements _i3.GoTrueClient {
 /// A class which mocks [PQAuraService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockPQAuraService extends _i1.Mock implements _i13.PQAuraService {
+class MockPQAuraService extends _i1.Mock implements _i10.PQAuraService {
   MockPQAuraService() {
     _i1.throwOnMissingStub(this);
   }
@@ -1348,15 +1320,15 @@ class MockPQAuraService extends _i1.Mock implements _i13.PQAuraService {
           as _i6.Future<bool>);
 
   @override
-  _i6.Future<_i13.PQAuraEncryptedMessage?> encryptMessage(
+  _i6.Future<_i10.PQAuraEncryptedMessage?> encryptMessage(
     String? recipientId,
     String? plaintext,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#encryptMessage, [recipientId, plaintext]),
-            returnValue: _i6.Future<_i13.PQAuraEncryptedMessage?>.value(),
+            returnValue: _i6.Future<_i10.PQAuraEncryptedMessage?>.value(),
           )
-          as _i6.Future<_i13.PQAuraEncryptedMessage?>);
+          as _i6.Future<_i10.PQAuraEncryptedMessage?>);
 
   @override
   _i6.Future<Map<String, String>?> encryptMediaKey(
@@ -1425,7 +1397,6 @@ class MockPQAuraService extends _i1.Mock implements _i13.PQAuraService {
             returnValueForMissingStub: _i6.Future<void>.value(),
           )
           as _i6.Future<void>);
-
 
   @override
   _i6.Future<void> deleteSession(String? remoteUserId) =>
