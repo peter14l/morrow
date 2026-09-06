@@ -810,19 +810,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-  void _navigateToSubPage(String title, Widget page) {
-    if (ResponsiveLayout.isDesktop(context) || Provider.of<ThemeProvider>(context, listen: false).useFluentUI) {
-      setState(() {
-        _selectedSubPage = page;
-        _subPageTitle = title;
-      });
-    } else {
-      Navigator.of(context).push(
-        material.MaterialPageRoute(
-          builder: (context) => page,
-        ),
-      );
-    }
-  }
 }

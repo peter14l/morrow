@@ -128,19 +128,6 @@ class _ChatInputAreaState extends State<ChatInputArea> {
     final colorScheme = theme.colorScheme;
     final borderRadius = material.BorderRadius.circular(32);
 
-    final decoration = material.BoxDecoration(
-      color: widget.isDesktop
-          ? material.Colors.black.withValues(alpha: 0.85)
-          : colorScheme.surface.withValues(alpha: 0.8),
-      borderRadius: borderRadius,
-      border: material.Border.all(
-        color: widget.isDesktop
-            ? material.Colors.white.withValues(alpha: 0.1)
-            : colorScheme.outlineVariant.withValues(alpha: 0.3),
-        width: 1.0,
-      ),
-    );
-
     // Common recording view
     final Widget recordingView = material.Row(
       children: [
@@ -534,7 +521,8 @@ class _ChatInputAreaState extends State<ChatInputArea> {
           ),
         ],
       ),
-    );
+    ),
+  );
 
     if (widget.isWhisperMode > 0) {
       return material.CustomPaint(
