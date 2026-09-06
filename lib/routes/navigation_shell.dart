@@ -296,28 +296,10 @@ class NavigationShell extends material.StatelessWidget {
           bottom: 16.0,
           top: 8.0,
         ),
-        decoration: material.BoxDecoration(
-          borderRadius: material.BorderRadius.circular(40.0),
-          border: material.Border.all(
-            color: brightness == material.Brightness.dark
-                ? material.Colors.white.withValues(alpha: 0.15)
-                : material.Colors.black.withValues(alpha: 0.08),
-            width: 1.0,
-          ),
-          boxShadow: [
-            material.BoxShadow(
-              color: material.Colors.black.withOpacity(0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
         child: LiquidGlassWrapper(
           borderRadius: 40.0,
-          config: LiquidGlassConfig.Light,
-          backgroundColor: brightness == material.Brightness.dark
-              ? material.Colors.white.withValues(alpha: 0.1)
-              : material.Colors.white.withValues(alpha: 0.3),
+          shape: const LiquidRoundedSuperellipse(borderRadius: 40.0),
+          config: LiquidGlassConfig.Medium,
           child: navBar,
         ),
       ),

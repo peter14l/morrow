@@ -2,6 +2,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+export 'package:liquid_glass_widgets/liquid_glass_widgets.dart'
+    show
+        LiquidShape,
+        LiquidOval,
+        LiquidRoundedSuperellipse,
+        LiquidRoundedRectangle,
+        LiquidGlassSettings,
+        GlassQuality;
 import 'package:provider/provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
@@ -43,33 +51,36 @@ class LiquidGlassConfig {
   }
 
   static const Light = LiquidGlassConfig(
-    thickness: 8,
-    blur: 4,
-    glassColor: Color(0x1AFFFFFF),
-    lightIntensity: 0.8,
-    saturation: 1.0,
-    refractiveIndex: 1.45,
+    thickness: 16,
+    blur: 2.5,
+    glassColor: Color(0x0AFFFFFF),
+    lightIntensity: 1.4,
+    saturation: 1.35,
+    refractiveIndex: 1.35,
     lightAngle: -0.75,
+    chromaticAberration: 0.02,
   );
 
   static const Medium = LiquidGlassConfig(
-    thickness: 12,
-    blur: 8,
-    glassColor: Color(0x33FFFFFF),
-    lightIntensity: 1.0,
-    saturation: 1.1,
-    refractiveIndex: 1.45,
+    thickness: 24,
+    blur: 4.0,
+    glassColor: Color(0x14FFFFFF),
+    lightIntensity: 1.6,
+    saturation: 1.45,
+    refractiveIndex: 1.40,
     lightAngle: -0.75,
+    chromaticAberration: 0.025,
   );
 
   static const Strong = LiquidGlassConfig(
-    thickness: 20,
-    blur: 12,
-    glassColor: Color(0x4DFFFFFF),
-    lightIntensity: 1.5,
-    saturation: 1.2,
-    refractiveIndex: 1.45,
+    thickness: 36,
+    blur: 6.0,
+    glassColor: Color(0x22FFFFFF),
+    lightIntensity: 1.8,
+    saturation: 1.55,
+    refractiveIndex: 1.48,
     lightAngle: -0.75,
+    chromaticAberration: 0.035,
   );
 }
 

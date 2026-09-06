@@ -509,8 +509,13 @@ class _FloatingContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final effectiveRadius = isCircular ? 20.0 : 24.0;
+    final shape = isCircular
+        ? const LiquidOval()
+        : const LiquidRoundedSuperellipse(borderRadius: 24.0);
+
     return LiquidGlassWrapper(
       borderRadius: effectiveRadius,
+      shape: shape,
       config: LiquidGlassConfig.Medium,
       child: child,
     );

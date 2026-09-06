@@ -234,19 +234,11 @@ class _ChatInputAreaState extends State<ChatInputArea> {
       backgroundColor: widget.isDesktop
           ? material.Colors.black.withValues(alpha: 0.8)
           : null,
-      child: material.Container(
+      shape: const LiquidRoundedSuperellipse(borderRadius: 32),
+      child: material.Padding(
         padding: const material.EdgeInsets.symmetric(
           horizontal: 4,
           vertical: 2,
-        ),
-        decoration: material.BoxDecoration(
-          borderRadius: borderRadius,
-          border: material.Border.all(
-            color: widget.isDesktop
-                ? material.Colors.white.withValues(alpha: 0.15)
-                : colorScheme.outlineVariant.withValues(alpha: 0.25),
-            width: 1.0,
-          ),
         ),
         child: material.Row(
           crossAxisAlignment: material.CrossAxisAlignment.center,

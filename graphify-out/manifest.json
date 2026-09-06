@@ -90,53 +90,53 @@
     "semantic_hash": ""
   },
   "PQ-DR/include/pq_aura.h": {
-    "mtime": 1785165142.0053694,
-    "ast_hash": "d56a27ec1ed9154f0960edd8a4865937",
+    "mtime": 1788664543.2537465,
+    "ast_hash": "70c7812f7eb29c317d583ab769250ee2",
     "semantic_hash": ""
   },
   "PQ-DR/src/crypto.rs": {
-    "mtime": 1785165142.0053694,
-    "ast_hash": "7e0d9201192b66b415bc8de58cc18668",
+    "mtime": 1788665022.205666,
+    "ast_hash": "81b0094f5d3fa9cd2183123c47236844",
     "semantic_hash": ""
   },
   "PQ-DR/src/ffi.rs": {
-    "mtime": 1785165142.0063736,
-    "ast_hash": "c908a284e426cf3e941537a9313f6d0b",
+    "mtime": 1788664672.5771832,
+    "ast_hash": "486154783cbfcb8fe56c7ef1aadbe143",
     "semantic_hash": ""
   },
   "PQ-DR/src/handshake.rs": {
-    "mtime": 1785165142.0073729,
-    "ast_hash": "a697b3d5cd3e40cdaa7ea68e6b089364",
+    "mtime": 1788664959.896089,
+    "ast_hash": "70e4c2c40d7b6f42d134be4bf66abce7",
     "semantic_hash": ""
   },
   "PQ-DR/src/jni.rs": {
-    "mtime": 1785165142.0078845,
-    "ast_hash": "ce0fc0e92e92d297a00d357ab589d566",
+    "mtime": 1788664710.1665342,
+    "ast_hash": "0ec66025c16cb2b4100a45b6ae92597b",
     "semantic_hash": ""
   },
   "PQ-DR/src/lib.rs": {
-    "mtime": 1785165479.9169574,
-    "ast_hash": "f98297eb927203c9fdeb4e7b5e294a1c",
+    "mtime": 1788664672.5818968,
+    "ast_hash": "c8c117eeeba1a161fac1c1e112994017",
     "semantic_hash": ""
   },
   "PQ-DR/src/ratchet.rs": {
-    "mtime": 1785165142.0094068,
-    "ast_hash": "263af87cd909f8059bcd82b9e9001b16",
+    "mtime": 1788664543.2602284,
+    "ast_hash": "ba4bcb107caefa210a6cc3e09a437033",
     "semantic_hash": ""
   },
   "PQ-DR/src/state.rs": {
-    "mtime": 1785165142.0104177,
-    "ast_hash": "4c93787b90b9fc4594e21564dc73731e",
+    "mtime": 1788664543.2602284,
+    "ast_hash": "d3d8c10021ef1b4fa7a843dde52488fe",
     "semantic_hash": ""
   },
   "PQ-DR/src/wasm.rs": {
-    "mtime": 1785165142.010928,
-    "ast_hash": "f7a770e1a30c770022ede309d7b8e2de",
+    "mtime": 1788664543.2602284,
+    "ast_hash": "275e5d50590efb360befc58f359fac6e",
     "semantic_hash": ""
   },
   "PQ-DR/tests/protocol_tests.rs": {
-    "mtime": 1785165142.0119412,
-    "ast_hash": "d8a08882358172363275a65df9e7799b",
+    "mtime": 1788664924.9110875,
+    "ast_hash": "48ca69cdead48eeecfcb52fe68a06e4c",
     "semantic_hash": ""
   },
   "cmake-3.29.3-windows-x86_64/doc/cmake/html/_static/doctools.js": {
@@ -2920,8 +2920,8 @@
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_input_area.dart": {
-    "mtime": 1788662851.811168,
-    "ast_hash": "0a2c51a7445e5b6732e91b65ed175bfb",
+    "mtime": 1788664171.9473805,
+    "ast_hash": "e556b0d3b99ddf04be12d0be64077472",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_message_list.dart": {
@@ -3400,8 +3400,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/about_app_screen.dart": {
-    "mtime": 1788633671.4163866,
-    "ast_hash": "85153580ad1ec97751c9b63a57cb18e2",
+    "mtime": 1788663098.7649274,
+    "ast_hash": "130a51b764caac0cbb4a2bf1e0653dcc",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/account_privacy_screen.dart": {
@@ -3515,8 +3515,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/sections/support_section.dart": {
-    "mtime": 1788633669.2133095,
-    "ast_hash": "b3f2096044643b708f66095609b470a4",
+    "mtime": 1788664143.175071,
+    "ast_hash": "8dd6a8bcce25b9023ea5791ec412f83d",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/widgets/privacy_transparency_card.dart": {
@@ -3915,8 +3915,8 @@
     "semantic_hash": ""
   },
   "lib/screens/settings_screen.dart": {
-    "mtime": 1785438893.175008,
-    "ast_hash": "355b02ce754748bf56c10cc4db77e68d",
+    "mtime": 1788664289.24168,
+    "ast_hash": "7b81e75765d12325a3c96bc8d002f591",
     "semantic_hash": ""
   },
   "lib/screens/spaces/spaces_screen.dart": {
@@ -4250,8 +4250,8 @@
     "semantic_hash": ""
   },
   "lib/themes/app_theme.dart": {
-    "mtime": 1788662959.7918348,
-    "ast_hash": "b61e6c89a309c9086c9cb60bb85eb3e8",
+    "mtime": 1788663230.7435813,
+    "ast_hash": "05c5220558001fff10fb54e0be5f738c",
     "semantic_hash": ""
   },
   "lib/themes/fluent_theme.dart": {
@@ -5937,11 +5937,6 @@
   "web/pkg/pq_aura_bg.wasm.d.ts": {
     "mtime": 1785165958.6203835,
     "ast_hash": "d3379c5b82e2b1f76162a15d97887a05",
-    "semantic_hash": ""
-  },
-  "PQ-DR/errors.txt": {
-    "mtime": 1785165142.0043743,
-    "ast_hash": "8deb5923223a84bcdf16adb29919d3ac",
     "semantic_hash": ""
   },
   "archive/base64.txt": {
@@ -37637,6 +37632,56 @@
   "test/features/calling/voip_calling_screen_layout_test.dart": {
     "mtime": 1788633280.6730926,
     "ast_hash": "2a7145575dc8781b0e65ef7fb191828e",
+    "semantic_hash": ""
+  },
+  "PQ-DR/ecosystem_wrappers/react-native/PqAuraModule.js": {
+    "mtime": 1788664543.252746,
+    "ast_hash": "b92523829c47859f7ca324da521a91b9",
+    "semantic_hash": ""
+  },
+  "PQ-DR/pq_aura_flutter/lib/pq_aura_flutter.dart": {
+    "mtime": 1788664543.2547472,
+    "ast_hash": "02da893659638f26531252b50ddfcff2",
+    "semantic_hash": ""
+  },
+  "PQ-DR/pq_aura_flutter/lib/src/ffi_bindings.dart": {
+    "mtime": 1788664543.2557466,
+    "ast_hash": "07503e9a6a25bd076ed1c3e4a51ade99",
+    "semantic_hash": ""
+  },
+  "PQ-DR/pq_aura_flutter/lib/src/pq_aura_client.dart": {
+    "mtime": 1788664543.2557466,
+    "ast_hash": "4f0b1a3620c8a543162fb12cafe29b15",
+    "semantic_hash": ""
+  },
+  "PQ-DR/pq_aura_flutter/lib/src/pq_aura_types.dart": {
+    "mtime": 1788664543.2557466,
+    "ast_hash": "d472ccac08e47bd6b9bcc336f877ca05",
+    "semantic_hash": ""
+  },
+  "PQ-DR/server/src/main.rs": {
+    "mtime": 1788664651.4064884,
+    "ast_hash": "0b2f02b35566272fb8ccd83781f18e6f",
+    "semantic_hash": ""
+  },
+  "PQ-DR/website/app.js": {
+    "mtime": 1788664543.2612357,
+    "ast_hash": "a020b1139e56870b38dc1beaf66b91db",
+    "semantic_hash": ""
+  },
+  "PQ-DR/website/index.html": {
+    "mtime": 1788664543.2662337,
+    "ast_hash": "a3f87a20157c49c82ea00cf0a8c4e5eb",
+    "semantic_hash": ""
+  },
+  "PQ-DR/website/privacy.html": {
+    "mtime": 1788664543.2662337,
+    "ast_hash": "b3a310ebc32acdab9738d7d5eca12970",
+    "semantic_hash": ""
+  },
+  "PQ-DR/website/terms.html": {
+    "mtime": 1788664543.2672346,
+    "ast_hash": "7c4127beb4033e47d3a472ca7ae806b7",
     "semantic_hash": ""
   }
 }

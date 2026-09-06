@@ -732,22 +732,9 @@ class _MainLayoutState extends State<MainLayout> {
           bottom: 16.0,
           top: 8.0,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(40.0),
-          border: Border.all(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
-            width: 1.0,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
         child: LiquidGlassWrapper(
           borderRadius: 40.0,
+          shape: const LiquidRoundedSuperellipse(borderRadius: 40.0),
           config: LiquidGlassConfig.Medium,
           child: navBar,
         ),

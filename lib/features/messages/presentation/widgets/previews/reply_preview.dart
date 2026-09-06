@@ -67,15 +67,9 @@ class ReplyPreview extends StatelessWidget {
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.25),
-          width: 1,
-        ),
-      ),
       child: LiquidGlassWrapper(
         borderRadius: 16,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 16),
         config: LiquidGlassConfig.Light,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: previewContent,

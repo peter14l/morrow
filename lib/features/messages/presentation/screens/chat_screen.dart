@@ -942,15 +942,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(right: 8),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(
-                                          color: Colors.white.withValues(alpha: 0.15),
-                                          width: 1,
-                                        ),
-                                      ),
                                       child: LiquidGlassWrapper(
                                         borderRadius: 20,
+                                        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
                                         config: LiquidGlassConfig.Light,
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 16,
