@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -40,8 +43,7 @@ jobs:
           wasm-pack build \
             --target web \
             --out-dir ../web/pkg \
-            --release \
-            -- --features wasm-bindgen
+            --release
 
       - name: List generated WASM artifacts
         run: ls -lh web/pkg/
