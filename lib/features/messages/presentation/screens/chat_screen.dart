@@ -7,7 +7,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
 import 'package:oasis/services/auth_service.dart';
 import 'package:oasis/services/vault_service.dart';
@@ -41,7 +40,6 @@ import 'package:oasis/features/messages/presentation/widgets/modals/message_opti
 import 'package:oasis/features/messages/presentation/widgets/modals/message_options_menu.dart';
 import 'package:oasis/features/messages/data/datasources/chat_media_picker.dart';
 import 'package:giphy_get/giphy_get.dart';
-import 'package:oasis/features/messages/core/chat_api_config.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/giphy_picker_sheet.dart';
 import 'package:oasis/features/messages/presentation/widgets/modals/location_duration_sheet.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
@@ -49,7 +47,6 @@ import 'package:oasis/themes/theme_provider.dart';
 
 import 'package:oasis/features/calling/presentation/providers/call_provider.dart';
 import 'package:oasis/features/calling/domain/models/call_entity.dart';
-import 'package:oasis/features/calling/presentation/widgets/floating_call_overlay.dart';
 
 /// Fully wired ChatScreen — thin orchestrator composing extracted widgets.
 /// Replaces the 4,682-line legacy chat_screen.dart.
@@ -760,195 +757,205 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                       bgBrightness: state.bgBrightness,
                     ),
 
-                    // Main content
-                    Column(
-                      children: [
-                        // Message list
-                        Expanded(
-                          child: ChatMessageList(
-                            messages: state.messages,
-                            isLoading: state.isLoading,
-                            messageStatuses: state.messageStatuses,
-                            currentUserId: AuthService().currentUser?.id,
-                            onMessageLongPress: _showMessageOptions,
-                            onMessageDoubleTap: (message) async {
-                              final currentUserId =
-                                  AuthService().currentUser?.id;
-                              if (currentUserId != null) {
-                                await _reactionsProvider.onReactionSelected(
-                                  message: message,
-                                  reaction: '❤️',
-                                  userId: currentUserId,
-                                  username:
-                                      AuthService().currentUser?.username ??
-                                      'Unknown',
-                                  currentReactions: message.reactions,
-                                  onReactionsUpdated: (updatedReactions) {
-                                    _chatProvider.updateMessageReactions(
-                                      message.id,
-                                      updatedReactions,
-                                    );
-                                  },
-                                );
-                              }
-                            },
-                            onReply: _setReplyMessage,
-                            bubbleColorSent: state.bubbleColorSent,
-                            bubbleColorReceived: state.bubbleColorReceived,
-                            textColorSent: state.textColorSent,
-                            textColorReceived: state.textColorReceived,
-                            scrollController: _scrollController,
-                            highlightedMessageId: state.highlightedMessageId,
-                          ),
-                        ),
-
-                        // Reply preview
-                        if (state.replyMessage != null)
-                          ReplyPreview(
-                            message: state.replyMessage!,
-                            onDismiss: () => _chatProvider.setState(
-                              (s) => s.copyWith(replyMessage: null),
-                            ),
-                          ),
-                        // Edit preview
-                        if (state.editingMessage != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.edit, size: 20),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const Text('Editing Message', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                                      Text(
-                                        state.editingMessage!.content,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close, size: 20),
-                                  onPressed: () {
-                                    _chatProvider.setState((s) => s.copyWith(editingMessage: null));
-                                    _messageController.clear();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-
-                        // Media previews
-                        if (state.selectedImages.isNotEmpty)
-                          SizedBox(
-                            height: 150,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: state.selectedImages.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    right: 8.0,
-                                    left: 16.0,
-                                  ),
-                                  child: ImagePreview(
-                                    imagePath: state.selectedImages[index].path,
-                                    mediaViewMode: state.mediaViewMode,
-                                    onDismiss: () {
-                                      final newList = List<XFile>.from(
-                                        state.selectedImages,
-                                      )..removeAt(index);
-                                      chatProvider.setState(
-                                        (s) =>
-                                            s.copyWith(selectedImages: newList),
-                                      );
-                                    },
-                                    onViewModeChanged: (mode) =>
-                                        chatProvider.setState(
-                                          (s) =>
-                                              s.copyWith(mediaViewMode: mode),
-                                        ),
-                                  ),
+                    // Message list (full-bleed under floating header and bottom input bar)
+                    Positioned.fill(
+                      child: ChatMessageList(
+                        messages: state.messages,
+                        isLoading: state.isLoading,
+                        messageStatuses: state.messageStatuses,
+                        currentUserId: AuthService().currentUser?.id,
+                        onMessageLongPress: _showMessageOptions,
+                        onMessageDoubleTap: (message) async {
+                          final currentUserId =
+                              AuthService().currentUser?.id;
+                          if (currentUserId != null) {
+                            await _reactionsProvider.onReactionSelected(
+                              message: message,
+                              reaction: '❤️',
+                              userId: currentUserId,
+                              username:
+                                  AuthService().currentUser?.username ??
+                                  'Unknown',
+                              currentReactions: message.reactions,
+                              onReactionsUpdated: (updatedReactions) {
+                                _chatProvider.updateMessageReactions(
+                                  message.id,
+                                  updatedReactions,
                                 );
                               },
-                            ),
-                          ),
-                        if (state.selectedVideo != null)
-                          VideoPreview(
-                            mediaViewMode: state.mediaViewMode,
-                            onDismiss: () => chatProvider.setState(
-                              (s) => s.copyWith(selectedVideo: null),
-                            ),
-                            onViewModeChanged: (mode) => chatProvider.setState(
-                              (s) => s.copyWith(mediaViewMode: mode),
-                            ),
-                          ),
-                        if (state.selectedAudio != null)
-                          AudioPreview(
-                            onDismiss: () => chatProvider.setState(
-                              (s) => s.copyWith(selectedAudio: null),
-                            ),
-                          ),
-                        if (state.selectedFile != null)
-                          FilePreview(
-                            file: state.selectedFile!,
-                            onDismiss: () => chatProvider.setState(
-                              (s) => s.copyWith(selectedFile: null),
-                            ),
-                          ),
+                            );
+                          }
+                        },
+                        onReply: _setReplyMessage,
+                        bubbleColorSent: state.bubbleColorSent,
+                        bubbleColorReceived: state.bubbleColorReceived,
+                        textColorSent: state.textColorSent,
+                        textColorReceived: state.textColorReceived,
+                        scrollController: _scrollController,
+                        highlightedMessageId: state.highlightedMessageId,
+                        inputAreaPadding: 90.0 +
+                            (state.showingSmartReplies && state.smartReplies.isNotEmpty ? 44.0 : 0.0) +
+                            (state.replyMessage != null || state.editingMessage != null ? 56.0 : 0.0) +
+                            (state.selectedImages.isNotEmpty ? 150.0 : 0.0) +
+                            (state.selectedVideo != null || state.selectedAudio != null || state.selectedFile != null ? 60.0 : 0.0),
+                      ),
+                    ),
 
-                        // Smart replies
-                        if (state.showingSmartReplies)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                    // Floating Bottom Controls (Replies, Previews, Smart Replies, Input Bar)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Reply preview
+                          if (state.replyMessage != null)
+                            ReplyPreview(
+                              message: state.replyMessage!,
+                              onDismiss: () => _chatProvider.setState(
+                                (s) => s.copyWith(replyMessage: null),
+                              ),
                             ),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
+                          // Edit preview
+                          if (state.editingMessage != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
                               child: Row(
-                                children: state.smartReplies.map((reply) {
-                                  final bubbleColor =
-                                      state.bubbleColorSent ??
-                                      theme.colorScheme.primaryContainer;
-
-                                  // Use dynamic text color based on bubble luminance
-                                  final bool isLight =
-                                      bubbleColor.computeLuminance() > 0.5;
-                                  final textColor =
-                                      state.textColorSent ??
-                                      (isLight
-                                          ? Colors.black87
-                                          : theme
-                                                .colorScheme
-                                                .onPrimaryContainer);
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _messageController.text = reply;
-                                      _chatProvider.setState(
-                                        (s) => s.copyWith(
-                                          smartReplies: [],
-                                          showingSmartReplies: false,
+                                children: [
+                                  const Icon(Icons.edit, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text('Editing Message', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                                        Text(
+                                          state.editingMessage!.content,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(fontSize: 12),
                                         ),
-                                      );
-                                      _sendMessage();
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close, size: 20),
+                                    onPressed: () {
+                                      _chatProvider.setState((s) => s.copyWith(editingMessage: null));
+                                      _messageController.clear();
                                     },
-                                    child: Container(
-                                      margin: const EdgeInsets.only(right: 8),
-                                      child: LiquidGlassWrapper(
-                                        borderRadius: 20,
-                                        shape: const LiquidRoundedSuperellipse(borderRadius: 20),
-                                        config: LiquidGlassConfig.Light,
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          // Media previews
+                          if (state.selectedImages.isNotEmpty)
+                            SizedBox(
+                              height: 150,
+                              child: ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: state.selectedImages.length,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      right: 8.0,
+                                      left: 16.0,
+                                    ),
+                                    child: ImagePreview(
+                                      imagePath: state.selectedImages[index].path,
+                                      mediaViewMode: state.mediaViewMode,
+                                      onDismiss: () {
+                                        final newList = List<XFile>.from(
+                                          state.selectedImages,
+                                        )..removeAt(index);
+                                        chatProvider.setState(
+                                          (s) =>
+                                              s.copyWith(selectedImages: newList),
+                                        );
+                                      },
+                                      onViewModeChanged: (mode) =>
+                                          chatProvider.setState(
+                                            (s) =>
+                                                s.copyWith(mediaViewMode: mode),
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          if (state.selectedVideo != null)
+                            VideoPreview(
+                              mediaViewMode: state.mediaViewMode,
+                              onDismiss: () => chatProvider.setState(
+                                (s) => s.copyWith(selectedVideo: null),
+                              ),
+                              onViewModeChanged: (mode) => chatProvider.setState(
+                                (s) => s.copyWith(mediaViewMode: mode),
+                              ),
+                            ),
+                          if (state.selectedAudio != null)
+                            AudioPreview(
+                              onDismiss: () => chatProvider.setState(
+                                (s) => s.copyWith(selectedAudio: null),
+                              ),
+                            ),
+                          if (state.selectedFile != null)
+                            FilePreview(
+                              file: state.selectedFile!,
+                              onDismiss: () => chatProvider.setState(
+                                (s) => s.copyWith(selectedFile: null),
+                              ),
+                            ),
+
+                          // Smart replies
+                          if (state.showingSmartReplies)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: state.smartReplies.map((reply) {
+                                    final bubbleColor =
+                                        state.bubbleColorSent ??
+                                        theme.colorScheme.primaryContainer;
+
+                                    // Use dynamic text color based on bubble luminance
+                                    final bool isLight =
+                                        bubbleColor.computeLuminance() > 0.5;
+                                    final textColor =
+                                        state.textColorSent ??
+                                        (isLight
+                                            ? Colors.black87
+                                            : theme
+                                                  .colorScheme
+                                                  .onPrimaryContainer);
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        _messageController.text = reply;
+                                        _chatProvider.setState(
+                                          (s) => s.copyWith(
+                                            smartReplies: [],
+                                            showingSmartReplies: false,
+                                          ),
+                                        );
+                                        _sendMessage();
+                                      },
+                                      child: Container(
+                                        margin: const EdgeInsets.only(right: 8),
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 10,
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: bubbleColor.withValues(alpha: 0.15),
+                                          borderRadius: BorderRadius.circular(20),
                                         ),
                                         child: Text(
                                           reply,
@@ -959,102 +966,101 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                               ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                }).toList(),
+                                    );
+                                  }).toList(),
+                                ),
                               ),
                             ),
-                          ),
 
-                        // Typing indicator + Input area
-                        Container(
-                          padding: const EdgeInsets.only(
-                            left: 8,
-                            right: 8,
-                            bottom: 16,
-                            top: 8,
-                          ),
-                          child: SafeArea(
-                            top: false,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Typing indicator
-                                ChatTypingIndicator(
-                                  conversationId: widget.conversationId,
-                                ),
+                          // Typing indicator + Input area
+                          Container(
+                            padding: const EdgeInsets.only(
+                              left: 8,
+                              right: 8,
+                              bottom: 16,
+                              top: 8,
+                            ),
+                            child: SafeArea(
+                              top: false,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  // Typing indicator
+                                  ChatTypingIndicator(
+                                    conversationId: widget.conversationId,
+                                  ),
 
-                                // Whisper mode drag gesture
-                                ChatWhisperGesture(
-                                  isWhisperMode: state.whisperMode,
-                                  onWhisperToggle: () {
-                                    _settingsProvider.toggleWhisperMode(
-                                      currentWhisperMode: state.whisperMode,
-                                      onModeChanged:
-                                          (newMode, ephemeralDuration) {
-                                            chatProvider.setState(
-                                              (s) => s.copyWith(
-                                                whisperMode: newMode,
-                                                ephemeralDuration:
-                                                    ephemeralDuration,
-                                              ),
-                                            );
-                                          },
-                                    );
-                                  },
-                                  builder: (context, dragProgress, dragOffset) {
-                                    return Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Circular progress ring (visible while dragging)
-                                        AnimatedContainer(
-                                          duration: const Duration(
-                                            milliseconds: 80,
-                                          ),
-                                          height: dragProgress > 0 ? 52 : 0,
-                                          child: dragProgress > 0
-                                              ? Material(
-                                                  type:
-                                                      MaterialType.transparency,
-                                                  child: Center(
-                                                    child: Stack(
-                                                      alignment:
-                                                          Alignment.center,
-                                                      children: [
-                                                        Container(
-                                                          width: 40,
-                                                          height: 40,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                                color: colorScheme
-                                                                    .secondary
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.08,
-                                                                    ),
-                                                              ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 40,
-                                                          height: 40,
-                                                          child: CircularProgressIndicator(
-                                                            value: dragProgress,
-                                                            strokeWidth: 3,
-                                                            backgroundColor:
-                                                                colorScheme
-                                                                    .secondary
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.15,
-                                                                    ),
-                                                            valueColor: AlwaysStoppedAnimation<Color>(
-                                                              dragProgress >=
-                                                                      1.0
-                                                                  ? colorScheme
+                                  // Whisper mode drag gesture
+                                  ChatWhisperGesture(
+                                    isWhisperMode: state.whisperMode,
+                                    onWhisperToggle: () {
+                                      _settingsProvider.toggleWhisperMode(
+                                        currentWhisperMode: state.whisperMode,
+                                        onModeChanged:
+                                            (newMode, ephemeralDuration) {
+                                              chatProvider.setState(
+                                                (s) => s.copyWith(
+                                                  whisperMode: newMode,
+                                                  ephemeralDuration:
+                                                      ephemeralDuration,
+                                                ),
+                                              );
+                                            },
+                                      );
+                                    },
+                                    builder: (context, dragProgress, dragOffset) {
+                                      return Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          // Circular progress ring (visible while dragging)
+                                          AnimatedContainer(
+                                            duration: const Duration(
+                                              milliseconds: 80,
+                                            ),
+                                            height: dragProgress > 0 ? 52 : 0,
+                                            child: dragProgress > 0
+                                                ? Material(
+                                                    type:
+                                                        MaterialType.transparency,
+                                                    child: Center(
+                                                      child: Stack(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        children: [
+                                                          Container(
+                                                            width: 40,
+                                                            height: 40,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                  shape: BoxShape
+                                                                      .circle,
+                                                                  color: colorScheme
+                                                                      .secondary
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.08,
+                                                                      ),
+                                                                ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 40,
+                                                            height: 40,
+                                                            child: CircularProgressIndicator(
+                                                              value: dragProgress,
+                                                              strokeWidth: 3,
+                                                              backgroundColor:
+                                                                  colorScheme
+                                                                      .secondary
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.15,
+                                                                      ),
+                                                              valueColor: AlwaysStoppedAnimation<Color>(
+                                                                dragProgress >=
+                                                                        1.0
+                                                                    ? colorScheme
                                                                         .secondary
-                                                                  : colorScheme
+                                                                    : colorScheme
                                                                         .secondary
                                                                         .withValues(
                                                                           alpha:
@@ -1062,84 +1068,83 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                                               dragProgress *
                                                                                   0.6,
                                                                         ),
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                        Icon(
-                                                          dragProgress >= 1.0
-                                                              ? Icons
-                                                                    .auto_delete
-                                                              : Icons
-                                                                    .arrow_upward_rounded,
-                                                          size: 18,
-                                                          color: colorScheme
-                                                              .secondary
-                                                              .withValues(
-                                                                alpha:
-                                                                    0.5 +
-                                                                    dragProgress *
-                                                                        0.5,
-                                                              ),
-                                                        ),
-                                                      ],
+                                                          Icon(
+                                                            dragProgress >= 1.0
+                                                                ? Icons
+                                                                      .auto_delete
+                                                                : Icons
+                                                                      .arrow_upward_rounded,
+                                                            size: 18,
+                                                            color: colorScheme
+                                                                .secondary
+                                                                .withValues(
+                                                                  alpha:
+                                                                      0.5 +
+                                                                      dragProgress *
+                                                                          0.5,
+                                                                ),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                                )
-                                              : const SizedBox.shrink(),
-                                        ),
-                                        // Input row
-                                        Transform.translate(
-                                          offset: Offset(0, -dragOffset * 0.3),
-                                          child: ChatInputArea(
-                                            controller: _messageController,
-                                            focusNode: _focusNode,
-                                            onSend: _sendMessage,
-                                            onAttachment:
-                                                _showAttachmentOptions,
-                                            onSticker: _showGiphyPicker,
-                                            isRecording: state.isRecording,
-                                            recordDuration:
-                                                state.recordDuration,
-                                            isSending: state.isSending,
-                                            isWhisperMode: state.whisperMode,
-                                            onToggleRecording: _toggleRecording,
-                                            textNotifier: _textNotifier,
-                                            backgroundUrl: state.backgroundUrl,
-                                            textColor:
-                                                state.textColorSent ??
-                                                (state.backgroundUrl != null
-                                                    ? Colors.white
-                                                    : null),
-                                            hintText: state.whisperMode > 0
-                                                ? 'Disappearing message...'
-                                                : 'Type a message...',
-                                            hasAttachment:
-                                                state
-                                                    .selectedImages
-                                                    .isNotEmpty ||
-                                                state.selectedVideo != null ||
-                                                state.selectedAudio != null ||
-                                                state.selectedFile != null,
-                                            isDesktop: isDesktop,
-                                            onPickImage: _pickImage,
-                                            onPickVideo: _pickVideo,
-                                            onPickFile: _pickFile,
-                                            onPickAudio: _pickAudio,
-                                            isSpoiler: _isSpoiler,
-                                            onSpoilerToggle: () => setState(
-                                              () => _isSpoiler = !_isSpoiler,
+                                                  )
+                                                : const SizedBox.shrink(),
+                                          ),
+                                          // Input row
+                                          Transform.translate(
+                                            offset: Offset(0, -dragOffset * 0.3),
+                                            child: ChatInputArea(
+                                              controller: _messageController,
+                                              focusNode: _focusNode,
+                                              onSend: _sendMessage,
+                                              onAttachment:
+                                                  _showAttachmentOptions,
+                                              onSticker: _showGiphyPicker,
+                                              isRecording: state.isRecording,
+                                              recordDuration:
+                                                  state.recordDuration,
+                                              isSending: state.isSending,
+                                              isWhisperMode: state.whisperMode,
+                                              onToggleRecording: _toggleRecording,
+                                              textNotifier: _textNotifier,
+                                              backgroundUrl: state.backgroundUrl,
+                                              textColor:
+                                                  state.textColorSent ??
+                                                  (state.backgroundUrl != null
+                                                      ? Colors.white
+                                                      : null),
+                                              hintText: state.whisperMode > 0
+                                                  ? 'Disappearing message...'
+                                                  : 'Type a message...',
+                                              hasAttachment:
+                                                  state
+                                                      .selectedImages
+                                                      .isNotEmpty ||
+                                                  state.selectedVideo != null ||
+                                                  state.selectedAudio != null ||
+                                                  state.selectedFile != null,
+                                              isDesktop: isDesktop,
+                                              onPickImage: _pickImage,
+                                              onPickVideo: _pickVideo,
+                                              onPickFile: _pickFile,
+                                              onPickAudio: _pickAudio,
+                                              isSpoiler: _isSpoiler,
+                                              onSpoilerToggle: _toggleSpoiler,
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                ),
-                              ],
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
 
                     // Floating Header

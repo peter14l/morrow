@@ -23,6 +23,7 @@ class ChatMessageList extends StatelessWidget {
     required this.onMessageDoubleTap,
     required this.onReply,
     this.headerHeight = 72,
+    this.inputAreaPadding = 90,
     this.bubbleColorSent,
     this.bubbleColorReceived,
     this.textColorSent,
@@ -40,6 +41,7 @@ class ChatMessageList extends StatelessWidget {
   final Function(Message) onMessageDoubleTap;
   final Function(Message) onReply;
   final double headerHeight;
+  final double inputAreaPadding;
   final Color? bubbleColorSent;
   final Color? bubbleColorReceived;
   final Color? textColorSent;
@@ -67,7 +69,7 @@ class ChatMessageList extends StatelessWidget {
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + headerHeight + 16,
-            bottom: 16,
+            bottom: MediaQuery.of(context).padding.bottom + inputAreaPadding,
             left: 16,
             right: 16,
           ),
