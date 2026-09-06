@@ -341,6 +341,10 @@ class AppInitializer {
     // --- CRITICAL PHASE: Must complete before UI shows ---
     debugPrint('STEP: Critical initialization starting...');
 
+    // Strict RAM and Bitmap footprint reduction (Targeting 2027 Android limits)
+    PaintingBinding.instance.imageCache.maximumSizeBytes = 35 * 1024 * 1024; // 35 MB max decoded bitmap cache
+    PaintingBinding.instance.imageCache.maximumSize = 100; // max 100 images
+
     // 1. Hive & Supabase & Storage (Parallel)
     await Future.wait([
       HiveService.initialize(),

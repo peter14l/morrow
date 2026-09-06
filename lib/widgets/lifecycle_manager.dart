@@ -8,8 +8,6 @@ import 'package:oasis/core/performance/power_manager.dart';
 import 'package:oasis/services/screen_time_service.dart';
 import 'package:oasis/services/energy_meter_service.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
-import 'package:oasis/services/sharing_service.dart';
-import 'package:oasis/services/deep_link_service.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/services/wellness_service.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
@@ -20,6 +18,7 @@ import 'package:oasis/features/couples/data/home_checkin_repository.dart';
 import 'package:oasis/services/home_checkin_service.dart';
 import 'package:oasis/services/home_arrival_service.dart';
 import 'package:oasis/widgets/verification_dialog.dart';
+import 'package:flutter/services.dart' as services;
 import 'package:oasis/features/wellness/presentation/providers/study_session_provider.dart';
 import 'package:oasis/features/settings/presentation/providers/decoy_provider.dart';
 
@@ -33,19 +32,45 @@ class LifecycleManager extends StatefulWidget {
 
 class _LifecycleManagerState extends State<LifecycleManager>
     with material.WidgetsBindingObserver {
+  static const services.MethodChannel _memoryChannel =
+      services.MethodChannel('oasis/memory');
+
   @override
   void initState() {
     super.initState();
     material.WidgetsBinding.instance.addObserver(this);
+    _setupMemoryChannel();
     if (mounted) {
       context.read<ScreenTimeService>().startTracking();
     }
+  }
+
+  void _setupMemoryChannel() {
+    _memoryChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onTrimMemory') {
+        final level = call.arguments as int? ?? 0;
+        debugPrintThrottled(
+          '[LifecycleManager] Native onTrimMemory received (level=$level). Purging image cache.',
+        );
+        material.PaintingBinding.instance.imageCache.clear();
+        material.PaintingBinding.instance.imageCache.clearLiveImages();
+      }
+    });
   }
 
   @override
   void dispose() {
     material.WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didHaveMemoryPressure() {
+    debugPrintThrottled(
+      '[LifecycleManager] System didHaveMemoryPressure triggered. Purging image caches.',
+    );
+    material.PaintingBinding.instance.imageCache.clear();
+    material.PaintingBinding.instance.imageCache.clearLiveImages();
   }
 
   @override
@@ -62,6 +87,7 @@ class _LifecycleManagerState extends State<LifecycleManager>
     final studySession = context.read<StudySessionProvider>();
 
     if (state == material.AppLifecycleState.paused ||
+        state == material.AppLifecycleState.hidden ||
         state == material.AppLifecycleState.detached) {
       PowerManager.instance.setBackgrounded(true);
       screenTime.stopTracking();
@@ -70,6 +96,10 @@ class _LifecycleManagerState extends State<LifecycleManager>
       wellbeing.resetSession();
       ripples.onPaused();
       studySession.onPaused();
+
+      // Clear in-memory decoded image caches when backgrounded
+      material.PaintingBinding.instance.imageCache.clear();
+      material.PaintingBinding.instance.imageCache.clearLiveImages();
 
       context.read<DecoyProvider>().lock();
 

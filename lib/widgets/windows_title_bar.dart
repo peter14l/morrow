@@ -39,6 +39,8 @@ class WindowsTitleBar extends StatelessWidget {
                       'assets/images/app_icon.png',
                       width: 16,
                       height: 16,
+                      cacheWidth: 64,
+                      cacheHeight: 64,
                       errorBuilder: (_, __, ___) => const Icon(
                         Icons.blur_on,
                         size: 16,
@@ -53,7 +55,7 @@ class WindowsTitleBar extends StatelessWidget {
             ),
           ),
           // Caption buttons
-          Row(
+          const Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
               _Win11CaptionButton(

@@ -287,4 +287,26 @@
 -keep class com.revenuecat.purchases.** { *; }
 -dontwarn com.revenuecat.purchases.**
 
+# ============================================================
+# Additional Plugins (geolocator, flutter_image_compress, screen_protector)
+# ============================================================
+-keep class com.baseflow.geolocator.** { *; }
+-keepclassmembers class com.baseflow.geolocator.** { *; }
+-dontwarn com.baseflow.geolocator.**
 
+-keep class com.fluttercandies.flutter_image_compress.** { *; }
+-keepclassmembers class com.fluttercandies.flutter_image_compress.** { *; }
+-dontwarn com.fluttercandies.flutter_image_compress.**
+
+-keep class com.screenprotector.** { *; }
+-keepclassmembers class com.screenprotector.** { *; }
+-dontwarn com.screenprotector.**
+
+# ============================================================
+# R8 Optimization: Strip verbose/debug logs in release mode
+# ============================================================
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+}

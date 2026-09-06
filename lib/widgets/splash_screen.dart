@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:oasis/core/storage/prefs_storage.dart';
@@ -144,6 +143,8 @@ class _SplashScreenState extends State<SplashScreen>
                           child: Image.asset(
                             'assets/images/app_icon.png',
                             fit: BoxFit.cover,
+                            cacheWidth: 360,
+                            cacheHeight: 360,
                             errorBuilder: (context, error, stackTrace) {
                               return Container(
                                 color: const Color(0xFF1E6BB8),

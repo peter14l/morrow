@@ -16,11 +16,15 @@ class MainActivity : FlutterFragmentActivity() {
     private val CALL_CHANNEL = "oasis/call"
     private val NOTIFICATION_CHANNEL = "oasis/notification_tap"
     private val STEALTH_CHANNEL = "oasis/stealth_mode"
+    private val MEMORY_CHANNEL = "oasis/memory"
     private val geofenceManager by lazy { OasisGeofenceManager(this) }
+    private val zeroTapRestoreManager by lazy { ZeroTapRestoreManager(this) }
     private var geofenceMethodChannel: MethodChannel? = null
     private var callMethodChannel: MethodChannel? = null
     private var notificationMethodChannel: MethodChannel? = null
     private var stealthMethodChannel: MethodChannel? = null
+    private var memoryMethodChannel: MethodChannel? = null
+    private var zeroTapMethodChannel: MethodChannel? = null
     private var pendingCallId: String? = null
     private var pendingNotificationPayload: String? = null
 
@@ -46,8 +50,44 @@ class MainActivity : FlutterFragmentActivity() {
             callMethodChannel = MethodChannel(messenger, CALL_CHANNEL)
             notificationMethodChannel = MethodChannel(messenger, NOTIFICATION_CHANNEL)
             stealthMethodChannel = MethodChannel(messenger, STEALTH_CHANNEL)
+            memoryMethodChannel = MethodChannel(messenger, MEMORY_CHANNEL)
+            zeroTapMethodChannel = MethodChannel(messenger, ZeroTapRestoreManager.CHANNEL_NAME)
         } catch (e: Exception) {
             android.util.Log.e("MainActivity", "Failed to initialize method channels: $e")
+        }
+
+        zeroTapMethodChannel?.setMethodCallHandler { call, result ->
+            when (call.method) {
+                "getRestoreKey" -> {
+                    zeroTapRestoreManager.getRestoreKey { token, error ->
+                        if (error != null) {
+                            result.error("RESTORE_GET_ERROR", error, null)
+                        } else {
+                            result.success(token)
+                        }
+                    }
+                }
+                "saveRestoreKey" -> {
+                    val token = call.argument<String>("token")
+                    if (token.isNullOrEmpty()) {
+                        result.error("INVALID_ARGS", "Token cannot be empty", null)
+                    } else {
+                        zeroTapRestoreManager.saveRestoreKey(token) { success, error ->
+                            if (error != null) {
+                                result.error("RESTORE_SAVE_ERROR", error, null)
+                            } else {
+                                result.success(success)
+                            }
+                        }
+                    }
+                }
+                "clearRestoreKey" -> {
+                    zeroTapRestoreManager.clearRestoreKey { success ->
+                        result.success(success)
+                    }
+                }
+                else -> result.notImplemented()
+            }
         }
 
         stealthMethodChannel?.setMethodCallHandler { call, result ->
@@ -118,6 +158,28 @@ class MainActivity : FlutterFragmentActivity() {
     override fun onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(geofenceReceiver)
         super.onDestroy()
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        try {
+            memoryMethodChannel?.invokeMethod("onTrimMemory", level)
+            if (level >= android.content.ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN) {
+                System.gc()
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("MainActivity", "Error handling onTrimMemory: $e")
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        try {
+            memoryMethodChannel?.invokeMethod("onTrimMemory", android.content.ComponentCallbacks2.TRIM_MEMORY_COMPLETE)
+            System.gc()
+        } catch (e: Exception) {
+            android.util.Log.w("MainActivity", "Error handling onLowMemory: $e")
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

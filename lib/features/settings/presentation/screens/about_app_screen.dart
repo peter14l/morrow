@@ -42,6 +42,7 @@ class AboutAppScreen extends StatelessWidget {
                       child: Image.asset(
                         'assets/images/logo.png',
                         height: 80,
+                        cacheHeight: 240,
                         errorBuilder: (context, error, stackTrace) => Icon(
                           Icons.flutter_dash_rounded,
                           size: 80,
