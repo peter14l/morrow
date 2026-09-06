@@ -48,6 +48,7 @@ public sealed partial class ChatPage : Page
         NotificationService.ActiveConversationId = _conversationId;
 
         await KeyRestorePrompt.EnsureRestoredAsync(XamlRoot, _messaging);
+        await LoadBackgroundAsync();
 
         _messages.Clear();
         _messageIds.Clear();
@@ -322,20 +323,49 @@ public sealed partial class ChatPage : Page
                     inner.Children.Add(MakeTextBlock(mediaLabel, mine));
                 }
 
-                if (!string.IsNullOrEmpty(text))
-                    inner.Children.Add(MakeTextBlock(text, mine));
-            }
-            else
+            var metaRow = new StackPanel
             {
-                inner.Children.Add(MakeTextBlock(text, mine));
+                Orientation = Orientation.Horizontal,
+                Spacing = 5,
+                HorizontalAlignment = mine ? HorizontalAlignment.Right : HorizontalAlignment.Left,
+                Margin = new Thickness(0, 2, 0, 0),
+            };
+
+            if (msg.IsPqAuraEncrypted)
+            {
+                metaRow.Children.Add(new FontIcon
+                {
+                    Glyph = "\uE72E", // Lock icon
+                    FontSize = 10,
+                    Foreground = (Brush)Application.Current.Resources["TextFillColorTertiaryBrush"],
+                    VerticalAlignment = VerticalAlignment.Center,
+                });
             }
 
-            inner.Children.Add(new TextBlock
+            metaRow.Children.Add(new TextBlock
             {
                 Text = msg.Timestamp.ToString("HH:mm"),
                 FontSize = 10,
                 Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"],
+                VerticalAlignment = VerticalAlignment.Center,
             });
+
+            if (mine)
+            {
+                var isRead = msg.IsRead || msg.ReadAt.HasValue || msg.AnyReadAt.HasValue;
+                var tickColor = isRead ? new SolidColorBrush(Microsoft.UI.Colors.DeepSkyBlue) : (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"];
+
+                metaRow.Children.Add(new FontIcon
+                {
+                    Glyph = isRead ? "\uE8FB" : "\uE73E", // Double check / check mark glyph
+                    FontSize = 11,
+                    FontWeight = isRead ? FontWeights.Bold : FontWeights.Normal,
+                    Foreground = tickColor,
+                    VerticalAlignment = VerticalAlignment.Center,
+                });
+            }
+
+            inner.Children.Add(metaRow);
 
             var bubble = new Border
             {
@@ -705,5 +735,65 @@ public sealed partial class ChatPage : Page
     {
         var oldest = _messages.Count > 0 ? _messages[0].Timestamp : (DateTime?)null;
         await LoadMessagesAsync(oldest);
+    }
+
+    private async Task LoadBackgroundAsync()
+    {
+        try
+        {
+            var bgUrl = await _messaging.GetChatBackgroundAsync(_conversationId);
+            if (!string.IsNullOrEmpty(bgUrl))
+            {
+                ChatBackgroundImage.Source = new BitmapImage(new Uri(bgUrl));
+            }
+            else
+            {
+                ChatBackgroundImage.Source = null;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("ChatPage.LoadBackground", ex.Message);
+        }
+    }
+
+    private async void SetBackgroundBtn_Click(object sender, RoutedEventArgs e)
+    {
+        var picker = new Windows.Storage.Pickers.FileOpenPicker
+        {
+            ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
+            SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.PicturesLibrary,
+        };
+        picker.FileTypeFilter.Add(".jpg");
+        picker.FileTypeFilter.Add(".jpeg");
+        picker.FileTypeFilter.Add(".png");
+        picker.FileTypeFilter.Add(".webp");
+
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindowInstance);
+        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+        var file = await picker.PickSingleFileAsync();
+        if (file == null) return;
+
+        try
+        {
+            var buffer = await Windows.Storage.FileIO.ReadBufferAsync(file);
+            var bytes = buffer.ToArray();
+            var fileName = $"bg_{Guid.NewGuid():N}{file.FileType}";
+            var storage = SupabaseService.Client.Storage.From("chat-backgrounds");
+            var path = $"backgrounds/{_conversationId}/{fileName}";
+            await storage.Upload(bytes, path);
+            var publicUrl = storage.GetPublicUrl(path);
+
+            if (!string.IsNullOrEmpty(publicUrl))
+            {
+                await _messaging.UpdateChatBackgroundAsync(_conversationId, publicUrl);
+                ChatBackgroundImage.Source = new BitmapImage(new Uri(publicUrl));
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("ChatPage.SetBackground", ex.Message);
+        }
     }
 }

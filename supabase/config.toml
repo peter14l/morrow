@@ -216,13 +216,13 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Use default Supabase SMTP
 [auth.email.smtp]
-enabled = true
-host = "smtp.sendgrid.net"
+enabled = false
+host = ""
 port = 587
-user = "apikey"
-pass = "env(SENDGRID_API_KEY)"
+user = ""
+pass = ""
 admin_email = "oasis.officialsupport@gmail.com"
 sender_name = "Oasis"
 

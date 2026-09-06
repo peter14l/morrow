@@ -2,6 +2,7 @@
     x:Class="Oasis.WinUI.Views.Auth.LoginPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:lottie="using:CommunityToolkit.WinUI.Lottie"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -19,6 +20,15 @@
                 VerticalAlignment="Center"
                 Padding="32"
                 Spacing="16">
+
+                <AnimatedVisualPlayer
+                    x:Name="LoginLottiePlayer"
+                    Width="160"
+                    Height="120"
+                    HorizontalAlignment="Center"
+                    AutoPlay="True">
+                    <lottie:LottieVisualSource UriSource="ms-appx:///Assets/Login.json" />
+                </AnimatedVisualPlayer>
 
                 <TextBlock
                     Text="Oasis"

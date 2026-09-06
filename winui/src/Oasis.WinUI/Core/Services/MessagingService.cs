@@ -219,6 +219,96 @@ public sealed class MessagingService
         }
     }
 
+    public async Task<string?> GetUserPublicKeyAsync(string userId)
+    {
+        if (string.IsNullOrEmpty(userId)) return null;
+        try
+        {
+            var response = await SupabaseService.Client.From<ProfilesRow>()
+                .Select("public_key")
+                .Filter("id", Postgrest.Constants.Operator.Equals, userId)
+                .Limit(1)
+                .Get();
+            if (string.IsNullOrWhiteSpace(response?.Content)) return null;
+            using var doc = JsonDocument.Parse(response.Content);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0) return null;
+            return JsonUtil.S(doc.RootElement[0], "public_key");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.GetPublicKey", ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<string?> GetChatBackgroundAsync(string conversationId)
+    {
+        if (string.IsNullOrEmpty(conversationId)) return null;
+        try
+        {
+            var response = await SupabaseService.Client.From<TableRows.ChatThemesRow>()
+                .Select("background_image_url")
+                .Filter("conversation_id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Order("updated_at", Postgrest.Constants.Ordering.Descending)
+                .Limit(1)
+                .Get();
+            if (string.IsNullOrWhiteSpace(response?.Content)) return null;
+            using var doc = JsonDocument.Parse(response.Content);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0) return null;
+            return JsonUtil.S(doc.RootElement[0], "background_image_url");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.GetBackground", ex.Message);
+            return null;
+        }
+    }
+
+    public async Task<bool> UpdateChatBackgroundAsync(string conversationId, string? backgroundUrl)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(conversationId) || string.IsNullOrEmpty(userId)) return false;
+        try
+        {
+            var participantsResponse = await SupabaseService.Client.From<ConversationParticipantsRow>()
+                .Select("user_id")
+                .Filter("conversation_id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Get();
+
+            var participantIds = new List<string>();
+            if (!string.IsNullOrWhiteSpace(participantsResponse?.Content))
+            {
+                using var doc = JsonDocument.Parse(participantsResponse.Content);
+                if (doc.RootElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var el in doc.RootElement.EnumerateArray())
+                    {
+                        var pid = JsonUtil.S(el, "user_id");
+                        if (!string.IsNullOrEmpty(pid)) participantIds.Add(pid);
+                    }
+                }
+            }
+            if (participantIds.Count == 0) participantIds.Add(userId);
+
+            foreach (var pid in participantIds)
+            {
+                await SupabaseService.Client.From<TableRows.ChatThemesRow>().Upsert(new TableRows.ChatThemesRow
+                {
+                    ConversationId = conversationId,
+                    UserId = pid,
+                    BackgroundImageUrl = backgroundUrl,
+                    UpdatedAt = DateTime.UtcNow,
+                });
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.UpdateBackground", ex.Message);
+            return false;
+        }
+    }
+
     public async Task<(string Id, string Username, string AvatarUrl)?> FindUserByUsernameAsync(string username)
     {
         try
@@ -287,11 +377,54 @@ public sealed class MessagingService
         }
     }
 
+    /// <summary>
+    /// Attempts to restore the RSA keypair from the seamless v1 backup (encrypted_private_key)
+    /// without requiring user PIN entry.
+    /// </summary>
+    public async Task<bool> TryRestoreLegacyBackupAsync()
+    {
+        var userId = CurrentUserId;
+        if (userId.Length == 0) return false;
+        try
+        {
+            var response = await SupabaseService.Client.From<ProfilesRow>()
+                .Select("encrypted_private_key,public_key")
+                .Filter("id", Postgrest.Constants.Operator.Equals, userId)
+                .Limit(1)
+                .Get();
+            if (string.IsNullOrWhiteSpace(response?.Content)) return false;
+            using var doc = JsonDocument.Parse(response.Content);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0) return false;
+            var el = doc.RootElement[0];
+            var encrypted = JsonUtil.S(el, "encrypted_private_key");
+            var publicKey = JsonUtil.S(el, "public_key");
+            if (string.IsNullOrEmpty(encrypted)) return false;
+
+            var key = KeyManagementService.DeriveLegacyBackupKey(userId);
+            var privateKeyPem = KeyManagementService.DecryptWithKey(encrypted, key);
+            if (string.IsNullOrEmpty(privateKeyPem)) return false;
+
+            await SecureStorage.SaveAsync(KeyManagementService.PrivateKeyKey(userId), privateKeyPem);
+            if (!string.IsNullOrEmpty(publicKey))
+                await SecureStorage.SaveAsync(KeyManagementService.PublicKeyKey(userId), publicKey);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.RestoreLegacyKeys", ex.Message);
+            return false;
+        }
+    }
+
     public async Task<bool> HasPrivateKeyAsync()
     {
         var userId = CurrentUserId;
         if (userId.Length == 0) return false;
-        return !string.IsNullOrEmpty(await SecureStorage.LoadAsync(KeyManagementService.PrivateKeyKey(userId)));
+        var hasLocal = !string.IsNullOrEmpty(await SecureStorage.LoadAsync(KeyManagementService.PrivateKeyKey(userId)));
+        if (hasLocal) return true;
+
+        // Try automatic seamless restore from legacy v1 backup before giving up
+        return await TryRestoreLegacyBackupAsync();
     }
 
     public async Task<bool> HasV2BackupAsync()
@@ -432,7 +565,7 @@ public sealed class MessagingService
             if (entry.Value is not string value || string.IsNullOrEmpty(value)) continue;
             var aesKey = KeyManagementService.DecryptRsaKey(privateKeyPem, value);
             if (aesKey == null) continue;
-            var plain = KeyManagementService.AesSicDecrypt(aesKey, iv, rsaCiphertext);
+            var plain = KeyManagementService.AesDecryptAny(aesKey, iv, rsaCiphertext);
             if (plain != null) return plain;
         }
         return null;
@@ -533,6 +666,10 @@ public sealed class MessagingService
         var header = (object?)null;
         var payload = (object?)null;
         var messageType = "text";
+        var finalContent = content;
+        string? signalSenderContent = null;
+        Dictionary<string, object>? encryptedKeysDict = null;
+        string? ivBase64 = null;
 
         if (!string.IsNullOrEmpty(otherUserId))
         {
@@ -541,15 +678,38 @@ public sealed class MessagingService
             {
                 header = Convert.ToBase64String(encrypted.Header);
                 payload = Convert.ToBase64String(encrypted.Payload);
+                finalContent = Convert.ToBase64String(encrypted.Payload);
+            }
+
+            // Dual-layer RSA fallback for seamless phone/web/cross-client decryption
+            try
+            {
+                var recipientPubKey = await GetUserPublicKeyAsync(otherUserId);
+                var myPubKey = await SecureStorage.LoadAsync(KeyManagementService.PublicKeyKey(userId));
+                var keysToEncrypt = new List<string>();
+                if (!string.IsNullOrEmpty(recipientPubKey)) keysToEncrypt.Add(recipientPubKey);
+                if (!string.IsNullOrEmpty(myPubKey)) keysToEncrypt.Add(myPubKey);
+
+                if (keysToEncrypt.Count > 0)
+                {
+                    var fallback = KeyManagementService.EncryptMessageFallback(content, keysToEncrypt);
+                    if (fallback != null)
+                    {
+                        signalSenderContent = fallback.Value.Ciphertext;
+                        ivBase64 = fallback.Value.Iv;
+                        encryptedKeysDict = fallback.Value.EncryptedKeys.ToDictionary(k => k.Key, v => (object)v.Value);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Warn("Messages.SendText.Fallback", ex.Message);
             }
         }
 
-        // When PQ-Aura is unavailable the header/payload stay null and the
-        // message is sent plaintext (RLS still protects it at rest).
-
         var parameters = new Dictionary<string, object?>
         {
-            ["p_content"] = content,
+            ["p_content"] = finalContent,
             ["p_conversation_id"] = conversationId,
             ["p_message_type"] = messageType,
             ["p_media_url"] = null,
@@ -561,8 +721,8 @@ public sealed class MessagingService
             ["p_ephemeral_duration"] = ephemeralDuration,
             ["p_pq_aura_header"] = header,
             ["p_pq_aura_payload"] = payload,
-            ["p_encrypted_keys"] = null,
-            ["p_iv"] = null,
+            ["p_encrypted_keys"] = encryptedKeysDict,
+            ["p_iv"] = ivBase64,
             ["p_is_spoiler"] = false,
             ["p_location_data"] = null,
             ["p_media_view_mode"] = null,
@@ -570,7 +730,7 @@ public sealed class MessagingService
             ["p_ripple_id"] = null,
             ["p_share_data"] = null,
             ["p_signal_message_type"] = null,
-            ["p_signal_sender_content"] = null,
+            ["p_signal_sender_content"] = signalSenderContent,
             ["p_story_id"] = null,
             ["p_whisper_mode"] = "OFF",
         };

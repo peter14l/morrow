@@ -240,15 +240,66 @@
 
             <!-- ── Saved tab ── -->
             <TabViewItem Header="Saved" IsClosable="False" Tag="saved">
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-                    <FontIcon Glyph="&#xE735;" FontSize="52"
-                              Foreground="{ThemeResource TextFillColorTertiaryBrush}"
-                              HorizontalAlignment="Center" />
-                    <TextBlock Text="Saved posts will appear here."
-                               FontSize="14"
-                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                               HorizontalAlignment="Center" />
-                </StackPanel>
+                <Grid>
+                    <ProgressRing x:Name="SavedLoadingRing" IsActive="False" Visibility="Collapsed"
+                                  HorizontalAlignment="Center" VerticalAlignment="Center" />
+
+                    <!-- Empty state -->
+                    <StackPanel x:Name="SavedEmptyState" HorizontalAlignment="Center"
+                                VerticalAlignment="Center" Spacing="12">
+                        <FontIcon Glyph="&#xE735;" FontSize="52"
+                                  Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                  HorizontalAlignment="Center" />
+                        <TextBlock Text="Saved posts will appear here."
+                                   FontSize="14"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- Saved Posts grid -->
+                    <GridView x:Name="SavedPostsList" Visibility="Collapsed"
+                              SelectionMode="None" IsItemClickEnabled="False"
+                              Padding="16">
+                        <GridView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal"
+                                               ItemWidth="204" ItemHeight="204" />
+                            </ItemsPanelTemplate>
+                        </GridView.ItemsPanel>
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem">
+                                <Setter Property="Padding" Value="0" />
+                                <Setter Property="Margin" Value="4" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                        <GridView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Width="196" Height="196" CornerRadius="10"
+                                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        Padding="12">
+                                    <Grid>
+                                        <Image Source="{Binding ImageUrl, Converter={StaticResource ImageUrlConverter}}" Stretch="UniformToFill"
+                                               Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}}" />
+                                        <TextBlock Text="{Binding Content}"
+                                                   TextWrapping="Wrap"
+                                                   MaxLines="8"
+                                                   FontSize="13"
+                                                   Foreground="{ThemeResource TextFillColorPrimaryBrush}" />
+                                        <Border Background="#CC000000" Padding="8"
+                                                VerticalAlignment="Bottom" Margin="-12" CornerRadius="0,0,10,10"
+                                                Visibility="{Binding ImageUrl, Converter={StaticResource NullToVisibilityConverter}}">
+                                            <TextBlock Text="{Binding Content}"
+                                                       MaxLines="2" TextTrimming="CharacterEllipsis"
+                                                       Foreground="White" FontSize="12" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </GridView.ItemTemplate>
+                    </GridView>
+                </Grid>
             </TabViewItem>
 
         </TabView>

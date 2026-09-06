@@ -20,7 +20,9 @@ serve(async (req) => {
     // Get environment variables
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    const sendgridApiKey = Deno.env.get("SENDGRID_API_KEY")!
+    const brevoApiKey = Deno.env.get("BREVO_API_KEY") || Deno.env.get("SENDINBLUE_API_KEY")
+    const resendApiKey = Deno.env.get("RESEND_API_KEY")
+    const sendgridApiKey = Deno.env.get("SENDGRID_API_KEY")
 
     console.log(`Processing password reset for: ${email}`)
 
@@ -52,8 +54,8 @@ serve(async (req) => {
     // IMPORTANT: Use the Supabase auth callback URL, not the app URL directly
     // The auth callback will validate the token and redirect to the app
     const siteUrl = Deno.env.get("SITE_URL") || "https://oasis-web-red.vercel.app"
-    const fromEmail = Deno.env.get("SENDGRID_FROM_EMAIL") || "oasis.officialsupport@gmail.com"
-    const fromName = Deno.env.get("SENDGRID_FROM_NAME") || "Oasis"
+    const fromEmail = Deno.env.get("BREVO_FROM_EMAIL") || Deno.env.get("RESEND_FROM_EMAIL") || Deno.env.get("SENDGRID_FROM_EMAIL") || "baban012008@gmail.com"
+    const fromName = Deno.env.get("BREVO_FROM_NAME") || Deno.env.get("RESEND_FROM_NAME") || Deno.env.get("SENDGRID_FROM_NAME") || "Oasis"
     
     const callbackUrl = `${supabaseUrl}/auth/v1/callback?redirect_to=${siteUrl}/reset-password`
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
@@ -83,7 +85,7 @@ serve(async (req) => {
 
     console.log("Generated reset link successfully")
 
-    // Send email via SendGrid
+    // Email content
     const emailSubject = type === "magic" 
       ? "Your Magic Sign-in Link" 
       : "Reset your password"
@@ -116,33 +118,84 @@ serve(async (req) => {
         </div>
       `
 
-    // Send via SendGrid API
-    const sendgridResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${sendgridApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        personalizations: [{
+    let emailSent = false
+    let lastError = ""
+
+    // 1. Try Brevo API if key is present
+    if (brevoApiKey) {
+      const brevoResponse = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": brevoApiKey,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: fromName, email: fromEmail },
           to: [{ email: email }],
           subject: emailSubject,
-        }],
-        from: {
-          email: fromEmail,
-          name: fromName,
-        },
-        content: [{
-          type: "text/html",
-          value: emailHtml,
-        }],
-      }),
-    })
+          htmlContent: emailHtml,
+        }),
+      })
 
-    if (!sendgridResponse.ok) {
-      const sendgridError = await sendgridResponse.text()
-      console.error("SendGrid error:", sendgridError)
-      return new Response(JSON.stringify({ error: "Failed to send email" }), {
+      if (brevoResponse.ok) {
+        emailSent = true
+      } else {
+        lastError = await brevoResponse.text()
+        console.error("Brevo API error:", lastError)
+      }
+    }
+
+    // 2. Fallback to Resend if Brevo is not set or failed
+    if (!emailSent && resendApiKey) {
+      const resendResponse = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from: `${fromName} <${fromEmail}>`,
+          to: [email],
+          subject: emailSubject,
+          html: emailHtml,
+        }),
+      })
+
+      if (resendResponse.ok) {
+        emailSent = true
+      } else {
+        lastError = await resendResponse.text()
+        console.error("Resend API error:", lastError)
+      }
+    }
+
+    // 3. Fallback to SendGrid if configured
+    if (!emailSent && sendgridApiKey) {
+      const sendgridResponse = await fetch("https://api.sendgrid.com/v3/mail/send", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${sendgridApiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email }] }],
+          from: { email: fromEmail, name: fromName },
+          subject: emailSubject,
+          content: [{ type: "text/html", value: emailHtml }],
+        }),
+      })
+
+      if (sendgridResponse.ok) {
+        emailSent = true
+      } else {
+        lastError = await sendgridResponse.text()
+        console.error("SendGrid API error:", lastError)
+      }
+    }
+
+    if (!emailSent) {
+      return new Response(JSON.stringify({ error: "Failed to send email", details: lastError }), {
         status: 500,
       })
     }

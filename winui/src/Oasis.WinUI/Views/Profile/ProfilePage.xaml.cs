@@ -21,8 +21,10 @@ namespace Oasis.WinUI.Views.Profile;
 public sealed partial class ProfilePage : Page
 {
     private readonly SettingsService _settings = new();
+    private readonly CollectionService _collections = new();
     private UserProfile? _profile;
     private readonly List<PostSummary> _posts = [];
+    private readonly List<PostSummary> _savedPosts = [];
 
     public ProfilePage()
     {
@@ -38,6 +40,7 @@ public sealed partial class ProfilePage : Page
                 new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange);
         }
 
+        ProfileTabView.SelectionChanged += ProfileTabView_SelectionChanged;
         Loaded += async (_, _) => await LoadAllAsync();
     }
 
@@ -239,6 +242,68 @@ public sealed partial class ProfilePage : Page
             Logger.Warn("ProfilePage.Posts", ex.Message);
             EmptyStateLabel.Text = "Could not load posts";
             EmptyState.Visibility = Visibility.Visible;
+        }
+    }
+
+    private async void ProfileTabView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ProfileTabView.SelectedItem is TabViewItem selectedItem && (string)selectedItem.Tag == "saved")
+        {
+            await LoadSavedPostsAsync();
+        }
+    }
+
+    private async Task LoadSavedPostsAsync()
+    {
+        SavedLoadingRing.IsActive = true;
+        SavedLoadingRing.Visibility = Visibility.Visible;
+        SavedPostsList.Visibility = Visibility.Collapsed;
+        SavedEmptyState.Visibility = Visibility.Collapsed;
+
+        try
+        {
+            var collections = await _collections.GetUserCollectionsAsync();
+            _savedPosts.Clear();
+
+            foreach (var col in collections)
+            {
+                if (string.IsNullOrEmpty(col.Id)) continue;
+                var posts = await _collections.GetCollectionPostsAsync(col.Id);
+                foreach (var p in posts)
+                {
+                    if (!_savedPosts.Any(sp => sp.Id == p.Id))
+                    {
+                        _savedPosts.Add(new PostSummary
+                        {
+                            Id = p.Id,
+                            Content = p.Content,
+                            ImageUrl = p.MediaUrls.FirstOrDefault() ?? p.ImageUrl ?? "",
+                        });
+                    }
+                }
+            }
+
+            if (_savedPosts.Count == 0)
+            {
+                SavedEmptyState.Visibility = Visibility.Visible;
+                SavedPostsList.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SavedPostsList.ItemsSource = _savedPosts;
+                SavedPostsList.Visibility = Visibility.Visible;
+                SavedEmptyState.Visibility = Visibility.Collapsed;
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("ProfilePage.SavedPosts", ex.Message);
+            SavedEmptyState.Visibility = Visibility.Visible;
+        }
+        finally
+        {
+            SavedLoadingRing.IsActive = false;
+            SavedLoadingRing.Visibility = Visibility.Collapsed;
         }
     }
 

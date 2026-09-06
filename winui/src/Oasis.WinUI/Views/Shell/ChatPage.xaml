@@ -17,70 +17,107 @@
         </Style>
     </Page.Resources>
 
-    <Grid Padding="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <Grid>
+        <!-- Chat Background Image -->
+        <Image x:Name="ChatBackgroundImage" Stretch="UniformToFill" Opacity="0.35" />
+        <Border Background="{ThemeResource LayerFillColorDefaultBrush}" Opacity="0.5" />
 
-        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
-            <TextBlock x:Name="ChatTitle" Style="{StaticResource TitleTextBlockStyle}" />
-            <TextBlock x:Name="EncryptionBadge"
-                       Text="PQ-Aura"
-                       FontSize="11" FontWeight="SemiBold"
-                       VerticalAlignment="Center"
-                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
-        </StackPanel>
+        <Grid Padding="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <ScrollViewer x:Name="MessageScroller" Grid.Row="1"
-                      VerticalScrollBarVisibility="Auto">
-            <StackPanel x:Name="MessagesPanel" Spacing="8">
-                <TextBlock x:Name="TypingIndicator"
-                           FontSize="12"                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                           Visibility="Collapsed" />
-                <Button x:Name="LoadOlderButton" Content="Load older messages"
-                        HorizontalAlignment="Center" Margin="0,4"
-                        Click="LoadOlderButton_Click" />
-            </StackPanel>
-        </ScrollViewer>
+            <!-- Top App Bar / Header -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="2" Margin="0,10,0,0" ColumnSpacing="8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Button x:Name="AttachmentButton" Grid.Column="0"
-                    Style="{StaticResource TransparentButtonStyle}"
-                    Click="AttachmentButton_Click">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Attach" Width="16" Height="16" />
+                <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                    <TextBlock x:Name="ChatTitle" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+                    <Border x:Name="PqSecureBadge"
+                            Background="#1A00E5FF"
+                            BorderBrush="#4D00E5FF"
+                            BorderThickness="1"
+                            CornerRadius="12"
+                            Padding="8,3"
+                            VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                            <FontIcon Glyph="&#xE72E;" FontSize="12" Foreground="#00E5FF" />
+                            <TextBlock x:Name="EncryptionBadge"
+                                       Text="PQ-Aura Quantum Secure"
+                                       FontSize="11" FontWeight="SemiBold"
+                                       Foreground="#00E5FF" />
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
-            </Button>
-            <Button x:Name="GifButton" Grid.Column="1"
-                    Style="{StaticResource TransparentButtonStyle}"
-                    Click="GifButton_Click">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Emoji" Width="16" Height="16" />
+
+                <!-- Actions / Change Background -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="SetBackgroundBtn"
+                            Style="{StaticResource TransparentButtonStyle}"
+                            ToolTipService.ToolTip="Change Chat Wallpaper"
+                            Click="SetBackgroundBtn_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xEB9F;" FontSize="15" />
+                            <TextBlock Text="Wallpaper" FontSize="12" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
-            </Button>
-            <TextBox x:Name="ComposerBox" Grid.Column="2" PlaceholderText="Message..."
-                     AcceptsReturn="False"
-                     KeyDown="ComposerBox_KeyDown"
-                     TextChanged="ComposerBox_TextChanged" />
-            <Button x:Name="MicButton" Grid.Column="3"
-                    Style="{StaticResource TransparentButtonStyle}"
-                    Click="MicButton_Click">
-                <StackPanel Orientation="Horizontal" Spacing="4">
-                    <SymbolIcon Symbol="Microphone" Width="16" Height="16" />
+            </Grid>
+
+            <ScrollViewer x:Name="MessageScroller" Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="MessagesPanel" Spacing="8">
+                    <TextBlock x:Name="TypingIndicator"
+                               FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Visibility="Collapsed" />
+                    <Button x:Name="LoadOlderButton" Content="Load older messages"
+                            HorizontalAlignment="Center" Margin="0,4"
+                            Click="LoadOlderButton_Click" />
                 </StackPanel>
-            </Button>
-            <Button x:Name="SendButton" Grid.Column="4" Content="Send"
-                    Style="{StaticResource AccentButtonStyle}"
-                    Click="SendButton_Click" />
+            </ScrollViewer>
+
+            <Grid Grid.Row="2" Margin="0,10,0,0" ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="AttachmentButton" Grid.Column="0"
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Click="AttachmentButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Attach" Width="16" Height="16" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="GifButton" Grid.Column="1"
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Click="GifButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Emoji" Width="16" Height="16" />
+                    </StackPanel>
+                </Button>
+                <TextBox x:Name="ComposerBox" Grid.Column="2" PlaceholderText="Message..."
+                         AcceptsReturn="False"
+                         KeyDown="ComposerBox_KeyDown"
+                         TextChanged="ComposerBox_TextChanged" />
+                <Button x:Name="MicButton" Grid.Column="3"
+                        Style="{StaticResource TransparentButtonStyle}"
+                        Click="MicButton_Click">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <SymbolIcon Symbol="Microphone" Width="16" Height="16" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="SendButton" Grid.Column="4" Content="Send"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Click="SendButton_Click" />
+            </Grid>
         </Grid>
     </Grid>
 </Page>
