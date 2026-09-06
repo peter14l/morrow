@@ -1,6 +1,8 @@
 name: Build & Release (Android Optimized)
 
 on:
+  push:
+    branches: [ 'feature/android-memory-optimization' ]
   workflow_dispatch:
     inputs:
       build_bundle:
