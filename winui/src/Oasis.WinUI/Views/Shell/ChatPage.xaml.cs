@@ -24,6 +24,7 @@ public sealed partial class ChatPage : Page
     private MessagingService.Subscription? _subscription;
     private Action? _typingUnsubscribe;
     private bool _isOtherTyping;
+    private ChatContext? _currentContext;
     private string _conversationId = "";
     private string _myUserId = "";
     private string _otherUserId = "";
@@ -41,7 +42,9 @@ public sealed partial class ChatPage : Page
         base.OnNavigatedTo(e);
         if (e.Parameter is not ChatContext ctx) return;
 
+        _currentContext = ctx;
         _conversationId = ctx.ConversationId;
+
         _myUserId = SupabaseService.Client.Auth.CurrentUser?.Id ?? "";
         _otherUserId = await _messaging.GetOtherParticipantAsync(_conversationId) ?? "";
         ChatTitle.Text = ctx.Title;
@@ -519,35 +522,107 @@ public sealed partial class ChatPage : Page
         if (msg == null) return;
 
         var isOwn = msg.SenderId == _myUserId;
+        var decryptedText = await _messaging.DecryptDisplayContentAsync(msg, _myUserId);
+
+        var previewText = !string.IsNullOrWhiteSpace(decryptedText)
+            ? decryptedText
+            : (msg.IsMedia ? (msg.MediaFileName ?? msg.MessageType) : msg.Content);
+
+        if (previewText.Length > 120)
+            previewText = previewText.Substring(0, 120) + "...";
 
         var stack = new StackPanel
         {
-            Spacing = 8,
-            MaxWidth = 320,
-            Children =
+            Spacing = 12,
+            MaxWidth = 360,
+        };
+
+        // Quick Emoji Reaction Picker Row
+        var reactionBar = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 6,
+            HorizontalAlignment = HorizontalAlignment.Center,
+            Margin = new Thickness(0, 0, 0, 8),
+        };
+
+        var emojis = new[] { "❤️", "👍", "😂", "😮", "😢", "🔥" };
+        ContentDialog? currentDialog = null;
+
+        foreach (var emoji in emojis)
+        {
+            var btn = new Button
             {
-                new TextBlock { Text = msg.Content?.Substring(0, Math.Min(30, msg.Content?.Length ?? 0)) + (msg.Content?.Length > 30 ? "..." : ""), FontSize = 12, TextWrapping = TextWrapping.Wrap },
-                new TextBlock { Text = isOwn ? "Your message" : "Received message", FontSize = 10, Foreground = (Brush)Application.Current.Resources["TextFillColorSecondaryBrush"] },
+                Content = emoji,
+                FontSize = 20,
+                Padding = new Thickness(6, 4, 6, 4),
+                Background = new SolidColorBrush(Microsoft.UI.Colors.Transparent),
+                BorderThickness = new Thickness(0),
+                CornerRadius = new CornerRadius(16),
+            };
+
+            btn.Click += async (s, args) =>
+            {
+                currentDialog?.Hide();
+                await _messaging.AddReactionAsync(msg.Id, emoji);
+            };
+
+            reactionBar.Children.Add(btn);
+        }
+
+        stack.Children.Add(reactionBar);
+
+        // Preview Box
+        var previewBorder = new Border
+        {
+            Background = (Brush)Application.Current.Resources["CardBackgroundFillColorDefaultBrush"],
+            BorderBrush = (Brush)Application.Current.Resources["CardStrokeColorDefaultBrush"],
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(12, 8, 12, 8),
+            Child = new StackPanel
+            {
+                Spacing = 4,
+                Children =
+                {
+                    new TextBlock
+                    {
+                        Text = isOwn ? "You" : (msg.SenderName.Length > 0 ? msg.SenderName : "Received"),
+                        FontSize = 11,
+                        FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                        Foreground = (Brush)Application.Current.Resources["AccentTextFillColorPrimaryBrush"],
+                    },
+                    new TextBlock
+                    {
+                        Text = previewText,
+                        FontSize = 13,
+                        TextWrapping = TextWrapping.Wrap,
+                        MaxLines = 3,
+                    },
+                }
             }
         };
+
+        stack.Children.Add(previewBorder);
 
         var dialog = new ContentDialog
         {
             Title = "Message options",
             Content = stack,
-            PrimaryButtonText = "Copy",
+            PrimaryButtonText = "Copy text",
             SecondaryButtonText = isOwn ? "Unsend" : null!,
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
             XamlRoot = XamlRoot,
         };
+        currentDialog = dialog;
 
         dialog.PrimaryButtonClick += (d, args) =>
         {
             try
             {
                 var data = new Windows.ApplicationModel.DataTransfer.DataPackage();
-                data.SetText(msg.Content ?? "");
+                data.SetText(decryptedText);
                 Windows.ApplicationModel.DataTransfer.Clipboard.SetContent(data);
             }
             catch { }
@@ -567,6 +642,7 @@ public sealed partial class ChatPage : Page
 
         await dialog.ShowAsync();
     }
+
 
     private async Task ScrollToBottomAsync(bool animate)
     {
@@ -804,4 +880,13 @@ public sealed partial class ChatPage : Page
             Logger.Warn("ChatPage.SetBackground", ex.Message);
         }
     }
+
+    private void ChatDetailsBtn_Click(object sender, RoutedEventArgs e)
+    {
+        if (_currentContext != null)
+        {
+            Frame.Navigate(typeof(ChatDetailsPage), _currentContext);
+        }
+    }
 }
+

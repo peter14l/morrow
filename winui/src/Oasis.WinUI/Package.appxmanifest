@@ -10,7 +10,8 @@
   <Identity
     Name="NoteSpark.OasisApp"
     Publisher="CN=Oasis Development"
-    Version="1.1.16.0" />
+    Version="1.1.24.0" />
+
 
   <mp:PhoneIdentity PhoneProductId="6A3F6D2B-1E9C-4D5A-B0A3-0E7F9C21D0D2" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

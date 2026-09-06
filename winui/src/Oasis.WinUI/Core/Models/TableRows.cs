@@ -151,6 +151,17 @@ public sealed class MessageReadReceiptsRow : BaseModel
     [Column("read_at", NullValueHandling.Ignore)] public DateTime? ReadAt { get; set; }
 }
 
+[Table("message_reactions")]
+public sealed class MessageReactionsRow : BaseModel
+{
+    [Column("message_id", NullValueHandling.Ignore)] public string? MessageId { get; set; }
+    [Column("user_id", NullValueHandling.Ignore)] public string? UserId { get; set; }
+    [Column("emoji", NullValueHandling.Ignore)] public string? Emoji { get; set; }
+    [Column("reaction", NullValueHandling.Ignore)] public string? Reaction { get; set; }
+    [Column("username", NullValueHandling.Ignore)] public string? Username { get; set; }
+    [Column("created_at", NullValueHandling.Ignore)] public DateTime? CreatedAt { get; set; }
+}
+
 [Table("typing_indicators")]
 public sealed class TypingIndicatorRow : BaseModel
 {
@@ -163,6 +174,7 @@ public sealed class TypingIndicatorRow : BaseModel
 [Table("messages")]
 public sealed class MessagesRow : BaseModel
 {
+
     [PrimaryKey("id", true)]
     [Column("id", NullValueHandling.Ignore)] public string? Id { get; set; }
     [Column("conversation_id", NullValueHandling.Ignore)] public string? ConversationId { get; set; }
@@ -296,3 +308,26 @@ public sealed class ChatThemesRow : BaseModel
     [Column("created_at", NullValueHandling.Ignore)] public DateTime? CreatedAt { get; set; }
     [Column("updated_at", NullValueHandling.Ignore)] public DateTime? UpdatedAt { get; set; }
 }
+
+[Table("conversations")]
+public sealed class ConversationsRow : BaseModel
+{
+    [PrimaryKey("id", true)]
+    [Column("id", NullValueHandling.Ignore)] public string? Id { get; set; }
+    [Column("name", NullValueHandling.Ignore)] public string? Name { get; set; }
+    [Column("is_group", NullValueHandling.Ignore)] public bool? IsGroup { get; set; }
+    [Column("is_muted", NullValueHandling.Ignore)] public bool? IsMuted { get; set; }
+    [Column("is_archived", NullValueHandling.Ignore)] public bool? IsArchived { get; set; }
+    [Column("last_message_id", NullValueHandling.Ignore)] public string? LastMessageId { get; set; }
+    [Column("last_message_at", NullValueHandling.Ignore)] public DateTime? LastMessageAt { get; set; }
+}
+
+[Table("blocked_users")]
+public sealed class BlockedUsersRow : BaseModel
+{
+    [Column("blocker_id", NullValueHandling.Ignore)] public string? BlockerId { get; set; }
+    [Column("blocked_id", NullValueHandling.Ignore)] public string? BlockedId { get; set; }
+    [Column("reason", NullValueHandling.Ignore)] public string? Reason { get; set; }
+    [Column("created_at", NullValueHandling.Ignore)] public DateTime? CreatedAt { get; set; }
+}
+

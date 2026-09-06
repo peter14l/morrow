@@ -15,23 +15,8 @@ public sealed partial class LoginPage : Page
         InitializeComponent();
         RegisterLink.Click += (_, _) => Frame.Navigate(typeof(RegisterPage));
         ForgotPasswordLink.Click += async (_, _) => await ResetPasswordAsync();
-        Loaded += async (_, _) =>
-        {
-            try
-            {
-                var source = new CommunityToolkit.WinUI.Lottie.LottieVisualSource
-                {
-                    UriSource = new Uri("ms-appx:///Assets/Login.json")
-                };
-                LoginLottiePlayer.Source = source;
-                await LoginLottiePlayer.PlayAsync(0, 1, true);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn("LoginPage.Lottie", ex.Message);
-            }
-        };
     }
+
 
     private void SetBusy(bool busy)
     {

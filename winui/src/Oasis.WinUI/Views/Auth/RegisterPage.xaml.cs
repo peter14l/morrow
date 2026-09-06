@@ -13,23 +13,8 @@ public sealed partial class RegisterPage : Page
     {
         InitializeComponent();
         SignInLink.Click += (_, _) => Frame.Navigate(typeof(LoginPage));
-        Loaded += async (_, _) =>
-        {
-            try
-            {
-                var source = new CommunityToolkit.WinUI.Lottie.LottieVisualSource
-                {
-                    UriSource = new Uri("ms-appx:///Assets/sign_up.json")
-                };
-                SignUpLottiePlayer.Source = source;
-                await SignUpLottiePlayer.PlayAsync(0, 1, true);
-            }
-            catch (Exception ex)
-            {
-                Logger.Warn("RegisterPage.Lottie", ex.Message);
-            }
-        };
     }
+
 
     private void SetBusy(bool busy)
     {

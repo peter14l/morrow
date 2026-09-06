@@ -43,7 +43,12 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-                    <TextBlock x:Name="ChatTitle" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+                    <Button x:Name="ChatTitleBtn"
+                            Style="{StaticResource TransparentButtonStyle}"
+                            Padding="0"
+                            Click="ChatDetailsBtn_Click">
+                        <TextBlock x:Name="ChatTitle" Style="{StaticResource TitleTextBlockStyle}" VerticalAlignment="Center" />
+                    </Button>
                     <Border x:Name="PqSecureBadge"
                             Background="#1A00E5FF"
                             BorderBrush="#4D00E5FF"
@@ -61,8 +66,17 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Actions / Change Background -->
+                <!-- Actions / Details / Wallpaper -->
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                    <Button x:Name="ChatDetailsBtn"
+                            Style="{StaticResource TransparentButtonStyle}"
+                            ToolTipService.ToolTip="Chat Info &amp; Settings"
+                            Click="ChatDetailsBtn_Click">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <FontIcon Glyph="&#xE946;" FontSize="15" />
+                            <TextBlock Text="Details" FontSize="12" />
+                        </StackPanel>
+                    </Button>
                     <Button x:Name="SetBackgroundBtn"
                             Style="{StaticResource TransparentButtonStyle}"
                             ToolTipService.ToolTip="Change Chat Wallpaper"
@@ -74,6 +88,7 @@
                     </Button>
                 </StackPanel>
             </Grid>
+
 
             <ScrollViewer x:Name="MessageScroller" Grid.Row="1"
                           VerticalScrollBarVisibility="Auto">

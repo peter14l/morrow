@@ -309,6 +309,213 @@ public sealed class MessagingService
         }
     }
 
+    public async Task<bool> RemoveChatBackgroundAsync(string conversationId)
+    {
+        return await UpdateChatBackgroundAsync(conversationId, null);
+    }
+
+    // ------------------------------------------------------------------
+    // Moderation & Conversation Settings
+    // ------------------------------------------------------------------
+
+    public async Task<bool> GetMuteStatusAsync(string conversationId)
+    {
+        if (string.IsNullOrEmpty(conversationId)) return false;
+        try
+        {
+            var response = await SupabaseService.Client.From<ConversationsRow>()
+                .Select("is_muted")
+                .Filter("id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Limit(1)
+                .Get();
+
+            if (string.IsNullOrWhiteSpace(response?.Content)) return false;
+            using var doc = JsonDocument.Parse(response.Content);
+            if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0) return false;
+            return JsonUtil.B(doc.RootElement[0], "is_muted");
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.GetMuteStatus", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> ToggleMuteAsync(string conversationId, bool isMuted)
+    {
+        if (string.IsNullOrEmpty(conversationId)) return false;
+        try
+        {
+            await SupabaseService.Client.From<ConversationsRow>()
+                .Filter("id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Update(new ConversationsRow { IsMuted = isMuted });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.ToggleMute", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> AddReactionAsync(string messageId, string emoji)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(messageId)) return false;
+        try
+        {
+            var username = SupabaseService.Client.Auth.CurrentUser?.UserMetadata?.TryGetValue("username", out var u) == true
+                ? u?.ToString() ?? ""
+                : "";
+
+            await SupabaseService.Client.From<MessageReactionsRow>().Upsert(new MessageReactionsRow
+            {
+                MessageId = messageId,
+                UserId = userId,
+                Emoji = emoji,
+                Reaction = emoji,
+                Username = username,
+                CreatedAt = DateTime.UtcNow,
+            }, new Postgrest.QueryOptions { OnConflict = "message_id,user_id" });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.AddReaction", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> RemoveReactionAsync(string messageId)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(messageId)) return false;
+        try
+        {
+            await SupabaseService.Client.From<MessageReactionsRow>()
+                .Filter("message_id", Postgrest.Constants.Operator.Equals, messageId)
+                .Filter("user_id", Postgrest.Constants.Operator.Equals, userId)
+                .Delete();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.RemoveReaction", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> IsUserBlockedAsync(string otherUserId)
+
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(otherUserId)) return false;
+        try
+        {
+            var response = await SupabaseService.Client.From<BlockedUsersRow>()
+                .Select("blocked_id")
+                .Filter("blocker_id", Postgrest.Constants.Operator.Equals, userId)
+                .Filter("blocked_id", Postgrest.Constants.Operator.Equals, otherUserId)
+                .Limit(1)
+                .Get();
+
+            if (string.IsNullOrWhiteSpace(response?.Content)) return false;
+            using var doc = JsonDocument.Parse(response.Content);
+            return doc.RootElement.ValueKind == JsonValueKind.Array && doc.RootElement.GetArrayLength() > 0;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.IsBlocked", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> BlockUserAsync(string otherUserId, string? reason = null)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(otherUserId)) return false;
+        try
+        {
+            await SupabaseService.Client.From<BlockedUsersRow>().Insert(new BlockedUsersRow
+            {
+                BlockerId = userId,
+                BlockedId = otherUserId,
+                Reason = reason,
+                CreatedAt = DateTime.UtcNow,
+            });
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.BlockUser", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task<bool> UnblockUserAsync(string otherUserId)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(otherUserId)) return false;
+        try
+        {
+            await SupabaseService.Client.From<BlockedUsersRow>()
+                .Filter("blocker_id", Postgrest.Constants.Operator.Equals, userId)
+                .Filter("blocked_id", Postgrest.Constants.Operator.Equals, otherUserId)
+                .Delete();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.UnblockUser", ex.Message);
+            return false;
+        }
+    }
+
+    public async Task ClearConversationMessagesAsync(string conversationId)
+    {
+        if (string.IsNullOrEmpty(conversationId)) return;
+        try
+        {
+            await SupabaseService.Client.From<MessagesRow>()
+                .Filter("conversation_id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Delete();
+
+            await SupabaseService.Client.From<ConversationsRow>()
+                .Filter("id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Update(new ConversationsRow
+                {
+                    LastMessageId = null,
+                    LastMessageAt = null,
+                });
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.ClearConversation", ex.Message);
+        }
+    }
+
+    public async Task ClearChatForMeAsync(string conversationId)
+    {
+        var userId = CurrentUserId;
+        if (string.IsNullOrEmpty(conversationId) || string.IsNullOrEmpty(userId)) return;
+        try
+        {
+            await SupabaseService.Client.From<ConversationParticipantsRow>()
+                .Filter("conversation_id", Postgrest.Constants.Operator.Equals, conversationId)
+                .Filter("user_id", Postgrest.Constants.Operator.Equals, userId)
+                .Update(new ConversationParticipantsRow
+                {
+                    LastReadAt = DateTime.UtcNow,
+                    UnreadCount = 0,
+                });
+        }
+        catch (Exception ex)
+        {
+            Logger.Warn("Messages.ClearChatForMe", ex.Message);
+        }
+    }
+
+
     public async Task<(string Id, string Username, string AvatarUrl)?> FindUserByUsernameAsync(string username)
     {
         try
