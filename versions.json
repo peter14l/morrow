@@ -1,35 +1,35 @@
 {
   "android": {
-    "latestVersion": "1.1.23",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23.apk",
+    "latestVersion": "1.1.24",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.24.apk",
     "abiUrls": {
-      "arm64-v8a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-arm64-v8a.apk",
-      "armeabi-v7a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-armeabi-v7a.apk",
-      "x86_64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-x86_64.apk",
-      "universal": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23.apk"
+      "arm64-v8a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.24-arm64-v8a.apk",
+      "armeabi-v7a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.24-armeabi-v7a.apk",
+      "x86_64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.24-x86_64.apk",
+      "universal": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.24.apk"
     },
-    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved an issue where received DM image attachments showed blank/white by cleanly preserving media encryption keys (AES-GCM IV & RSA/PQ-Aura recipient keys) in shareData.\n• Auto-Download & Background Decryption: Media attachments in direct messages automatically decrypt into local disk cache upon receipt and opening.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• Native Predictive Back Gestures & 120Hz Smooth Scrolling.",
+    "releaseNotes": "• Suppress Notifications On Logout: Background push notifications, incoming call alerts, and FCM tokens are completely deactivated and unregistered upon user signout.\n• Cross-Platform Fallback Decryption: Messages sent between mobile and desktop automatically support dual-layer RSA/AES-CBC and PQ-Aura encryption.\n• Chat Wallpapers & Read Delivery Status: Chat backgrounds fit uniformly with status double ticks and post-quantum badges.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:48:00Z"
+    "releaseDate": "2026-09-06T11:03:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.23",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.msix",
+    "latestVersion": "1.1.24",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.24.msix",
     "abiUrls": {
-      "x64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.msix"
+      "x64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.24.msix"
     },
-    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved DM image attachment decryption and auto-caching.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• 120Hz Smooth Scrolling.",
+    "releaseNotes": "• Suppress Notifications On Logout: Background notifications and calls suppressed when logged out.\n• Cross-Platform Fallback Decryption: E2EE chat interoperability with mobile.\n• Chat Wallpaper & Delivery Double Ticks.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:48:00Z"
+    "releaseDate": "2026-09-06T11:03:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.23",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.dmg",
+    "latestVersion": "1.1.24",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.24.dmg",
     "abiUrls": {
-      "arm64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.dmg"
+      "arm64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.24.dmg"
     },
-    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved DM image attachment decryption and auto-caching.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• 120Hz Smooth Scrolling.",
+    "releaseNotes": "• Suppress Notifications On Logout: Background notifications and calls suppressed when logged out.\n• Cross-Platform Fallback Decryption: E2EE chat interoperability with mobile.\n• Chat Wallpaper & Delivery Double Ticks.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:48:00Z"
+    "releaseDate": "2026-09-06T11:03:00Z"
   }
 }

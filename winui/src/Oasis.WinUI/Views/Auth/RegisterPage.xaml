@@ -25,10 +25,7 @@
                     x:Name="SignUpLottiePlayer"
                     Width="150"
                     Height="110"
-                    HorizontalAlignment="Center"
-                    AutoPlay="True">
-                    <lottie:LottieVisualSource UriSource="ms-appx:///Assets/sign_up.json" />
-                </AnimatedVisualPlayer>
+                    HorizontalAlignment="Center" />
 
                 <TextBlock
                     Text="Create your account"

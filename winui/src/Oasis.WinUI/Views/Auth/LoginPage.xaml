@@ -25,10 +25,7 @@
                     x:Name="LoginLottiePlayer"
                     Width="160"
                     Height="120"
-                    HorizontalAlignment="Center"
-                    AutoPlay="True">
-                    <lottie:LottieVisualSource UriSource="ms-appx:///Assets/Login.json" />
-                </AnimatedVisualPlayer>
+                    HorizontalAlignment="Center" />
 
                 <TextBlock
                     Text="Oasis"
