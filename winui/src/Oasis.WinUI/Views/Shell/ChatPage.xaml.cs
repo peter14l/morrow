@@ -322,6 +322,14 @@ public sealed partial class ChatPage : Page
                 {
                     inner.Children.Add(MakeTextBlock(mediaLabel, mine));
                 }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(text))
+                {
+                    inner.Children.Add(MakeTextBlock(text, mine));
+                }
+            }
 
             var metaRow = new StackPanel
             {

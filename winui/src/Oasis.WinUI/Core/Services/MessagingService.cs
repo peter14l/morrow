@@ -246,7 +246,7 @@ public sealed class MessagingService
         if (string.IsNullOrEmpty(conversationId)) return null;
         try
         {
-            var response = await SupabaseService.Client.From<TableRows.ChatThemesRow>()
+            var response = await SupabaseService.Client.From<ChatThemesRow>()
                 .Select("background_image_url")
                 .Filter("conversation_id", Postgrest.Constants.Operator.Equals, conversationId)
                 .Order("updated_at", Postgrest.Constants.Ordering.Descending)
@@ -292,7 +292,7 @@ public sealed class MessagingService
 
             foreach (var pid in participantIds)
             {
-                await SupabaseService.Client.From<TableRows.ChatThemesRow>().Upsert(new TableRows.ChatThemesRow
+                await SupabaseService.Client.From<ChatThemesRow>().Upsert(new ChatThemesRow
                 {
                     ConversationId = conversationId,
                     UserId = pid,

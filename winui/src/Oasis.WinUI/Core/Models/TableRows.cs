@@ -283,3 +283,16 @@ public sealed class AchievementsRow : BaseModel
     [Column("description", NullValueHandling.Ignore)] public string? Description { get; set; }
     [Column("unlocked_at", NullValueHandling.Ignore)] public DateTime? UnlockedAt { get; set; }
 }
+
+[Table("chat_themes")]
+public sealed class ChatThemesRow : BaseModel
+{
+    [PrimaryKey("id", true)]
+    [Column("id", NullValueHandling.Ignore)] public string? Id { get; set; }
+    [Column("conversation_id", NullValueHandling.Ignore)] public string? ConversationId { get; set; }
+    [Column("user_id", NullValueHandling.Ignore)] public string? UserId { get; set; }
+    [Column("background_image_url", NullValueHandling.Ignore)] public string? BackgroundImageUrl { get; set; }
+    [Column("theme_name", NullValueHandling.Ignore)] public string? ThemeName { get; set; }
+    [Column("created_at", NullValueHandling.Ignore)] public DateTime? CreatedAt { get; set; }
+    [Column("updated_at", NullValueHandling.Ignore)] public DateTime? UpdatedAt { get; set; }
+}
