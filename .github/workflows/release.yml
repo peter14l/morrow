@@ -132,7 +132,10 @@ jobs:
             ABI=$(echo "$f" | sed -E 's/.*app-(.*)-release\.apk/\1/')
             cp "$f" "release-artifacts/oasis-v${VER}-${ABI}.apk"
           done
-          cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "release-artifacts/oasis-v${VER}-android-arm64.apk"
+          if [ -f "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" ]; then
+            cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "release-artifacts/oasis-v${VER}.apk"
+            cp "build/app/outputs/flutter-apk/app-arm64-v8a-release.apk" "release-artifacts/oasis-v${VER}-universal.apk"
+          fi
 
       - name: Upload Android Artifacts
         uses: actions/upload-artifact@v4

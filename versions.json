@@ -1,23 +1,35 @@
 {
   "android": {
-    "latestVersion": "1.1.20",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.20.apk",
-    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
+    "latestVersion": "1.1.21",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.21.apk",
+    "abiUrls": {
+      "arm64-v8a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.21-arm64-v8a.apk",
+      "armeabi-v7a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.21-armeabi-v7a.apk",
+      "x86_64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.21-x86_64.apk",
+      "universal": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.21.apk"
+    },
+    "releaseNotes": "• Architecture Upgrade: Dynamic split-per-ABI APK resolution via Cloudflare R2 bucket. In-app updater automatically detects phone CPU architecture (ARM64-v8a, ARMv7a, x86_64) and installs the optimized lightweight APK.\n• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Full-Bleed Message Bubbles: Chat message list smoothly scrolls directly beneath floating suggested replies and liquid glass input bar.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T08:21:00Z"
+    "releaseDate": "2026-09-06T09:15:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.20",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.20.msix",
-    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
+    "latestVersion": "1.1.21",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.21.msix",
+    "abiUrls": {
+      "x64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.21.msix"
+    },
+    "releaseNotes": "• Architecture Upgrade: Dynamic split-per-ABI APK resolution via Cloudflare R2 bucket. In-app updater automatically detects phone CPU architecture (ARM64-v8a, ARMv7a, x86_64) and installs the optimized lightweight APK.\n• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Full-Bleed Message Bubbles: Chat message list smoothly scrolls directly beneath floating suggested replies and liquid glass input bar.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T08:21:00Z"
+    "releaseDate": "2026-09-06T09:15:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.20",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.20.dmg",
-    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
+    "latestVersion": "1.1.21",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.21.dmg",
+    "abiUrls": {
+      "arm64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.21.dmg"
+    },
+    "releaseNotes": "• Architecture Upgrade: Dynamic split-per-ABI APK resolution via Cloudflare R2 bucket. In-app updater automatically detects phone CPU architecture (ARM64-v8a, ARMv7a, x86_64) and installs the optimized lightweight APK.\n• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Full-Bleed Message Bubbles: Chat message list smoothly scrolls directly beneath floating suggested replies and liquid glass input bar.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T08:21:00Z"
+    "releaseDate": "2026-09-06T09:15:00Z"
   }
 }

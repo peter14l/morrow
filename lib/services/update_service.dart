@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi' as ffi;
 import 'package:universal_io/io.dart';
 
 import 'package:dio/dio.dart';
@@ -19,6 +20,7 @@ import 'package:window_manager/window_manager.dart';
 class UpdateInfo {
   final String latestVersion;
   final String downloadUrl;
+  final Map<String, String> abiUrls;
   final String releaseNotes;
   final bool isRequired;
   final DateTime? releaseDate;
@@ -26,17 +28,28 @@ class UpdateInfo {
   UpdateInfo({
     required this.latestVersion,
     required this.downloadUrl,
+    this.abiUrls = const {},
     required this.releaseNotes,
     required this.isRequired,
     this.releaseDate,
   });
 
   factory UpdateInfo.fromJson(Map<String, dynamic> json) {
+    Map<String, String> abis = {};
+    if (json['abiUrls'] is Map) {
+      final raw = json['abiUrls'] as Map;
+      abis = raw.map((k, v) => MapEntry(k.toString(), v.toString()));
+    } else if (json['abis'] is Map) {
+      final raw = json['abis'] as Map;
+      abis = raw.map((k, v) => MapEntry(k.toString(), v.toString()));
+    }
+
     return UpdateInfo(
       latestVersion:
           json['latestVersion'] as String? ?? json['version'] as String? ?? '',
       downloadUrl:
           json['downloadUrl'] as String? ?? json['url'] as String? ?? '',
+      abiUrls: abis,
       releaseNotes:
           json['releaseNotes'] as String? ?? json['notes'] as String? ?? '',
       isRequired:
@@ -45,6 +58,97 @@ class UpdateInfo {
           ? DateTime.tryParse(json['releaseDate'] as String)
           : null,
     );
+  }
+
+  /// Detect the CPU architecture / ABI of the current device
+  static String get currentDeviceAbi {
+    try {
+      if (Platform.isAndroid) {
+        switch (ffi.Abi.current()) {
+          case ffi.Abi.androidArm64:
+            return 'arm64-v8a';
+          case ffi.Abi.androidArm:
+            return 'armeabi-v7a';
+          case ffi.Abi.androidX64:
+            return 'x86_64';
+          case ffi.Abi.androidIA32:
+            return 'x86';
+          default:
+            return 'arm64-v8a';
+        }
+      } else if (Platform.isWindows) {
+        switch (ffi.Abi.current()) {
+          case ffi.Abi.windowsX64:
+            return 'x64';
+          case ffi.Abi.windowsArm64:
+            return 'arm64';
+          case ffi.Abi.windowsIA32:
+            return 'x86';
+          default:
+            return 'x64';
+        }
+      } else if (Platform.isMacOS) {
+        switch (ffi.Abi.current()) {
+          case ffi.Abi.macosArm64:
+            return 'arm64';
+          case ffi.Abi.macosX64:
+            return 'x64';
+          default:
+            return 'arm64';
+        }
+      }
+    } catch (e) {
+      debugPrint('UpdateInfo: Error detecting ABI: $e');
+    }
+    return 'universal';
+  }
+
+  /// Resolves the most appropriate download URL for the current device architecture
+  String getDownloadUrlForCurrentDevice([String? overrideAbi]) {
+    final abi = overrideAbi ?? currentDeviceAbi;
+
+    if (abiUrls.isNotEmpty) {
+      // 1. Exact match
+      if (abiUrls.containsKey(abi) && abiUrls[abi]!.isNotEmpty) {
+        return abiUrls[abi]!;
+      }
+
+      // 2. Normalized / Alias match
+      final normalizedAbi = _normalizeAbi(abi);
+      for (final entry in abiUrls.entries) {
+        if (_normalizeAbi(entry.key) == normalizedAbi && entry.value.isNotEmpty) {
+          return entry.value;
+        }
+      }
+
+      // 3. Universal / All fallback
+      if (abiUrls.containsKey('universal') && abiUrls['universal']!.isNotEmpty) {
+        return abiUrls['universal']!;
+      }
+      if (abiUrls.containsKey('all') && abiUrls['all']!.isNotEmpty) {
+        return abiUrls['all']!;
+      }
+    }
+
+    // Default fallback URL
+    return downloadUrl;
+  }
+
+  static String _normalizeAbi(String abi) {
+    final lower = abi.toLowerCase().replaceAll('_', '-');
+    if (lower.contains('arm64') || lower.contains('aarch64') || lower.contains('v8a')) {
+      return 'arm64-v8a';
+    }
+    if (lower.contains('v7a') || lower.contains('armv7') || lower.contains('armeabi') || lower == 'arm') {
+      return 'armeabi-v7a';
+    }
+    if (lower.contains('x86-64') || lower.contains('x64') || lower.contains('amd64')) {
+      return 'x86_64';
+    }
+    if (lower == 'x86' || lower == 'i386' || lower == 'ia32') {
+      return 'x86';
+    }
+    return lower;
   }
 
   /// Check if current version is older than latest version
@@ -278,13 +382,19 @@ class UpdateService extends ChangeNotifier {
     );
 
     try {
+      final detectedAbi = UpdateInfo.currentDeviceAbi;
+      final targetUrl = updateInfo.getDownloadUrlForCurrentDevice();
+
+      _addLog('Detected device architecture: $detectedAbi');
+      _addLog('Resolved update package URL: $targetUrl');
+
       // 1. Prepare download path based on platform
       final tempDir = await getTemporaryDirectory();
       String extension = 'apk';
       if (Platform.isWindows) extension = 'msix';
       if (Platform.isMacOS) extension = 'dmg';
 
-      final updatePath = '${tempDir.path}/oasis_update.$extension';
+      final updatePath = '${tempDir.path}/oasis_update_$detectedAbi.$extension';
 
       // Delete old update file if exists
       final oldFile = File(updatePath);
@@ -292,11 +402,11 @@ class UpdateService extends ChangeNotifier {
         await oldFile.delete();
       }
 
-      _addLog('Fetching update from: ${updateInfo.downloadUrl}');
+      _addLog('Fetching update from: $targetUrl');
 
       // 2. Download
       await _dio.download(
-        updateInfo.downloadUrl,
+        targetUrl,
         updatePath,
         onReceiveProgress: (received, total) {
           if (total != -1) {

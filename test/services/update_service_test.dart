@@ -85,6 +85,41 @@ void main() {
       // Should strip build number and compare base version
       expect(updateInfo.latestVersion, '4.1.0+3');
     });
+
+    test('parses abiUrls correctly from JSON and resolves proper architecture APK', () {
+      final json = {
+        'latestVersion': '1.1.21',
+        'downloadUrl': 'https://r2.example.com/oasis-universal.apk',
+        'abiUrls': {
+          'arm64-v8a': 'https://r2.example.com/oasis-arm64-v8a.apk',
+          'armeabi-v7a': 'https://r2.example.com/oasis-armeabi-v7a.apk',
+          'x86_64': 'https://r2.example.com/oasis-x86_64.apk',
+          'universal': 'https://r2.example.com/oasis-universal.apk',
+        },
+        'releaseNotes': 'Split ABI support',
+        'isRequired': false,
+      };
+
+      final updateInfo = UpdateInfo.fromJson(json);
+
+      expect(updateInfo.abiUrls.length, 4);
+      expect(
+        updateInfo.getDownloadUrlForCurrentDevice('arm64-v8a'),
+        'https://r2.example.com/oasis-arm64-v8a.apk',
+      );
+      expect(
+        updateInfo.getDownloadUrlForCurrentDevice('armeabi-v7a'),
+        'https://r2.example.com/oasis-armeabi-v7a.apk',
+      );
+      expect(
+        updateInfo.getDownloadUrlForCurrentDevice('x86_64'),
+        'https://r2.example.com/oasis-x86_64.apk',
+      );
+      expect(
+        updateInfo.getDownloadUrlForCurrentDevice('unknown-abi'),
+        'https://r2.example.com/oasis-universal.apk',
+      );
+    });
   });
 
   group('UpdateService Tests', () {

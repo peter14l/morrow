@@ -1,6 +1,6 @@
 # Oasis — AI Agent Guide
 
-> **Version:** 1.1.20 · **Framework:** Flutter (Dart SDK ^3.8.0) · **Backend:** Supabase + Firebase  
+> **Version:** 1.1.21 · **Framework:** Flutter (Dart SDK ^3.8.0) · **Backend:** Supabase + Firebase  
 > This file is the single source of truth for any AI agent working in this repository.  
 > Keep it up-to-date when major architecture decisions change.
 
