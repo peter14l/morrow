@@ -18,8 +18,14 @@
     </Page.Resources>
 
     <Grid>
-        <!-- Chat Background Image -->
-        <Image x:Name="ChatBackgroundImage" Stretch="UniformToFill" Opacity="0.35" />
+        <!-- Chat Background Image contained within the available area -->
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Image x:Name="ChatBackgroundImage"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Opacity="0.35" />
+        </Border>
         <Border Background="{ThemeResource LayerFillColorDefaultBrush}" Opacity="0.5" />
 
         <Grid Padding="16">

@@ -473,6 +473,14 @@ class AuthService with ChangeNotifier {
       }
       
       await _providersDelegate.signOut();
+      await NotificationManager.instance.cancelAll();
+      try {
+        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+          await FirebaseMessaging.instance.deleteToken();
+        }
+      } catch (e) {
+        debugPrint('[AuthService] Error deleting FCM token on logout: $e');
+      }
       await EncryptionService().clearKeys();
       await SignalService().clearData();
       notifyListeners();

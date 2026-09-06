@@ -29,6 +29,7 @@ import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/services/notification_manager.dart';
 import 'package:oasis/services/notification_service.dart';
 import 'package:oasis/services/notification_decryption_service.dart';
+import 'package:oasis/services/session_registry_service.dart';
 
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/services/screen_time_service.dart';
@@ -138,6 +139,26 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('Handling a background message: ${message.messageId}');
 
   if (message.data.isEmpty && message.notification == null) return;
+
+  final receiverId = message.data['receiver_id'] ?? message.data['user_id'];
+
+  // Check if there are any logged-in accounts on this device
+  try {
+    final accounts = await SessionRegistryService().getAllAccounts();
+    if (accounts.isEmpty) {
+      debugPrint('[Background FCM] Suppressing notification: No accounts logged in.');
+      return;
+    }
+
+    if (receiverId != null && !accounts.any((a) => a.userId == receiverId)) {
+      debugPrint(
+        '[Background FCM] Suppressing notification: Recipient $receiverId is not a logged-in account.',
+      );
+      return;
+    }
+  } catch (e) {
+    debugPrint('[Background FCM] Error checking account status: $e');
+  }
 
   final messageType = message.data['message_type'] ?? message.data['type'];
 
