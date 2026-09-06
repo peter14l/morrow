@@ -31,7 +31,7 @@ class _PQAuraDecryptTask {
 /// background isolates to ensure zero UI jank.
 class PQAuraService {
   static PQAuraService? _instance;
-  final SupabaseClient _supabase = Supabase.instance.client;
+  SupabaseClient get _supabase => Supabase.instance.client;
   final PQAuraStore _store = PQAuraStore.instance;
   final PQAuraBridge _bridge = PQAuraBridge.instance;
 

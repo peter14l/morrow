@@ -4,6 +4,7 @@ import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
 import 'package:oasis/services/auth_service.dart';
+import 'package:oasis/services/session_registry_service.dart';
 
 import 'package:oasis/features/notifications/domain/models/notification_entity.dart';
 
@@ -87,7 +88,15 @@ class NotificationDecryptionService {
     }
 
     try {
-      final userId = targetUserId ?? _authService.currentUser?.id;
+      String? userId = targetUserId ?? _authService.currentUser?.id;
+      if (userId == null) {
+        try {
+          final accounts = await SessionRegistryService().getAllAccounts();
+          if (accounts.isNotEmpty) {
+            userId = accounts.first.userId;
+          }
+        } catch (_) {}
+      }
       final senderId = mergedData['sender_id'] ?? mergedData['actor_id'];
 
       if (userId == null) {

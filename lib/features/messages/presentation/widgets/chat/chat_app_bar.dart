@@ -1,6 +1,4 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/providers/presence_provider.dart';
@@ -10,8 +8,6 @@ import 'package:fluent_ui/fluent_ui.dart' as fluent;
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
-import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
-import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
 import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Chat app bar with avatar, presence indicator, encryption lock, and action buttons.
@@ -64,7 +60,7 @@ class ChatAppBar extends StatelessWidget {
           // Left: Back button (mobile only)
           if (!isDesktop)
             _FloatingContainer(
-              isCircular: true,
+              borderRadius: 20.0,
               backgroundUrl: backgroundUrl,
               child: IconButton(
                 icon: const Icon(Icons.arrow_back, size: 20),
@@ -90,7 +86,7 @@ class ChatAppBar extends StatelessWidget {
               onTap: isDesktop ? null : onDetailsToggle,
               behavior: HitTestBehavior.opaque,
               child: _FloatingContainer(
-                isCircular: false,
+                borderRadius: 24.0,
                 backgroundUrl: backgroundUrl,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
@@ -271,7 +267,7 @@ class ChatAppBar extends StatelessWidget {
 
           // Right: Action buttons
           _FloatingContainer(
-            isCircular: true,
+            borderRadius: 22.0,
             backgroundUrl: backgroundUrl,
             child: ConstrainedBox(
               constraints: const BoxConstraints(minWidth: 40),
@@ -484,38 +480,24 @@ class ChatAppBar extends StatelessWidget {
       ),
     );
   }
-
-  String _formatSeenTime(DateTime time) {
-    final now = DateTime.now().toUtc();
-    final difference = now.difference(time);
-    if (difference.inMinutes < 1) return 'just now';
-    if (difference.inHours < 1) return '${difference.inMinutes}m ago';
-    if (difference.inDays < 1) return '${difference.inHours}h ago';
-    return '${difference.inDays}d ago';
-  }
 }
 
 class _FloatingContainer extends StatelessWidget {
   final Widget child;
-  final bool isCircular;
+  final double borderRadius;
   final String? backgroundUrl;
 
   const _FloatingContainer({
     required this.child,
-    required this.isCircular,
+    this.borderRadius = 24.0,
     this.backgroundUrl,
   });
 
   @override
   Widget build(BuildContext context) {
-    final effectiveRadius = isCircular ? 20.0 : 24.0;
-    final shape = isCircular
-        ? const LiquidOval()
-        : const LiquidRoundedSuperellipse(borderRadius: 24.0);
-
     return LiquidGlassWrapper(
-      borderRadius: effectiveRadius,
-      shape: shape,
+      borderRadius: borderRadius,
+      shape: LiquidRoundedSuperellipse(borderRadius: borderRadius),
       config: LiquidGlassConfig.Medium,
       child: child,
     );

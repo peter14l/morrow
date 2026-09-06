@@ -88,7 +88,7 @@ void main() {
 
     test('parses abiUrls correctly from JSON and resolves proper architecture APK', () {
       final json = {
-        'latestVersion': '1.1.21',
+        'latestVersion': '1.1.22',
         'downloadUrl': 'https://r2.example.com/oasis-universal.apk',
         'abiUrls': {
           'arm64-v8a': 'https://r2.example.com/oasis-arm64-v8a.apk',

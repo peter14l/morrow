@@ -8,6 +8,7 @@ import 'package:oasis/widgets/messages/message_reactions.dart';
 import 'package:oasis/widgets/moderation_dialogs.dart';
 import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Message reactions picker sheet.
 class MessageOptionsSheet extends StatelessWidget {
@@ -139,35 +140,12 @@ class MessageOptionsSheet extends StatelessWidget {
     );
 
     return SafeArea(
-      child: Container(
+      child: LiquidGlassWrapper(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        decoration: BoxDecoration(
-          color: isSolid
-              ? (isDark ? const Color(0xFF1A1D24) : Colors.white)
-              : (disableTransparency
-                    ? colorScheme.surface
-                    : colorScheme.surface.withValues(alpha: 0.8)),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(
-            color: colorScheme.onSurface.withValues(alpha: 0.1),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 32,
-              offset: const Offset(0, -8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
-          child: (isSolid || disableTransparency)
-              ? sheetContent
-              : BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                  child: sheetContent,
-                ),
-        ),
+        borderRadius: 32,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 32),
+        config: LiquidGlassConfig.Medium,
+        child: sheetContent,
       ),
     );
   }

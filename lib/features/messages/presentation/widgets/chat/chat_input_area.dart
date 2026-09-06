@@ -237,8 +237,8 @@ class _ChatInputAreaState extends State<ChatInputArea> {
       shape: const LiquidRoundedSuperellipse(borderRadius: 32),
       child: material.Padding(
         padding: const material.EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 2,
+          horizontal: 6,
+          vertical: 3,
         ),
         child: material.Row(
           crossAxisAlignment: material.CrossAxisAlignment.center,
@@ -414,92 +414,95 @@ class _ChatInputAreaState extends State<ChatInputArea> {
           ),  
 
           material.Expanded(
-            child: widget.isRecording
-                ? recordingView
-                : material.CallbackShortcuts(
-                    bindings: {
-                      const material.SingleActivator(
-                        LogicalKeyboardKey.enter,
-                        includeRepeats: false,
-                      ): () {
-                        final keys =
-                            HardwareKeyboard.instance.logicalKeysPressed;
-                        if (keys.contains(LogicalKeyboardKey.shiftLeft) ||
-                            keys.contains(LogicalKeyboardKey.shiftRight)) {
-                          return;
-                        }
-                        if (widget.controller.text.trim().isNotEmpty ||
-                            widget.hasAttachment) {
-                          widget.onSend();
-                        }
+            child: material.Padding(
+              padding: const material.EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              child: widget.isRecording
+                  ? recordingView
+                  : material.CallbackShortcuts(
+                      bindings: {
+                        const material.SingleActivator(
+                          LogicalKeyboardKey.enter,
+                          includeRepeats: false,
+                        ): () {
+                          final keys =
+                              HardwareKeyboard.instance.logicalKeysPressed;
+                          if (keys.contains(LogicalKeyboardKey.shiftLeft) ||
+                              keys.contains(LogicalKeyboardKey.shiftRight)) {
+                            return;
+                          }
+                          if (widget.controller.text.trim().isNotEmpty ||
+                              widget.hasAttachment) {
+                            widget.onSend();
+                          }
+                        },
                       },
-                    },
-                    child: widget.isDesktop
-                        ? fluent.TextBox(
-                            controller: widget.controller,
-                            focusNode: widget.focusNode,
-                            placeholder: widget.hintText ?? 'Type a message...',
-                            padding: const material.EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
-                            ),
-                            decoration: fluent.WidgetStateProperty.resolveWith((
-                              states,
-                            ) {
-                              return fluent.BoxDecoration(
-                                color: material.Colors.transparent,
-                                borderRadius:
-                                    material.BorderRadius.circular(12),
-                                border: material.Border.all(
+                      child: widget.isDesktop
+                          ? fluent.TextBox(
+                              controller: widget.controller,
+                              focusNode: widget.focusNode,
+                              placeholder: widget.hintText ?? 'Type a message...',
+                              padding: const material.EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: fluent.WidgetStateProperty.resolveWith((
+                                states,
+                              ) {
+                                return fluent.BoxDecoration(
                                   color: material.Colors.transparent,
-                                  width: 0,
-                                ),
-                              );
-                            }),
-                            style: const material.TextStyle(
-                              color: material.Colors.white,
-                              fontSize: 14,
-                              height: 1.2,
+                                  borderRadius:
+                                      material.BorderRadius.circular(12),
+                                  border: material.Border.all(
+                                    color: material.Colors.transparent,
+                                    width: 0,
+                                  ),
+                                );
+                              }),
+                              style: const material.TextStyle(
+                                color: material.Colors.white,
+                                fontSize: 14,
+                                height: 1.2,
+                              ),
+                              placeholderStyle: const material.TextStyle(
+                                color: material.Colors.white38,
+                                fontSize: 14,
+                                height: 1.2,
+                              ),
+                              cursorColor: fluent.FluentTheme.of(
+                                context,
+                              ).accentColor,
+                              scrollPhysics:
+                                  const material.BouncingScrollPhysics(),
+                              maxLines: null,
+                              minLines: 1,
+                            )
+                          : CustomTextField(
+                              controller: widget.controller,
+                              focusNode: widget.focusNode,
+                              hint: widget.hintText ?? 'Type a message...',
+                              fillColor: material.Colors.transparent,
+                              textColor: widget.isDesktop
+                                  ? material.Colors.white
+                                  : null,
+                              hintColor: widget.isDesktop
+                                  ? material.Colors.white38
+                                  : null,
+                              maxLines: 5,
+                              minLines: 1,
+                              textCapitalization:
+                                  material.TextCapitalization.sentences,
+                              isDense: true,
+                              contentPadding: const material.EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 10,
+                              ),
+                              margin: material.EdgeInsets.zero,
+                              border: material.InputBorder.none,
+                              enabledBorder: material.InputBorder.none,
+                              focusedBorder: material.InputBorder.none,
                             ),
-                            placeholderStyle: const material.TextStyle(
-                              color: material.Colors.white38,
-                              fontSize: 14,
-                              height: 1.2,
-                            ),
-                            cursorColor: fluent.FluentTheme.of(
-                              context,
-                            ).accentColor,
-                            scrollPhysics:
-                                const material.BouncingScrollPhysics(),
-                            maxLines: null,
-                            minLines: 1,
-                          )
-                        : CustomTextField(
-                            controller: widget.controller,
-                            focusNode: widget.focusNode,
-                            hint: widget.hintText ?? 'Type a message...',
-                            fillColor: material.Colors.transparent,
-                            textColor: widget.isDesktop
-                                ? material.Colors.white
-                                : null,
-                            hintColor: widget.isDesktop
-                                ? material.Colors.white38
-                                : null,
-                            maxLines: 5,
-                            minLines: 1,
-                            textCapitalization:
-                                material.TextCapitalization.sentences,
-                            isDense: true,
-                            contentPadding: const material.EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 10,
-                            ),
-                            margin: material.EdgeInsets.zero,
-                            border: material.InputBorder.none,
-                            enabledBorder: material.InputBorder.none,
-                            focusedBorder: material.InputBorder.none,
-                          ),
-                  ),
+                    ),
+            ),
           ),
           const material.SizedBox(width: 4),
           material.ValueListenableBuilder<String>(
@@ -516,6 +519,11 @@ class _ChatInputAreaState extends State<ChatInputArea> {
     ),
   );
 
+    final Widget paddedInputArea = material.Padding(
+      padding: const material.EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+      child: inputArea,
+    );
+
     if (widget.isWhisperMode > 0) {
       return material.CustomPaint(
         painter: DottedBorderPainter(
@@ -527,11 +535,11 @@ class _ChatInputAreaState extends State<ChatInputArea> {
         ),
         child: material.Padding(
           padding: const material.EdgeInsets.all(4),
-          child: inputArea,
+          child: paddedInputArea,
         ),
       );
     }
 
-    return inputArea;
+    return paddedInputArea;
   }
 }

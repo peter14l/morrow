@@ -160,13 +160,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
 
-    final bool canPop = _selectedSubPage == null;
+    final bool canPop = !isDesktop || _selectedSubPage == null;
 
     return PopScope(
       canPop: canPop,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        if (_selectedSubPage != null) {
+        if (isDesktop && _selectedSubPage != null) {
           setState(() {
             _selectedSubPage = null;
             _subPageTitle = null;

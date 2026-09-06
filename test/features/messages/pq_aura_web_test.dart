@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:oasis/features/messages/data/pq_aura/pq_aura_service.dart';
-import 'package:oasis/features/messages/data/pq_aura/pq_aura_service_stub.dart';
 
 void main() {
   group('PQAuraEncryptedMessage', () {
@@ -121,7 +120,7 @@ void main() {
 
   group('PQAuraServiceStub direct tests', () {
     test('all methods return false/null', () {
-      final stub = PQAuraServiceStub();
+      final stub = PQAuraService.instance;
       expect(stub.isReady, false);
       expect(stub.hasSession('user'), false);
       

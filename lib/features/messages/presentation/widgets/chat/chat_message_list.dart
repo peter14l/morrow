@@ -66,6 +66,9 @@ class ChatMessageList extends StatelessWidget {
         return ListView.builder(
           reverse: true,
           controller: scrollController,
+          cacheExtent: 500,
+          addRepaintBoundaries: true,
+          addAutomaticKeepAlives: true,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.only(
             top: MediaQuery.of(context).padding.top + headerHeight + 16,
@@ -78,8 +81,15 @@ class ChatMessageList extends StatelessWidget {
             final message = messages[messages.length - 1 - index];
             final isMe = message.senderId == currentUserId;
             final isHighlighted = message.id == highlightedMessageId;
-            return _buildMessageItem(
-                context, message, isMe, isHighlighted, constraints.maxWidth);
+            return RepaintBoundary(
+              child: _buildMessageItem(
+                context,
+                message,
+                isMe,
+                isHighlighted,
+                constraints.maxWidth,
+              ),
+            );
           },
         );
       },

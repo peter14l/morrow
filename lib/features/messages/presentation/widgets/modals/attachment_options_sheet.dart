@@ -2,8 +2,7 @@ import 'package:universal_io/io.dart' show Platform;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/presentation/widgets/shared/attachment_option_card.dart';
-
-import 'package:oasis/core/extensions/context_extensions.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Attachment options bottom sheet.
 /// Extracted from _showAttachmentOptions() in chat_screen.dart.
@@ -27,36 +26,20 @@ class AttachmentOptionsSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isSolid = ContextX(context).shouldUseSolidBackground;
 
     // Check if platform supports google location (hide on web/desktop)
     final bool canShareLocation =
         !kIsWeb && (Platform.isAndroid || Platform.isIOS);
 
     return SafeArea(
-      child: Container(
+      child: LiquidGlassWrapper(
         margin: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-        decoration: BoxDecoration(
-          color: isSolid
-              ? colorScheme.surface
-              : colorScheme.surface.withValues(alpha: 0.85),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(
-            color: colorScheme.onSurface.withValues(alpha: 0.1),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
-              blurRadius: 32,
-              offset: const Offset(0, -8),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        borderRadius: 32,
+        shape: const LiquidRoundedSuperellipse(borderRadius: 32),
+        config: LiquidGlassConfig.Medium,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
               // Drag handle
               Container(
                 margin: const EdgeInsets.only(top: 12),
@@ -155,7 +138,6 @@ class AttachmentOptionsSheet extends StatelessWidget {
               ),
             ],
           ),
-        ),
       ),
     );
   }

@@ -179,8 +179,10 @@ serve(async (req) => {
       click_action: "FLUTTER_NOTIFICATION_CLICK",
     };
 
-    // Add DM-specific data for deep linking
+    // Add DM-specific data for deep linking and client-side decryption
     if (record.type === 'dm' && record.message_id) {
+      dataPayload['receiver_id'] = record.user_id;
+
       // Get sender info for deep linking
       const { data: senderProfile } = await supabase
         .from('profiles')
@@ -193,16 +195,30 @@ serve(async (req) => {
         dataPayload['sender_avatar'] = senderProfile.avatar_url || '';
       }
 
-      // Get conversation_id from message
+      // Get conversation_id and encryption fields directly from message
       const { data: msgData } = await supabase
         .from('messages')
-        .select('conversation_id')
+        .select('conversation_id, encrypted_keys, iv, signal_message_type, signal_sender_content, pq_aura_header, pq_aura_payload, content')
         .eq('id', record.message_id)
         .single();
 
       if (msgData) {
         dataPayload['conversation_id'] = msgData.conversation_id;
         dataPayload['sender_id'] = record.actor_id;
+
+        if (msgData.encrypted_keys) {
+          dataPayload['encrypted_keys'] = typeof msgData.encrypted_keys === 'object' ? JSON.stringify(msgData.encrypted_keys) : msgData.encrypted_keys.toString();
+        }
+        if (msgData.iv) dataPayload['iv'] = msgData.iv.toString();
+        if (msgData.signal_message_type !== null && msgData.signal_message_type !== undefined) {
+          dataPayload['signal_message_type'] = msgData.signal_message_type.toString();
+        }
+        if (msgData.signal_sender_content) {
+          dataPayload['signal_sender_content'] = msgData.signal_sender_content.toString();
+        }
+        if (msgData.pq_aura_header) dataPayload['pq_aura_header'] = msgData.pq_aura_header.toString();
+        if (msgData.pq_aura_payload) dataPayload['pq_aura_payload'] = msgData.pq_aura_payload.toString();
+        if (msgData.content && !dataPayload['content']) dataPayload['content'] = msgData.content.toString();
       }
     }
 

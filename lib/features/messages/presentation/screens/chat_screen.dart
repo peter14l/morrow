@@ -730,13 +730,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           final colorScheme = theme.colorScheme;
 
           return PopScope(
-            canPop: !_focusNode
-                .hasFocus, // Enable predictive back when keyboard is down
+            canPop: true, // Enable native OS predictive back gesture
             onPopInvokedWithResult: (didPop, result) {
-              if (didPop) return;
-
               if (_focusNode.hasFocus) {
-                // If keyboard is up, just dismiss it
                 _focusNode.unfocus();
               }
             },

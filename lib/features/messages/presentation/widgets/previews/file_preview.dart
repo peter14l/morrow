@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// File preview bar shown above the input area when a file is selected.
-/// Extracted from _buildFilePreview() in chat_screen.dart.
 class FilePreview extends StatelessWidget {
   const FilePreview({super.key, required this.file, required this.onDismiss});
 
@@ -14,26 +14,72 @@ class FilePreview extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-      ),
+    String formatBytes(int bytes) {
+      if (bytes <= 0) return '0 B';
+      const suffixes = ['B', 'KB', 'MB', 'GB'];
+      int i = 0;
+      double size = bytes.toDouble();
+      while (size >= 1024 && i < suffixes.length - 1) {
+        size /= 1024;
+        i++;
+      }
+      return '${size.toStringAsFixed(1)} ${suffixes[i]}';
+    }
+
+    return LiquidGlassWrapper(
+      borderRadius: 20,
+      shape: const LiquidRoundedSuperellipse(borderRadius: 20),
+      config: LiquidGlassConfig.Medium,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       child: Row(
         children: [
-          Icon(Icons.insert_drive_file, color: colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              file.name,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-              overflow: TextOverflow.ellipsis,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              Icons.insert_drive_file_rounded,
+              color: colorScheme.primary,
+              size: 24,
             ),
           ),
-          IconButton(icon: const Icon(Icons.close), onPressed: onDismiss),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  file.name,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  formatBytes(file.size),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: const Icon(Icons.close_rounded, size: 20),
+            style: IconButton.styleFrom(
+              backgroundColor: colorScheme.onSurface.withValues(alpha: 0.08),
+              padding: const EdgeInsets.all(8),
+              minimumSize: const Size(32, 32),
+            ),
+            onPressed: onDismiss,
+          ),
         ],
       ),
     );

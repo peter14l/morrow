@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:universal_io/io.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
@@ -55,6 +57,7 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
         Permission.microphone,
         Permission.photos,
         Permission.videos,
+        Permission.storage,
       ].request();
     } catch (e) {
       debugPrint('[InstagramWebView] Error requesting permissions: $e');
@@ -87,7 +90,7 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setUserAgent(
-        'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36'
+        'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
       )
       ..setNavigationDelegate(
         NavigationDelegate(
@@ -119,6 +122,47 @@ class _InstagramFeedScreenState extends State<InstagramFeedScreen> {
           },
         ),
       );
+
+    // Enable native image & file picker in WebView for Instagram media uploads
+    if (_controller!.platform is AndroidWebViewController) {
+      final androidController =
+          _controller!.platform as AndroidWebViewController;
+      androidController.setOnShowFileSelector((FileSelectorParams params) async {
+        try {
+          final acceptsImages = params.acceptTypes.any(
+                (t) => t.contains('image') || t == '*/*',
+              ) ||
+              params.acceptTypes.isEmpty;
+          final acceptsVideos =
+              params.acceptTypes.any((t) => t.contains('video'));
+
+          final picker = ImagePicker();
+          if (params.mode == FileSelectorMode.openMultiple) {
+            if (acceptsImages && !acceptsVideos) {
+              final images = await picker.pickMultiImage();
+              return images.map((img) => Uri.file(img.path).toString()).toList();
+            } else if (acceptsVideos && !acceptsImages) {
+              final video = await picker.pickVideo(source: ImageSource.gallery);
+              if (video != null) return [Uri.file(video.path).toString()];
+            } else {
+              final media = await picker.pickMultipleMedia();
+              return media.map((m) => Uri.file(m.path).toString()).toList();
+            }
+          } else {
+            if (acceptsVideos && !acceptsImages) {
+              final video = await picker.pickVideo(source: ImageSource.gallery);
+              if (video != null) return [Uri.file(video.path).toString()];
+            } else {
+              final image = await picker.pickImage(source: ImageSource.gallery);
+              if (image != null) return [Uri.file(image.path).toString()];
+            }
+          }
+        } catch (e) {
+          debugPrint('[InstagramWebView] Error selecting media: $e');
+        }
+        return <String>[];
+      });
+    }
       
     _setupScrollHandler();
     _controller!.loadRequest(Uri.parse('https://www.instagram.com/'));
