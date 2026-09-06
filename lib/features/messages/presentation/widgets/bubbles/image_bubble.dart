@@ -61,13 +61,16 @@ class _ImageBubbleState extends State<ImageBubble> {
     if (url == null) return;
 
     if (!url.startsWith('http')) {
-      setState(() => _localPath = url);
+      if (mounted) setState(() => _localPath = url);
       return;
     }
 
     final path = await _cacheService.getLocalPath(url);
     if (mounted) {
       setState(() => _localPath = path);
+      if (path == null && !_isRestricted && !_isDownloading) {
+        _downloadMedia();
+      }
     }
   }
 
@@ -79,8 +82,12 @@ class _ImageBubbleState extends State<ImageBubble> {
 
     try {
       final encryptedKeys =
-          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
-      final iv = widget.message.shareData?['media_iv'] as String?;
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+          (widget.message.encryptedKeys != null
+              ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+              : null);
+      final iv = widget.message.shareData?['media_iv'] as String? ??
+          widget.message.iv;
 
       if (encryptedKeys == null || iv == null) {
         throw Exception('Encryption metadata missing in message');
@@ -104,9 +111,6 @@ class _ImageBubbleState extends State<ImageBubble> {
       debugPrint('[ImageBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Download failed: $e')));
       }
     }
   }
@@ -252,9 +256,14 @@ class _ImageBubbleState extends State<ImageBubble> {
 
   Widget _buildImage(BuildContext context, ThemeData theme) {
     final url = widget.message.mediaUrl;
-    final isEncrypted =
-        widget.message.shareData?['media_keys'] != null &&
-        widget.message.shareData?['media_iv'] != null;
+    final encryptedKeys =
+        widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+        (widget.message.encryptedKeys != null
+            ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+            : null);
+    final iv = widget.message.shareData?['media_iv'] as String? ??
+        widget.message.iv;
+    final isEncrypted = encryptedKeys != null && iv != null;
 
     return Stack(
       alignment: Alignment.center,
@@ -263,65 +272,95 @@ class _ImageBubbleState extends State<ImageBubble> {
           Image.file(
             File(_localPath!),
             fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.broken_image),
+            errorBuilder: (context, error, stackTrace) => Container(
+              width: 250,
+              height: 250,
+              color: Colors.black26,
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.broken_image_rounded,
+                color: Colors.white54,
+                size: 36,
+              ),
+            ),
           )
-        else if (url != null)
-          isEncrypted
-              ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // Blurred placeholder
-                    CachedNetworkImage(
-                      imageUrl: url,
-                      imageBuilder: (context, imageProvider) => Container(
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
+        else if (isEncrypted)
+          Container(
+            width: 250,
+            height: 250,
+            decoration: BoxDecoration(
+              color: widget.isMe
+                  ? theme.colorScheme.primaryContainer.withValues(alpha: 0.3)
+                  : theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Center(
+              child: _isDownloading
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          width: 32,
+                          height: 32,
+                          child: CircularProgressIndicator(strokeWidth: 3),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Decrypting photo...',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: widget.textColor ??
+                                theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
-                        child: kIsWeb
-                            ? Container(
-                                color: Colors.black.withValues(alpha: 0.4),
-                              )
-                            : BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                                child: Container(
-                                  color: Colors.black.withValues(alpha: 0.1),
-                                ),
-                              ),
+                      ],
+                    )
+                  : IconButton(
+                      icon: const Icon(
+                        Icons.download_for_offline_rounded,
+                        size: 48,
+                        color: Colors.white,
                       ),
-                      placeholder: (context, url) =>
-                          Container(color: Colors.grey[300]),
-                      errorWidget: (context, url, error) =>
-                          Container(color: Colors.grey[300]),
+                      onPressed: _downloadMedia,
                     ),
-                    if (_isDownloading)
-                      const CircularProgressIndicator()
-                    else
-                      IconButton(
-                        icon: const Icon(
-                          Icons.download_for_offline,
-                          size: 48,
-                          color: Colors.white,
-                        ),
-                        onPressed: _downloadMedia,
-                      ),
-                  ],
-                )
-              : CachedNetworkImage(
-                  imageUrl: url,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: Colors.grey[300]),
-                  errorWidget: (context, url, error) =>
-                      Container(color: Colors.grey[300]),
-                )
+            ),
+          )
+        else if (url != null)
+          CachedNetworkImage(
+            imageUrl: url,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              width: 250,
+              height: 250,
+              color: Colors.black12,
+              child: const Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              width: 250,
+              height: 250,
+              color: Colors.black12,
+              child: const Icon(
+                Icons.broken_image_rounded,
+                color: Colors.white54,
+              ),
+            ),
+          )
         else
           Container(
-            color: Colors.grey[300],
-            child: const Icon(Icons.broken_image),
+            width: 250,
+            height: 250,
+            color: Colors.black12,
+            child: const Icon(
+              Icons.broken_image_rounded,
+              color: Colors.white54,
+            ),
           ),
 
         if (widget.message.isUploading) ...[

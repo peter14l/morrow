@@ -80,8 +80,12 @@ class _VoiceBubbleState extends State<VoiceBubble> {
 
     try {
       final encryptedKeys =
-          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
-      final iv = widget.message.shareData?['media_iv'] as String?;
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+          (widget.message.encryptedKeys != null
+              ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+              : null);
+      final iv = widget.message.shareData?['media_iv'] as String? ??
+          widget.message.iv;
 
       if (encryptedKeys == null || iv == null) {
         throw Exception('Encryption metadata missing in message');
@@ -104,9 +108,6 @@ class _VoiceBubbleState extends State<VoiceBubble> {
       debugPrint('[VoiceBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to download audio: $e')));
       }
     }
   }
@@ -158,9 +159,14 @@ class _VoiceBubbleState extends State<VoiceBubble> {
         widget.textColor ??
         (widget.isMe ? colorScheme.onPrimaryContainer : colorScheme.onSurface);
 
-    final isEncrypted =
-        widget.message.shareData?['media_keys'] != null &&
-        widget.message.shareData?['media_iv'] != null;
+    final encryptedKeys =
+        widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+        (widget.message.encryptedKeys != null
+            ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+            : null);
+    final iv = widget.message.shareData?['media_iv'] as String? ??
+        widget.message.iv;
+    final isEncrypted = encryptedKeys != null && iv != null;
 
     if (widget.message.isUploading || (_localPath == null && isEncrypted)) {
       return Container(

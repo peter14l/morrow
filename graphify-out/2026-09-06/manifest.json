@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "PQ-DR/src/state.rs": {
-    "mtime": 1788664543.2602284,
-    "ast_hash": "d3d8c10021ef1b4fa7a843dde52488fe",
+    "mtime": 1788670737.2393615,
+    "ast_hash": "fc610ac70e0ef5d6cc7482fb375be256",
     "semantic_hash": ""
   },
   "PQ-DR/src/wasm.rs": {
@@ -2925,8 +2925,8 @@
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_message_list.dart": {
-    "mtime": 1788666096.736279,
-    "ast_hash": "1a18b49a9f241bdfd093d35e7d8d13c9",
+    "mtime": 1788670188.973211,
+    "ast_hash": "2154a2a81958b3f8ddbfe41d896e4fde",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_typing_indicator.dart": {
@@ -3400,8 +3400,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/about_app_screen.dart": {
-    "mtime": 1788666303.9666834,
-    "ast_hash": "76c182f352e4871046984f704fc61ecf",
+    "mtime": 1788670280.2504127,
+    "ast_hash": "ab81f33a524c72df27d254d4cc65885f",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/account_privacy_screen.dart": {
@@ -3515,8 +3515,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/sections/support_section.dart": {
-    "mtime": 1788666301.9857864,
-    "ast_hash": "88f00a2beddbeec16e32781ed4de6734",
+    "mtime": 1788670277.9707942,
+    "ast_hash": "3ae01185547d3461c3030a94b77a91a4",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/widgets/privacy_transparency_card.dart": {
@@ -5860,8 +5860,8 @@
     "semantic_hash": ""
   },
   "test/services/update_service_test.dart": {
-    "mtime": 1788666313.3434255,
-    "ast_hash": "216296bad7ae41bb3a9e5b25b1674e2b",
+    "mtime": 1788670283.0319319,
+    "ast_hash": "7860de9d81aa5637b3fec393a25a1d25",
     "semantic_hash": ""
   },
   "test/signal_protocol_test.dart": {

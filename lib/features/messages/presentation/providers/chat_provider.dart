@@ -589,8 +589,12 @@ class ChatProvider with ChangeNotifier {
           markAsRead();
 
           final mediaKeys =
-              decryptedMessage.shareData?['media_keys'] as Map<String, dynamic>?;
-          final mediaIv = decryptedMessage.shareData?['media_iv'] as String?;
+              decryptedMessage.shareData?['media_keys'] as Map<String, dynamic>? ??
+              (decryptedMessage.encryptedKeys != null
+                  ? Map<String, dynamic>.from(decryptedMessage.encryptedKeys!)
+                  : null);
+          final mediaIv = decryptedMessage.shareData?['media_iv'] as String? ??
+              decryptedMessage.iv;
           final isMedia =
               decryptedMessage.mediaUrl != null &&
               mediaKeys != null &&
@@ -599,7 +603,7 @@ class ChatProvider with ChangeNotifier {
               decryptedMessage.messageType != MessageType.system &&
               decryptedMessage.messageType != MessageType.location;
 
-          if (isMedia) {
+          if (isMedia && decryptedMessage.mediaViewMode == 'unlimited') {
             // Media URL + share_data derive the storage type/fileId and the
             // media decryption keys. Message content keys (encryptedKeys/iv)
             // are NOT used for media.
@@ -1064,10 +1068,9 @@ class ChatProvider with ChangeNotifier {
         mediaFileName: fileName,
         mediaFileSize: fileSize,
         mediaMimeType: finalMimeType,
-        encryptedKeys: uploadResult != null
-            ? uploadResult.encryptedKeys
-            : encryptedKeys,
-        iv: uploadResult != null ? uploadResult.iv : iv,
+        encryptedKeys: encryptedKeys ??
+            (uploadResult != null ? uploadResult.encryptedKeys : null),
+        iv: iv ?? (uploadResult != null ? uploadResult.iv : null),
         signalMessageType: signalMessageType,
         signalSenderContent: signalSenderContent,
         whisperMode: state.whisperMode,
@@ -1076,6 +1079,12 @@ class ChatProvider with ChangeNotifier {
         mediaViewMode: mediaViewMode,
         pqAuraHeader: pqAuraHeader,
         pqAuraPayload: pqAuraPayload,
+        shareData: uploadResult != null
+            ? {
+                'media_iv': uploadResult.iv,
+                'media_keys': uploadResult.encryptedKeys,
+              }
+            : null,
       );
 
       await _messageQueue.dequeue(conversationId, clientId);

@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "PQ-DR/src/state.rs": {
-    "mtime": 1788664543.2602284,
-    "ast_hash": "d3d8c10021ef1b4fa7a843dde52488fe",
+    "mtime": 1788670737.2393615,
+    "ast_hash": "fc610ac70e0ef5d6cc7482fb375be256",
     "semantic_hash": ""
   },
   "PQ-DR/src/wasm.rs": {
@@ -2765,13 +2765,13 @@
     "semantic_hash": "02b9f9d8e32e2561a27df346e1670d92"
   },
   "lib/features/messages/presentation/providers/chat_encryption_provider.dart": {
-    "mtime": 1785438893.095817,
-    "ast_hash": "95bab76b64464b56b0979dab50252356",
+    "mtime": 1788671817.1756754,
+    "ast_hash": "1c8d1809738cfc5292bd83701f59d1de",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/providers/chat_provider.dart": {
-    "mtime": 1786907699.7598464,
-    "ast_hash": "966f2c24e430d71d662b66a15fab80e4",
+    "mtime": 1788671911.4971743,
+    "ast_hash": "bb0ea982ab4a5de66e049da8acccbcca",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/providers/chat_reactions_provider.dart": {
@@ -2855,13 +2855,13 @@
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/document_bubble.dart": {
-    "mtime": 1786907699.7620246,
-    "ast_hash": "63c713209213f9f1c53f2c48434b88ef",
+    "mtime": 1788671860.20752,
+    "ast_hash": "faae8ac059d6a4176ea7890ecd071a83",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/image_bubble.dart": {
-    "mtime": 1786907699.7631018,
-    "ast_hash": "6f198ad708cec6237f5f08af67ca74e1",
+    "mtime": 1788671832.8934193,
+    "ast_hash": "0990071ad151d8ffa51afe6ba3ece88c",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/invite_bubble.dart": {
@@ -2900,13 +2900,13 @@
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/video_bubble.dart": {
-    "mtime": 1786907699.764253,
-    "ast_hash": "35ef658ae04b3790d383a50bb7030501",
+    "mtime": 1788671839.546223,
+    "ast_hash": "03fc2ad30b39aaef500758e9d03abc9e",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/bubbles/voice_bubble.dart": {
-    "mtime": 1786907699.7648206,
-    "ast_hash": "7653333dad2c1d8c400122311c4d8379",
+    "mtime": 1788671867.6417005,
+    "ast_hash": "f3a77d684045026024df16363a1610eb",
     "semantic_hash": ""
   },
   "lib/features/messages/presentation/widgets/chat/chat_app_bar.dart": {
@@ -3400,8 +3400,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/about_app_screen.dart": {
-    "mtime": 1788670280.2504127,
-    "ast_hash": "ab81f33a524c72df27d254d4cc65885f",
+    "mtime": 1788671988.5110438,
+    "ast_hash": "f844bed5480590e63204c7baeb446637",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/screens/account_privacy_screen.dart": {
@@ -3515,8 +3515,8 @@
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/sections/support_section.dart": {
-    "mtime": 1788670277.9707942,
-    "ast_hash": "3ae01185547d3461c3030a94b77a91a4",
+    "mtime": 1788671991.537593,
+    "ast_hash": "754da9b8cbc8888bacaa63694108c4dd",
     "semantic_hash": ""
   },
   "lib/features/settings/presentation/widgets/privacy_transparency_card.dart": {
@@ -5860,8 +5860,8 @@
     "semantic_hash": ""
   },
   "test/services/update_service_test.dart": {
-    "mtime": 1788670283.0319319,
-    "ast_hash": "7860de9d81aa5637b3fec393a25a1d25",
+    "mtime": 1788671996.9315877,
+    "ast_hash": "b2894cf972d148657418a4de74e5e987",
     "semantic_hash": ""
   },
   "test/signal_protocol_test.dart": {
@@ -37687,6 +37687,11 @@
   "test/features/messages/clear_chat_for_everyone_test.dart": {
     "mtime": 1788669607.5156417,
     "ast_hash": "51883225c4804f50dbf68eb882a5f9f1",
+    "semantic_hash": ""
+  },
+  "test/features/messages/media_attachment_encryption_test.dart": {
+    "mtime": 1788671885.8979175,
+    "ast_hash": "13f3f4be05960604bfe41ed71fabad78",
     "semantic_hash": ""
   }
 }

@@ -1,35 +1,35 @@
 {
   "android": {
-    "latestVersion": "1.1.22",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.22.apk",
+    "latestVersion": "1.1.23",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23.apk",
     "abiUrls": {
-      "arm64-v8a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.22-arm64-v8a.apk",
-      "armeabi-v7a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.22-armeabi-v7a.apk",
-      "x86_64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.22-x86_64.apk",
-      "universal": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.22.apk"
+      "arm64-v8a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-arm64-v8a.apk",
+      "armeabi-v7a": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-armeabi-v7a.apk",
+      "x86_64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23-x86_64.apk",
+      "universal": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.23.apk"
     },
-    "releaseNotes": "• Liquid Glass Modal Sheets: Authentic Apple optical refraction on attachment options and message long-tap sheets.\n• Revamped Attachment Context Sheets: Sleek floating liquid glass cards with metadata chips, view mode selectors, and dismissal actions.\n• Native Predictive Back Gestures: Unrestricted page peel & pop navigation across Chat and Settings screens.\n• 120Hz Smooth Scrolling: RepaintBoundaries and cache optimizations eliminate frame drops in conversation streams.\n• E2EE Notification Decryption: Incoming FCM notifications automatically decrypt Signal/PQ-Aura payloads locally.",
+    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved an issue where received DM image attachments showed blank/white by cleanly preserving media encryption keys (AES-GCM IV & RSA/PQ-Aura recipient keys) in shareData.\n• Auto-Download & Background Decryption: Media attachments in direct messages automatically decrypt into local disk cache upon receipt and opening.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• Native Predictive Back Gestures & 120Hz Smooth Scrolling.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:20:00Z"
+    "releaseDate": "2026-09-06T10:48:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.22",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.22.msix",
+    "latestVersion": "1.1.23",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.msix",
     "abiUrls": {
-      "x64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.22.msix"
+      "x64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.msix"
     },
-    "releaseNotes": "• Liquid Glass Modal Sheets: Authentic Apple optical refraction on attachment options and message long-tap sheets.\n• Revamped Attachment Context Sheets: Sleek floating liquid glass cards with metadata chips, view mode selectors, and dismissal actions.\n• 120Hz Smooth Scrolling: RepaintBoundaries and cache optimizations eliminate frame drops in conversation streams.\n• E2EE Notification Decryption: Incoming notifications automatically decrypt Signal/PQ-Aura payloads locally.",
+    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved DM image attachment decryption and auto-caching.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• 120Hz Smooth Scrolling.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:20:00Z"
+    "releaseDate": "2026-09-06T10:48:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.22",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.22.dmg",
+    "latestVersion": "1.1.23",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.dmg",
     "abiUrls": {
-      "arm64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.22.dmg"
+      "arm64": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.23.dmg"
     },
-    "releaseNotes": "• Liquid Glass Modal Sheets: Authentic Apple optical refraction on attachment options and message long-tap sheets.\n• Revamped Attachment Context Sheets: Sleek floating liquid glass cards with metadata chips, view mode selectors, and dismissal actions.\n• 120Hz Smooth Scrolling: RepaintBoundaries and cache optimizations eliminate frame drops in conversation streams.\n• E2EE Notification Decryption: Incoming notifications automatically decrypt Signal/PQ-Aura payloads locally.",
+    "releaseNotes": "• Fix E2EE Image & Media Decryption: Resolved DM image attachment decryption and auto-caching.\n• Liquid Glass Modal Sheets & Revamped Context Previews.\n• 120Hz Smooth Scrolling.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T10:20:00Z"
+    "releaseDate": "2026-09-06T10:48:00Z"
   }
 }

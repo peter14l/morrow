@@ -158,7 +158,10 @@ class ChatEncryptionProvider with ChangeNotifier {
       decryptedMessage = decryptedMessage.copyWith(content: decryptedContent);
     } else if (message.pqAuraHeader != null ||
         message.signalMessageType != null ||
-        (message.encryptedKeys != null && message.iv != null)) {
+        (message.encryptedKeys != null &&
+            message.iv != null &&
+            (message.messageType == MessageType.text ||
+                message.content.isNotEmpty))) {
       // If we failed to decrypt a known encrypted message, set placeholder
       decryptedMessage = decryptedMessage.copyWith(
         content: '🔒 Message encrypted',

@@ -73,8 +73,12 @@ class _DocumentBubbleState extends State<DocumentBubble> {
 
     try {
       final encryptedKeys =
-          widget.message.shareData?['media_keys'] as Map<String, dynamic>?;
-      final iv = widget.message.shareData?['media_iv'] as String?;
+          widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+          (widget.message.encryptedKeys != null
+              ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+              : null);
+      final iv = widget.message.shareData?['media_iv'] as String? ??
+          widget.message.iv;
 
       if (encryptedKeys == null || iv == null) {
         throw Exception('Encryption metadata missing in message');
@@ -97,9 +101,6 @@ class _DocumentBubbleState extends State<DocumentBubble> {
       debugPrint('[DocumentBubble] Download Error: $e');
       if (mounted) {
         setState(() => _isDownloading = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to download document: $e')),
-        );
       }
     }
   }
@@ -109,11 +110,11 @@ class _DocumentBubbleState extends State<DocumentBubble> {
     try {
       await OpenFilex.open(_localPath!);
     } catch (e) {
-      debugPrint('[DocumentBubble] Error opening file: $e');
+      debugPrint('Error opening file: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Could not open file')));
+        ).showSnackBar(SnackBar(content: Text('Could not open file: $e')));
       }
     }
   }
@@ -154,9 +155,14 @@ class _DocumentBubbleState extends State<DocumentBubble> {
             ? theme.colorScheme.onPrimaryContainer
             : theme.colorScheme.onSurface);
 
-    final isEncrypted =
-        widget.message.shareData?['media_keys'] != null &&
-        widget.message.shareData?['media_iv'] != null;
+    final encryptedKeys =
+        widget.message.shareData?['media_keys'] as Map<String, dynamic>? ??
+        (widget.message.encryptedKeys != null
+            ? Map<String, dynamic>.from(widget.message.encryptedKeys!)
+            : null);
+    final iv = widget.message.shareData?['media_iv'] as String? ??
+        widget.message.iv;
+    final isEncrypted = encryptedKeys != null && iv != null;
 
     final Widget mainContent = InkWell(
       onTap: _localPath != null || !isEncrypted ? _openFile : null,
