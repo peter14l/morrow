@@ -359,6 +359,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../PQ-DR/include";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs";
+				OTHER_LDFLAGS = "-force_load $(PROJECT_DIR)/libs/libpq_aura.a";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -538,6 +541,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../PQ-DR/include";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs";
+				OTHER_LDFLAGS = "-force_load $(PROJECT_DIR)/libs/libpq_aura.a";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
@@ -560,6 +566,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../PQ-DR/include";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/libs";
+				OTHER_LDFLAGS = "-force_load $(PROJECT_DIR)/libs/libpq_aura.a";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";

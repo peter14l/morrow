@@ -318,7 +318,7 @@ jobs:
           VER="${{ needs.version.outputs.version }}"
           mkdir -p release-artifacts
           ditto -c -k --sequesterRsrc --keepParent \
-            build/macos/Build/Products/Release/Runner.app \
+            build/macos/Build/Products/Release/oasis.app \
             "release-artifacts/oasis-v${VER}-macos.zip"
 
       - name: Upload macOS Artifacts
