@@ -1,7 +1,10 @@
 import 'package:oasis/core/config/app_config.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:universal_io/io.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:oasis/features/auth/domain/models/app_user.dart' as app_models;
 import 'package:oasis/core/config/supabase_config.dart';
@@ -9,6 +12,7 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/features/messages/data/signal/signal_service.dart';
 import 'package:oasis/services/notification_service.dart';
+import 'package:oasis/services/notification_manager.dart';
 import 'package:oasis/services/session_registry_service.dart';
 import 'package:oasis/services/auth/account_registry_manager.dart';
 import 'package:oasis/services/auth/encryption_provisioner.dart';
