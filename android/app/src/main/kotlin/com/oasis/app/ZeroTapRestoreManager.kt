@@ -31,7 +31,7 @@ class ZeroTapRestoreManager(private val context: Context) {
     fun getRestoreKey(onResult: (String?, String?) -> Unit) {
         scope.launch {
             try {
-                val getRestoreOption = GetRestoreCredentialOption()
+                val getRestoreOption = GetRestoreCredentialOption(requestJson = "{}")
                 val getCredRequest = GetCredentialRequest.Builder()
                     .addCredentialOption(getRestoreOption)
                     .build()
@@ -43,9 +43,10 @@ class ZeroTapRestoreManager(private val context: Context) {
                 val credential = response.credential
                 if (credential is RestoreCredential) {
                     Log.d(TAG, "Successfully retrieved restore credential key")
-                    onResult(credential.restoreToken, null)
+                    onResult(credential.authenticationResponseJson, null)
                 } else {
                     val rawToken = credential.data.getString("androidx.credentials.BUNDLE_KEY_RESTORE_TOKEN")
+                        ?: credential.data.getString("androidx.credentials.BUNDLE_KEY_AUTHENTICATION_RESPONSE_JSON")
                     if (!rawToken.isNullOrEmpty()) {
                         Log.d(TAG, "Retrieved restore token from bundle data")
                         onResult(rawToken, null)
@@ -73,7 +74,10 @@ class ZeroTapRestoreManager(private val context: Context) {
     fun saveRestoreKey(token: String, onResult: (Boolean, String?) -> Unit) {
         scope.launch {
             try {
-                val createRequest = CreateRestoreCredentialRequest(restoreToken = token)
+                val createRequest = CreateRestoreCredentialRequest(
+                    requestJson = token,
+                    isCloudBackupEnabled = true
+                )
                 withContext(Dispatchers.IO) {
                     credentialManager.createCredential(context, createRequest)
                 }
