@@ -1,23 +1,23 @@
 {
   "android": {
-    "latestVersion": "1.1.19",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.19.apk",
-    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
+    "latestVersion": "1.1.20",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/oasis-v1.1.20.apk",
+    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T00:10:00Z"
+    "releaseDate": "2026-09-06T08:21:00Z"
   },
   "windows": {
-    "latestVersion": "1.1.19",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.19.msix",
-    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
+    "latestVersion": "1.1.20",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.20.msix",
+    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T00:10:00Z"
+    "releaseDate": "2026-09-06T08:21:00Z"
   },
   "macos": {
-    "latestVersion": "1.1.19",
-    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.19.dmg",
-    "releaseNotes": "• WhatsApp/Instagram-Grade VoIP Calling: Enhanced signaling reliability, safe video room clearance, and audio routing controls.\n• Apple-Grade Smoothness: Global iOS BouncingScrollPhysics with spring physics across feeds, lists, and drawers.\n• Battery & Thermal Optimization Engine: Dynamic power manager reducing CPU/GPU overhead and pausing heavy shaders when idle or scrolling.\n• Floating Call PiP: iOS FaceTime-style magnetic edge snapping and boundary clamping.\n• Clean Architecture Refactor: Eliminated single-method usecase wrappers and redundant dependencies.",
+    "latestVersion": "1.1.20",
+    "downloadUrl": "https://pub-367b2ec139244405b5e1c1ab74e78467.r2.dev/Oasis_1.1.20.dmg",
+    "releaseNotes": "• Apple-Grade iOS 26 Liquid Glass: Real shader-based optical refraction, chromatic aberration, and dynamic specular lighting across the floating navigation pill, chat screen headers, and input surfaces.\n• Multi-Tonal Material You Dynamic Theming: Calibrated tonal elevation scale for system wallpapers with crisp contrast between scaffolds, cards, sheets, and interactive controls.\n• Streamlined Core Architecture: Pruned duplicate canvas and capsule modules for enhanced performance and reduced memory footprint while keeping Dual Feeds, Vault Mode, and Couples Mode fully intact.\n• WhatsApp/Instagram-Grade VoIP Calling & Signal Protocol E2EE.",
     "isRequired": false,
-    "releaseDate": "2026-09-06T00:10:00Z"
+    "releaseDate": "2026-09-06T08:21:00Z"
   }
 }

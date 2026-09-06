@@ -360,8 +360,8 @@ class _OasisProScreenState extends State<OasisProScreen> {
                         ),
                         _buildFeatureItem(
                           FluentIcons.shield_lock_24_regular,
-                          'Unlimited Vault & Capsules',
-                          'Store unlimited items and active time capsules.',
+                          'Unlimited Vault Storage',
+                          'Store unlimited private files and encrypted notes.',
                         ),
                         _buildFeatureItem(
                           FluentIcons.draw_shape_24_regular,

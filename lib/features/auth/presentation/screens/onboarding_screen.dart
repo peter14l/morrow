@@ -62,9 +62,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ),
     const OnboardingPageData(
       icon: system_icons.FluentIcons.heart_pulse_24_filled,
-      title: 'Time & Wellness',
+      title: 'Mind & Wellness',
       description:
-          'Connect with your future self using Time Capsules and monitor your digital habits in the Wellness Center.',
+          'Cultivate mindful digital habits and track your focus and wellbeing in the Wellness Center.',
       colors: [material.Color(0xFFF6D365), material.Color(0xFFFDA085)],
     ),
   ];

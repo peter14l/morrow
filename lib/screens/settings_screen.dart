@@ -160,7 +160,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       );
     }
 
-    return PopScope(child: layout);
+    final bool canPop = _selectedSubPage == null;
+
+    return PopScope(
+      canPop: canPop,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_selectedSubPage != null) {
+          setState(() {
+            _selectedSubPage = null;
+            _subPageTitle = null;
+          });
+        }
+      },
+      child: layout,
+    );
   }
 
   Widget _buildFluentSettings(
@@ -797,5 +811,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-
+  void _navigateToSubPage(String title, Widget page) {
+    if (ResponsiveLayout.isDesktop(context) || Provider.of<ThemeProvider>(context, listen: false).useFluentUI) {
+      setState(() {
+        _selectedSubPage = page;
+        _subPageTitle = title;
+      });
+    } else {
+      Navigator.of(context).push(
+        material.MaterialPageRoute(
+          builder: (context) => page,
+        ),
+      );
+    }
+  }
 }

@@ -87,7 +87,7 @@ class FeedRepositoryImpl implements FeedRepository {
             username: 'Sponsored',
             userAvatar: 'https://ui-avatars.com/api/?name=Ad&background=random',
             content:
-                'Get Oasis Pro to enjoy an ad-free experience, unlimited time capsules, advanced analytics, and more.',
+                'Get Oasis Pro to enjoy an ad-free experience, unlimited vault storage, advanced analytics, and more.',
             timestamp: DateTime.now(),
             isAd: true,
           ),

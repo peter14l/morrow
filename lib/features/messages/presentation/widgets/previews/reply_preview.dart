@@ -1,6 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:oasis/features/messages/domain/models/message.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Reply preview bar shown above the input area when replying to a message.
 /// Extracted from _buildReplyPreview() in chat_screen.dart.
@@ -18,10 +18,6 @@ class ReplyPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final bool kIsWeb = identical(0, 0.0) || (true && const bool.fromEnvironment('dart.library.js_util')); // fallback or standard kIsWeb
-
-    // Import kIsWeb is cleaner, but let's check if flutter foundation is exported or we can just import it.
-    // Since kIsWeb is available through material, we can use it directly.
 
     final Widget previewContent = Row(
       children: [
@@ -70,15 +66,18 @@ class ReplyPreview extends StatelessWidget {
     );
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: colorScheme.surface.withValues(alpha: 0.95),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: colorScheme.primary.withValues(alpha: 0.25),
+          width: 1,
+        ),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+      child: LiquidGlassWrapper(
+        borderRadius: 16,
+        config: LiquidGlassConfig.Light,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: previewContent,
       ),
     );

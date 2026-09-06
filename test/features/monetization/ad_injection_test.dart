@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
@@ -6,6 +7,8 @@ import 'package:oasis/features/feed/domain/repositories/feed_repository.dart';
 import 'package:oasis/features/feed/domain/repositories/post_repository.dart';
 import 'package:oasis/features/feed/domain/repositories/comment_repository.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
+import 'package:oasis/features/ripples/domain/models/ripple_entity.dart';
+import 'package:oasis/features/ripples/domain/repositories/ripple_repository.dart';
 import 'package:oasis/features/ripples/presentation/providers/ripples_provider.dart';
 import 'package:oasis/services/ad_service.dart';
 import 'package:oasis/services/subscription_service.dart';
@@ -27,7 +30,60 @@ import 'package:shared_preferences/shared_preferences.dart';
 ])
 import 'ad_injection_test.mocks.dart';
 
+class FakeRippleRepository implements RippleRepository {
+  List<RippleEntity> ripplesToReturn;
+  FakeRippleRepository({required this.ripplesToReturn});
+
+  @override
+  Future<List<RippleEntity>> getRipples() async => ripplesToReturn;
+
+  @override
+  Future<RippleEntity> uploadAndCreateRipple({
+    required File videoFile,
+    String? caption,
+    bool isPrivate = false,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<RippleEntity> createRipple({
+    required String videoUrl,
+    String? caption,
+    bool isPrivate = false,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<void> deleteRipple(String rippleId) async {}
+
+  @override
+  Future<void> likeRipple(String rippleId) async {}
+
+  @override
+  Future<void> unlikeRipple(String rippleId) async {}
+
+  @override
+  Future<void> saveRipple(String rippleId) async {}
+
+  @override
+  Future<void> unsaveRipple(String rippleId) async {}
+
+  @override
+  Future<RippleCommentEntity> commentOnRipple({
+    required String rippleId,
+    required String content,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<List<RippleCommentEntity>> getComments(String rippleId) async => [];
+
+  @override
+  Future<RippleEntity?> getRippleById(String rippleId) async => null;
+
+  @override
+  Future<List<RippleEntity>> getSavedRipples(String userId) async => [];
+}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late MockFeedRepository mockFeedRepo;
   late MockPostRepository mockPostRepo;
   late MockCommentRepository mockCommentRepo;
@@ -90,10 +146,10 @@ void main() {
       when(mockSubService.isPro).thenReturn(false);
       when(mockAdService.getHouseAds()).thenAnswer((_) async => ads);
       when(
-        mockFeedRepo.getFeedPosts(
+        mockFeedRepo.getUnifiedFeed(
           userId: anyNamed('userId'),
           limit: anyNamed('limit'),
-          offset: anyNamed('offset'),
+          cursor: anyNamed('cursor'),
         ),
       ).thenAnswer((_) async => posts);
 
@@ -126,10 +182,10 @@ void main() {
 
       when(mockSubService.isPro).thenReturn(true);
       when(
-        mockFeedRepo.getFeedPosts(
+        mockFeedRepo.getUnifiedFeed(
           userId: anyNamed('userId'),
           limit: anyNamed('limit'),
-          offset: anyNamed('offset'),
+          cursor: anyNamed('cursor'),
         ),
       ).thenAnswer((_) async => posts);
 
@@ -152,13 +208,13 @@ void main() {
     test('should inject ads into ripples for non-pro users', () async {
       final ripples = List.generate(
         10,
-        (i) => {
-          'id': 'r$i',
-          'user_id': 'u1',
-          'video_url': 'url$i',
-          'created_at': DateTime.now().toIso8601String(),
-          'profiles': {'username': 'user1'},
-        },
+        (i) => RippleEntity(
+          id: 'r$i',
+          userId: 'u1',
+          videoUrl: 'url$i',
+          createdAt: DateTime.now(),
+          username: 'user1',
+        ),
       );
 
       final ads = [
@@ -185,34 +241,9 @@ void main() {
       when(mockSubService.isPro).thenReturn(false);
       when(mockAdService.getHouseAds()).thenAnswer((_) async => ads);
 
-      final mockFrom = MockSupabaseQueryBuilder();
-      final mockSelect = MockPostgrestFilterBuilder();
-      final mockOr = MockPostgrestFilterBuilder();
-      final mockOrder = MockPostgrestTransformBuilder();
-
-      when(mockSupabase.from('ripples')).thenAnswer((_) => mockFrom);
-      when(mockFrom.select(any)).thenAnswer((_) => mockSelect);
-      when(mockSelect.or(any)).thenAnswer((_) => mockOr);
-      when(
-        mockOr.order(any, ascending: anyNamed('ascending')),
-      ).thenAnswer((_) => mockOrder);
-
-      // Fix: when using await on a mock that implements Future, mockito needs either
-      // a thenAnswer that returns a Future OR stubbing the then method correctly.
-      // Since mockOrder implements Future, we can use it as the return value but
-      // we must also stub the Future aspect.
-      when(mockOrder.then(any, onError: anyNamed('onError'))).thenAnswer((
-        invocation,
-      ) {
-        final callback = invocation.positionalArguments[0] as Function;
-        return Future.value(ripples).then(
-          (value) => callback(value),
-          onError: invocation.namedArguments[const Symbol('onError')],
-        );
-      });
-
+      final fakeRepo = FakeRippleRepository(ripplesToReturn: ripples);
       final provider = RipplesProvider(
-        supabase: mockSupabase,
+        rippleRepository: fakeRepo,
         adService: mockAdService,
         subscriptionService: mockSubService,
       );
@@ -220,48 +251,27 @@ void main() {
       await provider.refreshRipples();
 
       expect(provider.ripples.length, 12);
-      expect(provider.ripples[5]['is_ad'], isTrue);
-      expect(provider.ripples[11]['is_ad'], isTrue);
+      expect(provider.ripples[5].isAd, isTrue);
+      expect(provider.ripples[11].isAd, isTrue);
     });
 
     test('should NOT inject ads for pro users', () async {
       final ripples = List.generate(
         10,
-        (i) => {
-          'id': 'r$i',
-          'user_id': 'u1',
-          'video_url': 'url$i',
-          'created_at': DateTime.now().toIso8601String(),
-          'profiles': {'username': 'user1'},
-        },
+        (i) => RippleEntity(
+          id: 'r$i',
+          userId: 'u1',
+          videoUrl: 'url$i',
+          createdAt: DateTime.now(),
+          username: 'user1',
+        ),
       );
 
       when(mockSubService.isPro).thenReturn(true);
 
-      final mockFrom = MockSupabaseQueryBuilder();
-      final mockSelect = MockPostgrestFilterBuilder();
-      final mockOr = MockPostgrestFilterBuilder();
-      final mockOrder = MockPostgrestTransformBuilder();
-
-      when(mockSupabase.from('ripples')).thenAnswer((_) => mockFrom);
-      when(mockFrom.select(any)).thenAnswer((_) => mockSelect);
-      when(mockSelect.or(any)).thenAnswer((_) => mockOr);
-      when(
-        mockOr.order(any, ascending: anyNamed('ascending')),
-      ).thenAnswer((_) => mockOrder);
-
-      when(mockOrder.then(any, onError: anyNamed('onError'))).thenAnswer((
-        invocation,
-      ) {
-        final callback = invocation.positionalArguments[0] as Function;
-        return Future.value(ripples).then(
-          (value) => callback(value),
-          onError: invocation.namedArguments[const Symbol('onError')],
-        );
-      });
-
+      final fakeRepo = FakeRippleRepository(ripplesToReturn: ripples);
       final provider = RipplesProvider(
-        supabase: mockSupabase,
+        rippleRepository: fakeRepo,
         adService: mockAdService,
         subscriptionService: mockSubService,
       );
@@ -269,7 +279,7 @@ void main() {
       await provider.refreshRipples();
 
       expect(provider.ripples.length, 10);
-      expect(provider.ripples.any((r) => r['is_ad'] == true), isFalse);
+      expect(provider.ripples.any((r) => r.isAd), isFalse);
     });
   });
 }

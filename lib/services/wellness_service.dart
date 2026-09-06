@@ -6,55 +6,7 @@ import 'package:oasis/core/network/supabase_client.dart';
 import 'package:oasis/services/notification_manager.dart';
 import 'package:oasis/services/subscription_service.dart';
 
-/// Wellness achievement types
-enum AchievementType {
-  streak('streak', '🔥'),
-  milestone('milestone', '🏆'),
-  challenge('challenge', '💪'),
-  balance('balance', '⚖️');
-
-  final String value;
-  final String emoji;
-  const AchievementType(this.value, this.emoji);
-}
-
-/// Model for a wellness achievement/badge
-class WellnessAchievement {
-  final String id;
-  final AchievementType type;
-  final String name;
-  final String description;
-  final String icon;
-  final DateTime earnedAt;
-  final int? value; // e.g., streak count
-
-  WellnessAchievement({
-    required this.id,
-    required this.type,
-    required this.name,
-    required this.description,
-    required this.icon,
-    required this.earnedAt,
-    this.value,
-  });
-
-  factory WellnessAchievement.fromJson(Map<String, dynamic> json) {
-    return WellnessAchievement(
-      id: json['id'],
-      type: AchievementType.values.firstWhere(
-        (t) => t.value == json['achievement_type'],
-        orElse: () => AchievementType.milestone,
-      ),
-      name: json['achievement_name'],
-      description: json['description'] ?? '',
-      icon: json['icon'] ?? '🏅',
-      earnedAt: DateTime.parse(json['earned_at']),
-      value: json['value'],
-    );
-  }
-}
-
-/// Enhanced wellness service with focus mode, wind-down, and achievements
+/// Clean, minimal focus and screen-time wellness service
 class WellnessService extends ChangeNotifier {
   static const String _zenModeKey = 'zen_mode_enabled';
   static const String _zenModeScheduleKey = 'zen_mode_schedule';
@@ -63,7 +15,6 @@ class WellnessService extends ChangeNotifier {
   static const String _windDownTimeKey = 'wind_down_time';
   static const String _blockedFeaturesKey = 'focus_blocked_features';
   static const String _dailyGoalKey = 'daily_usage_goal';
-  static const String _achievementsKey = 'wellness_achievements';
 
   final SharedPreferences _prefs;
   Timer? _windDownTimer;
@@ -87,10 +38,8 @@ class WellnessService extends ChangeNotifier {
   bool _isWindDownActive = false;
   double _windDownDimLevel = 0;
 
-  // Goals & Achievements
+  // Goals & XP
   int _dailyGoalMinutes = 60;
-  List<WellnessAchievement> _achievements = [];
-
   int _totalXp = 0;
 
   // Focus Session (Lock-in Mode)
@@ -98,6 +47,7 @@ class WellnessService extends ChangeNotifier {
   DateTime? _focusStartTime;
   int _focusTargetMinutes = 0;
   int _focusEarnedXp = 0;
+  int _focusSessionsCompleted = 0;
 
   WellnessService(this._prefs) {
     _loadSettings();
@@ -108,11 +58,29 @@ class WellnessService extends ChangeNotifier {
   bool get zenModeEnabled => _zenModeEnabled;
   bool get isFocusSessionActive => _isFocusSessionActive;
   int get focusTargetMinutes => _focusTargetMinutes;
+  int get focusSessionsCompleted => _focusSessionsCompleted;
   double get focusProgress => _focusStartTime == null
       ? 0
       : (DateTime.now().difference(_focusStartTime!).inSeconds /
                 (_focusTargetMinutes * 60))
             .clamp(0.0, 1.0);
+
+  bool get allowCallsDuringZen => _allowCallsDuringZen;
+  int get zenRemainingSeconds => _zenRemainingSeconds;
+  double get zenProgress => _zenStartTime == null
+      ? 0
+      : (1 - (_zenRemainingSeconds / (_zenSessionDurationMinutes * 60))).clamp(
+          0.0,
+          1.0,
+        );
+  Map<String, bool> get zenSchedule => _zenSchedule;
+  Set<String> get blockedFeatures => _blockedFeatures;
+  bool get windDownEnabled => _windDownEnabled;
+  TimeOfDay? get windDownTime => _windDownTime;
+  bool get isWindDownActive => _isWindDownActive;
+  double get windDownDimLevel => _windDownDimLevel;
+  int get dailyGoalMinutes => _dailyGoalMinutes;
+  int get totalXp => _totalXp;
 
   // Focus Session methods
   void startFocusSession(int minutes) {
@@ -127,6 +95,8 @@ class WellnessService extends ChangeNotifier {
     if (!_isFocusSessionActive) return;
 
     if (completed) {
+      _focusSessionsCompleted++;
+      await _prefs.setInt('focus_sessions_completed', _focusSessionsCompleted);
       await _updateUserXP(_focusEarnedXp);
     } else {
       // Penalty for breaking focus intentionally
@@ -150,7 +120,6 @@ class WellnessService extends ChangeNotifier {
   void onPaused() {
     _windDownTimer?.cancel();
     _windDownTimer = null;
-    // Also pause zen timer if active
     if (_zenTimer != null) {
       _zenTimer?.cancel();
       _zenTimer = null;
@@ -160,7 +129,6 @@ class WellnessService extends ChangeNotifier {
 
   void onResumed() {
     _startWindDownMonitor();
-    // Restart zen timer if it was active
     if (_zenModeEnabled && _zenStartTime != null && _zenRemainingSeconds > 0) {
       _resumeZenTimer();
     }
@@ -188,6 +156,7 @@ class WellnessService extends ChangeNotifier {
     _zenModeEnabled = _prefs.getBool(_zenModeKey) ?? false;
     _allowCallsDuringZen = _prefs.getBool(_allowCallsDuringZenKey) ?? true;
     _totalXp = _prefs.getInt('total_xp') ?? 0;
+    _focusSessionsCompleted = _prefs.getInt('focus_sessions_completed') ?? 0;
 
     final scheduleJson = _prefs.getString(_zenModeScheduleKey);
     if (scheduleJson != null) {
@@ -211,40 +180,12 @@ class WellnessService extends ChangeNotifier {
     }
 
     _dailyGoalMinutes = _prefs.getInt(_dailyGoalKey) ?? 60;
-
-    final achievementsJson = _prefs.getString(_achievementsKey);
-    if (achievementsJson != null) {
-      final List decoded = jsonDecode(achievementsJson);
-      _achievements = decoded
-          .map((a) => WellnessAchievement.fromJson(a))
-          .toList();
-    }
-
     notifyListeners();
   }
 
   bool _isUserPro() {
     return SubscriptionService().isPro;
   }
-
-  // Getters
-  bool get allowCallsDuringZen => _allowCallsDuringZen;
-  int get zenRemainingSeconds => _zenRemainingSeconds;
-  double get zenProgress => _zenStartTime == null
-      ? 0
-      : (1 - (_zenRemainingSeconds / (_zenSessionDurationMinutes * 60))).clamp(
-          0.0,
-          1.0,
-        );
-  Map<String, bool> get zenSchedule => _zenSchedule;
-  Set<String> get blockedFeatures => _blockedFeatures;
-  bool get windDownEnabled => _windDownEnabled;
-  TimeOfDay? get windDownTime => _windDownTime;
-  bool get isWindDownActive => _isWindDownActive;
-  double get windDownDimLevel => _windDownDimLevel;
-  int get dailyGoalMinutes => _dailyGoalMinutes;
-  List<WellnessAchievement> get achievements => _achievements;
-  int get totalXp => _totalXp;
 
   // Zen Mode methods
   Future<void> setZenModeEnabled(bool enabled) async {
@@ -272,7 +213,6 @@ class WellnessService extends ChangeNotifier {
     _zenStartTime = DateTime.now();
     _zenRemainingSeconds = _zenSessionDurationMinutes * 60;
 
-    // Pause notifications
     _setNotificationsPaused(true);
 
     _zenTimer?.cancel();
@@ -290,7 +230,6 @@ class WellnessService extends ChangeNotifier {
     _zenTimer?.cancel();
     _zenTimer = null;
 
-    // Resume notifications
     _setNotificationsPaused(false);
 
     if (manual && _zenRemainingSeconds > 0) {
@@ -298,8 +237,9 @@ class WellnessService extends ChangeNotifier {
       await _updateUserXP(-_zenPenaltyXP);
     } else if (!manual && _zenRemainingSeconds == 0) {
       // Reward for completion
+      _focusSessionsCompleted++;
+      await _prefs.setInt('focus_sessions_completed', _focusSessionsCompleted);
       await _updateUserXP(_zenRewardXP);
-      _awardZenAchievement();
     }
 
     _zenStartTime = null;
@@ -330,20 +270,6 @@ class WellnessService extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error updating XP: $e');
     }
-  }
-
-  void _awardZenAchievement() {
-    final today = DateTime.now();
-    final achievement = WellnessAchievement(
-      id: 'zen_${today.millisecondsSinceEpoch}',
-      type: AchievementType.challenge,
-      name: 'Zen Master',
-      description: 'Completed a 30-minute zen session!',
-      icon: '🧘',
-      earnedAt: today,
-    );
-    _achievements.add(achievement);
-    _saveAchievements();
   }
 
   Future<void> setBlockedFeatures(Set<String> features) async {
@@ -407,10 +333,7 @@ class WellnessService extends ChangeNotifier {
     final nowMinutes = now.hour * 60 + now.minute;
     final windDownMinutes = _windDownTime!.hour * 60 + _windDownTime!.minute;
 
-    // Check if we're past wind-down time (until midnight)
     if (nowMinutes >= windDownMinutes) {
-      // Calculate dim level based on how far past wind-down time
-      // Max dim at 2 hours after wind-down time
       final minutesPast = nowMinutes - windDownMinutes;
       _windDownDimLevel = (minutesPast / 120).clamp(0.0, 0.3);
       _isWindDownActive = true;
@@ -429,159 +352,11 @@ class WellnessService extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Achievement methods
-  Future<void> checkAndAwardAchievements(
-    int currentStreak,
-    int todayMinutes,
-  ) async {
-    final newAchievements = <WellnessAchievement>[];
-
-    // Streak achievements (Pro feature)
-    if (_isUserPro()) {
-      final streakMilestones = [3, 7, 14, 30, 60, 100, 365];
-      for (final milestone in streakMilestones) {
-        if (currentStreak >= milestone) {
-          final existingIndex = _achievements.indexWhere(
-            (a) => a.type == AchievementType.streak && a.value == milestone,
-          );
-          if (existingIndex == -1) {
-            newAchievements.add(
-              WellnessAchievement(
-                id: 'streak_$milestone',
-                type: AchievementType.streak,
-                name: '$milestone Day Streak',
-                description:
-                    'Maintained healthy screen time for $milestone days!',
-                icon: '🔥',
-                earnedAt: DateTime.now(),
-                value: milestone,
-              ),
-            );
-          }
-        }
-      }
-    }
-
-    // Under-goal achievement for today
-    if (todayMinutes <= _dailyGoalMinutes && todayMinutes > 0) {
-      final today = DateTime.now();
-      final todayKey = '${today.year}-${today.month}-${today.day}';
-      final existingIndex = _achievements.indexWhere(
-        (a) => a.type == AchievementType.balance && a.id == 'balance_$todayKey',
-      );
-      if (existingIndex == -1) {
-        newAchievements.add(
-          WellnessAchievement(
-            id: 'balance_$todayKey',
-            type: AchievementType.balance,
-            name: 'Balanced Day',
-            description: 'Stayed under your daily goal! Great job!',
-            icon: '⚖️',
-            earnedAt: DateTime.now(),
-          ),
-        );
-      }
-    }
-
-    if (newAchievements.isNotEmpty) {
-      _achievements.addAll(newAchievements);
-      await _saveAchievements();
-      notifyListeners();
-    }
-  }
-
-  Future<void> _saveAchievements() async {
-    final json = jsonEncode(
-      _achievements
-          .map(
-            (a) => {
-              'id': a.id,
-              'achievement_type': a.type.value,
-              'achievement_name': a.name,
-              'description': a.description,
-              'icon': a.icon,
-              'earned_at': a.earnedAt.toIso8601String(),
-              'value': a.value,
-            },
-          )
-          .toList(),
-    );
-    await _prefs.setString(_achievementsKey, json);
-  }
-
-  // Weekly report data
-  Map<String, dynamic> generateWeeklyReport(
-    List<Map<String, dynamic>> weeklyData,
-  ) {
-    if (!_isUserPro()) {
-      throw Exception(
-        'Upgrade to Oasis Pro to generate Wellness Weekly Reports.',
-      );
-    }
-    if (weeklyData.isEmpty) {
-      return {
-        'totalMinutes': 0,
-        'averageMinutes': 0,
-        'daysUnderGoal': 0,
-        'bestDay': null,
-        'trend': 'stable',
-      };
-    }
-
-    int totalMinutes = 0;
-    int daysUnderGoal = 0;
-    String? bestDay;
-    int lowestMinutes = 9999;
-
-    for (final day in weeklyData) {
-      final minutes = day['minutes'] as int;
-      totalMinutes += minutes;
-      if (minutes <= _dailyGoalMinutes && minutes > 0) {
-        daysUnderGoal++;
-      }
-      if (minutes < lowestMinutes && minutes > 0) {
-        lowestMinutes = minutes;
-        bestDay = day['day'];
-      }
-    }
-
-    final averageMinutes = (totalMinutes / weeklyData.length).round();
-
-    // Calculate trend
-    String trend = 'stable';
-    if (weeklyData.length >= 3) {
-      final recentAvg =
-          (weeklyData
-                      .sublist(0, 3)
-                      .fold<int>(0, (sum, d) => sum + (d['minutes'] as int)) /
-                  3)
-              .round();
-      final olderAvg =
-          (weeklyData
-                      .sublist(3)
-                      .fold<int>(0, (sum, d) => sum + (d['minutes'] as int)) /
-                  weeklyData.sublist(3).length)
-              .round();
-
-      if (recentAvg < olderAvg - 10) {
-        trend = 'improving';
-      } else if (recentAvg > olderAvg + 10) {
-        trend = 'increasing';
-      }
-    }
-
-    return {
-      'totalMinutes': totalMinutes,
-      'averageMinutes': averageMinutes,
-      'daysUnderGoal': daysUnderGoal,
-      'bestDay': bestDay,
-      'trend': trend,
-    };
-  }
-
   @override
   void dispose() {
     _windDownTimer?.cancel();
+    _zenTimer?.cancel();
     super.dispose();
   }
 }
+

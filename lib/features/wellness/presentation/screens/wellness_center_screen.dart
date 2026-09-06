@@ -559,9 +559,9 @@ class WellnessCenterScreen extends StatelessWidget {
           ),
           _buildListTile(
             context,
-            'Digital Badges',
-            'Your wellbeing achievements',
-            Icons.verified_rounded,
+            'Focus & Screen Time Stats',
+            'View focus sessions and metrics',
+            Icons.insights_rounded,
             Colors.amber,
             () => context.push('/wellness-stats'),
           ),

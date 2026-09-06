@@ -51,6 +51,155 @@ class AppTheme {
           );
   }
 
+  /// Harmonize dynamic color schemes (e.g. from Material You wallpaper extraction)
+  /// into a beautiful multi-tonal scale with clear contrast steps between
+  /// backgrounds, cards, sheets, elevated surfaces, borders, and vivid accents.
+  static ColorScheme harmonizeDynamicColorScheme(
+    ColorScheme rawScheme,
+    Brightness brightness,
+  ) {
+    final isDark = brightness == Brightness.dark;
+    final primarySeed = rawScheme.primary;
+    final hsl = HSLColor.fromColor(primarySeed);
+    final double h = hsl.hue;
+
+    if (isDark) {
+      // Subtle wallpaper tint saturation for dark background surfaces
+      final double s = hsl.saturation.clamp(0.12, 0.40);
+
+      // Distinct tonal elevation steps in Dark Mode:
+      // Background (8%) -> Sunken (6%) -> Section (11%) -> Card (15%) -> Elevated (19%) -> High Bar/Pill (24%)
+      final Color bg = HSLColor.fromAHSL(1.0, h, s, 0.08).toColor();
+      final Color surface = HSLColor.fromAHSL(1.0, h, s, 0.08).toColor();
+      final Color containerLowest = HSLColor.fromAHSL(1.0, h, s, 0.06).toColor();
+      final Color containerLo = HSLColor.fromAHSL(1.0, h, s, 0.11).toColor();
+      final Color container = HSLColor.fromAHSL(1.0, h, s, 0.15).toColor();
+      final Color containerHi = HSLColor.fromAHSL(1.0, h, s, 0.19).toColor();
+      final Color containerHiHi = HSLColor.fromAHSL(1.0, h, s, 0.24).toColor();
+
+      // High-vibrancy accents for buttons, icons, and indicators
+      final double accentS = hsl.saturation.clamp(0.70, 0.95);
+      final double accentL = hsl.lightness < 0.5 ? 0.68 : hsl.lightness.clamp(0.60, 0.78);
+      final Color primaryColor = HSLColor.fromAHSL(1.0, h, accentS, accentL).toColor();
+      final Color primaryContainer = HSLColor.fromAHSL(1.0, h, s.clamp(0.25, 0.55), 0.26).toColor();
+      final Color onPrimaryContainer = HSLColor.fromAHSL(1.0, h, 0.85, 0.92).toColor();
+
+      final Color secondaryColor = HSLColor.fromAHSL(
+        1.0,
+        (h + 25) % 360,
+        accentS * 0.85,
+        (accentL - 0.08).clamp(0.50, 0.75),
+      ).toColor();
+      final Color secondaryContainer = HSLColor.fromAHSL(
+        1.0,
+        (h + 25) % 360,
+        s.clamp(0.20, 0.45),
+        0.22,
+      ).toColor();
+      final Color onSecondaryContainer = HSLColor.fromAHSL(1.0, (h + 25) % 360, 0.80, 0.90).toColor();
+
+      final Color tertiaryColor = HSLColor.fromAHSL(
+        1.0,
+        (h + 55) % 360,
+        accentS * 0.90,
+        accentL,
+      ).toColor();
+
+      final Color outline = HSLColor.fromAHSL(1.0, h, s * 0.6, 0.35).toColor();
+      final Color outlineVariant = HSLColor.fromAHSL(1.0, h, s * 0.5, 0.22).toColor();
+
+      return rawScheme.copyWith(
+        brightness: Brightness.dark,
+        primary: primaryColor,
+        onPrimary: const Color(0xFF001F2A),
+        primaryContainer: primaryContainer,
+        onPrimaryContainer: onPrimaryContainer,
+        secondary: secondaryColor,
+        onSecondary: const Color(0xFF001F2A),
+        secondaryContainer: secondaryContainer,
+        onSecondaryContainer: onSecondaryContainer,
+        tertiary: tertiaryColor,
+        surface: surface,
+        onSurface: Colors.white,
+        onSurfaceVariant: HSLColor.fromAHSL(1.0, h, 0.15, 0.80).toColor(),
+        surfaceContainerLowest: containerLowest,
+        surfaceContainerLow: containerLo,
+        surfaceContainer: container,
+        surfaceContainerHigh: containerHi,
+        surfaceContainerHighest: containerHiHi,
+        outline: outline,
+        outlineVariant: outlineVariant,
+        scrim: bg,
+      );
+    } else {
+      // Light Mode
+      final double s = hsl.saturation.clamp(0.06, 0.20);
+
+      // Distinct tonal elevation steps in Light Mode:
+      // Scaffold (98%) -> Surface (97%) -> Inset Card (100% pure white) -> Section (95%) -> Card (92%) -> Elevated (88%) -> Bar/Pill (84%)
+      final Color bg = HSLColor.fromAHSL(1.0, h, s, 0.98).toColor();
+      final Color surface = HSLColor.fromAHSL(1.0, h, s, 0.97).toColor();
+      final Color containerLowest = Colors.white;
+      final Color containerLo = HSLColor.fromAHSL(1.0, h, s, 0.95).toColor();
+      final Color container = HSLColor.fromAHSL(1.0, h, s, 0.92).toColor();
+      final Color containerHi = HSLColor.fromAHSL(1.0, h, s, 0.88).toColor();
+      final Color containerHiHi = HSLColor.fromAHSL(1.0, h, s, 0.84).toColor();
+
+      final double accentS = hsl.saturation.clamp(0.70, 0.95);
+      final Color primaryColor = HSLColor.fromAHSL(1.0, h, accentS, 0.38).toColor();
+      final Color primaryContainer = HSLColor.fromAHSL(1.0, h, s.clamp(0.15, 0.45), 0.88).toColor();
+      final Color onPrimaryContainer = HSLColor.fromAHSL(1.0, h, 0.90, 0.15).toColor();
+
+      final Color secondaryColor = HSLColor.fromAHSL(
+        1.0,
+        (h + 25) % 360,
+        accentS * 0.80,
+        0.42,
+      ).toColor();
+      final Color secondaryContainer = HSLColor.fromAHSL(
+        1.0,
+        (h + 25) % 360,
+        s.clamp(0.15, 0.40),
+        0.88,
+      ).toColor();
+      final Color onSecondaryContainer = HSLColor.fromAHSL(1.0, (h + 25) % 360, 0.85, 0.18).toColor();
+
+      final Color tertiaryColor = HSLColor.fromAHSL(
+        1.0,
+        (h + 55) % 360,
+        accentS * 0.85,
+        0.40,
+      ).toColor();
+
+      final Color outline = HSLColor.fromAHSL(1.0, h, s * 0.8, 0.55).toColor();
+      final Color outlineVariant = HSLColor.fromAHSL(1.0, h, s * 0.6, 0.78).toColor();
+
+      return rawScheme.copyWith(
+        brightness: Brightness.light,
+        primary: primaryColor,
+        onPrimary: Colors.white,
+        primaryContainer: primaryContainer,
+        onPrimaryContainer: onPrimaryContainer,
+        secondary: secondaryColor,
+        onSecondary: Colors.white,
+        secondaryContainer: secondaryContainer,
+        onSecondaryContainer: onSecondaryContainer,
+        tertiary: tertiaryColor,
+        surface: surface,
+        onSurface: const Color(0xFF191C1E),
+        onSurfaceVariant: HSLColor.fromAHSL(1.0, h, 0.15, 0.35).toColor(),
+        surfaceContainerLowest: containerLowest,
+        surfaceContainerLow: containerLo,
+        surfaceContainer: container,
+        surfaceContainerHigh: containerHi,
+        surfaceContainerHighest: containerHiHi,
+        outline: outline,
+        outlineVariant: outlineVariant,
+        scrim: bg,
+      );
+    }
+  }
+
   static ThemeData light({
     String? fontFamily,
     ColorScheme? dynamicColorScheme,
@@ -223,7 +372,7 @@ class AppTheme {
       final Color navigationBarBackground = micaEnabled
           ? micaTint
           : (hasDynamicColor
-                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.8)
                 : (isDark
                       ? OasisColors.deep.withValues(alpha: 0.6)
                       : _m3eLightSurfaceContainer));
@@ -231,13 +380,13 @@ class AppTheme {
       final Color cardColor = micaEnabled
           ? micaTint
           : (hasDynamicColor
-                ? colorScheme.surfaceContainerHigh
+                ? colorScheme.surfaceContainer
                 : (isDark ? OasisColors.moss : _m3eLightSurfaceContainerLow));
 
       final Color appBarBackground = micaEnabled
           ? micaSurface
           : (hasDynamicColor
-                ? colorScheme.surface.withValues(alpha: 0.6)
+                ? colorScheme.surface.withValues(alpha: 0.85)
                 : (isDark
                       ? OasisColors.deep.withValues(alpha: 0.6)
                       : _m3eLightSurface));
@@ -245,7 +394,7 @@ class AppTheme {
       final Color inputFillColor = micaEnabled
           ? micaTint
           : (hasDynamicColor
-                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+                ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
                 : (isDark
                       ? OasisColors.moss.withValues(alpha: 0.5)
                       : _m3eLightSurfaceContainerLow));
@@ -417,6 +566,15 @@ class AppTheme {
             color: colorScheme.error,
           ),
         ),
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+            TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+          },
+        ),
         extensions: [isDark ? AppThemeExtension.dark : AppThemeExtension.light],
       );
     }
@@ -454,7 +612,7 @@ class AppTheme {
     final Color appBarBackground = micaEnabled
         ? micaSurface
         : (hasDynamicColor
-              ? colorScheme.surface.withValues(alpha: 0.6)
+              ? colorScheme.surface.withValues(alpha: 0.85)
               : (isDark
                     ? OasisColors.deep.withValues(alpha: 0.6)
                     : _lightBackgroundColor));
@@ -462,13 +620,13 @@ class AppTheme {
     final Color cardColor = micaEnabled
         ? micaTint
         : (hasDynamicColor
-              ? colorScheme.surfaceContainerHigh
+              ? colorScheme.surfaceContainer
               : (isDark ? OasisColors.moss : _lightSurfaceColor));
 
     final Color inputFillColor = micaEnabled
         ? micaTint
         : (hasDynamicColor
-              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.6)
               : ((isDark ? OasisColors.moss : _lightSurfaceColor).withValues(
                   alpha: isDark ? 0.6 : 0.3,
                 )));
@@ -476,7 +634,7 @@ class AppTheme {
     final Color navigationBarBackground = micaEnabled
         ? micaTint
         : (hasDynamicColor
-              ? colorScheme.surface.withValues(alpha: 0.6)
+              ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.8)
               : (isDark
                     ? OasisColors.deep.withValues(alpha: 0.6)
                     : Colors.transparent));
@@ -610,6 +768,15 @@ class AppTheme {
         actionTextColor: colorScheme.primary,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: ZoomPageTransitionsBuilder(),
+          TargetPlatform.linux: ZoomPageTransitionsBuilder(),
+        },
       ),
       extensions: [isDark ? AppThemeExtension.dark : AppThemeExtension.light],
     );

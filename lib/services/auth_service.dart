@@ -18,7 +18,6 @@ import 'package:provider/provider.dart';
 import 'package:oasis/providers/conversation_provider.dart';
 import 'package:oasis/features/profile/presentation/providers/profile_provider.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
-import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
 import 'package:oasis/features/notifications/presentation/providers/notification_provider.dart';
 import 'package:oasis/providers/community_provider.dart';
 import 'package:oasis/providers/presence_provider.dart';
@@ -200,7 +199,6 @@ class AuthService with ChangeNotifier {
     context.read<ConversationProvider>().clear();
     context.read<ProfileProvider>().clear();
     context.read<CircleProvider>().clear();
-    context.read<CanvasProvider>().clear();
     context.read<NotificationProvider>().clear();
     context.read<CommunityProvider>().clear();
     context.read<PresenceProvider>().clear();

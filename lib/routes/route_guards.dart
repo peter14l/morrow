@@ -41,8 +41,6 @@ class AuthRequiredRoutes {
     '/notifications',
     '/profile',
     '/circles',
-    '/canvas',
-    '/capsules',
     '/ripples',
     '/settings',
   };

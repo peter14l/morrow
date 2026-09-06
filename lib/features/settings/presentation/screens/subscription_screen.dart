@@ -205,12 +205,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 ),
                 _buildMatrixRow(
                   context,
-                  'Time Capsules',
-                  '2 Active',
-                  'Unlimited',
-                ),
-                _buildMatrixRow(
-                  context,
                   'Canvases & Circles',
                   '2 Each',
                   'Unlimited',

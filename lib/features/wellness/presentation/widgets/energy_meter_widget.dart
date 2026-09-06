@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/wellness_provider.dart';
+import 'package:oasis/models/energy_meter_state.dart';
+import 'package:oasis/services/energy_meter_service.dart';
 
 /// Persistent overlay widget displaying user's interaction energy
 /// Shows as a subtle, dynamic circular indicator
@@ -44,10 +45,10 @@ class _EnergyMeterWidgetState extends State<EnergyMeterWidget>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<WellnessProvider>(
-      builder: (context, wellnessProvider, child) {
-        final energyMeter = wellnessProvider.energyMeter;
-        final isLowEnergy = energyMeter?.isLowEnergy ?? false;
+    return Consumer<EnergyMeterService>(
+      builder: (context, energyMeterService, child) {
+        final energyMeter = energyMeterService.state;
+        final isLowEnergy = energyMeter.isLowEnergy;
 
         return Stack(
           children: [
@@ -97,11 +98,11 @@ class _EnergyMeterWidgetState extends State<EnergyMeterWidget>
     );
   }
 
-  Widget _buildEnergyIndicator(energyMeter) {
+  Widget _buildEnergyIndicator(EnergyMeterState energyMeter) {
     final theme = Theme.of(context);
-    final percentage = energyMeter?.energyPercentage ?? 1.0;
-    final color = energyMeter?.energyColor ?? Colors.green;
-    final currentEnergy = energyMeter?.currentEnergy ?? 100.0;
+    final percentage = energyMeter.energyPercentage;
+    final color = energyMeter.energyColor;
+    final currentEnergy = energyMeter.currentEnergy;
 
     return Container(
       padding: const EdgeInsets.all(8),

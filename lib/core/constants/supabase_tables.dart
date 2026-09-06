@@ -34,7 +34,6 @@ class SupabaseTables {
   static const String tableMessageMediaViews = 'message_media_views';
   static const String tableTypingIndicators = 'typing_indicators';
   static const String tableStories = 'stories';
-  static const String tableTimeCapsules = 'time_capsules';
 
   // ─── RPC Functions ─────────────────────────────────────────────────
   static const String fnGetFeedPosts = 'get_feed_posts';

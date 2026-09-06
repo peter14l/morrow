@@ -24,8 +24,6 @@ import 'package:oasis/features/circles/presentation/screens/circle_detail_screen
 import 'package:oasis/features/circles/presentation/screens/create_circle_screen.dart';
 import 'package:oasis/features/circles/presentation/screens/create_commitment_screen.dart';
 
-import 'package:oasis/features/canvas/presentation/screens/timeline_canvas_screen.dart';
-import 'package:oasis/features/canvas/presentation/screens/create_canvas_screen.dart';
 
 import 'package:oasis/features/messages/presentation/screens/direct_messages_screen.dart'
     as messages;
@@ -36,6 +34,8 @@ import 'package:oasis/themes/theme_provider.dart';
 import 'package:oasis/features/messages/data/encryption_service.dart';
 import 'package:oasis/core/extensions/context_extensions.dart';
 import 'package:oasis/widgets/security_upgrade_banner.dart';
+import 'package:oasis/widgets/adaptive/adaptive_scaffold.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 import 'package:oasis/widgets/security_pin_sheet.dart';
 import 'package:oasis/widgets/encryption_pin_overlay.dart';
 import 'package:oasis/features/calling/presentation/screens/calling_screen.dart';
@@ -81,8 +81,6 @@ import '../screens/legal/privacy_policy_screen.dart';
 import '../screens/legal/terms_of_service_screen.dart';
 import '../features/auth/presentation/screens/onboarding_screen.dart';
 import '../features/onboarding/onboarding_shell.dart';
-import '../features/capsules/presentation/screens/create_capsule_screen.dart';
-import '../features/capsules/presentation/screens/capsule_view_screen.dart';
 import '../features/circles/presentation/screens/circle_join_screen.dart';
 import 'package:oasis/features/ripples/presentation/screens/ripples_screen.dart';
 import 'package:oasis/features/ripples/presentation/screens/create_ripple_screen.dart';
@@ -612,7 +610,7 @@ class _MainLayoutState extends State<MainLayout> {
     final isM3E = themeProvider.isM3EEnabled;
 
     if (currentIndex == 2) {
-      // Spaces tab — no FAB needed, circles/canvas have their own buttons
+      // Spaces tab — no FAB needed, circles have their own buttons
       return null;
     } else if (currentIndex == 0 && !killSwitchActive) {
       // Feed tab FAB — hidden when kill-switch is active
@@ -648,16 +646,6 @@ class _MainLayoutState extends State<MainLayout> {
                     onTap: () {
                       Navigator.pop(context);
                       context.pushNamed('create_ripple');
-                    },
-                  ),
-                  const SizedBox(height: 12),
-                  ListTile(
-                    leading: const Icon(Icons.lock_clock, size: 28),
-                    title: const Text('Time Capsule'),
-                    subtitle: const Text('Seal a message for the future'),
-                    onTap: () {
-                      Navigator.pop(context);
-                      context.pushNamed('create_capsule');
                     },
                   ),
                 ],
@@ -747,28 +735,21 @@ class _MainLayoutState extends State<MainLayout> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(40.0),
           border: Border.all(
-            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.3),
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
             width: 1.0,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(40.0),
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-            child: Container(
-              color: theme.colorScheme.surface.withValues(
-                alpha: 0.7,
-              ), // Semi-transparent tint
-              child: navBar,
-            ),
-          ),
+        child: LiquidGlassWrapper(
+          borderRadius: 40.0,
+          config: LiquidGlassConfig.Medium,
+          child: navBar,
         ),
       ),
     );
@@ -1034,24 +1015,6 @@ class _MainLayoutState extends State<MainLayout> {
             ],
           ),
         ),
-        PopupMenuItem(
-          onTap: () {
-            Future.delayed(const Duration(milliseconds: 10), () {
-              if (context.mounted) context.pushNamed('create_capsule');
-            });
-          },
-          child: Row(
-            children: [
-              Icon(
-                Icons.lock_clock,
-                size: 20,
-                color: colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 12),
-              const Text('Time Capsule'),
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -1180,14 +1143,6 @@ class _MainLayoutState extends State<MainLayout> {
               onPressed: () {
                 _fluentCreateFlyoutController.close();
                 if (mounted) context.pushNamed('create_ripple');
-              },
-            ),
-            fluent.MenuFlyoutItem(
-              leading: const Icon(fluent.FluentIcons.history),
-              text: const Text('Time Capsule'),
-              onPressed: () {
-                _fluentCreateFlyoutController.close();
-                if (mounted) context.pushNamed('create_capsule');
               },
             ),
           ],
@@ -1384,13 +1339,6 @@ class AppRouter {
                     child: SpacesScreen(initialIndex: 0),
                   ),
                 ),
-                GoRoute(
-                  path: 'canvas',
-                  name: 'spaces_canvas',
-                  pageBuilder: (context, state) => const NoTransitionPage(
-                    child: SpacesScreen(initialIndex: 1),
-                  ),
-                ),
               ],
             ),
 
@@ -1484,16 +1432,6 @@ class AppRouter {
           ),
         ),
 
-        // Canvas Creation
-        GoRoute(
-          path: '/spaces/canvas/create',
-          name: 'create_canvas',
-          parentNavigatorKey: rootNavigatorKey,
-          pageBuilder: (context, state) => const MaterialPage(
-            fullscreenDialog: true,
-            child: CreateCanvasScreen(),
-          ),
-        ),
 
         // Circle Detail
         GoRoute(
@@ -1517,16 +1455,6 @@ class AppRouter {
           ],
         ),
 
-        // Canvas Detail
-        GoRoute(
-          path: '/spaces/canvas/:canvasId',
-          name: 'canvas_detail',
-          parentNavigatorKey: rootNavigatorKey,
-          builder: (context, state) {
-            final id = state.pathParameters['canvasId']!;
-            return TimelineCanvasScreen(canvasId: id);
-          },
-        ),
 
         // New Message Group
         GoRoute(
@@ -1682,29 +1610,6 @@ class AppRouter {
               fullscreenDialog: true,
               child: CreatePostScreen(communityId: communityId),
             );
-          },
-        ),
-
-        // Create Time Capsule Modal
-        GoRoute(
-          path: '/create-capsule',
-          name: 'create_capsule',
-          pageBuilder: (context, state) {
-            return MaterialPage(
-              key: state.pageKey,
-              fullscreenDialog: true,
-              child: const CreateCapsuleScreen(),
-            );
-          },
-        ),
-
-        // View Time Capsule (Deep Link)
-        GoRoute(
-          path: '/capsule/:capsuleId',
-          name: 'view_capsule',
-          builder: (context, state) {
-            final id = state.pathParameters['capsuleId']!;
-            return CapsuleViewScreen(capsuleId: id);
           },
         ),
 

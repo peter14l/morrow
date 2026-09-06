@@ -149,8 +149,8 @@ class _DownloadDataScreenState extends State<DownloadDataScreen> {
                 const Divider(height: 16),
                 _buildExportItem(
                   icon: Icons.lock_outline,
-                  title: 'Encrypted Time Capsules',
-                  format: 'JSON metadata & binary ciphertexts',
+                  title: 'Encrypted Vault Data',
+                  format: 'Encrypted files & private notes',
                 ),
                 const Divider(height: 16),
                 _buildExportItem(

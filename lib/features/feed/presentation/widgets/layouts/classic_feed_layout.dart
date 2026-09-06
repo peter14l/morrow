@@ -5,7 +5,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:oasis/features/feed/presentation/providers/feed_provider.dart';
 import 'package:oasis/features/stories/presentation/providers/stories_provider.dart';
 import 'package:oasis/features/feed/presentation/widgets/stories_bar.dart';
-import 'package:oasis/features/capsules/presentation/widgets/capsule_carousel.dart';
 import 'package:oasis/core/utils/responsive_layout.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/features/monetization/presentation/widgets/privacy_ad_banner.dart';
@@ -87,12 +86,6 @@ class ClassicFeedLayout extends StatelessWidget {
                 ),
               ),
 
-              const SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: CapsuleCarousel(),
-                ),
-              ),
 
               Consumer<FeedProvider>(
                 builder: (context, provider, _) {

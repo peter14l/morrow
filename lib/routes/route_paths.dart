@@ -25,15 +25,7 @@ class RoutePaths {
   static const String circleDetail = '/circles/:id';
   static const String circleJoin = '/circles/join';
   static const String createCommitment = '/circles/:id/commitment/create';
-  static const String canvas = '/canvas';
-  static const String createCanvas = '/canvas/create';
-  static const String canvasDetail = '/canvas/:id';
-  static const String timelineCanvas = '/canvas/:id/timeline';
-  static const String capsules = '/capsules';
-  static const String createCapsule = '/capsules/create';
-  static const String capsuleView = '/capsules/:id';
   static const String ripples = '/ripples';
-  static const String createRipple = '/ripples/create';
   static const String stories = '/stories';
   static const String createStory = '/stories/create';
   static const String storyView = '/stories/:id';

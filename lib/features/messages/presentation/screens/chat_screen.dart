@@ -942,21 +942,28 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                     },
                                     child: Container(
                                       margin: const EdgeInsets.only(right: 8),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 10,
-                                      ),
                                       decoration: BoxDecoration(
-                                        color: bubbleColor,
                                         borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white.withValues(alpha: 0.15),
+                                          width: 1,
+                                        ),
                                       ),
-                                      child: Text(
-                                        reply,
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              color: textColor,
-                                              fontWeight: FontWeight.w500,
-                                            ),
+                                      child: LiquidGlassWrapper(
+                                        borderRadius: 20,
+                                        config: LiquidGlassConfig.Light,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 10,
+                                        ),
+                                        child: Text(
+                                          reply,
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                color: textColor,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                        ),
                                       ),
                                     ),
                                   );

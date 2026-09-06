@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
@@ -14,6 +14,9 @@ class LiquidGlassConfig {
   final Color glassColor;
   final double lightIntensity;
   final double saturation;
+  final double refractiveIndex;
+  final double lightAngle;
+  final double chromaticAberration;
 
   const LiquidGlassConfig({
     required this.thickness,
@@ -21,7 +24,23 @@ class LiquidGlassConfig {
     required this.glassColor,
     this.lightIntensity = 1.0,
     this.saturation = 1.0,
+    this.refractiveIndex = 1.45,
+    this.lightAngle = -0.75,
+    this.chromaticAberration = 0.01,
   });
+
+  LiquidGlassSettings toSettings() {
+    return LiquidGlassSettings(
+      thickness: thickness,
+      blur: blur,
+      glassColor: glassColor,
+      lightIntensity: lightIntensity,
+      saturation: saturation,
+      refractiveIndex: refractiveIndex,
+      lightAngle: lightAngle,
+      chromaticAberration: chromaticAberration,
+    );
+  }
 
   static const Light = LiquidGlassConfig(
     thickness: 8,
@@ -29,6 +48,8 @@ class LiquidGlassConfig {
     glassColor: Color(0x1AFFFFFF),
     lightIntensity: 0.8,
     saturation: 1.0,
+    refractiveIndex: 1.45,
+    lightAngle: -0.75,
   );
 
   static const Medium = LiquidGlassConfig(
@@ -37,6 +58,8 @@ class LiquidGlassConfig {
     glassColor: Color(0x33FFFFFF),
     lightIntensity: 1.0,
     saturation: 1.1,
+    refractiveIndex: 1.45,
+    lightAngle: -0.75,
   );
 
   static const Strong = LiquidGlassConfig(
@@ -45,10 +68,12 @@ class LiquidGlassConfig {
     glassColor: Color(0x4DFFFFFF),
     lightIntensity: 1.5,
     saturation: 1.2,
+    refractiveIndex: 1.45,
+    lightAngle: -0.75,
   );
 }
 
-/// A simplified renderer for liquid glass effect
+/// A simplified renderer for liquid glass effect using liquid_glass_widgets
 class LiquidGlassRenderer extends StatelessWidget {
   final Widget child;
   final double borderRadius;
@@ -57,6 +82,12 @@ class LiquidGlassRenderer extends StatelessWidget {
   final Color glassColor;
   final double lightIntensity;
   final double saturation;
+  final double refractiveIndex;
+  final double lightAngle;
+  final double chromaticAberration;
+  final LiquidShape? shape;
+  final GlassQuality? quality;
+  final Clip clipBehavior;
 
   const LiquidGlassRenderer({
     super.key,
@@ -67,23 +98,36 @@ class LiquidGlassRenderer extends StatelessWidget {
     required this.glassColor,
     this.lightIntensity = 1.0,
     this.saturation = 1.0,
+    this.refractiveIndex = 1.45,
+    this.lightAngle = -0.75,
+    this.chromaticAberration = 0.01,
+    this.shape,
+    this.quality,
+    this.clipBehavior = Clip.none,
   });
 
   @override
   Widget build(BuildContext context) {
-    return LiquidGlass.withOwnLayer(
-      shape: LiquidRoundedRectangle(
-        borderRadius: borderRadius,
-      ),
-      settings: LiquidGlassSettings(
-        thickness: thickness,
-        blur: blur,
-        glassColor: glassColor,
-        lightIntensity: lightIntensity,
-        saturation: saturation,
-        refractiveIndex: 1.45,
-        lightAngle: -0.75,
-      ),
+    final liquidShape = shape ??
+        LiquidRoundedSuperellipse(borderRadius: borderRadius);
+
+    final settings = LiquidGlassSettings(
+      thickness: thickness,
+      blur: blur,
+      glassColor: glassColor,
+      lightIntensity: lightIntensity,
+      saturation: saturation,
+      refractiveIndex: refractiveIndex,
+      lightAngle: lightAngle,
+      chromaticAberration: chromaticAberration,
+    );
+
+    return AdaptiveGlass(
+      useOwnLayer: true,
+      shape: liquidShape,
+      settings: settings,
+      quality: quality ?? GlassQuality.standard,
+      clipBehavior: clipBehavior,
       child: child,
     );
   }
@@ -94,38 +138,56 @@ class LiquidGlassWrapper extends StatelessWidget {
   final Widget child;
   final double? borderRadius;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final Color? backgroundColor;
   final LiquidGlassConfig config;
+  final LiquidShape? shape;
+  final GlassQuality? quality;
+  final Clip clipBehavior;
 
   const LiquidGlassWrapper({
     super.key,
     required this.child,
     this.borderRadius,
     this.padding,
+    this.margin,
     this.backgroundColor,
     this.config = LiquidGlassConfig.Medium,
+    this.shape,
+    this.quality,
+    this.clipBehavior = Clip.none,
   });
 
   @override
   Widget build(BuildContext context) {
-    final settings = context.watch<UserSettingsProvider>();
-    final mode = settings.liquidGlassMode;
+    UserSettingsProvider? settings;
+    try {
+      settings = context.watch<UserSettingsProvider>();
+    } catch (_) {}
+
+    final mode = settings?.liquidGlassMode ?? LiquidGlassMode.real;
     final isSolid = ContextX(context).shouldUseSolidBackground;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final effectiveRadius = borderRadius ?? 20.0;
 
     if (mode == LiquidGlassMode.disabled || isSolid) {
-      // No glass effect - return child with solid background if isSolid
       if (isSolid) {
         return Container(
+          margin: margin,
           padding: padding,
+          clipBehavior: clipBehavior,
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF1A1D24) : Colors.white,
-            borderRadius: BorderRadius.circular(borderRadius ?? 20),
+            borderRadius: BorderRadius.circular(effectiveRadius),
           ),
           child: child,
         );
       }
-      return child;
+      return Container(
+        margin: margin,
+        padding: padding,
+        child: child,
+      );
     }
 
     final bgColor =
@@ -134,24 +196,41 @@ class LiquidGlassWrapper extends StatelessWidget {
             ? Colors.white.withValues(alpha: 0.1)
             : Colors.white.withValues(alpha: 0.3));
 
-    final isMobile = defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS;
-
-    if (mode == LiquidGlassMode.fake || !isMobile) {
+    if (mode == LiquidGlassMode.fake) {
       return _FakeGlassWrapper(
-        borderRadius: borderRadius ?? 20,
+        borderRadius: effectiveRadius,
         padding: padding,
+        margin: margin,
         bgColor: bgColor,
+        clipBehavior: clipBehavior,
         child: child,
       );
     }
 
-    // Real liquid glass
-    return _RealLiquidGlassWrapper(
-      borderRadius: borderRadius ?? 20,
+    // Real Apple-grade liquid glass
+    final glassColor = backgroundColor ??
+        (isDark
+            ? config.glassColor.withValues(alpha: (config.glassColor.a * 0.7).clamp(0.0, 1.0))
+            : config.glassColor);
+
+    return Container(
+      margin: margin,
       padding: padding,
-      bgColor: bgColor,
-      config: config,
-      child: child,
+      child: LiquidGlassRenderer(
+        borderRadius: effectiveRadius,
+        shape: shape,
+        thickness: config.thickness,
+        blur: config.blur,
+        glassColor: glassColor,
+        lightIntensity: config.lightIntensity,
+        saturation: config.saturation,
+        refractiveIndex: config.refractiveIndex,
+        lightAngle: config.lightAngle,
+        chromaticAberration: config.chromaticAberration,
+        quality: quality,
+        clipBehavior: clipBehavior,
+        child: child,
+      ),
     );
   }
 }
@@ -160,19 +239,26 @@ class _FakeGlassWrapper extends StatelessWidget {
   final Widget child;
   final double borderRadius;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
   final Color bgColor;
+  final Clip clipBehavior;
 
   const _FakeGlassWrapper({
     required this.child,
     required this.borderRadius,
     this.padding,
+    this.margin,
     required this.bgColor,
+    this.clipBehavior = Clip.none,
   });
+
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {
       return Container(
+        margin: margin,
         padding: padding,
+        clipBehavior: clipBehavior,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(borderRadius),
@@ -185,53 +271,24 @@ class _FakeGlassWrapper extends StatelessWidget {
       );
     }
     return Container(
-      padding: padding,
+      margin: margin,
       decoration: BoxDecoration(
         color: bgColor,
         borderRadius: BorderRadius.circular(borderRadius),
         border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
+          color: Colors.white.withValues(alpha: 0.15),
           width: 0.5,
         ),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius),
+        clipBehavior: clipBehavior,
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: child,
+          child: padding != null
+              ? Padding(padding: padding!, child: child)
+              : child,
         ),
-      ),
-    );
-  }
-}
-
-class _RealLiquidGlassWrapper extends StatelessWidget {
-  final Widget child;
-  final double borderRadius;
-  final EdgeInsetsGeometry? padding;
-  final Color bgColor;
-  final LiquidGlassConfig config;
-
-  const _RealLiquidGlassWrapper({
-    required this.child,
-    required this.borderRadius,
-    this.padding,
-    required this.bgColor,
-    required this.config,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: padding,
-      child: LiquidGlassRenderer(
-        borderRadius: borderRadius,
-        thickness: config.thickness,
-        blur: config.blur,
-        glassColor: config.glassColor,
-        lightIntensity: config.lightIntensity,
-        saturation: config.saturation,
-        child: child,
       ),
     );
   }
@@ -242,14 +299,22 @@ extension LiquidGlassExtension on Widget {
   Widget withLiquidGlass({
     double borderRadius = 20,
     EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
     Color? backgroundColor,
     LiquidGlassConfig config = LiquidGlassConfig.Medium,
+    LiquidShape? shape,
+    GlassQuality? quality,
+    Clip clipBehavior = Clip.none,
   }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
       padding: padding,
+      margin: margin,
       backgroundColor: backgroundColor,
       config: config,
+      shape: shape,
+      quality: quality,
+      clipBehavior: clipBehavior,
       child: this,
     );
   }
@@ -260,10 +325,13 @@ extension LiquidGlassFAB on Widget {
   Widget asLiquidGlassFAB({
     double borderRadius = 100,
     LiquidGlassConfig config = LiquidGlassConfig.Medium,
+    GlassQuality? quality,
   }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
+      shape: const LiquidOval(),
       config: config,
+      quality: quality,
       child: this,
     );
   }
@@ -273,11 +341,18 @@ extension LiquidGlassFAB on Widget {
 extension LiquidGlassCard on Widget {
   Widget asLiquidGlassCard({
     double borderRadius = 20,
+    EdgeInsetsGeometry? padding,
+    EdgeInsetsGeometry? margin,
     LiquidGlassConfig config = LiquidGlassConfig.Medium,
+    GlassQuality? quality,
   }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
+      shape: LiquidRoundedSuperellipse(borderRadius: borderRadius),
+      padding: padding,
+      margin: margin,
       config: config,
+      quality: quality,
       child: this,
     );
   }
@@ -288,13 +363,16 @@ extension LiquidGlassDialog on Widget {
   Widget asLiquidGlassDialog({
     double borderRadius = 28,
     LiquidGlassConfig config = LiquidGlassConfig.Medium,
+    GlassQuality? quality,
   }) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
         child: LiquidGlassWrapper(
           borderRadius: borderRadius,
+          shape: LiquidRoundedSuperellipse(borderRadius: borderRadius),
           config: config,
+          quality: quality,
           child: Material(color: Colors.transparent, child: this),
         ),
       ),
@@ -307,10 +385,13 @@ extension LiquidGlassBottomSheet on Widget {
   Widget asLiquidGlassBottomSheet({
     double borderRadius = 24,
     LiquidGlassConfig config = LiquidGlassConfig.Light,
+    GlassQuality? quality,
   }) {
     return LiquidGlassWrapper(
       borderRadius: borderRadius,
+      shape: LiquidRoundedRectangle(borderRadius: borderRadius),
       config: config,
+      quality: quality,
       child: ClipRRect(
         borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
         child: this,

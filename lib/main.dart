@@ -30,7 +30,6 @@ import 'package:oasis/services/deep_link_service.dart';
 import 'package:oasis/services/vault_service.dart';
 import 'package:oasis/services/wellness_service.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
-import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
 import 'package:flutter/services.dart' as services;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:oasis/firebase_options.dart';
@@ -58,6 +57,7 @@ import 'package:dynamic_color/dynamic_color.dart';
 import 'package:oasis/widgets/lifecycle_manager.dart';
 import 'package:oasis/widgets/call_navigator.dart';
 import 'package:oasis/features/calling/presentation/screens/incoming_call_overlay_screen.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 // ---------------------------------------------------------------------------
 // Global Shortcuts and Scroll
@@ -428,9 +428,8 @@ class _MyAppState extends State<MyApp> {
       unawaited(
         Future.delayed(const Duration(milliseconds: 500), () {
           if (mounted) {
-            debugPrint('[MainApp] Triggering Circle and Canvas loading');
+            debugPrint('[MainApp] Triggering Circle loading');
             context.read<CircleProvider>().loadCircles(userId);
-            context.read<CanvasProvider>().loadCanvases(userId);
 
             if (AppConfig.enableCalls) {
               debugPrint('[MainApp] Eagerly instantiating CallProvider');
@@ -482,9 +481,15 @@ class _MyAppState extends State<MyApp> {
           material.ColorScheme? lightScheme;
           material.ColorScheme? darkScheme;
 
-          if (themeProvider.useMaterialYou && themeProvider.isM3EEnabled) {
-            lightScheme = lightDynamic;
-            darkScheme = darkDynamic;
+          if (themeProvider.useMaterialYou && lightDynamic != null && darkDynamic != null) {
+            lightScheme = AppTheme.harmonizeDynamicColorScheme(
+              lightDynamic,
+              material.Brightness.light,
+            );
+            darkScheme = AppTheme.harmonizeDynamicColorScheme(
+              darkDynamic,
+              material.Brightness.dark,
+            );
           } else {
             // Always use our HSL palette color scheme so dynamic theme colors
             // are applied app-wide, not just in M3E mode. This prevents
@@ -551,119 +556,127 @@ class _MyAppState extends State<MyApp> {
             }
 
             if (themeProvider.useFluentUI) {
-              return fluent.FluentApp.router(
-                title: 'Oasis',
-                debugShowCheckedModeBanner: false,
-                theme: AppFluentTheme.getTheme(
-                  material.Brightness.light,
-                  materialColorScheme: _cachedLightScheme,
-                  fontFamily: userSettings.fontFamily,
-                  micaEnabled: userSettings.micaEnabled,
-                ),
-                darkTheme: AppFluentTheme.getTheme(
-                  material.Brightness.dark,
-                  materialColorScheme: _cachedDarkScheme,
-                  fontFamily: userSettings.fontFamily,
-                  micaEnabled: userSettings.micaEnabled,
-                ),
-                themeMode: themeProvider.themeMode == material.ThemeMode.system
-                    ? fluent.ThemeMode.system
-                    : themeProvider.themeMode == material.ThemeMode.dark
-                    ? fluent.ThemeMode.dark
-                    : fluent.ThemeMode.light,
-                scrollBehavior: AppScrollBehavior(),
-                routerConfig: router,
-                builder: (context, child) {
-                  return material.ScaffoldMessenger(
-                    child: material.Stack(
-                      children: [
-                        material.Padding(
-                          padding: material.EdgeInsets.only(
-                            top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
-                          ),
-                          child: material.MediaQuery(
-                            data: material.MediaQuery.of(context).copyWith(
-                              textScaler: material.TextScaler.linear(
-                                userSettings.fontSizeFactor,
-                              ),
+              return LiquidGlassWidgets.wrap(
+                adaptiveQuality: true,
+                brightnessResolver: material.Theme.maybeBrightnessOf,
+                child: fluent.FluentApp.router(
+                  title: 'Oasis',
+                  debugShowCheckedModeBanner: false,
+                  theme: AppFluentTheme.getTheme(
+                    material.Brightness.light,
+                    materialColorScheme: _cachedLightScheme,
+                    fontFamily: userSettings.fontFamily,
+                    micaEnabled: userSettings.micaEnabled,
+                  ),
+                  darkTheme: AppFluentTheme.getTheme(
+                    material.Brightness.dark,
+                    materialColorScheme: _cachedDarkScheme,
+                    fontFamily: userSettings.fontFamily,
+                    micaEnabled: userSettings.micaEnabled,
+                  ),
+                  themeMode: themeProvider.themeMode == material.ThemeMode.system
+                      ? fluent.ThemeMode.system
+                      : themeProvider.themeMode == material.ThemeMode.dark
+                      ? fluent.ThemeMode.dark
+                      : fluent.ThemeMode.light,
+                  scrollBehavior: AppScrollBehavior(),
+                  routerConfig: router,
+                  builder: (context, child) {
+                    return material.ScaffoldMessenger(
+                      child: material.Stack(
+                        children: [
+                          material.Padding(
+                            padding: material.EdgeInsets.only(
+                              top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
                             ),
-                            child: GlobalWellnessWrapper(
-                              child: material.Shortcuts(
-                                shortcuts: <material.LogicalKeySet, material.Intent>{
-                                  material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
-                                },
-                                child: material.Actions(
-                                  actions: <Type, material.Action<material.Intent>>{
-                                    EscapeIntent: material.CallbackAction<EscapeIntent>(
-                                      onInvoke: (EscapeIntent intent) {
-                                        if (router.canPop()) router.pop();
-                                        return null;
-                                      },
-                                    ),
+                            child: material.MediaQuery(
+                              data: material.MediaQuery.of(context).copyWith(
+                                textScaler: material.TextScaler.linear(
+                                  userSettings.fontSizeFactor,
+                                ),
+                              ),
+                              child: GlobalWellnessWrapper(
+                                child: material.Shortcuts(
+                                  shortcuts: <material.LogicalKeySet, material.Intent>{
+                                    material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
                                   },
-                                  child: CallNavigator(child: child!),
+                                  child: material.Actions(
+                                    actions: <Type, material.Action<material.Intent>>{
+                                      EscapeIntent: material.CallbackAction<EscapeIntent>(
+                                        onInvoke: (EscapeIntent intent) {
+                                          if (router.canPop()) router.pop();
+                                          return null;
+                                        },
+                                      ),
+                                    },
+                                    child: CallNavigator(child: child!),
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        if (!kIsWeb && Platform.isWindows)
-                          const WindowsTitleBar(height: kWin11TitleBarHeight),
-                        // const FloatingCallOverlay(),
-                      ],
-                    ),
-                  );
-                },
+                          if (!kIsWeb && Platform.isWindows)
+                            const WindowsTitleBar(height: kWin11TitleBarHeight),
+                          // const FloatingCallOverlay(),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               );
             }
 
-            return material.MaterialApp.router(
-              title: 'Oasis',
-              debugShowCheckedModeBanner: false,
-              theme: theme,
-              darkTheme: darkTheme,
-              themeMode: themeProvider.themeMode,
-              scrollBehavior: AppScrollBehavior(),
-              routerConfig: router,
-              builder: (context, child) {
-                return material.Stack(
-                  children: [
-                    material.Padding(
-                      padding: material.EdgeInsets.only(
-                        top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
-                      ),
-                      child: material.MediaQuery(
-                        data: material.MediaQuery.of(context).copyWith(
-                          textScaler: material.TextScaler.linear(
-                            userSettings.fontSizeFactor,
-                          ),
-                          boldText: false,
+            return LiquidGlassWidgets.wrap(
+              adaptiveQuality: true,
+              brightnessResolver: material.Theme.maybeBrightnessOf,
+              child: material.MaterialApp.router(
+                title: 'Oasis',
+                debugShowCheckedModeBanner: false,
+                theme: theme,
+                darkTheme: darkTheme,
+                themeMode: themeProvider.themeMode,
+                scrollBehavior: AppScrollBehavior(),
+                routerConfig: router,
+                builder: (context, child) {
+                  return material.Stack(
+                    children: [
+                      material.Padding(
+                        padding: material.EdgeInsets.only(
+                          top: (!kIsWeb && Platform.isWindows) ? kWin11TitleBarHeight : 0,
                         ),
-                        child: GlobalWellnessWrapper(
-                          child: material.Shortcuts(
-                            shortcuts: <material.LogicalKeySet, material.Intent>{
-                              material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
-                            },
-                            child: material.Actions(
-                              actions: <Type, material.Action<material.Intent>>{
-                                EscapeIntent: material.CallbackAction<EscapeIntent>(
-                                  onInvoke: (EscapeIntent intent) {
-                                    if (router.canPop()) router.pop();
-                                    return null;
-                                  },
-                                ),
+                        child: material.MediaQuery(
+                          data: material.MediaQuery.of(context).copyWith(
+                            textScaler: material.TextScaler.linear(
+                              userSettings.fontSizeFactor,
+                            ),
+                            boldText: false,
+                          ),
+                          child: GlobalWellnessWrapper(
+                            child: material.Shortcuts(
+                              shortcuts: <material.LogicalKeySet, material.Intent>{
+                                material.LogicalKeySet(services.LogicalKeyboardKey.escape): const EscapeIntent(),
                               },
-                              child: CallNavigator(child: child!),
+                              child: material.Actions(
+                                actions: <Type, material.Action<material.Intent>>{
+                                  EscapeIntent: material.CallbackAction<EscapeIntent>(
+                                    onInvoke: (EscapeIntent intent) {
+                                      if (router.canPop()) router.pop();
+                                      return null;
+                                    },
+                                  ),
+                                },
+                                child: CallNavigator(child: child!),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    if (!kIsWeb && Platform.isWindows) const WindowsTitleBar(height: kWin11TitleBarHeight),
-                    // const FloatingCallOverlay(),
-                  ],
-                );
-              },
+                      if (!kIsWeb && Platform.isWindows) const WindowsTitleBar(height: kWin11TitleBarHeight),
+                      // const FloatingCallOverlay(),
+                    ],
+                  );
+                },
+              ),
             );
           },
         );
@@ -678,6 +691,13 @@ void main() async {
   // 1. Initialize Flutter bindings in the Root Zone.
   // This prevents "Zone mismatch" errors if async operations drop the zone.
   material.WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize liquid glass shaders early in parallel with startup
+  try {
+    await LiquidGlassWidgets.initialize();
+  } catch (e) {
+    material.debugPrint('LiquidGlassWidgets early init error: $e');
+  }
 
   // 2. Silence Flutter framework errors that are harmless but messy
   material.FlutterError.onError = (material.FlutterErrorDetails details) {
@@ -768,8 +788,7 @@ void main() async {
         message.contains('[Signal]') ||
         message.contains('[MainApp]') ||
         message.contains('[CircleProvider]') ||
-        message.contains('[CircleRemoteDatasource]') ||
-        message.contains('[CanvasProvider]')) {
+        message.contains('[CircleRemoteDatasource]')) {
       if (kDebugMode) {
         debugPrintThrottled(message, wrapWidth: wrapWidth);
         return;
@@ -808,11 +827,22 @@ void main() async {
 
                 final services = await AppInitializer.initCore();
 
+                // Initialize liquid glass shaders cleanly during startup
+                try {
+                  await LiquidGlassWidgets.initialize();
+                } catch (e) {
+                  material.debugPrint('LiquidGlassWidgets initialization error: $e');
+                }
+
                 runApp(
-                  SentryWidget(
-                    child: AppInitializer.buildProviderTree(
-                      services: services,
-                      child: const LifecycleManager(child: MyApp()),
+                  LiquidGlassWidgets.wrap(
+                    adaptiveQuality: true,
+                    brightnessResolver: material.Theme.maybeBrightnessOf,
+                    child: SentryWidget(
+                      child: AppInitializer.buildProviderTree(
+                        services: services,
+                        child: const LifecycleManager(child: MyApp()),
+                      ),
                     ),
                   ),
                 );

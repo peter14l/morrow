@@ -49,8 +49,6 @@ import 'package:oasis/services/curation_tracking_service.dart';
 import 'package:oasis/services/voice_transcript_service.dart';
 import 'package:oasis/services/digital_wellbeing_service.dart';
 import 'package:oasis/services/update_service.dart';
-import 'package:oasis/features/canvas/presentation/providers/canvas_provider.dart';
-import 'package:oasis/features/capsules/presentation/providers/capsule_provider.dart';
 import 'package:oasis/features/circles/presentation/providers/circle_provider.dart';
 import 'package:oasis/features/circles/data/repositories/circle_repository_impl.dart';
 import 'package:oasis/features/ripples/data/repositories/ripple_repository_impl.dart';
@@ -614,12 +612,10 @@ class AppInitializer {
         ),
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => PartnerProvider()),
-        ChangeNotifierProvider(create: (_) => CanvasProvider()),
         ChangeNotifierProvider(
           create: (_) => CircleProvider(repository: CircleRepositoryImpl()),
         ),
         ChangeNotifierProvider(create: (_) => RipplesProvider()),
-        ChangeNotifierProvider(create: (_) => CapsuleProvider()),
         ChangeNotifierProvider(create: (_) => StoriesProvider()),
         ChangeNotifierProvider(
           create: (_) => CollectionsProvider(

@@ -37,22 +37,5 @@ void main() {
       expect(canCreateMore(canvases, true), isTrue);
       expect(canCreateMore(['c1'], isPro), isTrue);
     });
-
-    test('Time capsule lock duration limit logic', () {
-      final now = DateTime.now();
-      final withinLimit = now.add(const Duration(days: 13));
-      final outsideLimit = now.add(const Duration(days: 15));
-      const bool isPro = false;
-
-      bool isValidDuration(DateTime unlockDate, bool pro) {
-        if (pro) return true;
-        final maxDate = DateTime.now().add(const Duration(days: 14));
-        return !unlockDate.isAfter(maxDate);
-      }
-
-      expect(isValidDuration(withinLimit, isPro), isTrue);
-      expect(isValidDuration(outsideLimit, isPro), isFalse);
-      expect(isValidDuration(outsideLimit, true), isTrue);
-    });
   });
 }

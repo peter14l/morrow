@@ -21,6 +21,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:oasis/widgets/dotted_border_painter.dart';
 import 'package:oasis/widgets/custom_text_field.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 import 'package:oasis/features/messages/presentation/widgets/shared/recording_dot.dart';
 
 /// Chat input area with text field, attachment button, and send/record toggle.
@@ -240,14 +241,28 @@ class _ChatInputAreaState extends State<ChatInputArea> {
       );
     }
 
-    final Widget inputArea = material.Container(
-      padding: const material.EdgeInsets.symmetric(
-        horizontal: 4,
-        vertical: 2,
-      ),
-      decoration: decoration,
-      child: material.Row(
-        crossAxisAlignment: material.CrossAxisAlignment.center,
+    final Widget inputArea = LiquidGlassWrapper(
+      borderRadius: 32,
+      config: LiquidGlassConfig.Medium,
+      backgroundColor: widget.isDesktop
+          ? material.Colors.black.withValues(alpha: 0.8)
+          : null,
+      child: material.Container(
+        padding: const material.EdgeInsets.symmetric(
+          horizontal: 4,
+          vertical: 2,
+        ),
+        decoration: material.BoxDecoration(
+          borderRadius: borderRadius,
+          border: material.Border.all(
+            color: widget.isDesktop
+                ? material.Colors.white.withValues(alpha: 0.15)
+                : colorScheme.outlineVariant.withValues(alpha: 0.25),
+            width: 1.0,
+          ),
+        ),
+        child: material.Row(
+          crossAxisAlignment: material.CrossAxisAlignment.center,
         children: [          // Left actions container (Attachment, Stickers & Spoiler button).
           // They live in a single fixed-size slot so appearing/disappearing or
           // switching on typing never changes the text field's width or the input area's

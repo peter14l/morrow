@@ -11,7 +11,6 @@ import 'package:oasis/features/feed/presentation/widgets/post/post_card_v2.dart'
 import 'package:share_plus/share_plus.dart';
 import 'package:oasis/features/stories/domain/models/story_entity.dart';
 import 'package:oasis/features/feed/presentation/widgets/stories_bar.dart';
-import 'package:oasis/features/capsules/presentation/widgets/capsule_carousel.dart';
 import 'package:oasis/models/feed_layout_strategy.dart';
 import 'package:oasis/features/feed/presentation/widgets/feed_layout_switcher.dart';
 import 'package:oasis/features/ripples/presentation/screens/ripples_screen.dart';
@@ -335,12 +334,6 @@ class _FeedScreenState extends State<FeedScreen>
             ),
           ),
 
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 8),
-              child: CapsuleCarousel(),
-            ),
-          ),
 
           Consumer<FeedProvider>(
             builder: (context, provider, _) {

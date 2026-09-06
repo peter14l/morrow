@@ -12,6 +12,7 @@ import 'package:oasis/core/config/app_config.dart';
 import 'package:oasis/features/messages/presentation/providers/chat_provider.dart';
 import 'package:oasis/features/settings/domain/models/user_settings_entity.dart';
 import 'package:oasis/features/settings/presentation/providers/user_settings_provider.dart';
+import 'package:oasis/widgets/liquid_glass_wrapper.dart';
 
 /// Chat app bar with avatar, presence indicator, encryption lock, and action buttons.
 /// Extracted floating glassmorphic header from chat_screen.dart.
@@ -504,95 +505,14 @@ class _FloatingContainer extends StatelessWidget {
     required this.isCircular,
     this.backgroundUrl,
   });
-@override
-Widget build(BuildContext context) {
-  final theme = Theme.of(context);
-  final colorScheme = theme.colorScheme;
-  final themeProvider = context.watch<ThemeProvider>();
-  final disableTransparency = themeProvider.isM3ETransparencyDisabled || kIsWeb;
-  final liquidGlassMode = context.watch<UserSettingsProvider>().liquidGlassMode;
-  final isDark = theme.brightness == Brightness.dark;
 
-  // Base container with or without liquid glass
-  Container container;
-
-  if (disableTransparency) {
-    container = Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1D24) : Colors.white,
-        borderRadius: isCircular
-            ? BorderRadius.circular(20)
-            : BorderRadius.circular(24),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.2),
-          width: 1,
-        ),
-      ),
+  @override
+  Widget build(BuildContext context) {
+    final effectiveRadius = isCircular ? 20.0 : 24.0;
+    return LiquidGlassWrapper(
+      borderRadius: effectiveRadius,
+      config: LiquidGlassConfig.Medium,
       child: child,
     );
-  } else if (liquidGlassMode != LiquidGlassMode.disabled) {
-
-      // Enhanced liquid glass effect
-      container = Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.15)
-              : Colors.white.withValues(alpha: 0.35),
-          borderRadius: isCircular
-              ? BorderRadius.circular(20)
-              : BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.25),
-            width: 1.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: isCircular
-              ? BorderRadius.circular(20)
-              : BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: liquidGlassMode == LiquidGlassMode.real ? 20 : 12,
-              sigmaY: liquidGlassMode == LiquidGlassMode.real ? 20 : 12,
-            ),
-            child: child,
-          ),
-        ),
-      );
-    } else {
-      // Default glassmorphic (fake glass) - original behavior
-      container = Container(
-        decoration: BoxDecoration(
-          color: backgroundUrl != null
-              ? Colors.black.withValues(alpha: 0.3)
-              : colorScheme.surface.withValues(alpha: 0.6),
-          borderRadius: isCircular
-              ? BorderRadius.circular(20)
-              : BorderRadius.circular(24),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        child: ClipRRect(
-          borderRadius: isCircular
-              ? BorderRadius.circular(20)
-              : BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: child,
-          ),
-        ),
-      );
-    }
-
-    return container;
   }
 }

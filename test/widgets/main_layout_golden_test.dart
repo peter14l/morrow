@@ -55,7 +55,7 @@ class FakeConversationProvider extends ChangeNotifier
 }
 
 class FakeEncryptionService {
-  Future<EncryptionStatus> init() async => EncryptionStatus.setupComplete;
+  Future<EncryptionStatus> init() async => EncryptionStatus.ready;
 }
 
 void main() {

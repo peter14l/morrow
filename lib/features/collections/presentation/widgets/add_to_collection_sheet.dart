@@ -29,15 +29,7 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     try {
       final provider = context.read<CollectionsProvider>();
 
-      // We can just await the use case or method
-      final collectionsResult = await provider.getCollectionsForPostUseCase
-          .call(widget.postId);
-
-      final containingCollections = collectionsResult.fold(
-        onSuccess: (data) => data,
-        onFailure: (_) => <CollectionEntity>[],
-      );
-
+      final containingCollections = await provider.getCollectionsForPost(widget.postId);
       final containingIds = containingCollections.map((c) => c.id).toSet();
 
       if (mounted) {
@@ -60,12 +52,8 @@ class _AddToCollectionSheetState extends State<AddToCollectionSheet> {
     try {
       final provider = context.read<CollectionsProvider>();
       // Get collections that were originally selected
-      final originalResult = await provider.getCollectionsForPostUseCase.call(
+      final originalCollections = await provider.getCollectionsForPost(
         widget.postId,
-      );
-      final originalCollections = originalResult.fold(
-        onSuccess: (data) => data,
-        onFailure: (_) => <CollectionEntity>[],
       );
       final originalIds = originalCollections.map((c) => c.id).toSet();
 
