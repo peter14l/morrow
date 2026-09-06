@@ -303,6 +303,13 @@
 -dontwarn com.screenprotector.**
 
 # ============================================================
+# AndroidX Credentials / ZeroTap Restore
+# ============================================================
+-keep class androidx.credentials.** { *; }
+-keepclassmembers class androidx.credentials.** { *; }
+-dontwarn androidx.credentials.**
+
+# ============================================================
 # R8 Optimization: Strip verbose/debug logs in release mode
 # ============================================================
 -assumenosideeffects class android.util.Log {
@@ -310,3 +317,4 @@
     public static int v(...);
     public static int d(...);
 }
+
